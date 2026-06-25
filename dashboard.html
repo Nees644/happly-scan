@@ -172,7 +172,7 @@ const LEVELS=[{max:40,label:"Nog onbenut",bg:"#FDE8F1",col:"#AA0044"},{max:65,la
 const DIM_COLORS={ok:"#22C55E",warn:"#F59E0B",risk:"#EF4444"};
 const OBS_SHORT={ZR:["Zelfreflectie: sterk ontwikkelgebied","Zelfreflectie: in ontwikkeling","Zelfreflectie: groeiend","Zelfreflectie: in kracht"],ZrR:["Zelfregie: sterk ontwikkelgebied","Zelfregie: in ontwikkeling","Zelfregie: groeiend","Zelfregie: in kracht"],ZS:["Zelfstarten: sterk ontwikkelgebied","Zelfstarten: in ontwikkeling","Zelfstarten: groeiend","Zelfstarten: in kracht"],LR:["Leider-resonantie: urgent","Leider-resonantie: in ontwikkeling","Leider-resonantie: groeiend","Leider-resonantie: in kracht"]};
 
-let STATE={company:null,campaigns:[],results:[],anonymize:false,view:'company',selCampaign:null,selResult:null};
+let STATE={company:null,campaigns:[],results:[],leads:[],anonymize:false,view:'company',selCampaign:null,selResult:null};
 let anonMap={};
 
 function lv(p){for(let l of LEVELS)if(p<=l.max)return l;return LEVELS[3];}
@@ -206,6 +206,8 @@ async function loadData(){
     const {data:results}=await db.from("scan_results").select("*").in("campaign_id",cids);
     STATE.results=results||[];
   }
+  const {data:leads}=await db.from("quick_scan_leads").select("*").order("created_at",{ascending:false});
+  STATE.leads=leads||[];
   render();
 }
 
@@ -304,7 +306,42 @@ function renderCompany(){
     </div>`;
   }).join('')+'</div>';
 
-  document.getElementById("main").innerHTML=statsHTML+heatmapHTML+cardsHTML;
+
+  // Quick Scan Leads sectie
+  let leadsHTML='';
+  if(STATE.leads.length>0){
+    const dimColor2=p=>p<=40?"#CC0066":p<=65?"#E86AA0":p<=85?"#22B07D":"#0F7A5C";
+    const rows=STATE.leads.map(l=>`<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--dp);font-weight:500">${l.name||'Anoniem'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;color:#7A6080;font-weight:300">${l.company||'–'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--pk)">${l.email}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:600;color:${dimColor2(l.score_zr)}">${l.score_zr||'–'}%</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:600;color:${dimColor2(l.score_zrr)}">${l.score_zrr||'–'}%</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:600;color:${dimColor2(l.score_zs)}">${l.score_zs||'–'}%</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--bd);font-size:11px;color:#B0A0C0">${new Date(l.created_at).toLocaleDateString('nl-NL')}</td>
+    </tr>`).join('');
+    leadsHTML=`<div style="background:var(--wt);border-radius:10px;box-shadow:0 1px 8px rgba(26,11,46,.08);overflow:hidden;margin-bottom:28px">
+      <div style="background:var(--dp);padding:14px 20px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.06em;text-transform:uppercase">Quick Scan Leads</span>
+        <span style="font-size:11px;color:var(--pk);font-weight:600">${STATE.leads.length} leads</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#FAF7FC">
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">Naam</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">Bedrijf</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">Email</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">ZR</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">ZrR</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">ZS</th>
+            <th style="padding:10px 14px;font-size:9.5px;font-weight:600;color:#A090B8;letter-spacing:.08em;text-transform:uppercase;text-align:left">Datum</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+  document.getElementById("main").innerHTML=statsHTML+leadsHTML+heatmapHTML+cardsHTML;
 }
 
 function renderTeam(){
