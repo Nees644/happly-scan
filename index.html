@@ -1,1 +1,165 @@
-<meta http-equiv="refresh" content="0; url=dashboard.html?company=demo">
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happly Zelfkracht Scan</title>
+<meta name="description" content="Ontdek hoeveel zelfkracht er in jouw team zit. Start met de gratis Quick Scan van Happly.">
+
+<!-- TOKEN-VANGNET: campagne-deelnemers die met ?token=... op de root binnenkomen,
+     worden direct doorgestuurd naar hun diepte-scan. Draait vóór render, geen flits. -->
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var token=(p.get("token")||"").trim();
+    if(token){
+      var rol=(p.get("rol")||p.get("role")||"").toLowerCase();
+      var lg=(rol==="lg"||rol==="leider"||rol==="leidinggevende");
+      location.replace((lg?"scan_lg.html":"scan_mw.html")+"?token="+encodeURIComponent(token));
+    }
+  }catch(e){}
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1A0B2E;        /* diep paars, merkcover */
+    --ink-soft:#2A1745;
+    --pink:#CC0066;        /* Happly pink */
+    --pink-bright:#E870B8;
+    --cream:#F6F1EE;
+    --cream-dim:#C9BBD2;
+    --line:rgba(246,241,238,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"DM Sans",system-ui,sans-serif;
+    background:var(--ink);
+    color:var(--cream);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  a{color:inherit}
+  .wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* top */
+  header{padding:34px 0 0}
+  .mark{font-family:"DM Serif Display",serif;font-size:26px;letter-spacing:-.01em}
+  .mark span{color:var(--pink)}
+
+  /* hero */
+  .hero{flex:1;display:flex;align-items:center;padding:70px 0 64px;position:relative;overflow:hidden}
+  .hero::after{
+    content:"";position:absolute;right:-180px;top:50%;transform:translateY(-50%);
+    width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle at center,rgba(204,0,102,.32),rgba(204,0,102,0) 68%);
+    pointer-events:none;z-index:0;
+  }
+  .hero .wrap{position:relative;z-index:1}
+  .eyebrow{
+    font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--pink-bright);margin-bottom:26px;
+  }
+  h1{
+    font-family:"DM Serif Display",serif;
+    font-weight:400;
+    font-size:clamp(2.5rem,6.2vw,4.5rem);
+    line-height:1.04;
+    letter-spacing:-.02em;
+    max-width:16ch;
+    margin-bottom:26px;
+  }
+  h1 em{font-style:italic;color:var(--pink-bright)}
+  .lead{font-size:clamp(1.05rem,1.6vw,1.3rem);color:var(--cream-dim);max-width:54ch;margin-bottom:40px}
+
+  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px}
+  .cta{
+    display:inline-flex;align-items:center;gap:12px;
+    background:var(--pink);color:#fff;text-decoration:none;
+    font-weight:700;font-size:1.05rem;
+    padding:17px 30px;border-radius:999px;
+    transition:transform .15s ease,background .15s ease;
+  }
+  .cta:hover{background:var(--pink-bright);transform:translateY(-2px)}
+  .cta:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+  .cta svg{width:18px;height:18px}
+  .meta{font-size:.92rem;color:var(--cream-dim)}
+  .meta b{color:var(--cream);font-weight:500}
+
+  /* drie kerns, bewust plat gehouden */
+  .pillars{border-top:1px solid var(--line);padding:44px 0 60px}
+  .pillars .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
+  .pillar h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.3rem;margin-bottom:8px}
+  .pillar p{font-size:.97rem;color:var(--cream-dim)}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 40px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.88rem;color:var(--cream-dim)}
+  footer a{text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+  footer a:hover{color:var(--cream)}
+
+  @media(max-width:680px){
+    .pillars .wrap{grid-template-columns:1fr;gap:26px}
+    .hero{padding:48px 0}
+    .cta-row{gap:16px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap"><div class="mark">happly<span>.</span></div></div>
+</header>
+
+<main class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Happly Zelfkracht Scan</p>
+    <h1>Hoeveel <em>zelfkracht</em> zit er in jouw team?</h1>
+    <p class="lead">Zelfkracht is het vermogen om te reflecteren, regie te nemen en in actie te komen. De gratis Quick Scan laat in vijf situaties zien waar die kracht al stroomt en waar ze nog vastzit.</p>
+    <div class="cta-row">
+      <a class="cta" href="quick_scan.html">
+        Start de gratis Quick Scan
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <span class="meta"><b>2 minuten</b> · geen account · direct je profiel</span>
+    </div>
+  </div>
+</main>
+
+<section class="pillars">
+  <div class="wrap">
+    <div class="pillar">
+      <h3>Zelfreflectie</h3>
+      <p>Zien wat je stuurt: je triggers, emoties en aangeleerde patronen onder de oppervlakte.</p>
+    </div>
+    <div class="pillar">
+      <h3>Zelfregie</h3>
+      <p>Vanuit een intern kompas kiezen, ook als de druk van buiten hoog is.</p>
+    </div>
+    <div class="pillar">
+      <h3>Zelfstarten</h3>
+      <p>Intentie omzetten in actie. Niet wachten op het juiste gevoel, maar het maken.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Happly · zelfkracht in mens en organisatie</span>
+    <span>Een scan-link van je werkgever? Open die direct, dan kom je in de juiste diepte-scan.</span>
+  </div>
+</footer>
+
+</body>
+</html>
