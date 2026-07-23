@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happly Zelfkracht Scan</title>
-<meta name="description" content="Ontdek hoeveel Zelfkracht er in jouw team zit. Start met de gratis Quick Scan van Happly.">
+<title>Zelfkracht Index · Happly</title>
+<meta name="description" content="Zelfkracht heeft nu een eigen getal. De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt.">
 
-<!-- TOKEN-VANGNET: campagne-deelnemers die met ?token=... op de root binnenkomen,
-     worden direct doorgestuurd naar hun diepte-scan. Draait vóór render, geen flits. -->
+<!-- TOKEN-VANGNET (B2B-spoor, niet verwijderen): campagne-deelnemers die met ?token=...
+     op de root binnenkomen, worden direct doorgestuurd naar hun diepte-scan. -->
 <script>
 (function(){
   try{
@@ -24,13 +24,12 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --ink:#1A0B2E;        /* diep paars, merkcover */
-    --ink-soft:#2A1745;
-    --pink:#D6026F;        /* Happly pink */
+    --ink:#1A0B2E;
+    --pink:#D6026F;
     --pink-bright:#E870B8;
     --cream:#F6F1EE;
     --cream-dim:#C9BBD2;
@@ -51,42 +50,33 @@
   a{color:inherit}
   .wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 28px}
 
-  /* top */
   header{padding:34px 0 0}
-  .mark{font-family:"DM Serif Display",serif;font-size:26px;letter-spacing:-.01em}
-  .mark span{color:var(--pink)}
+  header img{height:26px;display:block}
 
-  /* hero */
-  .hero{flex:1;display:flex;align-items:center;padding:70px 0 64px;position:relative;overflow:hidden}
+  .hero{flex:1;display:flex;align-items:center;padding:64px 0 56px;position:relative;overflow:hidden}
   .hero::after{
     content:"";position:absolute;right:-180px;top:50%;transform:translateY(-50%);
     width:520px;height:520px;border-radius:50%;
-    background:radial-gradient(circle at center,rgba(214,2,111,.32),rgba(214,2,111,0) 68%);
+    background:radial-gradient(circle at center,rgba(214,2,111,.30),rgba(214,2,111,0) 68%);
     pointer-events:none;z-index:0;
   }
   .hero .wrap{position:relative;z-index:1}
-  .eyebrow{
-    font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--pink-bright);margin-bottom:26px;
-  }
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink-bright);margin-bottom:26px}
   h1{
-    font-family:"DM Serif Display",serif;
-    font-weight:400;
-    font-size:clamp(2.5rem,6.2vw,4.5rem);
-    line-height:1.04;
-    letter-spacing:-.02em;
-    max-width:16ch;
-    margin-bottom:26px;
+    font-family:"DM Serif Display",serif;font-weight:400;
+    font-size:clamp(2.4rem,5.8vw,4.2rem);
+    line-height:1.06;letter-spacing:-.02em;max-width:17ch;margin-bottom:28px;
   }
   h1 em{font-style:italic;color:var(--pink-bright)}
-  .lead{font-size:clamp(1.05rem,1.6vw,1.3rem);color:var(--cream-dim);max-width:54ch;margin-bottom:40px}
+  .lead{font-size:clamp(1.02rem,1.5vw,1.22rem);font-weight:300;color:var(--cream-dim);max-width:56ch;margin-bottom:16px}
+  .lead b{color:var(--cream);font-weight:500}
+  .lead:last-of-type{margin-bottom:40px}
 
   .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px}
   .cta{
     display:inline-flex;align-items:center;gap:12px;
     background:var(--pink);color:#fff;text-decoration:none;
-    font-weight:700;font-size:1.05rem;
-    padding:17px 30px;border-radius:999px;
+    font-weight:700;font-size:1.05rem;padding:17px 32px;border-radius:999px;
     transition:transform .15s ease,background .15s ease;
   }
   .cta:hover{background:var(--pink-bright);transform:translateY(-2px)}
@@ -95,11 +85,11 @@
   .meta{font-size:.92rem;color:var(--cream-dim)}
   .meta b{color:var(--cream);font-weight:500}
 
-  /* drie kerns, bewust plat gehouden */
   .pillars{border-top:1px solid var(--line);padding:44px 0 60px}
   .pillars .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
-  .pillar h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.3rem;margin-bottom:8px}
-  .pillar p{font-size:.97rem;color:var(--cream-dim)}
+  .pillar .num{font-family:"DM Serif Display",serif;font-size:.95rem;color:var(--pink-bright);margin-bottom:6px}
+  .pillar h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.35rem;margin-bottom:8px}
+  .pillar p{font-size:.97rem;font-weight:300;color:var(--cream-dim)}
 
   footer{border-top:1px solid var(--line);padding:26px 0 40px}
   footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.88rem;color:var(--cream-dim)}
@@ -108,8 +98,7 @@
 
   @media(max-width:680px){
     .pillars .wrap{grid-template-columns:1fr;gap:26px}
-    .hero{padding:48px 0}
-    .cta-row{gap:16px}
+    .hero{padding:46px 0}
   }
   @media(prefers-reduced-motion:reduce){
     *{transition:none!important;scroll-behavior:auto!important}
@@ -119,20 +108,22 @@
 <body>
 
 <header>
-  <div class="wrap"><div class="mark"><img src="happly-logo.svg" alt="Happly" style="height:26px;display:block"></div></div>
+  <div class="wrap"><img src="happly-logo.svg" alt="Happly"></div>
 </header>
 
 <main class="hero">
   <div class="wrap">
-    <p class="eyebrow">Happly Zelfkracht Scan</p>
-    <h1>Hoeveel <em>Zelfkracht</em> zit er in jouw team?</h1>
-    <p class="lead">Zelfkracht is het vermogen om te reflecteren, regie te nemen en in actie te komen. De gratis Quick Scan laat in vijf situaties zien waar die kracht al stroomt en waar ze nog vastzit.</p>
+    <p class="eyebrow">Zelfkracht Index</p>
+    <h1>Zelfkracht heeft nu een <em>eigen getal</em>.</h1>
+    <p class="lead">De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
+    <p class="lead">De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: <b>wat gevormd is, kun je bijstellen.</b></p>
+    <p class="lead">Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
     <div class="cta-row">
-      <a class="cta" href="quick_scan.html">
-        Start de gratis Quick Scan
+      <a class="cta" href="scan">
+        Begin de meting
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <span class="meta"><b>2 minuten</b> · geen account · direct je profiel</span>
+      <span class="meta"><b>12 stellingen</b> · 3 tot 4 minuten · direct je score</span>
     </div>
   </div>
 </main>
@@ -140,16 +131,19 @@
 <section class="pillars">
   <div class="wrap">
     <div class="pillar">
-      <h3>Zelfreflectie</h3>
-      <p>Zien wat je stuurt: je triggers, emoties en aangeleerde patronen onder de oppervlakte.</p>
+      <div class="num">Deel 1</div>
+      <h3>Zien</h3>
+      <p>Hoe scherp je doorhebt wat er in je omgaat, welke patronen je herhaalt en wat je uit balans brengt.</p>
     </div>
     <div class="pillar">
-      <h3>Zelfregie</h3>
-      <p>Vanuit een intern kompas kiezen, ook als de druk van buiten hoog is.</p>
+      <div class="num">Deel 2</div>
+      <h3>Sturen</h3>
+      <p>De mate waarin je zelf je richting bepaalt, ook onder druk of tegen verwachtingen in.</p>
     </div>
     <div class="pillar">
-      <h3>Zelfstarten</h3>
-      <p>Intentie omzetten in actie. Niet wachten op het juiste gevoel, maar het maken.</p>
+      <div class="num">Deel 3</div>
+      <h3>Doen</h3>
+      <p>Of je in beweging komt en afmaakt wat je begint, ook als de motivatie wegzakt.</p>
     </div>
   </div>
 </section>
@@ -157,7 +151,7 @@
 <footer>
   <div class="wrap">
     <span>Happly · Zelfkracht in mens en organisatie</span>
-    <span>Een scan-link van je werkgever? Open die direct, dan kom je in de juiste diepte-scan.</span>
+    <span><a href="verantwoording">Hoe deze meting is opgebouwd</a></span>
   </div>
 </footer>
 

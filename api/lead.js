@@ -35,7 +35,7 @@ function mailHtml({ index, zien, sturen, doen, name }){
           ${row("Zien", zien)}${row("Sturen", sturen)}${row("Doen", doen)}
         </table>
         <p style="font-size:14px;color:#3A2E46;line-height:1.65;margin:24px 0 8px;font-style:italic">Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.</p>
-        <p style="font-size:13px;color:#6A5A78;line-height:1.6;margin:20px 0 0">De Index wijst de plek aan. De Zelfkracht Sprint onderzoekt wat en hoe je kunt veranderen. <a href="https://happly.nl" style="color:#D6026F">Meer over de Sprint</a>.</p>
+        <p style="font-size:13px;color:#6A5A78;line-height:1.6;margin:20px 0 0">De Index wijst de plek aan. De Zelfkracht Sprint onderzoekt wat en hoe je kunt veranderen. <a href="https://scan.happly.nl/sprint" style="color:#D6026F">Meer over de Sprint</a>.</p>
       </div>
     </div>
   </div>`;

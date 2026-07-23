@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zelfkracht Sprint · Happly</title>
+<meta name="description" content="De Index wijst de plek aan, de Sprint onderzoekt wat en hoe je kunt veranderen. Zes weken, drie bewegingen, kleine groep. Start 18 september 2026.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78}
+body{font-family:"DM Sans",sans-serif;background:#fff;color:var(--tx);line-height:1.6}
+.hdr{background:var(--dp);padding:20px 0}
+.wrap{max-width:720px;margin:0 auto;padding:0 28px}
+.hdr .wrap{display:flex;justify-content:space-between;align-items:center}
+.hdr img{height:22px}
+.hdr a{font-size:11px;color:rgba(255,255,255,.55);text-decoration:none;letter-spacing:.04em}
+.hdr a:hover{color:#fff}
+main{padding:52px 0 60px}
+.eye{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pk);font-weight:600;margin-bottom:16px}
+h1{font-family:"DM Serif Display",serif;font-size:34px;color:var(--dp);line-height:1.22;margin-bottom:18px}
+h2{font-family:"DM Serif Display",serif;font-size:22px;color:var(--dp);margin:48px 0 14px}
+p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:14px}
+.feiten{font-size:12.5px;color:var(--mut);font-weight:400;margin:18px 0 0}
+.rol{background:var(--rt);border-radius:12px;padding:22px 26px;margin-top:10px}
+.rol p{margin-bottom:0;font-size:14.5px}
+.rol b{font-weight:600;color:var(--dp)}
+.scanlink{font-size:13px;color:var(--mut);font-weight:300;margin-top:14px}
+.scanlink a{color:var(--pk);font-weight:500;text-decoration:none}
+/* weken */
+.bew{margin:20px 0;padding:20px 24px;background:var(--rt);border-radius:11px}
+.bew .bh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.bew h3{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp)}
+.bew .wk{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--pk);font-weight:600}
+.week{display:flex;gap:14px;margin-bottom:10px}
+.week:last-child{margin-bottom:0}
+.week .n{flex-shrink:0;width:52px;font-size:11px;font-weight:600;color:var(--dp);padding-top:2px}
+.week p{font-size:13.5px;margin-bottom:0}
+.week b{font-weight:600;color:var(--dp)}
+.routezin{font-size:13px;color:var(--mut);font-weight:300;font-style:italic;margin-top:14px}
+/* inbegrepen */
+.incl{list-style:none;margin-top:6px}
+.incl li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd);font-size:14px;font-weight:300;color:#2E2438}
+.incl li:last-child{border-bottom:none}
+.incl .dot{flex-shrink:0;width:7px;height:7px;border-radius:50%;background:var(--pk);margin-top:8px}
+.incl b{font-weight:600;color:var(--dp)}
+.incl .opt{color:var(--mut);font-size:12.5px}
+/* prijs */
+.prijs{background:var(--dp);border-radius:14px;padding:30px 32px;margin-top:10px;color:#fff}
+.prijs .groot{font-family:"DM Serif Display",serif;font-size:44px;line-height:1}
+.prijs .door{font-size:16px;color:rgba(255,255,255,.45);text-decoration:line-through;margin-left:10px}
+.prijs .sub{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:8px;font-weight:300}
+.tredes{margin:22px 0;border-top:1px solid rgba(255,255,255,.14)}
+.trede{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:13.5px}
+.trede .t{color:rgba(255,255,255,.85);font-weight:300}
+.trede .p{font-weight:600}
+.trede .nu{font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--pk);padding:3px 10px;border-radius:10px;margin-left:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pk);color:#fff;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:500;padding:14px 32px;border:none;border-radius:8px;cursor:pointer;width:100%}
+.btn.off{opacity:.55;cursor:default}
+.prijs .klein{font-size:12px;color:rgba(255,255,255,.55);margin-top:12px;text-align:center;font-weight:300}
+.foot{border-top:1px solid var(--bd);padding:24px 0;text-align:center;font-size:12px;color:var(--mut)}
+.foot a{color:var(--pk);text-decoration:none;font-weight:500}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="wrap"><img src="happly-logo.svg" alt="Happly"><a href="scan">&larr; Naar de Zelfkracht Index</a></div></header>
+<main><div class="wrap">
+
+  <!-- Blok 1: wat de Sprint met jouw getal doet -->
+  <div class="eye">Zelfkracht Sprint · 6 weken · kleine groep</div>
+  <h1>Je kent je getal.<br>Hier ga je het verzetten.</h1>
+  <div class="rol"><p><b>De Index wijst de plek aan, de Sprint onderzoekt wat en hoe je kunt veranderen.</b> Je uitslag laat zien waar bij jou de meeste ruimte zit; in zes weken werk je gericht op die plek. Aan het eind meet je opnieuw, en zie je zwart op wit wat er verschoven is.</p></div>
+  <p class="scanlink">Nog geen getal? <a href="scan">Doe eerst de Zelfkracht Index</a>, dan weet je waar jouw route begint.</p>
+  <p class="feiten">Start vrijdag 18 september 2026 · zes live sessies, woensdag 20:00 vanaf 23 september · kleine groep</p>
+
+  <!-- Blok 2: de zes weken in drie bewegingen -->
+  <h2>Zes weken, drie bewegingen</h2>
+  <p>Van scherp zien, naar zelf sturen, naar echt in beweging komen. Elke week bouwt op de vorige. In je uitslag staat bij welke weken jouw profiel het meest te halen heeft.</p>
+
+  <div class="bew">
+    <div class="bh"><h3>Zien</h3><span class="wk">Week 1 en 2</span></div>
+    <div class="week"><div class="n">Week 1</div><p><b>Zie het rondje.</b> Je ontdekt op welke momenten je het stuur uit handen geeft, meestal zonder het te merken.</p></div>
+    <div class="week"><div class="n">Week 2</div><p><b>Herken je gewoonte.</b> Wachten, wegwuiven, uitstellen: aangeleerde gewoonten. En wat is aangeleerd, kun je afleren.</p></div>
+  </div>
+  <div class="bew">
+    <div class="bh"><h3>Sturen</h3><span class="wk">Week 3 en 4</span></div>
+    <div class="week"><div class="n">Week 3</div><p><b>Maak het rondje af.</b> Je oefent het moment waarop jij de knoop doorhakt, ook onder druk.</p></div>
+    <div class="week"><div class="n">Week 4</div><p><b>Grenzen en weggaan.</b> Soms is weglopen de sterkste zet. Je leert het verschil tussen opgeven en kiezen.</p></div>
+  </div>
+  <div class="bew">
+    <div class="bh"><h3>Doen</h3><span class="wk">Week 5 en 6</span></div>
+    <div class="week"><div class="n">Week 5</div><p><b>De eerste stap.</b> De kleinste beweging die "ik weet het" verandert in "ik doe het".</p></div>
+    <div class="week"><div class="n">Week 6</div><p><b>Vasthouden.</b> Je maakt er een gewoonte van. En je meet precies hoeveel je verschoof.</p></div>
+  </div>
+  <p class="routezin">Verwees jouw uitslag naar week 3 en 4? Dan begint jouw onderzoek bij Sturen. De andere weken loop je gewoon mee; de nadruk ligt waar jouw ruimte zit.</p>
+
+  <!-- Blok 3: wat erbij zit -->
+  <h2>Dit zit erbij</h2>
+  <ul class="incl">
+    <li><span class="dot"></span><span><b>Het boek Zelfkracht</b> als e-book, de basis onder alles. <span class="opt">Liever op papier? De paperback is een optie.</span></span></li>
+    <li><span class="dot"></span><span><b>Een werkboek</b> waarin je jouw eigen situatie uitwerkt, week voor week.</span></li>
+    <li><span class="dot"></span><span><b>Zes live sessies</b>, elke woensdag om 20:00, in een kleine groep die dezelfde weg loopt.</span></li>
+    <li><span class="dot"></span><span><b>Een meting vooraf en achteraf.</b> Je Index bij de start is je nulpunt; na zes weken meet je opnieuw.</span></li>
+    <li><span class="dot"></span><span><b>Switchr</b>, optioneel, voor een klein zetje elke dag.</span></li>
+  </ul>
+
+  <!-- Blok 4: prijs en voorverkoop -->
+  <h2>Meedoen</h2>
+  <div class="prijs">
+    <div><span class="groot">&euro;245</span><span class="door">&euro;345</span></div>
+    <div class="sub">De startprijs, zolang de eerste plekken er zijn. Hoe eerder je erbij bent, hoe minder je betaalt.</div>
+    <div class="tredes">
+      <div class="trede"><span class="t">Eerste 10 plekken</span><span><span class="p">&euro;245</span><span class="nu">nu geldig</span></span></div>
+      <div class="trede"><span class="t">Volgende 10 plekken</span><span class="p">&euro;295</span></div>
+      <div class="trede"><span class="t">Daarna</span><span class="p">&euro;345</span></div>
+    </div>
+    <!-- PLACEHOLDER: Mollie payment links (3 stuks, één per trede) volgen; knop dan activeren -->
+    <button class="btn off" disabled>Inschrijving opent begin augustus</button>
+    <div class="klein">Start 18 september 2026 · niet goed, geld terug in de eerste week</div>
+  </div>
+
+</div></main>
+<footer class="foot"><div class="wrap">Zelfkracht Sprint · een programma van <a href="https://happly.nl">Happly</a> · de eerste groep start 18 september 2026</div></footer>
+</body>
+</html>
