@@ -1,4 +1,5 @@
 {
+  "cleanUrls": true,
   "functions": {
     "api/duiding.js": { "maxDuration": 30 },
     "api/scan.js": { "maxDuration": 15 },
