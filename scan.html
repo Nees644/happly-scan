@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zelfkracht Index</title>
+<meta name="description" content="Zelfkracht heeft nu een eigen getal. De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--wt:#fff;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--tx)}
+#app{width:100%;max-width:680px;min-height:100vh;background:var(--wt);display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;flex:1;animation:fi .35s ease}
+.screen.active{display:flex}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hdr{background:var(--dp);padding:20px 36px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.hdr img{height:22px}
+.hdr .htag{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase}
+.dots{display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:180px;justify-content:flex-end}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.16);transition:.3s}
+.dot.done{background:var(--pk)}
+.dot.cur{background:#fff}
+.ptxt{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.06em;margin-left:8px;white-space:nowrap}
+.body{flex:1;padding:44px 40px 24px;display:flex;flex-direction:column}
+.eye{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pk);font-weight:600;margin-bottom:18px}
+.qtxt{font-family:"DM Serif Display",serif;font-size:23px;color:var(--dp);line-height:1.34;margin-bottom:8px;max-width:560px}
+.instr{font-size:12.5px;font-weight:300;color:var(--mut);line-height:1.6;margin-bottom:30px;max-width:520px}
+/* likert */
+.opts{display:flex;flex-direction:column;gap:9px;flex:1}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1.5px solid var(--bd);border-radius:9px;cursor:pointer;transition:.16s;background:#fff}
+.opt:hover{border-color:var(--pk);background:var(--rt)}
+.opt.sel{border-color:var(--pk);background:var(--rt)}
+.ol{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--bd);flex-shrink:0;transition:.16s;position:relative}
+.opt.sel .ol{border-color:var(--pk);background:var(--pk)}
+.opt.sel .ol::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#fff}
+.ot{font-size:14px;font-weight:400;color:var(--tx)}
+.foot{padding:18px 40px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--bd);flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--pk);color:#fff;font-family:"DM Sans",sans-serif;font-size:13.5px;font-weight:500;padding:13px 30px;border:none;border-radius:7px;cursor:pointer;transition:.18s}
+.btn:hover{background:#b80260;transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--pk);border:1.5px solid var(--pk)}
+.btn.ghost:hover{background:var(--rt);transform:none}
+.btn.off{opacity:.32;pointer-events:none;transform:none}
+.linkbtn{background:none;border:none;font-family:"DM Sans",sans-serif;font-size:12.5px;color:var(--mut);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:hover{color:var(--pk)}
+/* welcome */
+.lead-h{font-family:"DM Serif Display",serif;font-size:32px;color:var(--dp);line-height:1.24;margin-bottom:16px}
+.lead-p{font-size:14.5px;font-weight:300;color:#4A3C56;line-height:1.75;max-width:500px;margin-bottom:14px}
+.tags{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 34px}
+.tag{font-size:11px;font-weight:500;padding:6px 14px;border-radius:20px;background:var(--rt);color:var(--pk)}
+/* results */
+#r-body{padding:34px 40px 48px;overflow-y:auto}
+.r-eye{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pk);font-weight:600;margin-bottom:14px}
+.score-hero{text-align:center;margin:6px 0 30px}
+.score-num{font-family:"DM Serif Display",serif;font-size:88px;line-height:1;color:var(--dp)}
+.score-cap{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:8px}
+.subs{display:flex;justify-content:center;gap:0;margin-top:22px;border-top:1px solid var(--bd);padding-top:20px}
+.sub{flex:1;text-align:center;padding:0 8px;position:relative}
+.sub+.sub::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:1px;background:var(--bd)}
+.sub-num{font-family:"DM Serif Display",serif;font-size:30px;color:var(--dp);line-height:1}
+.sub-lab{font-size:11px;font-weight:600;color:var(--dp);margin-top:6px;letter-spacing:.02em}
+.sub-vak{font-size:9.5px;font-weight:400;color:var(--mut);margin-top:2px}
+.sec{margin-top:34px}
+.sec-h{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);margin-bottom:14px}
+.canon{background:var(--rt);border-radius:12px;padding:24px 26px;margin-top:8px}
+.canon .op{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp);margin-bottom:12px}
+.canon p{font-size:13px;font-weight:300;color:#4A3C56;line-height:1.72;margin-bottom:10px}
+.canon p:last-child{margin-bottom:0}
+/* niveautabel */
+.tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px}
+.tbl th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600;padding:0 10px 10px;border-bottom:1px solid var(--bd)}
+.tbl th.r,.tbl td.r{text-align:right}
+.tbl td{padding:12px 10px;border-bottom:1px solid var(--bd);color:var(--tx)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .nm{font-weight:600;color:var(--dp)}
+.tbl .sc{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp)}
+.lvl{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;background:var(--rt);color:var(--pk)}
+.plus{font-weight:600;color:var(--pk)}
+.plus.onh{color:var(--mut);font-weight:500}
+.legend{font-size:11px;font-weight:300;color:var(--mut);line-height:1.6;margin-top:12px}
+/* duiding */
+.duiding{font-size:13.5px;font-weight:300;color:#3A2E46;line-height:1.78}
+.duiding h4{font-family:"DM Serif Display",serif;font-size:17px;color:var(--dp);font-weight:400;margin:22px 0 12px}
+.duiding h4:first-child{margin-top:0}
+.duiding p{margin-bottom:13px}
+.duiding p:last-child{margin-bottom:0}
+.duiding strong{font-weight:600;color:var(--dp)}
+.duiding-load{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:13px;font-weight:300;padding:6px 0}
+.spin{width:15px;height:15px;border:2px solid var(--bd);border-top-color:var(--pk);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* patroonvenster */
+.patroon{border-left:3px solid var(--pk);padding:2px 0 2px 22px;margin-top:8px}
+.patroon p{font-size:13.5px;font-weight:300;font-style:italic;color:#4A3C56;line-height:1.8}
+/* route + sprint */
+.route p{font-size:13.5px;font-weight:300;color:#3A2E46;line-height:1.78;margin-bottom:12px}
+.nulpunt{font-family:"DM Serif Display",serif;font-style:italic;font-size:16px;color:var(--dp);line-height:1.5;margin-top:6px}
+.sprintbox{background:var(--dp);border-radius:12px;padding:26px 30px;margin-top:26px}
+.sprintbox h3{font-family:"DM Serif Display",serif;font-size:20px;color:#fff;margin-bottom:9px}
+.sprintbox p{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.66;margin-bottom:18px;font-weight:300}
+.btn-wt{background:#fff;color:var(--pk)}
+.btn-wt:hover{background:#f0e0ec}
+/* lead */
+.lead-box{background:var(--rt);border:1px solid #EEC8DC;border-radius:12px;padding:24px 28px;margin-top:26px}
+.lead-eye{font-size:9px;font-weight:600;color:var(--pk);letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}
+.lead-title{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);margin-bottom:8px}
+.lead-desc{font-size:12.5px;font-weight:300;color:#4A3C56;line-height:1.66;margin-bottom:18px}
+.lead-inp{width:100%;padding:12px 15px;border:1.5px solid var(--bd);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13.5px;color:var(--tx);margin-bottom:10px;outline:none;transition:.16s;background:#fff}
+.lead-inp:focus{border-color:var(--pk)}
+.lead-inp::placeholder{color:#B0A0C0}
+.lead-inp.err{border-color:#D6026F;background:#fff}
+.lead-skip{display:block;text-align:center;margin-top:12px}
+.lead-thanks{display:none;text-align:center;padding:18px 0}
+.lead-thanks-icon{width:34px;height:34px;border-radius:50%;background:var(--pk);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;margin:0 auto 12px}
+.lead-thanks-txt{font-size:14px;font-weight:500;color:var(--dp);margin-bottom:5px}
+.lead-thanks-sub{font-size:12px;font-weight:300;color:var(--mut)}
+.foot-links{padding:20px 40px;border-top:1px solid var(--bd);text-align:center}
+.foot-links a{font-size:11.5px;color:var(--mut);text-decoration:none;margin:0 10px}
+.foot-links a:hover{color:var(--pk)}
+@media(max-width:560px){
+  .hdr,.foot{padding-left:22px;padding-right:22px}
+  .body{padding:34px 22px 20px}
+  #r-body{padding:28px 22px 40px}
+  .lead-h{font-size:27px}
+  .qtxt{font-size:20px}
+  .score-num{font-size:72px}
+  .sub-num{font-size:25px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- WELCOME -->
+<div class="screen active" id="s-w">
+  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="htag">Zelfkracht Index</span></div>
+  <div class="body">
+    <div class="eye">Zelfkracht Index</div>
+    <div class="lead-h">Zelfkracht heeft<br>nu een eigen getal.</div>
+    <p class="lead-p">De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
+    <p class="lead-p">Twaalf stellingen, één schaal. Aan het eind krijg je je Index met drie deelscores en een persoonlijke duiding.</p>
+    <div class="tags"><span class="tag">12 stellingen</span><span class="tag">3 tot 4 minuten</span><span class="tag">Direct je score</span></div>
+    <button class="btn" onclick="start()">Begin de meting &rarr;</button>
+  </div>
+  <div class="foot-links"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a></div>
+</div>
+
+<!-- QUESTIONS -->
+<div class="screen" id="s-q"></div>
+
+<!-- CONTEXT -->
+<div class="screen" id="s-c"></div>
+
+<!-- RESULTS -->
+<div class="screen" id="s-r">
+  <div class="hdr" style="padding:18px 36px"><img src="happly-logo.svg" alt="Happly"><span class="htag">Jouw uitslag</span></div>
+  <div id="r-body"></div>
+</div>
+
+</div>
+
+<script>
+/* ======================= VRAGENSET v1 ======================= */
+/* dim: publieke term. code: itemcode. rev: omgekeerd item (spiegelen). */
+const SCALE = ["Klopt niet","Klopt een beetje","Klopt deels","Klopt grotendeels","Klopt helemaal"];
+const INSTR = "Er zijn geen goede of foute antwoorden. Antwoord zoals het meestal is, niet zoals je het zou willen.";
+
+const ITEMS = [
+  {code:"Z1",dim:"Zien",eye:"Deel 1 · Zien",rev:false,text:"Ik heb meestal snel door wat een gevoel bij mij veroorzaakt."},
+  {code:"Z2",dim:"Zien",eye:"Deel 1 · Zien",rev:false,text:"Ik herken de vaste patronen in hoe ik reageer, ook als ze me niet helpen."},
+  {code:"Z3",dim:"Zien",eye:"Deel 1 · Zien",rev:true, text:"Mijn eigen reacties overvallen me regelmatig; ik begrijp ze pas later, of niet."},
+  {code:"Z4",dim:"Zien",eye:"Deel 1 · Zien",rev:false,text:"Ik weet welke situaties of mensen mij uit balans brengen."},
+  {code:"S1",dim:"Sturen",eye:"Deel 2 · Sturen",rev:false,text:"Hoe mijn leven loopt, hangt vooral af van wat ik zelf doe."},
+  {code:"S2",dim:"Sturen",eye:"Deel 2 · Sturen",rev:true, text:"Bij belangrijke keuzes beslis ik pas echt als anderen het ermee eens zijn."},
+  {code:"S3",dim:"Sturen",eye:"Deel 2 · Sturen",rev:false,text:"Ik bepaal zelf mijn richting, ook als mijn omgeving iets anders verwacht."},
+  {code:"S4",dim:"Sturen",eye:"Deel 2 · Sturen",rev:true, text:"Wat ik bereik, is vooral een kwestie van omstandigheden en geluk."},
+  {code:"D1",dim:"Doen",eye:"Deel 3 · Doen",rev:false,text:"Als ik iets besloten heb, begin ik snel, ook als het ongemakkelijk is."},
+  {code:"D2",dim:"Doen",eye:"Deel 3 · Doen",rev:false,text:"Ook bij onverwachte problemen vertrouw ik erop dat ik het kan oplossen."},
+  {code:"D3",dim:"Doen",eye:"Deel 3 · Doen",rev:true, text:"Dingen die ik belangrijk vind, stel ik vaak uit tot het moment goed voelt."},
+  {code:"D4",dim:"Doen",eye:"Deel 3 · Doen",rev:false,text:"Wat ik begin, maak ik af, ook als de motivatie wegzakt."}
+];
+const N = ITEMS.length;
+
+/* Optionele contextvragen (na afloop, overslaanbaar) */
+const CTX = [
+  {key:"age",label:"Leeftijdsband",opts:["Onder 25","25 tot 35","35 tot 45","45 tot 55","55 en ouder"]},
+  {key:"work",label:"Werksituatie",opts:["In loondienst","Leidinggevend","Zelfstandig","Anders"]}
+];
+
+/* ======================= SCORING (vragenset v1) ======================= */
+function mirrored(item, raw){ return item.rev ? (4 - raw) : raw; }
+
+function computeScores(answers){
+  const m = {};                                   // gespiegelde itemscores per code
+  ITEMS.forEach((it,i)=> m[it.code] = mirrored(it, answers[i]));
+  const sum = codes => codes.reduce((a,c)=>a+m[c],0);
+  const zien   = Math.round(sum(["Z1","Z2","Z3","Z4"]) * 6.25);
+  const sturen = Math.round(sum(["S1","S2","S3","S4"]) * 6.25);
+  const doen   = Math.round(sum(["D1","D2","D3","D4"]) * 6.25);
+  const index  = Math.round((zien + sturen + doen) / 3);
+  return {index, zien, sturen, doen, items:m};
+}
+
+/* ======================= NIVEAUTABEL + PLUS-REKENREGEL ======================= */
+/* Bandindeling blauwdruk: Laag 0-30, Beperkt 30-50, Redelijk 50-70, Sterk 70-90, Zeer sterk 90-100.
+   Plus-regel (vastgesteld door Maarten, 23-07-2026): richt op één stap omhoog, plafond 90.
+   - score < 80  -> richtgetal 80 (stevig in Sterk)
+   - 80 tot 90   -> richtgetal 90 (Zeer sterk halen)
+   - 90 en hoger -> geen plus, label "onderhouden"
+   Identiek geïmplementeerd in api/duiding.js; wijzig ze samen. */
+function niveau(s){
+  if (s < 30) return "Laag";
+  if (s < 50) return "Beperkt";
+  if (s < 70) return "Redelijk";
+  if (s < 90) return "Sterk";
+  return "Zeer sterk";
+}
+function ontwikkelruimte(s){
+  if (s >= 90) return {onderhoud:true, plus:null, doel:null};
+  if (s >= 80) return {onderhoud:false, plus:90 - s, doel:90};
+  return {onderhoud:false, plus:80 - s, doel:80};
+}
+
+/* ======================= CANON (vaste teksten) ======================= */
+const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
+const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
+
+/* ======================= STATE ======================= */
+let answers = new Array(N).fill(null);
+let ctxAns  = {age:null, work:null};
+let scores  = null;
+let scanId  = null;
+
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);}
+function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
+
+/* ---- vragen (één per scherm) ---- */
+function renderQ(qi){
+  const it = ITEMS[qi];
+  const dots = ITEMS.map((_,i)=>`<div class="dot ${i<qi?"done":i===qi?"cur":""}"></div>`).join("");
+  const opts = SCALE.map((label,oi)=>`<div class="opt${answers[qi]===oi?" sel":""}" onclick="pick(${qi},${oi})"><div class="ol"></div><div class="ot">${label}</div></div>`).join("");
+  document.getElementById("s-q").innerHTML = `
+    <div class="hdr"><img src="happly-logo.svg" alt="Happly"><div style="display:flex;align-items:center"><div class="dots">${dots}</div><span class="ptxt">${qi+1} / ${N}</span></div></div>
+    <div class="body">
+      <div class="eye">${it.eye}</div>
+      <div class="qtxt">${it.text}</div>
+      <div class="instr">${INSTR}</div>
+      <div class="opts">${opts}</div>
+    </div>
+    <div class="foot">
+      <button class="btn ghost" onclick="prevQ(${qi})" style="visibility:${qi===0?"hidden":"visible"}">&#8592; Vorige</button>
+      <button class="btn${answers[qi]===null?" off":""}" onclick="nextQ(${qi})">${qi<N-1?"Volgende &rarr;":"Naar je score &rarr;"}</button>
+    </div>`;
+}
+function pick(qi,oi){answers[qi]=oi;renderQ(qi);}
+function prevQ(qi){if(qi>0)renderQ(qi-1);}
+function nextQ(qi){if(answers[qi]===null)return;if(qi<N-1)renderQ(qi+1);else renderCtx();}
+
+/* ---- contextvragen (optioneel, overslaanbaar) ---- */
+function renderCtx(){
+  const block = CTX.map(c=>{
+    const opts = c.opts.map(o=>`<div class="opt${ctxAns[c.key]===o?" sel":""}" onclick="pickCtx('${c.key}','${o.replace(/'/g,"\\'")}')"><div class="ol"></div><div class="ot">${o}</div></div>`).join("");
+    return `<div style="margin-bottom:28px"><div class="eye">${c.label}</div><div class="opts">${opts}</div></div>`;
+  }).join("");
+  document.getElementById("s-c").innerHTML = `
+    <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Bijna klaar</span></div>
+    <div class="body">
+      <div class="qtxt" style="margin-bottom:6px">Nog twee vragen, allebei optioneel.</div>
+      <div class="instr">Deze helpen ons de Index later te ijken. Je mag ze overslaan; je score verandert er niet door.</div>
+      ${block}
+    </div>
+    <div class="foot">
+      <button class="linkbtn" onclick="toResults()">Overslaan</button>
+      <button class="btn" onclick="toResults()">Bekijk mijn Index &rarr;</button>
+    </div>`;
+  show("s-c");
+}
+function pickCtx(key,val){ctxAns[key]=(ctxAns[key]===val?null:val);renderCtx();}
+
+/* ======================= UITSLAG ======================= */
+function toResults(){
+  scores = computeScores(answers);
+  renderResults();
+  show("s-r");
+  // laat de scanvoltooiing opslaan en de AI-duiding ophalen (los van elkaar)
+  saveScan();
+  loadDuiding();
+}
+
+function niveauRow(name, s){
+  const nv = niveau(s);
+  const or = ontwikkelruimte(s);
+  const plus = or.onderhoud ? `<span class="plus onh">onderhouden</span>` : `<span class="plus">+${or.plus}</span>`;
+  return `<tr><td class="nm">${name}</td><td class="sc">${s}</td><td><span class="lvl">${nv}</span></td><td class="r">${plus}</td></tr>`;
+}
+
+function renderResults(){
+  const s = scores;
+  document.getElementById("r-body").innerHTML = `
+    <div class="r-eye">Jouw Zelfkracht Index</div>
+
+    <!-- Blok 1: het getal -->
+    <div class="score-hero">
+      <div class="score-num">${s.index}</div>
+      <div class="score-cap">Zelfkracht Index</div>
+      <div class="subs">
+        <div class="sub"><div class="sub-num">${s.zien}</div><div class="sub-lab">Zien</div></div>
+        <div class="sub"><div class="sub-num">${s.sturen}</div><div class="sub-lab">Sturen</div></div>
+        <div class="sub"><div class="sub-num">${s.doen}</div><div class="sub-lab">Doen</div></div>
+      </div>
+    </div>
+
+    <!-- Blok 2: canonieke inleiding -->
+    <div class="canon">
+      <div class="op">Zelfkracht heeft nu een eigen getal.</div>
+      <p>De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
+      <p>De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: wat gevormd is, kun je bijstellen.</p>
+      <p>Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
+    </div>
+
+    <!-- Blok 3: niveautabel met ontwikkelruimte -->
+    <div class="sec">
+      <div class="sec-h">Waar je nu staat</div>
+      <table class="tbl">
+        <thead><tr><th>&nbsp;</th><th>Score</th><th>Niveau</th><th class="r">Ontwikkelruimte</th></tr></thead>
+        <tbody>
+          ${niveauRow("Totaal", s.index)}
+          ${niveauRow("Zien", s.zien)}
+          ${niveauRow("Sturen", s.sturen)}
+          ${niveauRow("Doen", s.doen)}
+        </tbody>
+      </table>
+      <p class="legend">De ontwikkelruimte is de afstand tot stevig in het eerstvolgende niveau. Het maakt de weg concreet en eindig.</p>
+    </div>
+
+    <!-- Blok 4: AI-duiding -->
+    <div class="sec">
+      <div class="sec-h">Wat jouw meting laat zien</div>
+      <div id="duiding" class="duiding"><div class="duiding-load"><span class="spin"></span> Je duiding wordt geschreven op basis van je twaalf antwoorden…</div></div>
+    </div>
+
+    <!-- Blok 5: patroonvenster -->
+    <div class="sec">
+      <div class="patroon"><p>${PATROON}</p></div>
+    </div>
+
+    <!-- Blok 6: route + Sprint + nulpuntzin -->
+    <div class="sec route">
+      <div class="sec-h">De route</div>
+      <div id="route-body"></div>
+      <p class="nulpunt">${NULPUNT}</p>
+      <div class="sprintbox">
+        <h3>De Zelfkracht Sprint</h3>
+        <p>De Index wijst de plek aan. De Sprint onderzoekt wat en hoe je kunt veranderen: zes weken, wekelijkse calls, één cohort tegelijk.</p>
+        <a href="https://happly.nl" class="btn btn-wt" target="_blank" rel="noopener">Meer over de Sprint &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Leadcapture -->
+    <div class="lead-box" id="lead-box">
+      <div class="lead-eye">Optioneel</div>
+      <div class="lead-title">Ontvang je profiel per mail</div>
+      <div class="lead-desc">We sturen je je Index met de deelscores en de duiding, zodat je het kunt bewaren als nulpunt. Geen spam.</div>
+      <div id="lead-fields">
+        <input class="lead-inp" id="l-name" type="text" placeholder="Naam (optioneel)" autocomplete="name">
+        <input class="lead-inp" id="l-company" type="text" placeholder="Bedrijf (optioneel)" autocomplete="organization">
+        <input class="lead-inp" id="l-email" type="email" placeholder="E-mailadres" autocomplete="email">
+        <button class="btn" style="width:100%;justify-content:center" onclick="saveLead()">Stuur mij mijn profiel &rarr;</button>
+        <div class="lead-skip"><button class="linkbtn" onclick="skipLead()">Overslaan</button></div>
+      </div>
+      <div class="lead-thanks" id="lead-thanks">
+        <div class="lead-thanks-icon">&#10003;</div>
+        <div class="lead-thanks-txt">Onderweg naar je inbox.</div>
+        <div class="lead-thanks-sub">Bewaar deze mail. Over een jaar meet je opnieuw.</div>
+      </div>
+    </div>
+  `;
+}
+
+/* Routeblok: prioriteit (grootste ontwikkelruimte), Sprint-koppeling per laagste dimensie. */
+const SPRINT_WEKEN = {Zien:"week 1 en 2", Sturen:"week 3 en 4", Doen:"week 5 en 6"};
+function laagsteDimensie(){
+  const arr = [["Zien",scores.zien],["Sturen",scores.sturen],["Doen",scores.doen]];
+  arr.sort((a,b)=>a[1]-b[1]);
+  return arr[0][0];
+}
+function grootsteRuimte(){
+  const arr = [["Zien",scores.zien],["Sturen",scores.sturen],["Doen",scores.doen]]
+    .map(([n,s])=>({n,s,or:ontwikkelruimte(s)}))
+    .filter(x=>!x.or.onderhoud);
+  if(!arr.length) return null;
+  arr.sort((a,b)=>b.or.plus-a.or.plus);
+  return arr[0];
+}
+function renderRoute(){
+  const g = grootsteRuimte();
+  const low = laagsteDimensie();
+  let html = "";
+  if(g){
+    html += `<p>De grootste winst zit bij <strong>${g.n}: +${g.or.plus}</strong>. Dat is de dimensie waar je meting de meeste ruimte laat zien, en dus de plek waar het werk het meest oplevert.</p>`;
+  } else {
+    html += `<p>Je drie deelscores staan alle drie hoog. Voor jou gaat het minder om verzetten en meer om onderhouden: vasthouden wat er staat.</p>`;
+  }
+  html += `<p>Dit profiel is precies waar <strong>${SPRINT_WEKEN[low]}</strong> van de Zelfkracht Sprint op zijn gebouwd.</p>`;
+  document.getElementById("route-body").innerHTML = html;
+}
+
+/* ======================= AI-DUIDING (met terugval) ======================= */
+async function loadDuiding(){
+  const payload = {
+    index: scores.index, zien: scores.zien, sturen: scores.sturen, doen: scores.doen,
+    items: scores.items
+  };
+  try{
+    const r = await fetch("/api/duiding", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error("api "+r.status);
+    const data = await r.json();
+    if(!data.duiding) throw new Error("leeg");
+    renderDuiding(data.duiding);
+  }catch(e){
+    renderDuiding(fallbackDuiding());
+  }
+}
+function renderDuiding(text){
+  const el = document.getElementById("duiding");
+  if(!el) return;
+  // De AI levert twee koppen; "Waar het werk zit" hoort onder Blok 6 (De route).
+  const parts = splitDuiding(text);
+  el.innerHTML = fmt(parts.duiding);
+  const rb = document.getElementById("route-body");
+  if(rb){
+    if(parts.route){
+      const route = parts.route.replace(NULPUNT,"").trim();  // nulpuntzin staat al als vast slotelement
+      rb.innerHTML = fmt(route);
+    } else {
+      renderRoute();  // terugval: cliëntgemaakte route als de tekst geen routekop had
+    }
+  }
+}
+function splitDuiding(text){
+  const marker = /(^|\n)\s*#*\s*Waar het werk zit\s*#*\s*(\n|$)/i;
+  const m = text.match(marker);
+  if(m){
+    const idx = m.index;
+    return { duiding: text.slice(0, idx).replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(),
+             route:   text.slice(idx + m[0].length).trim() };
+  }
+  return { duiding: text.replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(), route:null };
+}
+function fmt(t){
+  if(!t) return "";
+  return t.split(/\n{2,}/).map(p=>{
+    p = p.trim();
+    if(!p) return "";
+    p = p.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+    return "<p>"+p.replace(/\n/g,"<br>")+"</p>";
+  }).join("");
+}
+
+/* Terugvaltekst per profieltype (als de API hapert). Meettaal, volgt de regels. */
+function fallbackDuiding(){
+  const s = scores;
+  const dims = [["Zien",s.zien],["Sturen",s.sturen],["Doen",s.doen]];
+  dims.sort((a,b)=>b[1]-a[1]);
+  const hoog = dims[0], laag = dims[2];
+  const gap = hoog[1]-laag[1];
+  const g = grootsteRuimte();
+  const low = laagsteDimensie();
+  const uitleg = {
+    Zien:"zicht op je eigen patronen en triggers",
+    Sturen:"de mate waarin je zelf de richting bepaalt",
+    Doen:"in beweging komen en afmaken wat je begint"
+  };
+  let p1 = `Het grootste verschil in je profiel zit tussen ${hoog[0]} en ${laag[0]}: ${gap} punten. Je meting laat ${hoog[1]>=laag[1]?"veel":"meer"} ${uitleg[hoog[0]]}, en minder ${uitleg[laag[0]]}. Die combinatie tekent waar bij jou de spanning zit.`;
+  let p2 = `De ruimte in je profiel zit vooral bij ${laag[0]} (${laag[1]}). Dat is geen oordeel: het is de dimensie die op dit moment het minst voor je werkt, en daarmee de plek waar een verschuiving het meest merkbaar is.`;
+  let p3 = `Deze stand is niet aangeboren. Ze is gevormd: in kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden. Wat je vaak genoeg doet, wordt automatisch. En wat automatisch is, zie je niet meer.`;
+  let route = g
+    ? `De grootste ruimte zit bij ${g.n}: +${g.or.plus} tot een stevige ${g.or.doel}. Voor jouw profiel betekent werken aan ${g.n.toLowerCase()} niet harder, maar gerichter: het patroon zichtbaar maken en er anders mee omgaan. Dat is haalbaar met gericht werk; de Index beweegt traag, en juist daarom telt een verschuiving. Hoe dat bij jou is gegroeid, onderzoek je in ${SPRINT_WEKEN[low]} van de Zelfkracht Sprint.`
+    : `Je deelscores staan hoog. Voor jou gaat het om onderhouden: vasthouden wat er is, ook als het spannend wordt. Dat blijft werk. Hoe je dat volhoudt, onderzoek je in ${SPRINT_WEKEN[low]} van de Zelfkracht Sprint.`;
+  return `${p1}\n\n${p2}\n\n${p3}\n\nWaar het werk zit\n\n${route}`;
+}
+
+/* ======================= OPSLAG + LEAD ======================= */
+async function saveScan(){
+  try{
+    const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work})});
+    if(r.ok){ const d = await r.json(); scanId = d.id || null; }
+  }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
+}
+
+async function saveLead(){
+  const email = document.getElementById("l-email").value.trim();
+  const name = document.getElementById("l-name").value.trim();
+  const company = document.getElementById("l-company").value.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    const inp = document.getElementById("l-email");
+    inp.classList.add("err"); inp.placeholder="Vul een geldig e-mailadres in"; inp.value=""; inp.focus();
+    return;
+  }
+  const btn = document.querySelector("#lead-fields .btn");
+  btn.textContent = "Versturen…"; btn.classList.add("off");
+  try{
+    await fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:scanId,email,name:name||null,company:company||null,
+        index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen})});
+  }catch(e){/* mail is best effort */}
+  document.getElementById("lead-fields").style.display="none";
+  document.getElementById("lead-thanks").style.display="block";
+}
+function skipLead(){document.getElementById("lead-box").style.display="none";}
+</script>
+</body>
+</html>

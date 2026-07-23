@@ -1,0 +1,12 @@
+{
+  "name": "happly-scan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zelfkracht Index scan (front door van Happly) plus de bestaande Diepte Scans en dashboard.",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@supabase/supabase-js": "^2.45.4",
+    "resend": "^4.0.0"
+  }
+}
