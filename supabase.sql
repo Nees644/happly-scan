@@ -28,3 +28,10 @@ alter table public.index_scan_results enable row level security;
 -- Handige index voor de latere itemanalyse.
 create index if not exists index_scan_results_created_at_idx
   on public.index_scan_results (created_at);
+
+-- Leesrecht voor ingelogde dashboardgebruikers (dashboard-index.html).
+-- De anon-rol blijft volledig buitengesloten; alleen wie via Supabase Auth is
+-- ingelogd (hetzelfde account als het B2B-dashboard) mag lezen.
+drop policy if exists "authenticated read" on public.index_scan_results;
+create policy "authenticated read" on public.index_scan_results
+  for select to authenticated using (true);

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zelfkracht Index · dashboard</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--wt:#fff;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78}
+body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-height:100vh}
+/* login gate (zelfde patroon als dashboard.html) */
+.login-screen{position:fixed;inset:0;background:var(--dp);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:var(--wt);border-radius:12px;padding:40px 36px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-box h1{font-family:"DM Serif Display",serif;font-size:24px;color:var(--dp);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--mut);margin-bottom:22px;line-height:1.5}
+.login-err{color:var(--pk);font-size:12.5px;margin-bottom:12px;display:none;line-height:1.4}
+.inp{width:100%;padding:12px 15px;border:1.5px solid var(--bd);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13.5px;margin-bottom:12px;outline:none}
+.inp:focus{border-color:var(--pk)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pk);color:#fff;font-family:"DM Sans",sans-serif;font-size:13.5px;font-weight:500;padding:12px 24px;border:none;border-radius:7px;cursor:pointer}
+.btn:hover{background:#b80260}
+.btn.w{width:100%}
+/* app */
+#app{display:none}
+.hdr{background:var(--dp);padding:18px 0}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+.hdr .wrap{display:flex;justify-content:space-between;align-items:center}
+.hdr img{height:20px}
+.hdr .right{display:flex;align-items:center;gap:18px}
+.hdr .htag{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase}
+.hdr button{background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);font-size:11px;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:"DM Sans",sans-serif}
+.hdr button:hover{border-color:#fff;color:#fff}
+main{padding:34px 0 60px}
+h2{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);margin:34px 0 14px}
+h2:first-child{margin-top:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.kpi{background:#fff;border-radius:12px;padding:20px 22px}
+.kpi .n{font-family:"DM Serif Display",serif;font-size:34px;color:var(--dp);line-height:1.1}
+.kpi .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:6px;font-weight:600}
+.kpi .s{font-size:11.5px;color:var(--mut);margin-top:4px;font-weight:300}
+.bar-t{height:7px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:10px}
+.bar-f{height:100%;background:var(--pk);border-radius:4px}
+.card{background:#fff;border-radius:12px;padding:22px 24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.row:last-child{margin-bottom:0}
+.row .lab{width:110px;font-size:12.5px;color:var(--dp);font-weight:500;flex-shrink:0}
+.row .track{flex:1;height:9px;background:var(--bd);border-radius:5px;overflow:hidden}
+.row .fill{height:100%;background:var(--pk);border-radius:5px}
+.row .val{width:44px;text-align:right;font-size:12.5px;color:var(--dp);font-weight:600;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #F0E9F3;color:var(--tx);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.b{font-weight:600;color:var(--dp)}
+td.mut{color:var(--mut);font-weight:300}
+.pill{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 9px;border-radius:10px;background:var(--rt);color:var(--pk)}
+.empty{padding:26px;text-align:center;color:var(--mut);font-size:13px;font-weight:300}
+.note{font-size:11.5px;color:var(--mut);font-weight:300;margin-top:10px;line-height:1.5}
+.scrollx{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen" style="display:none">
+  <div class="login-box">
+    <h1>Index-dashboard</h1>
+    <p>Log in met je Happly-dashboardaccount.</p>
+    <div class="login-err" id="login-err"></div>
+    <input class="inp" id="login-email" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input class="inp" id="login-pass" type="password" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn w" id="login-btn" onclick="doLogin()">Inloggen</button>
+  </div>
+</div>
+
+<div id="app">
+  <header class="hdr"><div class="wrap">
+    <img src="happly-logo.svg" alt="Happly">
+    <div class="right"><span class="htag">Zelfkracht Index · dashboard</span><button onclick="doLogout()">Uitloggen</button></div>
+  </div></header>
+  <main><div class="wrap">
+
+    <div class="kpis">
+      <div class="kpi"><div class="n" id="k-total">–</div><div class="l">Metingen</div>
+        <div class="bar-t"><div class="bar-f" id="k-progress" style="width:0"></div></div>
+        <div class="s" id="k-progress-txt">richting 200 voor de itemanalyse</div></div>
+      <div class="kpi"><div class="n" id="k-avg">–</div><div class="l">Gemiddelde Index</div><div class="s" id="k-avg-sub">&nbsp;</div></div>
+      <div class="kpi"><div class="n" id="k-leads">–</div><div class="l">Leads</div><div class="s" id="k-leads-sub">e-mail achtergelaten</div></div>
+      <div class="kpi"><div class="n" id="k-week">–</div><div class="l">Laatste 7 dagen</div><div class="s">metingen deze week</div></div>
+    </div>
+
+    <div class="grid2" style="margin-top:34px">
+      <div>
+        <h2 style="margin-top:0">Gemiddelde per dimensie</h2>
+        <div class="card" id="c-dims"><div class="empty">Nog geen data</div></div>
+      </div>
+      <div>
+        <h2 style="margin-top:0">Niveauverdeling (totaalscore)</h2>
+        <div class="card" id="c-levels"><div class="empty">Nog geen data</div></div>
+      </div>
+    </div>
+
+    <h2>Itemgemiddelden (gespiegeld, 0 tot 4)</h2>
+    <div class="card" id="c-items"><div class="empty">Nog geen data</div></div>
+    <p class="note">Eerste signaal voor de itemanalyse na 200 metingen. Een item dat structureel afwijkt van zijn dimensiegenoten verdient dan extra aandacht (item-restcorrelaties draaien we op de ruwe data).</p>
+
+    <h2>Recente metingen</h2>
+    <div class="card scrollx" id="c-recent"><div class="empty">Nog geen data</div></div>
+
+  </div></main>
+</div>
+
+<script>
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const ITEM_CODES = ["Z1","Z2","Z3","Z4","S1","S2","S3","S4","D1","D2","D3","D4"];
+function niveau(s){if(s<30)return"Laag";if(s<50)return"Beperkt";if(s<70)return"Redelijk";if(s<90)return"Sterk";return"Zeer sterk";}
+
+async function doLogin(){
+  const email=document.getElementById("login-email").value.trim();
+  const pass=document.getElementById("login-pass").value;
+  const errEl=document.getElementById("login-err");
+  errEl.style.display="none";
+  const btn=document.getElementById("login-btn");
+  btn.disabled=true;btn.textContent="Inloggen…";
+  const {error}=await db.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent="Inloggen";
+  if(error){errEl.textContent="Inloggen mislukt. Controleer je gegevens.";errEl.style.display="block";return;}
+  showApp();
+}
+function doLogout(){db.auth.signOut().then(()=>location.reload());}
+
+async function init(){
+  const {data:{session}}=await db.auth.getSession();
+  if(session){showApp();}
+  else{document.getElementById("login-screen").style.display="flex";}
+}
+async function showApp(){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("app").style.display="block";
+  loadData();
+}
+
+async function loadData(){
+  const {data,error}=await db.from("index_scan_results")
+    .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation")
+    .order("created_at",{ascending:false});
+  if(error){
+    document.getElementById("c-recent").innerHTML=`<div class="empty">Kon data niet laden. Is de leespolicy voor ingelogde gebruikers gezet? (${error.message})</div>`;
+    return;
+  }
+  render(data||[]);
+}
+
+function render(rows){
+  const n=rows.length;
+  // KPI's
+  document.getElementById("k-total").textContent=n;
+  const pct=Math.min(100,Math.round(n/200*100));
+  document.getElementById("k-progress").style.width=pct+"%";
+  document.getElementById("k-progress-txt").textContent=`${pct}% richting 200 voor de itemanalyse`;
+  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;
+  const avgIdx=avg(rows.map(r=>r.index_score));
+  document.getElementById("k-avg").textContent=n?avgIdx:"–";
+  document.getElementById("k-avg-sub").textContent=n?`niveau ${niveau(avgIdx)}`:" ";
+  const leads=rows.filter(r=>r.email).length;
+  document.getElementById("k-leads").textContent=leads;
+  document.getElementById("k-leads-sub").textContent=n?`${Math.round(leads/n*100)}% van de metingen`:"e-mail achtergelaten";
+  const weekAgo=Date.now()-7*24*3600*1000;
+  document.getElementById("k-week").textContent=rows.filter(r=>new Date(r.created_at).getTime()>weekAgo).length;
+  if(!n)return;
+
+  // Dimensiegemiddelden
+  const dims=[["Zien",avg(rows.map(r=>r.zien))],["Sturen",avg(rows.map(r=>r.sturen))],["Doen",avg(rows.map(r=>r.doen))]];
+  document.getElementById("c-dims").innerHTML=dims.map(([l,v])=>
+    `<div class="row"><div class="lab">${l}</div><div class="track"><div class="fill" style="width:${v}%"></div></div><div class="val">${v}</div></div>`).join("");
+
+  // Niveauverdeling
+  const lv={"Laag":0,"Beperkt":0,"Redelijk":0,"Sterk":0,"Zeer sterk":0};
+  rows.forEach(r=>lv[niveau(r.index_score)]++);
+  document.getElementById("c-levels").innerHTML=Object.entries(lv).map(([l,c])=>
+    `<div class="row"><div class="lab">${l}</div><div class="track"><div class="fill" style="width:${n?Math.round(c/n*100):0}%"></div></div><div class="val">${c}</div></div>`).join("");
+
+  // Itemgemiddelden
+  const withItems=rows.filter(r=>r.items);
+  if(withItems.length){
+    const iAvg=ITEM_CODES.map(c=>{
+      const vals=withItems.map(r=>r.items[c]).filter(v=>typeof v==="number");
+      return [c, vals.length?(vals.reduce((x,y)=>x+y,0)/vals.length):null];
+    });
+    document.getElementById("c-items").innerHTML=`<div class="scrollx"><table>
+      <thead><tr>${iAvg.map(([c])=>`<th>${c}</th>`).join("")}</tr></thead>
+      <tbody><tr>${iAvg.map(([,v])=>`<td class="b">${v===null?"–":v.toFixed(2)}</td>`).join("")}</tr></tbody>
+    </table></div>`;
+  }
+
+  // Recente metingen (max 25)
+  const recent=rows.slice(0,25).map(r=>{
+    const d=new Date(r.created_at);
+    const ds=d.toLocaleDateString("nl-NL",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+    const lead=r.email?`<span class="pill">lead</span> ${r.email}${r.name?" · "+r.name:""}`:"";
+    return `<tr><td class="mut">${ds}</td><td class="b">${r.index_score}</td><td>${r.zien}</td><td>${r.sturen}</td><td>${r.doen}</td><td class="mut">${r.age_band||""}</td><td class="mut">${r.work_situation||""}</td><td>${lead}</td></tr>`;
+  }).join("");
+  document.getElementById("c-recent").innerHTML=`<table>
+    <thead><tr><th>Datum</th><th>Index</th><th>Zien</th><th>Sturen</th><th>Doen</th><th>Leeftijd</th><th>Werk</th><th>Lead</th></tr></thead>
+    <tbody>${recent}</tbody></table>`;
+}
+
+init();
+</script>
+</body>
+</html>
