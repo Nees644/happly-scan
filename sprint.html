@@ -107,17 +107,39 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   <!-- Blok 4: prijs en voorverkoop -->
   <h2>Meedoen</h2>
   <div class="prijs">
-    <div><span class="groot">&euro;245</span><span class="door">&euro;345</span></div>
+    <div><span class="groot" id="pr-groot">&euro;245</span><span class="door" id="pr-door">&euro;345</span></div>
     <div class="sub">De startprijs, zolang de eerste plekken er zijn. Hoe eerder je erbij bent, hoe minder je betaalt.</div>
     <div class="tredes">
-      <div class="trede"><span class="t">Eerste 10 plekken</span><span><span class="p">&euro;245</span><span class="nu">nu geldig</span></span></div>
-      <div class="trede"><span class="t">Volgende 10 plekken</span><span class="p">&euro;295</span></div>
-      <div class="trede"><span class="t">Daarna</span><span class="p">&euro;345</span></div>
+      <div class="trede" data-trede="1"><span class="t">Eerste 10 plekken</span><span><span class="p">&euro;245</span><span class="nu" hidden>nu geldig</span></span></div>
+      <div class="trede" data-trede="2"><span class="t">Volgende 10 plekken</span><span><span class="p">&euro;295</span><span class="nu" hidden>nu geldig</span></span></div>
+      <div class="trede" data-trede="3"><span class="t">Daarna</span><span><span class="p">&euro;345</span><span class="nu" hidden>nu geldig</span></span></div>
     </div>
-    <!-- PLACEHOLDER: Mollie payment links (3 stuks, één per trede) volgen; knop dan activeren -->
-    <button class="btn off" disabled>Inschrijving opent begin augustus</button>
+    <div id="knopvak"></div>
     <div class="klein">Start 18 september 2026 · niet goed, geld terug in de eerste week</div>
   </div>
+
+  <script>
+  /* Inschrijving: Mollie-betaallinks per voorverkooptrede (profiel Happly Academy).
+     Trede vol? Zet ACTIEVE_TREDE één hoger. Inschrijving openen: INSCHRIJVING_OPEN op true. */
+  const INSCHRIJVING_OPEN = false;   // true = knop actief, false = "opent begin augustus"
+  const ACTIEVE_TREDE = 1;
+  const TREDES = {
+    1: { prijs: 245, url: "https://payment-links.mollie.com/payment/p8op7kvMYFse8bau6ppvE" },
+    2: { prijs: 295, url: "https://payment-links.mollie.com/payment/RWWYx86T2okXFGBBvXp2F" },
+    3: { prijs: 345, url: "https://payment-links.mollie.com/payment/UuvVoJExTdf2kYAUscnAv" }
+  };
+  (function(){
+    const t = TREDES[ACTIEVE_TREDE];
+    document.getElementById("pr-groot").textContent = "€" + t.prijs;
+    document.getElementById("pr-door").hidden = (ACTIEVE_TREDE === 3);
+    const badge = document.querySelector('.trede[data-trede="'+ACTIEVE_TREDE+'"] .nu');
+    if (badge) badge.hidden = false;
+    const vak = document.getElementById("knopvak");
+    vak.innerHTML = INSCHRIJVING_OPEN
+      ? '<a class="btn" href="'+t.url+'">Reserveer je plek · €'+t.prijs+'</a>'
+      : '<button class="btn off" disabled>Inschrijving opent begin augustus</button>';
+  })();
+  </script>
 
 </div></main>
 <footer class="foot"><div class="wrap">Zelfkracht Sprint · een programma van <a href="https://happly.nl">Happly</a> · de eerste groep start 18 september 2026</div></footer>
