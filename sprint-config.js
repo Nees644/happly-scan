@@ -10,8 +10,10 @@ export const INSCHRIJVING_OPEN = true;
 export const ACTIEVE_TREDE = 1;
 
 // Mollie payment links (profiel Happly Academy), één per voorverkooptrede.
+// Aangemaakt 24-07-2026 mét redirect naar https://scan.happly.nl/bedankt;
+// de eerdere links zonder redirect zijn hiermee vervangen.
 export const TREDES = {
-  1: { prijs: 245, url: "https://payment-links.mollie.com/payment/p8op7kvMYFse8bau6ppvE" },
-  2: { prijs: 295, url: "https://payment-links.mollie.com/payment/RWWYx86T2okXFGBBvXp2F" },
-  3: { prijs: 345, url: "https://payment-links.mollie.com/payment/UuvVoJExTdf2kYAUscnAv" }
+  1: { prijs: 245, url: "https://payment-links.mollie.com/payment/oGKnm46j9dA5ahCkzmj2J" },
+  2: { prijs: 295, url: "https://payment-links.mollie.com/payment/ExsAJB7LvEhU22cmvhVhy" },
+  3: { prijs: 345, url: "https://payment-links.mollie.com/payment/s2RkkSeXXWfojht8zvh3q" }
 };
