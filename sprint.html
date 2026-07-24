@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+button,input,select,textarea{font:inherit}
 :root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78}
 body{font-family:"DM Sans",sans-serif;background:#fff;color:var(--tx);line-height:1.6}
 .hdr{background:var(--dp);padding:20px 0}
@@ -69,7 +70,7 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   <!-- Blok 1: wat de Sprint met jouw getal doet -->
   <div class="eye">Zelfkracht Sprint · 6 weken · kleine groep</div>
   <h1>Je kent je getal.<br>Hier ga je het verzetten.</h1>
-  <div class="rol"><p><b>De Index wijst de plek aan, de Sprint onderzoekt wat en hoe je kunt veranderen.</b> Je uitslag laat zien waar bij jou de meeste ruimte zit; in zes weken werk je gericht op die plek. Aan het eind meet je opnieuw, en zie je zwart op wit wat er verschoven is.</p></div>
+  <div class="rol"><p><b>De Index wijst de plek aan. In de Zelfkracht Sprint onderzoek je wat en hoe je kunt veranderen.</b> Je uitslag laat zien waar bij jou de meeste ruimte zit; in zes weken werk je gericht op die plek. Aan het eind meet je opnieuw, en zie je zwart op wit wat er verschoven is.</p></div>
   <p class="scanlink">Nog geen getal? <a href="scan">Doe eerst de Zelfkracht Index</a>, dan weet je waar jouw route begint.</p>
   <p class="feiten">Start vrijdag 18 september 2026 · zes live sessies, woensdag 20:00 vanaf 23 september · kleine groep</p>
 
@@ -118,30 +119,23 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
     <div class="klein">Start 18 september 2026 · niet goed, geld terug in de eerste week</div>
   </div>
 
-  <script>
+  <script type="module">
   /* Inschrijving: Mollie-betaallinks per voorverkooptrede (profiel Happly Academy).
-     Trede vol? Zet ACTIEVE_TREDE één hoger. Inschrijving openen: INSCHRIJVING_OPEN op true. */
-  const INSCHRIJVING_OPEN = true;   // true = knop actief, false = "opent begin augustus"
-  const ACTIEVE_TREDE = 1;
-  const TREDES = {
-    1: { prijs: 245, url: "https://payment-links.mollie.com/payment/p8op7kvMYFse8bau6ppvE" },
-    2: { prijs: 295, url: "https://payment-links.mollie.com/payment/RWWYx86T2okXFGBBvXp2F" },
-    3: { prijs: 345, url: "https://payment-links.mollie.com/payment/UuvVoJExTdf2kYAUscnAv" }
-  };
-  (function(){
-    const t = TREDES[ACTIEVE_TREDE];
-    document.getElementById("pr-groot").textContent = "€" + t.prijs;
-    document.getElementById("pr-door").hidden = (ACTIEVE_TREDE === 3);
-    const badge = document.querySelector('.trede[data-trede="'+ACTIEVE_TREDE+'"] .nu');
-    if (badge) badge.hidden = false;
-    const vak = document.getElementById("knopvak");
-    vak.innerHTML = INSCHRIJVING_OPEN
-      ? '<a class="btn" href="'+t.url+'">Reserveer je plek · €'+t.prijs+'</a>'
-      : '<button class="btn off" disabled>Inschrijving opent begin augustus</button>';
-  })();
+     De configuratie (actieve trede, links, open/dicht) staat in sprint-config.js.
+     Ook de uitslagmail (api/lead.js) leest daaruit; trede wisselen doe je dus
+     op precies één plek. */
+  import { INSCHRIJVING_OPEN, ACTIEVE_TREDE, TREDES } from "./sprint-config.js";
+  const t = TREDES[ACTIEVE_TREDE];
+  document.getElementById("pr-groot").textContent = "€" + t.prijs;
+  document.getElementById("pr-door").hidden = (ACTIEVE_TREDE === 3);
+  const badge = document.querySelector('.trede[data-trede="'+ACTIEVE_TREDE+'"] .nu');
+  if (badge) badge.hidden = false;
+  document.getElementById("knopvak").innerHTML = INSCHRIJVING_OPEN
+    ? '<a class="btn" href="'+t.url+'">Reserveer je plek · €'+t.prijs+'</a>'
+    : '<button class="btn off" disabled>Inschrijving opent begin augustus</button>';
   </script>
 
 </div></main>
-<footer class="foot"><div class="wrap">Zelfkracht Sprint · een programma van <a href="https://happly.nl">Happly</a> · de eerste groep start 18 september 2026</div></footer>
+<footer class="foot"><div class="wrap">Zelfkracht Sprint · een programma van Happly · de eerste groep start 18 september 2026</div></footer>
 </body>
 </html>
