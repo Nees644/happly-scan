@@ -14,7 +14,10 @@ create table if not exists public.index_scan_results (
   work_situation text,               -- optionele contextvraag
   email         text,                -- pas gevuld bij leadcapture
   name          text,
-  company       text
+  company       text,
+  duiding       text,                -- de volledige gegenereerde duiding (AI of terugval)
+  duiding_generated_at timestamptz,  -- moment van generatie
+  duiding_fallback boolean           -- true = terugvaltekst gebruikt in plaats van de AI
 );
 
 -- RLS aan. Alle schrijf- en leesacties lopen via de serverside API-routes met de
@@ -35,3 +38,12 @@ create index if not exists index_scan_results_created_at_idx
 drop policy if exists "authenticated read" on public.index_scan_results;
 create policy "authenticated read" on public.index_scan_results
   for select to authenticated using (true);
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 24-07-2026 · duiding opslaan bij de meting
+-- Voor het bestaande project: draai alleen dit blok in de SQL-editor.
+-- (Nieuwe installaties krijgen de kolommen al via de create table hierboven.)
+alter table public.index_scan_results
+  add column if not exists duiding text,
+  add column if not exists duiding_generated_at timestamptz,
+  add column if not exists duiding_fallback boolean;
