@@ -142,7 +142,8 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum }){
           ${p("De Index wijst de plek aan. In de Zelfkracht Sprint onderzoek je wat en hoe je kunt veranderen.")}
           ${p(`Zes weken in een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
 Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een nameting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
-Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.`, "font-size:13px")}
+Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.<br>
+Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.`, "font-size:13px")}
           ${p(`<a href="${sprintUrl}" style="color:${PK};font-weight:700;text-decoration:none">Bekijk het programma</a> &nbsp;·&nbsp; <a href="${betaalUrl}" style="color:${PK};font-weight:700;text-decoration:none">Reserveer je plek</a>`)}
         </div>
 
