@@ -227,6 +227,30 @@ function ontwikkelruimte(s){
 const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
 const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 
+/* ======================= FUNNEL (anonieme events) =======================
+   Conversiemeting zonder cookies of fingerprinting: per paginabezoek een
+   random sessie-id dat alleen in dit scriptgeheugen leeft, nooit gekoppeld
+   aan scores of persoonsgegevens. Schrijven mag met de (publieke) anon key;
+   RLS op funnel_events staat alleen insert toe. Loggen is fire-and-forget
+   en mag de flow nooit vertragen of breken. */
+const FUNNEL_URL = "https://uqulkznqcqpbagbvtqdr.supabase.co/rest/v1/funnel_events";
+const FUNNEL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8";
+const FUNNEL_SESSIE = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+const funnelGeloggd = {};
+function logEvent(event, bron, eenmalig = true){
+  try{
+    if (eenmalig && funnelGeloggd[event]) return;
+    funnelGeloggd[event] = true;
+    fetch(FUNNEL_URL, {
+      method: "POST",
+      keepalive: true,   // klik-events overleven de navigatie naar de volgende pagina
+      headers: { apikey: FUNNEL_KEY, Authorization: "Bearer " + FUNNEL_KEY,
+                 "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ event, bron: bron || null, sessie: FUNNEL_SESSIE })
+    }).catch(()=>{});
+  }catch(e){}
+}
+
 /* ======================= STATE ======================= */
 let answers = new Array(N).fill(null);
 let ctxAns  = {age:null, work:null};
@@ -257,9 +281,9 @@ function renderQ(qi){
       <button class="btn${answers[qi]===null?" off":""}" onclick="nextQ(${qi})">${qi<N-1?"Volgende &rarr;":"Naar je score &rarr;"}</button>
     </div>`;
 }
-function pick(qi,oi){answers[qi]=oi;renderQ(qi);}
+function pick(qi,oi){logEvent("scan_gestart");answers[qi]=oi;renderQ(qi);}
 function prevQ(qi){if(qi>0)renderQ(qi-1);}
-function nextQ(qi){if(answers[qi]===null)return;if(qi<N-1)renderQ(qi+1);else renderCtx();}
+function nextQ(qi){if(answers[qi]===null)return;if(qi<N-1)renderQ(qi+1);else{logEvent("scan_afgerond");renderCtx();}}
 
 /* ---- contextvragen (optioneel, overslaanbaar) ---- */
 function renderCtx(){
@@ -287,6 +311,7 @@ function toResults(){
   scores = computeScores(answers);
   renderResults();
   show("s-r");
+  logEvent("uitslag_getoond");
   // Flow-volgorde: duiding genereren -> uitslag compleet -> opslaan in één insert
   // -> dan pas de leadcapture tonen. Zie loadDuiding().
   loadDuiding();
@@ -357,7 +382,7 @@ function renderResults(){
       <div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
         <p>De Index wijst de plek aan. De Sprint onderzoekt wat en hoe je kunt veranderen: zes weken, wekelijkse calls, één cohort tegelijk.</p>
-        <a href="sprint" class="btn btn-wt">Meer over de Sprint &rarr;</a>
+        <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
       </div>
     </div>
 

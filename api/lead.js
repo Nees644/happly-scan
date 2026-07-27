@@ -76,7 +76,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route.replace(NULPUNT, "").trim() : null;
-  const sprintUrl = "https://scan.happly.nl/sprint";
+  const sprintUrl = "https://scan.happly.nl/sprint?src=mail";   // bron voor de funnelmeting
   const betaalUrl = TREDES[ACTIEVE_TREDE].url;
 
   return `<div style="background:${RT};padding:32px 16px">

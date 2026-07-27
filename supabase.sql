@@ -47,3 +47,35 @@ alter table public.index_scan_results
   add column if not exists duiding text,
   add column if not exists duiding_generated_at timestamptz,
   add column if not exists duiding_fallback boolean;
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 27-07-2026 · funnel_events (conversiemeting in de keten)
+-- Voor het bestaande project: draai alleen dit blok in de SQL-editor.
+-- Anonieme gebruiksstatistieken: event, bron en een random sessie-id per bezoek.
+-- Bewust GEEN koppeling aan index_scan_results of persoonsgegevens.
+
+create table if not exists public.funnel_events (
+  id         uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  event      text not null,
+  bron       text,        -- src-parameter (uitslag, mail, post); null voor scan-events
+  sessie     text not null -- random per paginabezoek, leeft alleen in paginageheugen
+);
+
+-- RLS: de browser mag met de anon key uitsluitend schrijven, nooit lezen.
+alter table public.funnel_events enable row level security;
+
+drop policy if exists "anon insert" on public.funnel_events;
+create policy "anon insert" on public.funnel_events
+  for insert to anon with check (true);
+
+-- Leesrecht alleen voor ingelogde dashboardgebruikers (zelfde patroon als
+-- index_scan_results), zodat de funnel straks in het dashboard kan.
+drop policy if exists "authenticated read" on public.funnel_events;
+create policy "authenticated read" on public.funnel_events
+  for select to authenticated using (true);
+
+create index if not exists funnel_events_created_at_idx
+  on public.funnel_events (created_at);
+create index if not exists funnel_events_event_idx
+  on public.funnel_events (event);

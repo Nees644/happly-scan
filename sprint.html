@@ -198,6 +198,29 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
     <div class="klein">Start 18 september 2026<br>Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.</div>
   </div>
 
+  <script>
+  /* Funnel (anonieme events): zelfde aanpak als scan.html. Geen cookies, geen
+     fingerprinting; random sessie-id alleen in dit scriptgeheugen. Bewust een
+     los klassiek script, zodat het loggen ook werkt als de module hieronder
+     ooit hapert. Fire-and-forget: mag de flow nooit vertragen of breken. */
+  const FUNNEL_URL = "https://uqulkznqcqpbagbvtqdr.supabase.co/rest/v1/funnel_events";
+  const FUNNEL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8";
+  const FUNNEL_SESSIE = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+  const FUNNEL_SRC = new URLSearchParams(location.search).get("src") || null;
+  function logEvent(event, bron){
+    try{
+      fetch(FUNNEL_URL, {
+        method: "POST",
+        keepalive: true,   // de Mollie-klik overleeft de navigatie naar de betaalpagina
+        headers: { apikey: FUNNEL_KEY, Authorization: "Bearer " + FUNNEL_KEY,
+                   "Content-Type": "application/json", Prefer: "return=minimal" },
+        body: JSON.stringify({ event, bron: bron || null, sessie: FUNNEL_SESSIE })
+      }).catch(()=>{});
+    }catch(e){}
+  }
+  logEvent("sprint_bezoek", FUNNEL_SRC);
+  </script>
+
   <script type="module">
   /* Inschrijving: Mollie-betaallinks per voorverkooptrede (profiel Happly Academy).
      De configuratie (actieve trede, links, open/dicht) staat in sprint-config.js.
@@ -215,6 +238,8 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   document.getElementById("knopvak").innerHTML = INSCHRIJVING_OPEN
     ? '<a class="btn" href="'+t.url+'">Reserveer je plek · €'+t.prijs+'</a>'
     : '<button class="btn off" disabled>Inschrijving opent begin augustus</button>';
+  const knop = document.querySelector("#knopvak a");
+  if (knop) knop.addEventListener("click", () => logEvent("mollie_geklikt", FUNNEL_SRC));
   </script>
 
 </div></main>
