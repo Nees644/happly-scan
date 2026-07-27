@@ -110,6 +110,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .lead-inp:focus{border-color:var(--pk)}
 .lead-inp::placeholder{color:#B0A0C0}
 .lead-inp.err{border-color:#D6026F;background:#fff}
+.lead-note{font-size:11.5px;font-weight:300;color:var(--mut);margin:-2px 0 12px}
 .lead-skip{display:block;text-align:center;margin-top:12px}
 .lead-thanks{display:none;text-align:center;padding:18px 0}
 .lead-thanks-icon{width:34px;height:34px;border-radius:50%;background:var(--pk);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;margin:0 auto 12px}
@@ -143,7 +144,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
     <div class="tags"><span class="tag">12 stellingen</span><span class="tag">3 tot 4 minuten</span><span class="tag">Direct je score</span></div>
     <button class="btn" onclick="start()">Begin de meting &rarr;</button>
   </div>
-  <div class="foot-links"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a></div>
+  <div class="foot-links"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a><a href="privacy">Privacy</a></div>
 </div>
 
 <!-- QUESTIONS -->
@@ -369,6 +370,7 @@ function renderResults(){
         <input class="lead-inp" id="l-name" type="text" placeholder="Naam (optioneel)" autocomplete="name">
         <input class="lead-inp" id="l-company" type="text" placeholder="Bedrijf (optioneel)" autocomplete="organization">
         <input class="lead-inp" id="l-email" type="email" placeholder="E-mailadres" autocomplete="email">
+        <div class="lead-note">Alleen om je je uitslag te sturen. Verder niets.</div>
         <button class="btn" style="width:100%;justify-content:center" onclick="saveLead()">Stuur mij mijn profiel &rarr;</button>
         <div class="lead-skip"><button class="linkbtn" onclick="skipLead()">Overslaan</button></div>
       </div>
@@ -378,6 +380,7 @@ function renderResults(){
         <div class="lead-thanks-sub">Bewaar deze mail. Over een jaar meet je opnieuw.</div>
       </div>
     </div>
+    <div class="foot-links" style="padding:26px 0 6px;border-top:none"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a><a href="privacy">Privacy</a></div>
   `;
 }
 
