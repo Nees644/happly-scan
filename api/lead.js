@@ -43,15 +43,18 @@ function fmtBlok(t){
   }).join("");
 }
 
-/* Zelfde splitsing als de uitslagpagina: duiding boven, route onder eigen kop. */
+/* Zelfde splitsing en kopfilter als de uitslagpagina (scan.html); wijzig ze samen.
+   Ruim gematcht: [#*]-opmaak en een verhaspelde uitloop als "antwoordenatie"
+   komen in de praktijk voor; de hele kopregel verdwijnt. */
+const KOP_DUIDING = /(^|\n)[ \t]*[#*]*[ \t]*Wat opvalt in jouw antwoorden[^\n]*(\n|$)/i;
 function splitDuiding(text){
-  const marker = /(^|\n)\s*#*\s*Waar het werk zit\s*#*\s*(\n|$)/i;
+  const marker = /(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[^\n]*(\n|$)/i;
   const m = text.match(marker);
   if (m){
-    return { duiding: text.slice(0, m.index).replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(),
+    return { duiding: text.slice(0, m.index).replace(KOP_DUIDING,"$1").trim(),
              route:   text.slice(m.index + m[0].length).trim() };
   }
-  return { duiding: text.replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(), route:null };
+  return { duiding: text.replace(KOP_DUIDING,"$1").trim(), route:null };
 }
 
 function fmtDatum(d){

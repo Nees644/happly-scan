@@ -477,15 +477,19 @@ function renderDuiding(text){
     }
   }
 }
+/* Kopregels van het model wegfilteren. Ruim gematcht ([#*]-opmaak en een enkele
+   verhaspelde uitloop als "antwoordenatie" komen in de praktijk voor): de hele
+   kopregel verdwijnt, wat er ook achter de vaste tekst staat. */
+const KOP_DUIDING = /(^|\n)[ \t]*[#*]*[ \t]*Wat opvalt in jouw antwoorden[^\n]*(\n|$)/i;
 function splitDuiding(text){
-  const marker = /(^|\n)\s*#*\s*Waar het werk zit\s*#*\s*(\n|$)/i;
+  const marker = /(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[^\n]*(\n|$)/i;
   const m = text.match(marker);
   if(m){
     const idx = m.index;
-    return { duiding: text.slice(0, idx).replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(),
+    return { duiding: text.slice(0, idx).replace(KOP_DUIDING,"$1").trim(),
              route:   text.slice(idx + m[0].length).trim() };
   }
-  return { duiding: text.replace(/#*\s*Wat opvalt in jouw antwoorden\s*#*/i,"").trim(), route:null };
+  return { duiding: text.replace(KOP_DUIDING,"$1").trim(), route:null };
 }
 function fmt(t){
   if(!t) return "";
