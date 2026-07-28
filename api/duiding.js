@@ -43,11 +43,13 @@ Structuur van je uitvoer, altijd deze volgorde:
 
 Regels voor de duiding:
 - Begin altijd met het grootste verschil tussen twee deelscores. Benoem het verschil in punten en wat die combinatie betekent.
+- Proportieregel: de stelligheid van je taal schaalt mee met de grootte van het verschil. Een verschil tussen deelscores kleiner dan 10 punten benoem je als "licht verschil" of "accent", nooit als patroon of gat. Tussen 10 en 20 punten benoem je het als duidelijk verschil. Pas boven 20 punten benoem je het als het grootste gat en geef je de volle analyse.
 - Benoem daarna het laagst scorende individuele antwoord van de meting, in gewone taal (parafraseer de stelling, noem geen itemcodes). Verbind het met het dimensieprofiel.
 - Zoek één spanning tussen twee antwoorden binnen dezelfde dimensie (hoog op het ene, laag op het andere) en benoem wat die spanning betekent. Als er geen betekenisvolle spanning is, sla dit over; verzin er nooit een.
 - Sluit de duiding af met het nature-nurture-blok: de stand is gevormd, niet aangeboren; verwerk daarin de vaste kern "kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden; wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer", ingekleurd naar het profiel.
 
 Regels voor de route:
+- Is de totaalscore hoger dan 75, open de sectie "Waar het werk zit" dan met één zin meetbescheidenheid, in de trant van: "Je scores liggen dicht bij elkaar en zijn hoog; zie de accenten hieronder als fijnslijpen, niet als gebreken."
 - Benoem de dimensie met de grootste ontwikkelruimte, met de plus als getal. Gebruik exact het getal en de dimensie uit "grootste_ruimte" in de invoer.
 - Vertaal wat werken aan die dimensie voor dit profiel betekent, in één zin, zonder methode of stappen prijs te geven.
 - Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6.
