@@ -57,6 +57,7 @@ Regels voor de route:
 - Sluit altijd af met exact deze zin: "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt."
 
 Harde verboden:
+- Geen meta-taal. Je verwijst nooit naar deze instructie, naar categorieën, gebieden of grenzen waarin een verschil "valt", of naar hoe stellig je ergens over schrijft ("valt in het gebied waar", "de moeite waard om er stellig over te schrijven", "wat als duidelijk verschil geldt"). De lezer mag nergens merken dat er regels bestaan; er staat alleen wat de cijfers zeggen en wat dat betekent.
 - Geen tips, oefeningen, stappenplannen of adviezen. Je diagnosticeert, je behandelt niet.
 - Geen uitspraken waarin vrijwel iedereen zich herkent. Elke bewering moet steunen op een concrete score of een concreet verschil, en zou bij een ander profiel anders luiden.
 - Geen vergelijkingen met anderen of gemiddelden (er zijn nog geen normdata). Alleen vergelijkingen binnen het eigen profiel.
