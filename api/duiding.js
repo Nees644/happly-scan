@@ -43,13 +43,13 @@ Structuur van je uitvoer, altijd deze volgorde:
 
 Regels voor de duiding:
 - Begin altijd met het grootste verschil tussen twee deelscores. Benoem het verschil in punten en wat die combinatie betekent.
-- Proportieregel: de stelligheid van je taal schaalt mee met de grootte van het verschil. Een verschil tussen deelscores kleiner dan 10 punten benoem je als "licht verschil" of "accent", nooit als patroon of gat. Tussen 10 en 20 punten benoem je het als duidelijk verschil. Pas boven 20 punten benoem je het als het grootste gat en geef je de volle analyse.
+- Proportieregel: de stelligheid van je taal schaalt mee met de grootte van het verschil. Kleiner dan 10 punten: schrijf erover als een licht accent, nooit als patroon of gat. Tussen 10 en 20 punten: schrijf er stellig over als een duidelijk verschil. Boven 20 punten: het grootste gat, met de volle analyse. Deze indeling stuurt alleen jouw toon; de indeling zelf en haar grenzen bestaan voor de lezer niet. Schrijf dus nooit zinnen die de meting classificeren of aan een grens toetsen ("wat als duidelijk verschil geldt", "dit valt in de categorie", "boven de grens van"); geef alleen de conclusie in gewone taal.
 - Benoem daarna het laagst scorende individuele antwoord van de meting, in gewone taal (parafraseer de stelling, noem geen itemcodes). Verbind het met het dimensieprofiel.
-- Zoek één spanning tussen twee antwoorden binnen dezelfde dimensie (hoog op het ene, laag op het andere) en benoem wat die spanning betekent. Als er geen betekenisvolle spanning is, sla dit over; verzin er nooit een.
+- Zoek één spanning tussen twee antwoorden binnen dezelfde dimensie (hoog op het ene, laag op het andere). De alinea waarin je die spanning bespreekt eindigt met precies één conclusiezin: wat deze combinatie voor deze persoon betekent. Een vergelijking waar je geen conclusie aan verbindt, laat je helemaal weg. Als er geen betekenisvolle spanning is, sla dit over; verzin er nooit een.
 - Sluit de duiding af met het nature-nurture-blok: de stand is gevormd, niet aangeboren; verwerk daarin de vaste kern "kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden; wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer", ingekleurd naar het profiel.
 
 Regels voor de route:
-- Is de totaalscore hoger dan 75, open de sectie "Waar het werk zit" dan met één zin meetbescheidenheid, in de trant van: "Je scores liggen dicht bij elkaar en zijn hoog; zie de accenten hieronder als fijnslijpen, niet als gebreken."
+- Alleen als "fijnslijp" in de invoer true is, open de sectie "Waar het werk zit" dan met één zin meetbescheidenheid, in de trant van: "Je scores liggen dicht bij elkaar en zijn hoog; zie de accenten hieronder als fijnslijpen, niet als gebreken." Is "fijnslijp" false, dan laat je die zin volledig weg en begin je direct met de ontwikkelruimte.
 - Benoem de dimensie met de grootste ontwikkelruimte, met de plus als getal. Gebruik exact het getal en de dimensie uit "grootste_ruimte" in de invoer.
 - Vertaal wat werken aan die dimensie voor dit profiel betekent, in één zin, zonder methode of stappen prijs te geven.
 - Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6.
@@ -81,6 +81,12 @@ export default async function handler(req, res){
     const grootste = ruimte.length ? {dimensie:ruimte[0].n, plus:ruimte[0].or.plus, doel:ruimte[0].or.doel} : null;
     const laagste = [...dims].sort((a,b)=>a[1]-b[1])[0][0];
 
+    // Fijnslijp-zin alleen bij hoge, vlakke profielen: totaal boven 75 en het
+    // grootste gat tussen deelscores kleiner dan 10 punten. Hier berekend, niet
+    // aan het model overgelaten (Maarten, 29-07-2026).
+    const scores = dims.map(d => d[1]);
+    const fijnslijp = index > 75 && (Math.max(...scores) - Math.min(...scores)) < 10;
+
     const itemList = Object.keys(ITEM_META).map(code => ({
       dimensie: ITEM_META[code].dim,
       omgekeerd: ITEM_META[code].rev,
@@ -89,7 +95,7 @@ export default async function handler(req, res){
     }));
 
     const invoer = { index, deelscores:{Zien:zien, Sturen:sturen, Doen:doen},
-      items:itemList, grootste_ruimte:grootste, laagste_dimensie:laagste };
+      items:itemList, grootste_ruimte:grootste, laagste_dimensie:laagste, fijnslijp };
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await client.messages.create({
