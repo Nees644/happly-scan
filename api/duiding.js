@@ -34,7 +34,7 @@ function ontwikkelruimte(s){
 
 const SYSTEM = `Je schrijft de persoonlijke duiding bij een Zelfkracht Index-meting. Je krijgt de totaalscore, drie deelscores en twaalf itemscores. Je schrijft in het Nederlands, in de je-vorm, in meettaal: cijfers en feiten dragen de tekst, niet beloftes of aanmoedigingen.
 
-De itemscores zijn al gespiegeld naar de Zelfkracht-schaal: 4 betekent veel zelfkracht op dat punt, 0 weinig. Bij items met "omgekeerd": true betekent een lage gespiegelde score dat de persoon de oorspronkelijke stelling juist herkent. Parafraseer een laag antwoord dan in de richting van de oorspronkelijke stelling (zoals in de meegeleverde stellingtekst), noem nooit itemcodes.
+De itemscores zijn al gespiegeld naar de Zelfkracht-schaal: 4 betekent veel zelfkracht op dat punt, 0 weinig. Elk item heeft een veld "betekenis" dat in woorden zegt hoe je dat antwoord moet lezen. Volg dat veld letterlijk en leid de leesrichting nooit zelf af uit de score of de stellingtekst: een item mag in de duiding alleen als sterk punt klinken als de betekenis "veel zelfkracht" zegt, en alleen als zwak punt als de betekenis "weinig zelfkracht" zegt. Parafraseer de stelling in gewone taal en noem nooit itemcodes.
 
 Structuur van je uitvoer, altijd deze volgorde:
 
@@ -97,20 +97,35 @@ export default async function handler(req, res){
     // autonomiezin bij totaal onder 50 of laagste deelscore onder 45.
     const lage_score = index < 50 || Math.min(...scores) < 45;
 
+    // Leesrichting per item voorgekauwd: het model spiegelde lage scores soms
+    // naar de verkeerde kant (een laag antwoord werd als sterk punt beschreven).
+    const betekenis = code => {
+      const m = ITEM_META[code], s = items[code];
+      const laag = s <= 1, hoog = s >= 3;
+      if (m.rev){
+        if (laag) return "de persoon herkent de stelling sterk; weinig zelfkracht op dit punt";
+        if (hoog) return "de persoon herkent de stelling nauwelijks; veel zelfkracht op dit punt";
+        return "de persoon herkent de stelling deels; gemiddelde zelfkracht op dit punt";
+      }
+      if (laag) return "de persoon herkent zich weinig in de stelling; weinig zelfkracht op dit punt";
+      if (hoog) return "de persoon herkent zich sterk in de stelling; veel zelfkracht op dit punt";
+      return "de persoon herkent zich deels in de stelling; gemiddelde zelfkracht op dit punt";
+    };
+
     // Laagste item hier bepaald (het model koos soms het verkeerde);
     // bij gelijke stand wint het item in de laagste dimensie.
     const codes = Object.keys(ITEM_META).filter(c => typeof items[c] === "number");
     codes.sort((a,b) => (items[a] - items[b]) ||
       ((ITEM_META[a].dim === laagste ? 0 : 1) - (ITEM_META[b].dim === laagste ? 0 : 1)));
     const li = codes[0];
-    const laagste_item = li ? { dimensie: ITEM_META[li].dim, omgekeerd: ITEM_META[li].rev,
-      stelling: ITEM_META[li].stelling, score_gespiegeld: items[li] } : null;
+    const laagste_item = li ? { dimensie: ITEM_META[li].dim, stelling: ITEM_META[li].stelling,
+      score_gespiegeld: items[li], betekenis: betekenis(li) } : null;
 
     const itemList = Object.keys(ITEM_META).map(code => ({
       dimensie: ITEM_META[code].dim,
-      omgekeerd: ITEM_META[code].rev,
       stelling: ITEM_META[code].stelling,
-      score_gespiegeld: items[code]
+      score_gespiegeld: items[code],
+      betekenis: betekenis(code)
     }));
 
     const invoer = { index, deelscores:{Zien:zien, Sturen:sturen, Doen:doen},
