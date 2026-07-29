@@ -43,8 +43,10 @@ Structuur van je uitvoer, altijd deze volgorde:
 
 Regels voor de duiding:
 - Begin altijd met het grootste verschil tussen twee deelscores. Benoem het verschil in punten en wat die combinatie betekent.
+- Alleen als "lage_score" in de invoer true is: direct na het benoemen van dat grootste verschil volgt één opvangzin met exact deze strekking: "Een lagere startmeting zegt niets over wat je kunt. Hij zegt iets over je huidige automatismen, en juist die zijn te verzetten." Is "lage_score" false, dan laat je die zin volledig weg.
 - Proportieregel: hoe groter het verschil tussen deelscores, hoe meer gewicht je het geeft. Kleiner dan 10 punten: behandel het terloops en licht, zonder er een patroon of gat van te maken. Tussen 10 en 20 punten: benoem het als een duidelijk verschil en werk het uit. Boven 20 punten: maak het de kern van de duiding, met de volle analyse. Die weging verantwoord je nooit in de tekst: geen zinnen die zeggen dat een verschil ergens groot, stevig of belangrijk genoeg voor is, geen categorieën, geen grenzen. Je stelt direct vast wat er staat en wat het betekent, in gewone taal.
 - Benoem daarna het laagst scorende individuele antwoord van de meting, in gewone taal (parafraseer de stelling, noem geen itemcodes). Verbind het met het dimensieprofiel.
+- Alleen als "lage_score" true is: vervang bij dat laagste antwoord de verdere analyse door één herkenningsscène. Beschrijf één klein, alledaags moment van hooguit drie seconden waarin dit patroon zichtbaar wordt: filmisch, concreet, zonder oordeel. Voorbeelden van zulke momenten per thema: goedkeuring vragen voor iets dat binnen je eigen mandaat valt; de mail van 's avonds laat direct beantwoorden; het formulier dat al weken open staat in een tabblad; wachten tot iemand het vraagt terwijl je de verbetering al ziet. Kies of maak de scène die bij dit antwoord past. De alinea eindigt met exact de vraag "herken je zo'n moment?"; dit is de enige toegestane uitzondering op de regel dat elke alinea met een conclusiezin eindigt, en de enige scène in de hele duiding.
 - Zoek één spanning tussen twee antwoorden binnen dezelfde dimensie (hoog op het ene, laag op het andere). De alinea waarin je die spanning bespreekt eindigt met precies één conclusiezin: wat deze combinatie voor deze persoon betekent. Een vergelijking waar je geen conclusie aan verbindt, laat je helemaal weg. Als er geen betekenisvolle spanning is, sla dit over; verzin er nooit een.
 - Elke alinea van de duiding eindigt met een volledige conclusiezin, met onderwerp en werkwoord, die zegt wat de besproken cijfers voor deze persoon betekenen. Nooit een los zinsfragment als slot. Een alinea die alleen vergelijkt zonder tot zo'n conclusie te komen, laat je helemaal weg.
 - Sluit de duiding af met het nature-nurture-blok: de stand is gevormd, niet aangeboren; verwerk daarin de vaste kern "kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden; wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer", ingekleurd naar het profiel.
@@ -53,7 +55,7 @@ Regels voor de route:
 - Alleen als "fijnslijp" in de invoer true is, open de sectie "Waar het werk zit" dan met één zin meetbescheidenheid, in de trant van: "Je scores liggen dicht bij elkaar en zijn hoog; zie de accenten hieronder als fijnslijpen, niet als gebreken." Is "fijnslijp" false, dan laat je die zin volledig weg en begin je direct met de ontwikkelruimte.
 - Benoem de dimensie met de grootste ontwikkelruimte, met de plus als getal. Gebruik exact het getal en de dimensie uit "grootste_ruimte" in de invoer.
 - Vertaal wat werken aan die dimensie voor dit profiel betekent, in één zin, zonder methode of stappen prijs te geven.
-- Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6.
+- Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6. Alleen als "lage_score" true is, vervang je die verwijzing door exact deze autonomiezin, met de juiste weeknummers ingevuld: "Je hoeft hier niets mee. Maar als je wilt kijken hoe dit werkt, is dat precies wat je onderzoekt in week X en Y van de Zelfkracht Sprint."
 - Sluit altijd af met exact deze zin: "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt."
 
 Harde verboden:
@@ -89,6 +91,10 @@ export default async function handler(req, res){
     const scores = dims.map(d => d[1]);
     const fijnslijp = index > 75 && (Math.max(...scores) - Math.min(...scores)) < 10;
 
+    // Lage-score-protocol (Maarten, 29-07-2026): opvangzin, herkenningsscène en
+    // autonomiezin bij totaal onder 50 of laagste deelscore onder 45.
+    const lage_score = index < 50 || Math.min(...scores) < 45;
+
     const itemList = Object.keys(ITEM_META).map(code => ({
       dimensie: ITEM_META[code].dim,
       omgekeerd: ITEM_META[code].rev,
@@ -97,7 +103,7 @@ export default async function handler(req, res){
     }));
 
     const invoer = { index, deelscores:{Zien:zien, Sturen:sturen, Doen:doen},
-      items:itemList, grootste_ruimte:grootste, laagste_dimensie:laagste, fijnslijp };
+      items:itemList, grootste_ruimte:grootste, laagste_dimensie:laagste, fijnslijp, lage_score };
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await client.messages.create({
