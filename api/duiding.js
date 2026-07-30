@@ -171,6 +171,9 @@ export default async function handler(req, res){
                "Wat opvalt in jouw antwoorden\n\n")
       .replace(/(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[a-zà-ÿ]*[ \t]*[#*]*[ \t]*:?[ \t]*/,
                "\n\nWaar het werk zit\n\n")
+      // Losse structuurlabels die het model soms als regel uitspuugt ("Alinea",
+      // "Aliniea") verwijderen; nooit inhoud, alleen een regel met dat ene woord.
+      .replace(/(^|\n)[ \t]*[#*]*[ \t]*[Aa]lin[a-zà-ÿ]*[ \t]*(?=\n|$)/g, "$1")
       .replace(/\n{3,}/g, "\n\n").trim();
 
     res.status(200).json({ duiding });
