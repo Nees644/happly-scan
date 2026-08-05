@@ -119,6 +119,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .lead-thanks-icon{width:34px;height:34px;border-radius:50%;background:var(--pk);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;margin:0 auto 12px}
 .lead-thanks-txt{font-size:14px;font-weight:500;color:var(--dp);margin-bottom:5px}
 .lead-thanks-sub{font-size:12px;font-weight:300;color:var(--mut)}
+/* deelvenster (deelbare herkenningszin) */
+.deel-overlay{position:fixed;inset:0;background:rgba(26,11,46,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.deel-overlay.open{display:flex}
+.deel-kaart{background:#fff;border-radius:12px;max-width:430px;width:100%;padding:24px 26px;max-height:92vh;overflow-y:auto}
+.deel-titel{font-family:"DM Serif Display",serif;font-size:20px;color:var(--dp);margin-bottom:4px}
+.deel-sub{font-size:12.5px;font-weight:300;color:var(--mut);margin-bottom:14px}
+#deel-canvas{width:100%;height:auto;border-radius:9px;display:block}
+.deel-veld{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--tx);margin:14px 0 12px;outline:none;resize:vertical;min-height:58px;line-height:1.5}
+.deel-veld:focus{border-color:var(--pk)}
+.deel-knoppen{display:flex;flex-direction:column;gap:9px}
+.deel-sluit{display:block;text-align:center;margin-top:12px}
 .foot-links{padding:20px 40px;border-top:1px solid var(--bd);text-align:center}
 .foot-links a{font-size:11.5px;color:var(--mut);text-decoration:none;margin:0 10px}
 .foot-links a:hover{color:var(--pk)}
@@ -181,6 +192,21 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
   <div id="r-body"></div>
 </div>
 
+</div>
+
+<!-- DEELVENSTER: voorbeeld van het deelbeeld (1200x1500) met aanpasbare zin -->
+<div class="deel-overlay" id="deel-overlay" onclick="if(event.target===this)sluitDeel()">
+  <div class="deel-kaart">
+    <div class="deel-titel">Deel wat je herkende</div>
+    <div class="deel-sub">Pas de zin aan als je wilt; het beeld past mee. Je score staat er niet op.</div>
+    <canvas id="deel-canvas" width="1200" height="1500"></canvas>
+    <textarea class="deel-veld" id="deel-tekst" maxlength="140" oninput="deelHerteken()"></textarea>
+    <div class="deel-knoppen">
+      <button class="btn" style="width:100%;justify-content:center" onclick="deelDownload()">Download beeld</button>
+      <button class="btn ghost" style="width:100%;justify-content:center" id="deel-kopieer" onclick="deelKopieer()">Kopieer tekst voor LinkedIn</button>
+    </div>
+    <div class="deel-sluit"><button class="linkbtn" onclick="sluitDeel()">Sluiten</button></div>
+  </div>
 </div>
 
 <script>
@@ -291,6 +317,8 @@ let duidingPromise = null;    // start al op het mailscherm, zodat de uitslag sn
 let duidingTekst = null;      // de getoonde duiding; wordt nooit opnieuw gegenereerd
 let duidingFallback = false;  // true = terugvaltekst gebruikt in plaats van de AI
 let savePromise = null;       // de ene insert (scores + duiding) via /api/scan
+let deelZin = null;           // meest markante zin uit de duiding (/api/deelzin)
+let deelzinPromise = null;    // loopt parallel aan de duiding-render
 
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);}
 function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
@@ -422,10 +450,11 @@ function renderResults(){
       <p class="legend">De ontwikkelruimte is de afstand tot stevig in het eerstvolgende niveau. Het maakt de weg concreet en eindig.</p>
     </div>
 
-    <!-- Blok 4: AI-duiding -->
+    <!-- Blok 4: AI-duiding, met deelknop zodra de duiding er staat -->
     <div class="sec">
       <div class="sec-h">Wat jouw meting laat zien</div>
       <div id="duiding" class="duiding"><div class="duiding-load"><span class="spin"></span> Je duiding wordt geschreven op basis van je twaalf antwoorden…</div></div>
+      <div id="deel-rij" style="display:none;margin-top:20px"><button class="btn ghost" onclick="openDeel()">Deel wat je herkende</button></div>
     </div>
 
     <!-- Blok 5: patroonvenster -->
@@ -510,10 +539,25 @@ async function fetchDuiding(){
 async function finishDuiding(){
   const d = await duidingPromise;
   duidingTekst = d.tekst; duidingFallback = d.fallback;
+  // Deelzin parallel aan de render ophalen; de deelnemer wacht er nergens op.
+  // Bij terugval-duiding geen AI-selectie; het deelvenster gebruikt dan de canonzin.
+  deelzinPromise = duidingFallback ? Promise.resolve(null) : fetchDeelzin(duidingTekst);
+  deelzinPromise.then(z => { if (z) deelZin = z; });
   renderDuiding(duidingTekst);
+  // Kort op de deelzin wachten zodat hij in dezelfde insert mee kan; hangt de
+  // selectie, dan slaan we zonder deelzin op (de uitslag is dan al lang zichtbaar).
+  await Promise.race([deelzinPromise, new Promise(r => setTimeout(r, 12000))]);
   savePromise = saveScan();
   await savePromise;
   if (leadEmail) sendLead();
+}
+async function fetchDeelzin(duiding){
+  try{
+    const r = await fetch("/api/deelzin", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({duiding})});
+    if(!r.ok) return null;
+    const data = await r.json();
+    return (data.zin || "").trim() || null;
+  }catch(e){ return null; }
 }
 function renderDuiding(text){
   const el = document.getElementById("duiding");
@@ -521,6 +565,8 @@ function renderDuiding(text){
   // De AI levert twee koppen; "Waar het werk zit" hoort onder Blok 6 (De route).
   const parts = splitDuiding(text);
   el.innerHTML = fmt(parts.duiding);
+  const dr = document.getElementById("deel-rij");
+  if (dr) dr.style.display = "block";
   const rb = document.getElementById("route-body");
   if(rb){
     if(parts.route){
@@ -578,13 +624,164 @@ function fallbackDuiding(){
   return `${p1}\n\n${p2}\n\n${p3}\n\nWaar het werk zit\n\n${route}`;
 }
 
+/* ======================= DEELVENSTER (herkenningszin) ======================= */
+/* Deelbeeld 1200x1500 in de huisstijl van de campagnekaarten (assets/campagne):
+   donkerpaarse grond met zachte magenta-gloed, eyebrow, de zin in DM Serif
+   Display, vaste bronregel en het logo onderin. Nooit het getal, nooit een
+   dimensienaam met getal: het sjabloon bevat alleen de zin en de bronregel. */
+const DEEL_CANON = "Wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
+const DEEL_BRON = "Uit mijn Zelfkracht Index · scan.happly.nl";
+let deelLogo = null;
+
+function huidigeDeelzin(){ return deelZin || DEEL_CANON; }
+
+async function openDeel(){
+  document.getElementById("deel-overlay").classList.add("open");
+  const veld = document.getElementById("deel-tekst");
+  if (!veld.value){
+    // Mocht de selectie nog onderweg zijn: heel even meegeven, anders canonzin.
+    if (!deelZin && deelzinPromise){
+      await Promise.race([deelzinPromise, new Promise(r=>setTimeout(r,2500))]);
+    }
+    veld.value = huidigeDeelzin();
+  }
+  tekenDeelbeeld(veld.value);
+}
+function sluitDeel(){ document.getElementById("deel-overlay").classList.remove("open"); }
+
+let hertekenTimer = null;
+function deelHerteken(){
+  clearTimeout(hertekenTimer);
+  hertekenTimer = setTimeout(()=>tekenDeelbeeld(document.getElementById("deel-tekst").value), 150);
+}
+
+async function laadLogo(){
+  if (deelLogo) return deelLogo;
+  const tekst = await (await fetch("happly-logo.svg")).text();
+  const doc = new DOMParser().parseFromString(tekst, "image/svg+xml");
+  const svg = doc.documentElement;
+  if (!svg.getAttribute("width")){
+    const vb = (svg.getAttribute("viewBox") || "0 0 719 269").split(/\s+/);
+    svg.setAttribute("width", vb[2]); svg.setAttribute("height", vb[3]);
+  }
+  const blob = new Blob([new XMLSerializer().serializeToString(svg)], {type:"image/svg+xml"});
+  deelLogo = await new Promise((res, rej)=>{
+    const img = new Image();
+    img.onload = ()=>res(img); img.onerror = rej;
+    img.src = URL.createObjectURL(blob);
+  });
+  return deelLogo;
+}
+
+function wrapRegels(ctx, tekst, maxW){
+  const regels = [];
+  let regel = "";
+  for (const w of tekst.split(/\s+/).filter(Boolean)){
+    const proef = regel ? regel + " " + w : w;
+    if (ctx.measureText(proef).width > maxW && regel){ regels.push(regel); regel = w; }
+    else regel = proef;
+  }
+  if (regel) regels.push(regel);
+  return regels;
+}
+
+async function tekenDeelbeeld(zin){
+  zin = (zin || "").trim() || huidigeDeelzin();
+  const cv = document.getElementById("deel-canvas");
+  const ctx = cv.getContext("2d");
+  const W = 1200, H = 1500;
+  try{
+    await Promise.all([
+      document.fonts.load('400 76px "DM Serif Display"'),
+      document.fonts.load('600 30px "DM Sans"'),
+      document.fonts.load('400 31px "DM Sans"')
+    ]);
+  }catch(e){}
+
+  // Grond + zachte magenta-gloed (zoals de campagnekaarten)
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#1A0B2E"; ctx.fillRect(0, 0, W, H);
+  const gl = ctx.createRadialGradient(W*.76, H*.86, 0, W*.76, H*.86, 860);
+  gl.addColorStop(0, "rgba(214,2,111,.20)"); gl.addColorStop(.68, "rgba(214,2,111,0)"); gl.addColorStop(1, "rgba(214,2,111,0)");
+  ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+
+  // Eyebrow
+  try{ ctx.letterSpacing = "4.8px"; }catch(e){}
+  ctx.fillStyle = "#D6026F";
+  ctx.font = '600 30px "DM Sans", sans-serif';
+  ctx.fillText("ZELFKRACHT INDEX", W/2, 220);
+  try{ ctx.letterSpacing = "0px"; }catch(e){}
+
+  // De zin: lettergrootte schaalt mee tot hij past (max 5 regels, 940 breed)
+  let maat = 76, regels = [];
+  for (; maat >= 44; maat -= 4){
+    ctx.font = `400 ${maat}px "DM Serif Display", serif`;
+    regels = wrapRegels(ctx, zin, 940);
+    if (regels.length <= 5) break;
+  }
+  const lijn = Math.round(maat * 1.22);
+  const blokH = regels.length * lijn;
+  const startY = Math.round(H*.47 - blokH/2 + lijn*.7);
+
+  // Magenta openingscitaat boven de zin
+  ctx.fillStyle = "#D6026F";
+  ctx.font = '400 150px "DM Serif Display", serif';
+  ctx.fillText("“", W/2, startY - blokH/2 - 10);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = `400 ${maat}px "DM Serif Display", serif`;
+  regels.forEach((r, i)=> ctx.fillText(r, W/2, startY + i*lijn));
+
+  // Vaste bronregel
+  ctx.fillStyle = "#B9AECB";
+  ctx.font = '400 31px "DM Sans", sans-serif';
+  ctx.fillText(DEEL_BRON, W/2, 1240);
+
+  // Logo onderin (magenta woordmerk, zoals de kaarten); tekstterugval als het laden faalt
+  try{
+    const logo = await laadLogo();
+    const lw = 170, lh = lw * (logo.height / logo.width);
+    ctx.drawImage(logo, (W-lw)/2, H - 88 - lh, lw, lh);
+  }catch(e){
+    ctx.fillStyle = "#D6026F";
+    ctx.font = 'italic 400 44px "DM Serif Display", serif';
+    ctx.fillText("happly", W/2, H - 100);
+  }
+}
+
+function deelDownload(){
+  const cv = document.getElementById("deel-canvas");
+  cv.toBlob(b => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = "zelfkracht-herkenning.png";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+  }, "image/png");
+}
+
+async function deelKopieer(){
+  const zin = (document.getElementById("deel-tekst").value || "").trim() || huidigeDeelzin();
+  const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${zin}'. scan.happly.nl`;
+  const knop = document.getElementById("deel-kopieer");
+  try{
+    await navigator.clipboard.writeText(tekst);
+    knop.textContent = "Gekopieerd";
+  }catch(e){
+    knop.textContent = "Kopiëren lukte niet";
+  }
+  setTimeout(()=>{ knop.textContent = "Kopieer tekst voor LinkedIn"; }, 2200);
+}
+
 /* ======================= OPSLAG + LEAD ======================= */
 /* Eén insert per meting: scores én duiding samen, zodra de duiding er is. */
 async function saveScan(){
   try{
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
-        duiding:duidingTekst,duiding_fallback:duidingFallback})});
+        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:deelZin})});
     if(r.ok){ const d = await r.json(); scanId = d.id || null; }
   }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
 }

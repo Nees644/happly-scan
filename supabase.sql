@@ -120,3 +120,10 @@ create index if not exists opvolgreeks_due_idx
   on public.opvolgreeks (afgemeld, created_at);
 create index if not exists opvolgreeks_email_idx
   on public.opvolgreeks (email);
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 05-08-2026b · deelbare herkenningszin
+-- Voor het bestaande project: draai alleen deze regel in de SQL-editor.
+-- De meest markante zin uit de duiding (AI-selectie via /api/deelzin), één keer
+-- gegenereerd en met de meting opgeslagen voor het deelbeeld op de uitslagpagina.
+alter table public.index_scan_results add column if not exists deel_zin text;

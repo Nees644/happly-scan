@@ -4,6 +4,7 @@
     "api/duiding.js": { "maxDuration": 60 },
     "api/scan.js": { "maxDuration": 15 },
     "api/lead.js": { "maxDuration": 15 },
+    "api/deelzin.js": { "maxDuration": 30 },
     "api/opvolg.js": { "maxDuration": 60 },
     "api/afmelden.js": { "maxDuration": 10 }
   },

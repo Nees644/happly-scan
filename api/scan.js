@@ -10,7 +10,7 @@ export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({error:"method"}); return; }
   try{
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback } = body;
+    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin } = body;
     if ([index,zien,sturen,doen].some(v => typeof v !== "number")){
       res.status(400).json({error:"ongeldige invoer"}); return;
     }
@@ -22,14 +22,22 @@ export default async function handler(req, res){
       age_band: age || null,
       work_situation: work || null
     };
-    let r = await db.from("index_scan_results").insert({
+    const metDuiding = {
       ...basis,
       duiding: duiding || null,
       duiding_generated_at: duiding ? new Date().toISOString() : null,
       duiding_fallback: duiding ? !!duiding_fallback : null
+    };
+    // Getrapt vangnet zolang een migratie (deel_zin 05-08-2026, duiding 24-07-2026)
+    // nog niet draait: eerst volledig, dan zonder deel_zin, dan de basis.
+    let r = await db.from("index_scan_results").insert({
+      ...metDuiding,
+      deel_zin: (typeof deel_zin === "string" && deel_zin.trim()) ? deel_zin.trim().slice(0,140) : null
     }).select("id").single();
     if (r.error){
-      // Vangnet zolang de duiding-migratie (supabase.sql, 24-07-2026) nog niet draait.
+      r = await db.from("index_scan_results").insert(metDuiding).select("id").single();
+    }
+    if (r.error){
       r = await db.from("index_scan_results").insert(basis).select("id").single();
     }
     if (r.error){ res.status(500).json({error:"opslag mislukt"}); return; }
