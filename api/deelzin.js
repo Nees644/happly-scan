@@ -37,10 +37,10 @@ export default async function handler(req, res){
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     let melding = null;
-    for (let poging = 0; poging < 2; poging++){
+    for (let poging = 0; poging < 3; poging++){
       const content = poging === 0
         ? `${INSTRUCTIE}\n\nDuiding:\n${duiding}`
-        : `${INSTRUCTIE}\n\nJe vorige keuze werd afgekeurd (${melding}). Kies of herformuleer opnieuw, binnen alle regels.\n\nDuiding:\n${duiding}`;
+        : `${INSTRUCTIE}\n\nJe vorige keuze werd afgekeurd: ${melding}. Herformuleer de meest herkenbare gedachte tot één zelfstandige zin die aan alles voldoet: geen cijfers, nooit de woorden Zien, Sturen of Doen (omschrijf in gewone taal wat ze betekenen), maximaal 100 tekens. Output alleen de zin.\n\nDuiding:\n${duiding}`;
       const msg = await client.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 200,
