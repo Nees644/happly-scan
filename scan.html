@@ -448,11 +448,10 @@ function renderResults(){
       <p class="legend">De ontwikkelruimte is de afstand tot stevig in het eerstvolgende niveau. Het maakt de weg concreet en eindig.</p>
     </div>
 
-    <!-- Blok 4: AI-duiding, met deelknop zodra de duiding er staat -->
+    <!-- Blok 4: AI-duiding -->
     <div class="sec">
       <div class="sec-h">Wat jouw meting laat zien</div>
       <div id="duiding" class="duiding"><div class="duiding-load"><span class="spin"></span> Je duiding wordt geschreven op basis van je twaalf antwoorden…</div></div>
-      <div id="deel-rij" style="display:none;margin-top:20px"><button class="btn ghost" onclick="openDeel()">Deel wat je herkende</button></div>
     </div>
 
     <!-- Blok 5: patroonvenster -->
@@ -471,6 +470,13 @@ function renderResults(){
         <p>De Index wijst de plek aan. De Sprint onderzoekt wat en hoe je kunt veranderen: zes weken, wekelijkse calls, één cohort tegelijk.</p>
         <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
       </div>
+    </div>
+
+    <!-- Blok 7: delen, bewust ná het Sprint-blok zodat de route naar de
+         Sprint-CTA vrij blijft; verschijnt zodra de duiding er staat -->
+    <div class="sec" id="deel-rij" style="display:none">
+      <p class="legend" style="margin:0 0 10px;text-align:center">Herkende je jezelf? Eén zin uit jouw duiding staat klaar als kaart.</p>
+      <button class="btn" style="width:100%;justify-content:center;padding:16px 30px;font-size:15px" onclick="openDeel()">Druk hier om te delen op LinkedIn</button>
     </div>
 
     <!-- Mailbevestiging: verschijnt alleen als er op het mailscherm een adres is ingevuld,
