@@ -172,8 +172,9 @@ export default async function handler(req, res){
       .replace(/(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[a-zà-ÿ]*[ \t]*[#*]*[ \t]*:?[ \t]*/,
                "\n\nWaar het werk zit\n\n")
       // Losse structuurlabels die het model soms als regel uitspuugt ("Alinea",
-      // "Aliniea") verwijderen; nooit inhoud, alleen een regel met dat ene woord.
-      .replace(/(^|\n)[ \t]*[#*]*[ \t]*[Aa]lin[a-zà-ÿ]*[ \t]*(?=\n|$)/g, "$1")
+      // "Aliniea", of een kale "A", gezien 05-08-2026) verwijderen; nooit
+      // inhoud, alleen een regel met dat ene woord of die ene letter.
+      .replace(/(^|\n)[ \t]*[#*]*[ \t]*[Aa](?:lin[a-zà-ÿ]*)?[ \t]*(?=\n|$)/g, "$1")
       .replace(/\n{3,}/g, "\n\n").trim();
 
     res.status(200).json({ duiding });
