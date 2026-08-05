@@ -163,6 +163,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
     <div class="instr" style="margin-bottom:6px">Alleen voor je uitslag en je vervolgstappen. Verder niets.</div>
     <div class="instr" style="margin-bottom:26px">In september ontvang je bovendien als eerste het beeld van Nederland, met waar jouw profiel in past.</div>
     <div style="max-width:420px">
+      <input class="lead-inp" id="m-name" type="text" placeholder="Naam (optioneel)" autocomplete="name">
+      <input class="lead-inp" id="m-company" type="text" placeholder="Organisatie (optioneel)" autocomplete="organization">
       <input class="lead-inp" id="m-email" type="email" placeholder="E-mailadres" autocomplete="email" onkeydown="if(event.key==='Enter')mailSubmit()">
       <button class="btn" style="width:100%;justify-content:center" onclick="mailSubmit()">Stuur mijn uitslag &rarr;</button>
       <div class="lead-skip"><button class="linkbtn" onclick="mailSkip()">liever direct bekijken zonder mail</button></div>
@@ -280,6 +282,8 @@ let ctxAns  = {age:null, work:null};
 let scores  = null;
 let scanId  = null;
 let leadEmail = null;         // ingevuld op het mailscherm vóór de uitslag; null = overgeslagen
+let leadName = null;          // optioneel, van het mailscherm
+let leadCompany = null;       // optioneel, van het mailscherm
 let duidingPromise = null;    // start al op het mailscherm, zodat de uitslag sneller compleet is
 let duidingTekst = null;      // de getoonde duiding; wordt nooit opnieuw gegenereerd
 let duidingFallback = false;  // true = terugvaltekst gebruikt in plaats van de AI
@@ -348,9 +352,11 @@ function mailSubmit(){
     return;
   }
   leadEmail = email;
+  leadName = document.getElementById("m-name").value.trim() || null;
+  leadCompany = document.getElementById("m-company").value.trim() || null;
   toResults();
 }
-function mailSkip(){ leadEmail = null; toResults(); }
+function mailSkip(){ leadEmail = null; leadName = null; leadCompany = null; toResults(); }
 
 /* ======================= UITSLAG ======================= */
 function toResults(){
@@ -579,7 +585,7 @@ async function saveScan(){
 async function sendLead(){
   try{
     await fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:scanId,email:leadEmail,
+      body:JSON.stringify({id:scanId,email:leadEmail,name:leadName,company:leadCompany,
         index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,
         duiding:duidingTekst})});   // terugvalbron; de mail leest primair uit Supabase
   }catch(e){/* mail is best effort */}
