@@ -357,9 +357,14 @@ function mailSubmit(){
   leadEmail = email;
   leadName = document.getElementById("m-name").value.trim() || null;
   leadCompany = document.getElementById("m-company").value.trim() || null;
+  logEvent("mail_ingevuld");      // na scan_afgerond, vóór uitslag_getoond
   toResults();
 }
-function mailSkip(){ leadEmail = null; leadName = null; leadCompany = null; toResults(); }
+function mailSkip(){
+  leadEmail = null; leadName = null; leadCompany = null;
+  logEvent("mail_overgeslagen");  // na scan_afgerond, vóór uitslag_getoond
+  toResults();
+}
 
 /* ======================= UITSLAG ======================= */
 function toResults(){
