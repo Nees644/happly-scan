@@ -126,8 +126,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .deel-titel{font-family:"DM Serif Display",serif;font-size:20px;color:var(--dp);margin-bottom:4px}
 .deel-sub{font-size:12.5px;font-weight:300;color:var(--mut);margin-bottom:14px}
 #deel-canvas{width:100%;height:auto;border-radius:9px;display:block}
-.deel-veld{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--tx);margin:14px 0 12px;outline:none;resize:vertical;min-height:58px;line-height:1.5}
-.deel-veld:focus{border-color:var(--pk)}
 .deel-knoppen{display:flex;flex-direction:column;gap:9px}
 .deel-sluit{display:block;text-align:center;margin-top:12px}
 .foot-links{padding:20px 40px;border-top:1px solid var(--bd);text-align:center}
@@ -198,10 +196,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 <div class="deel-overlay" id="deel-overlay" onclick="if(event.target===this)sluitDeel()">
   <div class="deel-kaart">
     <div class="deel-titel">Deel wat je herkende</div>
-    <div class="deel-sub">Pas de zin aan als je wilt; het beeld past mee. Je score staat er niet op.</div>
+    <div class="deel-sub">De zin komt uit jouw duiding. Delen is helemaal aan jou; je score staat er niet op.</div>
     <canvas id="deel-canvas" width="1200" height="1500"></canvas>
-    <textarea class="deel-veld" id="deel-tekst" maxlength="140" oninput="deelHerteken()"></textarea>
-    <div class="deel-knoppen">
+    <div class="deel-knoppen" style="margin-top:14px">
       <button class="btn" style="width:100%;justify-content:center" onclick="deelDownload()">Download beeld</button>
       <button class="btn ghost" style="width:100%;justify-content:center" id="deel-kopieer" onclick="deelKopieer()">Kopieer tekst voor LinkedIn</button>
     </div>
@@ -635,40 +632,17 @@ let deelLogo = null;
 
 function huidigeDeelzin(){ return deelZin || DEEL_CANON; }
 
-/* Vangrail op het vrije veld: url's, mailadressen, kale domeinen en @-handles
-   verdwijnen uit het beeld en de kopieertekst, regeleindes worden platgeslagen.
-   Puur een drempel tegen spam of phishing in huisstijl; het canvas is en blijft
-   client-side. De bedoelde aanpassing (inkorten, herformuleren) merkt er niets van. */
-function deelSchoon(t){
-  const schoon = (t || "")
-    .replace(/\s+/g, " ")
-    .replace(/https?:\/\/\S+|www\.\S+/gi, "")
-    .replace(/\S+@\S+\.\S+/g, "")
-    .replace(/(^|\s)@[\w.\-]+/g, "$1")
-    .replace(/[a-z0-9\-]+\.(nl|be|de|eu|com|net|org|io|co|app|dev|online|site|shop)(\/\S*)?/gi, "")
-    .replace(/\s{2,}/g, " ").trim();
-  return schoon || huidigeDeelzin();
-}
-
+/* De zin ligt vast (besluit Maarten 05-08-2026, na media-advies): de deelnemer
+   kiest alleen óf hij deelt, niet wat er staat. Geen tekstveld, geen aanpassing. */
 async function openDeel(){
   document.getElementById("deel-overlay").classList.add("open");
-  const veld = document.getElementById("deel-tekst");
-  if (!veld.value){
-    // Mocht de selectie nog onderweg zijn: heel even meegeven, anders canonzin.
-    if (!deelZin && deelzinPromise){
-      await Promise.race([deelzinPromise, new Promise(r=>setTimeout(r,2500))]);
-    }
-    veld.value = huidigeDeelzin();
+  // Mocht de selectie nog onderweg zijn: heel even meegeven, anders canonzin.
+  if (!deelZin && deelzinPromise){
+    await Promise.race([deelzinPromise, new Promise(r=>setTimeout(r,2500))]);
   }
-  tekenDeelbeeld(veld.value);
+  tekenDeelbeeld(huidigeDeelzin());
 }
 function sluitDeel(){ document.getElementById("deel-overlay").classList.remove("open"); }
-
-let hertekenTimer = null;
-function deelHerteken(){
-  clearTimeout(hertekenTimer);
-  hertekenTimer = setTimeout(()=>tekenDeelbeeld(document.getElementById("deel-tekst").value), 150);
-}
 
 async function laadLogo(){
   if (deelLogo) return deelLogo;
@@ -701,7 +675,7 @@ function wrapRegels(ctx, tekst, maxW){
 }
 
 async function tekenDeelbeeld(zin){
-  zin = deelSchoon(zin);
+  zin = (zin || "").trim() || huidigeDeelzin();
   const cv = document.getElementById("deel-canvas");
   const ctx = cv.getContext("2d");
   const W = 1200, H = 1500;
@@ -778,8 +752,7 @@ function deelDownload(){
 }
 
 async function deelKopieer(){
-  const zin = deelSchoon(document.getElementById("deel-tekst").value);
-  const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${zin}'. scan.happly.nl`;
+  const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${huidigeDeelzin()}'. scan.happly.nl`;
   const knop = document.getElementById("deel-kopieer");
   try{
     await navigator.clipboard.writeText(tekst);
