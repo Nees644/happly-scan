@@ -73,6 +73,9 @@
   .lead b{color:var(--cream);font-weight:500}
   .lead:last-of-type{margin-bottom:40px}
 
+  .research-line{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pink-bright);margin:12px 0 32px}
+  .promise{font-size:.88rem;font-weight:300;color:var(--cream-dim);margin-top:16px;max-width:56ch}
+
   .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px}
   .cta{
     display:inline-flex;align-items:center;gap:12px;
@@ -120,15 +123,28 @@
     <p class="lead">De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
     <p class="lead">De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: <b>wat gevormd is, kun je bijstellen.</b></p>
     <p class="lead">Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
+    <p class="research-line">Onderdeel van de eerste Zelfkracht Meting van Nederland · eerste beeld in september 2026</p>
     <div class="cta-row">
-      <a class="cta" href="scan">
+      <a class="cta" id="cta-scan" href="scan">
         Begin de meting
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
       <span class="meta"><b>12 stellingen</b> · 3 tot 4 minuten · direct je score</span>
     </div>
+    <p class="promise">Direct je eigen getal en duiding. In september het beeld van Nederland, als eerste in je mailbox.</p>
   </div>
 </main>
+
+<!-- Herkomstmeting: geef de src-parameter (bijv. ?src=post) door aan de scanlink,
+     zodat de sessie op /scan de campagnebron op alle funnel-events kan loggen. -->
+<script>
+(function(){
+  try{
+    var src=(new URLSearchParams(location.search).get("src")||"").trim().slice(0,60);
+    if(src){ var a=document.getElementById("cta-scan"); a.href="scan?src="+encodeURIComponent(src); }
+  }catch(e){}
+})();
+</script>
 
 <section class="pillars">
   <div class="wrap">

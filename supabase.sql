@@ -79,3 +79,44 @@ create index if not exists funnel_events_created_at_idx
   on public.funnel_events (created_at);
 create index if not exists funnel_events_event_idx
   on public.funnel_events (event);
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 05-08-2026 · herkomstmeting (src) + opvolgreeks
+-- Voor het bestaande project: draai alleen dit blok in de SQL-editor.
+
+-- 1. Herkomst: de src-parameter uit de URL gaat sessiebreed mee met alle
+--    funnel-events (naast de eventgebonden kolom bron, die blijft wat hij was).
+alter table public.funnel_events add column if not exists src text;
+
+-- 2. Opvolgreeks: één rij per meting met mailadres. De cron (/api/opvolg)
+--    leest hieruit welke mail (dag 3, 7, 56) aan de beurt is.
+--    laagste_dimensie bepaalt de scène in de dag-3-mail en de weekkoppeling
+--    in de dag-7-mail. afgemeld = true stopt de reeks (afmeldlink of nieuwe
+--    meting met hetzelfde mailadres).
+create table if not exists public.opvolgreeks (
+  id               uuid primary key default gen_random_uuid(),
+  created_at       timestamptz not null default now(),
+  scan_id          uuid references public.index_scan_results(id),
+  email            text not null,
+  name             text,
+  index_score      int,
+  laagste_dimensie text not null,   -- Zien | Sturen | Doen
+  afgemeld         boolean not null default false,
+  mail3_sent_at    timestamptz,
+  mail7_sent_at    timestamptz,
+  mail56_sent_at   timestamptz
+);
+
+-- RLS: de browser komt hier nooit; alles loopt serverside via de service role.
+alter table public.opvolgreeks enable row level security;
+
+-- Leesrecht alleen voor ingelogde dashboardgebruikers (zelfde patroon als
+-- index_scan_results); de anon-rol blijft volledig buitengesloten.
+drop policy if exists "authenticated read" on public.opvolgreeks;
+create policy "authenticated read" on public.opvolgreeks
+  for select to authenticated using (true);
+
+create index if not exists opvolgreeks_due_idx
+  on public.opvolgreeks (afgemeld, created_at);
+create index if not exists opvolgreeks_email_idx
+  on public.opvolgreeks (email);

@@ -154,6 +154,22 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 <!-- CONTEXT -->
 <div class="screen" id="s-c"></div>
 
+<!-- MAIL (vóór de uitslag; overslaanbaar) -->
+<div class="screen" id="s-m">
+  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Laatste stap</span></div>
+  <div class="body">
+    <div class="eye">Jouw uitslag</div>
+    <div class="qtxt">Waar mag ik je uitslag naartoe sturen?</div>
+    <div class="instr" style="margin-bottom:6px">Alleen voor je uitslag en je vervolgstappen. Verder niets.</div>
+    <div class="instr" style="margin-bottom:26px">In september ontvang je bovendien als eerste het beeld van Nederland, met waar jouw profiel in past.</div>
+    <div style="max-width:420px">
+      <input class="lead-inp" id="m-email" type="email" placeholder="E-mailadres" autocomplete="email" onkeydown="if(event.key==='Enter')mailSubmit()">
+      <button class="btn" style="width:100%;justify-content:center" onclick="mailSubmit()">Stuur mijn uitslag &rarr;</button>
+      <div class="lead-skip"><button class="linkbtn" onclick="mailSkip()">liever direct bekijken zonder mail</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- RESULTS -->
 <div class="screen" id="s-r">
   <div class="hdr" style="padding:18px 36px"><img src="happly-logo.svg" alt="Happly"><span class="htag">Jouw uitslag</span></div>
@@ -237,17 +253,23 @@ const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel me
 const FUNNEL_URL = "https://uqulkznqcqpbagbvtqdr.supabase.co/rest/v1/funnel_events";
 const FUNNEL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8";
 const FUNNEL_SESSIE = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+/* Herkomstmeting: de src-parameter uit de URL (bijv. ?src=post) wordt één keer
+   gelezen en gaat sessiebreed mee met ALLE events van dit bezoek, naast de
+   eventgebonden bron. Vereist de kolom src op funnel_events (migratie 05-08-2026). */
+const FUNNEL_SRC = (()=>{ try{ const s=(new URLSearchParams(location.search).get("src")||"").trim().slice(0,60); return s||null; }catch(e){ return null; } })();
 const funnelGeloggd = {};
 function logEvent(event, bron, eenmalig = true){
   try{
     if (eenmalig && funnelGeloggd[event]) return;
     funnelGeloggd[event] = true;
+    const row = { event, bron: bron || null, sessie: FUNNEL_SESSIE };
+    if (FUNNEL_SRC) row.src = FUNNEL_SRC;   // key weglaten als er geen src is: inserts blijven werken zolang de migratie nog niet draait
     fetch(FUNNEL_URL, {
       method: "POST",
       keepalive: true,   // klik-events overleven de navigatie naar de volgende pagina
       headers: { apikey: FUNNEL_KEY, Authorization: "Bearer " + FUNNEL_KEY,
                  "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ event, bron: bron || null, sessie: FUNNEL_SESSIE })
+      body: JSON.stringify(row)
     }).catch(()=>{});
   }catch(e){}
 }
@@ -257,6 +279,8 @@ let answers = new Array(N).fill(null);
 let ctxAns  = {age:null, work:null};
 let scores  = null;
 let scanId  = null;
+let leadEmail = null;         // ingevuld op het mailscherm vóór de uitslag; null = overgeslagen
+let duidingPromise = null;    // start al op het mailscherm, zodat de uitslag sneller compleet is
 let duidingTekst = null;      // de getoonde duiding; wordt nooit opnieuw gegenereerd
 let duidingFallback = false;  // true = terugvaltekst gebruikt in plaats van de AI
 let savePromise = null;       // de ene insert (scores + duiding) via /api/scan
@@ -300,22 +324,42 @@ function renderCtx(){
       ${block}
     </div>
     <div class="foot">
-      <button class="linkbtn" onclick="toResults()">Overslaan</button>
-      <button class="btn" onclick="toResults()">Bekijk mijn Index &rarr;</button>
+      <button class="linkbtn" onclick="toMail()">Overslaan</button>
+      <button class="btn" onclick="toMail()">Bekijk mijn Index &rarr;</button>
     </div>`;
   show("s-c");
 }
 function pickCtx(key,val){ctxAns[key]=(ctxAns[key]===val?null:val);renderCtx();}
 
+/* ======================= MAILSCHERM (vóór de uitslag) ======================= */
+/* Mailflip 05-08-2026: het mailveld staat vóór de uitslag. Na de contextvragen
+   eerst dit scherm; overslaan kan via de tekstlink. De duiding wordt hier al
+   vast gestart, zodat de uitslag sneller compleet is. */
+function toMail(){
+  scores = computeScores(answers);
+  duidingPromise = fetchDuiding();
+  show("s-m");
+}
+function mailSubmit(){
+  const inp = document.getElementById("m-email");
+  const email = inp.value.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    inp.classList.add("err"); inp.placeholder="Vul een geldig e-mailadres in"; inp.value=""; inp.focus();
+    return;
+  }
+  leadEmail = email;
+  toResults();
+}
+function mailSkip(){ leadEmail = null; toResults(); }
+
 /* ======================= UITSLAG ======================= */
 function toResults(){
-  scores = computeScores(answers);
   renderResults();
   show("s-r");
   logEvent("uitslag_getoond");
-  // Flow-volgorde: duiding genereren -> uitslag compleet -> opslaan in één insert
-  // -> dan pas de leadcapture tonen. Zie loadDuiding().
-  loadDuiding();
+  // Flow-volgorde: duiding afwachten -> tonen -> opslaan in één insert -> als er
+  // een mailadres is: uitslagmail sturen en de opvolgreeks starten (/api/lead).
+  finishDuiding();
 }
 
 function niveauRow(name, s){
@@ -387,23 +431,13 @@ function renderResults(){
       </div>
     </div>
 
-    <!-- Leadcapture: verschijnt pas nadat de duiding er staat en de meting is opgeslagen -->
-    <div class="lead-box" id="lead-box" style="display:none">
-      <div class="lead-eye">Optioneel</div>
-      <div class="lead-title">Ontvang je profiel per mail</div>
-      <div class="lead-desc">We sturen je je Index met de deelscores en de duiding, zodat je het kunt bewaren als nulpunt. Geen spam.</div>
-      <div id="lead-fields">
-        <input class="lead-inp" id="l-name" type="text" placeholder="Naam (optioneel)" autocomplete="name">
-        <input class="lead-inp" id="l-company" type="text" placeholder="Bedrijf (optioneel)" autocomplete="organization">
-        <input class="lead-inp" id="l-email" type="email" placeholder="E-mailadres" autocomplete="email">
-        <div class="lead-note">Alleen om je je uitslag te sturen. Verder niets.</div>
-        <button class="btn" style="width:100%;justify-content:center" onclick="saveLead()">Stuur mij mijn profiel &rarr;</button>
-        <div class="lead-skip"><button class="linkbtn" onclick="skipLead()">Overslaan</button></div>
-      </div>
-      <div class="lead-thanks" id="lead-thanks">
+    <!-- Mailbevestiging: verschijnt alleen als er op het mailscherm een adres is ingevuld,
+         nadat de meting is opgeslagen en de uitslagmail is aangevraagd -->
+    <div class="lead-box" id="mail-conf" style="display:none">
+      <div class="lead-thanks" style="display:block">
         <div class="lead-thanks-icon">&#10003;</div>
-        <div class="lead-thanks-txt">Onderweg naar je inbox.</div>
-        <div class="lead-thanks-sub">Bewaar deze mail. Over een jaar meet je opnieuw.</div>
+        <div class="lead-thanks-txt">Je uitslag is onderweg naar je inbox.</div>
+        <div class="lead-thanks-sub">Bewaar de mail. Over een jaar meet je opnieuw.</div>
       </div>
     </div>
     <div class="foot-links" style="padding:26px 0 6px;border-top:none"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a><a href="privacy">Privacy</a></div>
@@ -439,10 +473,11 @@ function renderRoute(){
 }
 
 /* ======================= AI-DUIDING (met terugval) ======================= */
-/* De duiding wordt precies één keer gegenereerd. Daarna: tonen, in één insert
-   samen met de scores opslaan (/api/scan), en pas dan de leadcapture tonen.
-   Alles wat later verstuurd wordt (de uitslagmail) leest de opgeslagen tekst. */
-async function loadDuiding(){
+/* De duiding wordt precies één keer gegenereerd; de fetch start al op het
+   mailscherm. Daarna: tonen, in één insert samen met de scores opslaan
+   (/api/scan), en als er een mailadres is de uitslagmail plus opvolgreeks
+   starten. Alles wat later verstuurd wordt, leest de opgeslagen tekst. */
+async function fetchDuiding(){
   const payload = {
     index: scores.index, zien: scores.zien, sturen: scores.sturen, doen: scores.doen,
     items: scores.items
@@ -452,15 +487,18 @@ async function loadDuiding(){
     if(!r.ok) throw new Error("api "+r.status);
     const data = await r.json();
     if(!data.duiding) throw new Error("leeg");
-    duidingTekst = data.duiding; duidingFallback = false;
+    return { tekst: data.duiding, fallback: false };
   }catch(e){
-    duidingTekst = fallbackDuiding(); duidingFallback = true;
+    return { tekst: fallbackDuiding(), fallback: true };
   }
+}
+async function finishDuiding(){
+  const d = await duidingPromise;
+  duidingTekst = d.tekst; duidingFallback = d.fallback;
   renderDuiding(duidingTekst);
   savePromise = saveScan();
   await savePromise;
-  const lb = document.getElementById("lead-box");
-  if (lb) lb.style.display = "block";
+  if (leadEmail) sendLead();
 }
 function renderDuiding(text){
   const el = document.getElementById("duiding");
@@ -536,28 +574,18 @@ async function saveScan(){
   }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
 }
 
-async function saveLead(){
-  const email = document.getElementById("l-email").value.trim();
-  const name = document.getElementById("l-name").value.trim();
-  const company = document.getElementById("l-company").value.trim();
-  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    const inp = document.getElementById("l-email");
-    inp.classList.add("err"); inp.placeholder="Vul een geldig e-mailadres in"; inp.value=""; inp.focus();
-    return;
-  }
-  const btn = document.querySelector("#lead-fields .btn");
-  btn.textContent = "Versturen…"; btn.classList.add("off");
+/* Mailadres komt van het mailscherm vóór de uitslag; dit draait op de achtergrond
+   zodra de meting is opgeslagen. Toont daarna een bescheiden bevestiging. */
+async function sendLead(){
   try{
-    if (savePromise) await savePromise;   // zorg dat scanId er is vóór de koppeling
     await fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:scanId,email,name:name||null,company:company||null,
+      body:JSON.stringify({id:scanId,email:leadEmail,
         index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,
         duiding:duidingTekst})});   // terugvalbron; de mail leest primair uit Supabase
   }catch(e){/* mail is best effort */}
-  document.getElementById("lead-fields").style.display="none";
-  document.getElementById("lead-thanks").style.display="block";
+  const box = document.getElementById("mail-conf");
+  if (box) box.style.display = "block";
 }
-function skipLead(){document.getElementById("lead-box").style.display="none";}
 </script>
 </body>
 </html>

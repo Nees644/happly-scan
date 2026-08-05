@@ -75,12 +75,16 @@ function nivRow(nm, s){
   </tr>`;
 }
 
-function mailHtml({ index, zien, sturen, doen, name, duiding, datum }){
+function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route.replace(NULPUNT, "").trim() : null;
   const sprintUrl = "https://scan.happly.nl/sprint?src=mail";   // bron voor de funnelmeting
   const betaalUrl = TREDES[ACTIEVE_TREDE].url;
+  const afmeld = afmeldUrl
+    ? `<p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Na deze uitslag volgen enkele vervolgstappen per mail.
+        <a href="${afmeldUrl}" style="color:${MUT}">Geen mail meer ontvangen</a></p>`
+    : "";
 
   return `<div style="background:${RT};padding:32px 16px">
     <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
@@ -152,7 +156,17 @@ Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg ter
 
       </div>
     </div>
+    ${afmeld}
   </div>`;
+}
+
+/* Laagste dimensie, zelfde volgorde en tie-break als laagsteDimensie() in
+   scan.html (stabiele sort: bij gelijke stand wint Zien, dan Sturen, dan Doen).
+   Bepaalt de scène in de dag-3-mail en de weekkoppeling in de dag-7-mail. */
+function laagsteDimensie(zien, sturen, doen){
+  const arr = [["Zien",zien],["Sturen",sturen],["Doen",doen]];
+  arr.sort((a,b)=>a[1]-b[1]);
+  return arr[0][0];
 }
 
 export default async function handler(req, res){
@@ -168,6 +182,7 @@ export default async function handler(req, res){
 
     // 1. Lees de opgeslagen meting (bron voor de mail) en koppel de lead eraan.
     let row = null;
+    let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
         .select("index_score,zien,sturen,doen,duiding,created_at").eq("id", id).single();
@@ -186,31 +201,47 @@ export default async function handler(req, res){
       let ins = await db.from("index_scan_results").insert({
         ...basis, duiding: duiding || null,
         duiding_generated_at: duiding ? new Date().toISOString() : null
-      });
-      if (ins.error){ await db.from("index_scan_results").insert(basis); }
+      }).select("id").single();
+      if (ins.error){ ins = await db.from("index_scan_results").insert(basis).select("id").single(); }
+      if (!ins.error) scanId = ins.data.id;
     }
 
-    // 2. Stuur de uitslagmail (best effort; mag de flow niet blokkeren).
+    const m = {
+      index:  row ? row.index_score : index,
+      zien:   row ? row.zien   : zien,
+      sturen: row ? row.sturen : sturen,
+      doen:   row ? row.doen   : doen,
+      name,
+      duiding: (row && row.duiding) || duiding || null,
+      datum: fmtDatum(row && row.created_at ? new Date(row.created_at) : new Date())
+    };
+
+    // 2. Zet de opvolgreeks klaar (dag 3, 7 en 56 verstuurt de cron /api/opvolg).
+    //    Eén reeks per meting; een nieuwe meting met hetzelfde adres vervangt een
+    //    eerdere, nog lopende reeks, zodat niemand dubbele mails krijgt.
+    let reeksId = null;
     try{
-      const m = {
-        index:  row ? row.index_score : index,
-        zien:   row ? row.zien   : zien,
-        sturen: row ? row.sturen : sturen,
-        doen:   row ? row.doen   : doen,
-        name,
-        duiding: (row && row.duiding) || duiding || null,
-        datum: fmtDatum(row && row.created_at ? new Date(row.created_at) : new Date())
-      };
+      await db.from("opvolgreeks").update({ afgemeld: true }).eq("email", email).eq("afgemeld", false);
+      const ins = await db.from("opvolgreeks").insert({
+        scan_id: scanId, email, name: name || null,
+        index_score: m.index,
+        laagste_dimensie: laagsteDimensie(m.zien, m.sturen, m.doen)
+      }).select("id").single();
+      if (!ins.error) reeksId = ins.data.id;
+    }catch(reeksErr){ /* stil: vangnet zolang de migratie 05-08-2026 nog niet draait */ }
+
+    // 3. Stuur de uitslagmail (best effort; mag de flow niet blokkeren).
+    try{
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
         from: "Happly <hallo@happly.nl>",
         to: email,
         subject: `Jouw Zelfkracht Index: ${m.index}`,
-        html: mailHtml(m)
+        html: mailHtml({ ...m, afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null })
       });
     }catch(mailErr){ /* stil */ }
 
-    res.status(200).json({ ok: true });
+    res.status(200).json({ ok: true, reeks: reeksId });
   }catch(e){
     res.status(500).json({ error: "lead mislukt" });
   }

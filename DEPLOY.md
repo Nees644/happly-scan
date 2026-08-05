@@ -18,8 +18,13 @@ In het Vercel-project (Settings, Environment Variables), voor Production:
 | `RESEND_API_KEY` | je Resend API-sleutel |
 | `SUPABASE_URL` | `https://uqulkznqcqpbagbvtqdr.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | de service role key uit Supabase (Settings, API) |
+| `CRON_SECRET` | zelfgekozen lang wachtwoord (05-08-2026); beschermt `/api/opvolg` |
 
 De service role key mag alleen serverside staan. Zet hem nooit in de HTML.
+
+`CRON_SECRET` hoort bij de opvolgreeks (05-08-2026): Vercel stuurt hem automatisch
+mee met de dagelijkse cron-aanroep van `/api/opvolg`. Zonder deze variabele werkt
+de cron ook, maar kan iedereen het endpoint aanroepen; zet hem dus wel.
 
 ## 3. Resend-domein — KLAAR (23-07-2026)
 
@@ -52,7 +57,23 @@ De scan komt live op `scan.happly.nl/scan.html` (Vercel). Test na deploy: doe de
 check dat de duiding laadt, dat er een rij in `index_scan_results` verschijnt en dat de
 mail aankomt.
 
-## 5. Snel lokaal testen (optioneel)
+## 5. Opvolgreeks (05-08-2026)
+
+Bij elke meting met mailadres start een reeks: dag 0 de uitslagmail (direct,
+`api/lead.js`), dag 3 de verdiepingsmail met de scène bij de laagste dimensie,
+dag 7 de Sprint-mail, dag 56 de hermeting-herinnering (`api/opvolg.js`, dagelijkse
+Vercel-cron om 07:00 UTC). Elke mail heeft een afmeldlink (`api/afmelden.js`) die
+de reeks stopt. In te richten:
+
+1. Draai het migratieblok 05-08-2026 uit `supabase.sql` (kolom `src` op
+   `funnel_events` plus tabel `opvolgreeks`). Doe dit vóór of direct na de deploy;
+   tot die tijd start er geen reeks en wordt er geen src gelogd (de rest werkt door).
+2. Zet `CRON_SECRET` in Vercel (zie stap 2).
+3. Controle zonder te wachten: `/api/opvolg?preview=3&dim=Zien` (of `7`, `56`;
+   `dim` is `Zien`, `Sturen` of `Doen`) toont de mail in de browser, zonder
+   database of verzending.
+
+## 6. Snel lokaal testen (optioneel)
 
 ```bash
 npm install
