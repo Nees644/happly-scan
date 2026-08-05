@@ -127,3 +127,23 @@ create index if not exists opvolgreeks_email_idx
 -- De meest markante zin uit de duiding (AI-selectie via /api/deelzin), één keer
 -- gegenereerd en met de meting opgeslagen voor het deelbeeld op de uitslagpagina.
 alter table public.index_scan_results add column if not exists deel_zin text;
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 05-08-2026c · LinkedIn-deelpagina (/deel/[id])
+-- Voor het bestaande project: draai alleen dit blok in de SQL-editor.
+--
+-- deel_id is het PUBLIEKE id van de deelpagina, bewust een ander uuid dan het
+-- interne scan-id: het scan-id geeft via /api/lead toegang tot de uitslagmail
+-- en mag daarom nooit in een openbare link staan. deel_id ontsluit alleen de
+-- deel_zin en het deelbeeld, nooit scores of persoonsgegevens.
+alter table public.index_scan_results
+  add column if not exists deel_id uuid not null default gen_random_uuid();
+create unique index if not exists index_scan_results_deel_id_idx
+  on public.index_scan_results (deel_id);
+
+-- Publieke storage-bucket voor de gegenereerde deelbeelden (og:image).
+-- Upload loopt serverside via /api/deelbeeld (service role, eenmalig per
+-- meting); lezen kan iedereen, er staat alleen het deelbeeld in.
+insert into storage.buckets (id, name, public)
+  values ('deelbeelden', 'deelbeelden', true)
+  on conflict (id) do nothing;

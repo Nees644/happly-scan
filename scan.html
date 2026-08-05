@@ -199,8 +199,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
     <div class="deel-sub">De zin komt uit jouw duiding. Delen is helemaal aan jou; je score staat er niet op.</div>
     <canvas id="deel-canvas" width="1200" height="1500"></canvas>
     <div class="deel-knoppen" style="margin-top:14px">
-      <button class="btn" style="width:100%;justify-content:center" onclick="deelDownload()">Download beeld</button>
-      <button class="btn ghost" style="width:100%;justify-content:center" id="deel-kopieer" onclick="deelKopieer()">Kopieer tekst voor LinkedIn</button>
+      <a class="btn" style="width:100%;justify-content:center" id="deel-linkedin" target="_blank" rel="noopener">Deel op LinkedIn</a>
+      <button class="btn ghost" style="width:100%;justify-content:center" onclick="deelDownload()">Download beeld</button>
     </div>
     <div class="deel-sluit"><button class="linkbtn" onclick="sluitDeel()">Sluiten</button></div>
   </div>
@@ -316,6 +316,7 @@ let duidingFallback = false;  // true = terugvaltekst gebruikt in plaats van de 
 let savePromise = null;       // de ene insert (scores + duiding) via /api/scan
 let deelZin = null;           // meest markante zin uit de duiding (/api/deelzin)
 let deelzinPromise = null;    // loopt parallel aan de duiding-render
+let deelId = null;            // publiek id van de deelpagina (/deel/[id]); nooit het scan-id
 
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);}
 function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
@@ -546,6 +547,7 @@ async function finishDuiding(){
   await Promise.race([deelzinPromise, new Promise(r => setTimeout(r, 12000))]);
   savePromise = saveScan();
   await savePromise;
+  if (deelId) uploadDeelbeeld();   // og:image voor /deel/[id]; fire-and-forget
   if (leadEmail) sendLead();
 }
 async function fetchDeelzin(duiding){
@@ -636,6 +638,16 @@ function huidigeDeelzin(){ return deelZin || DEEL_CANON; }
    kiest alleen óf hij deelt, niet wat er staat. Geen tekstveld, geen aanpassing. */
 async function openDeel(){
   document.getElementById("deel-overlay").classList.add("open");
+  // LinkedIn-knop wijst naar de publieke deelpagina; zonder deel_id (opslag
+  // mislukt of migratie ontbreekt) blijft alleen de download over.
+  const li = document.getElementById("deel-linkedin");
+  if (deelId){
+    li.style.display = "";
+    li.href = "https://www.linkedin.com/sharing/share-offsite/?url=" +
+      encodeURIComponent("https://scan.happly.nl/deel/" + deelId);
+  } else {
+    li.style.display = "none";
+  }
   // Mocht de selectie nog onderweg zijn: heel even meegeven, anders canonzin.
   if (!deelZin && deelzinPromise){
     await Promise.race([deelzinPromise, new Promise(r=>setTimeout(r,2500))]);
@@ -751,16 +763,16 @@ function deelDownload(){
   }, "image/png");
 }
 
-async function deelKopieer(){
-  const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${huidigeDeelzin()}'. scan.happly.nl`;
-  const knop = document.getElementById("deel-kopieer");
+/* Direct na de opslag: het deelbeeld één keer tekenen en serverside vastleggen
+   (bucket deelbeelden), zodat LinkedIn het als og:image van /deel/[id] vindt. */
+async function uploadDeelbeeld(){
   try{
-    await navigator.clipboard.writeText(tekst);
-    knop.textContent = "Gekopieerd";
-  }catch(e){
-    knop.textContent = "Kopiëren lukte niet";
-  }
-  setTimeout(()=>{ knop.textContent = "Kopieer tekst voor LinkedIn"; }, 2200);
+    if (!deelZin && deelzinPromise) await deelzinPromise;
+    await tekenDeelbeeld(huidigeDeelzin());
+    const data = document.getElementById("deel-canvas").toDataURL("image/png");
+    await fetch("/api/deelbeeld",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({deel_id:deelId,beeld:data})});
+  }catch(e){/* best effort; de downloadknop blijft altijd werken */}
 }
 
 /* ======================= OPSLAG + LEAD ======================= */
@@ -770,7 +782,7 @@ async function saveScan(){
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
         duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:deelZin})});
-    if(r.ok){ const d = await r.json(); scanId = d.id || null; }
+    if(r.ok){ const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null; }
   }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
 }
 

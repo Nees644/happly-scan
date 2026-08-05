@@ -28,12 +28,16 @@ export default async function handler(req, res){
       duiding_generated_at: duiding ? new Date().toISOString() : null,
       duiding_fallback: duiding ? !!duiding_fallback : null
     };
-    // Getrapt vangnet zolang een migratie (deel_zin 05-08-2026, duiding 24-07-2026)
-    // nog niet draait: eerst volledig, dan zonder deel_zin, dan de basis.
-    let r = await db.from("index_scan_results").insert({
+    // Getrapt vangnet zolang een migratie (deel_id 05-08-2026c, deel_zin
+    // 05-08-2026b, duiding 24-07-2026) nog niet draait: van volledig naar basis.
+    const volledig = {
       ...metDuiding,
       deel_zin: (typeof deel_zin === "string" && deel_zin.trim()) ? deel_zin.trim().slice(0,140) : null
-    }).select("id").single();
+    };
+    let r = await db.from("index_scan_results").insert(volledig).select("id,deel_id").single();
+    if (r.error){
+      r = await db.from("index_scan_results").insert(volledig).select("id").single();
+    }
     if (r.error){
       r = await db.from("index_scan_results").insert(metDuiding).select("id").single();
     }
@@ -41,7 +45,7 @@ export default async function handler(req, res){
       r = await db.from("index_scan_results").insert(basis).select("id").single();
     }
     if (r.error){ res.status(500).json({error:"opslag mislukt"}); return; }
-    res.status(200).json({ id: r.data.id });
+    res.status(200).json({ id: r.data.id, deel_id: r.data.deel_id || null });
   }catch(e){
     res.status(500).json({ error: "opslag mislukt" });
   }
