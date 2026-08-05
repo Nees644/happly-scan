@@ -635,6 +635,21 @@ let deelLogo = null;
 
 function huidigeDeelzin(){ return deelZin || DEEL_CANON; }
 
+/* Vangrail op het vrije veld: url's, mailadressen, kale domeinen en @-handles
+   verdwijnen uit het beeld en de kopieertekst, regeleindes worden platgeslagen.
+   Puur een drempel tegen spam of phishing in huisstijl; het canvas is en blijft
+   client-side. De bedoelde aanpassing (inkorten, herformuleren) merkt er niets van. */
+function deelSchoon(t){
+  const schoon = (t || "")
+    .replace(/\s+/g, " ")
+    .replace(/https?:\/\/\S+|www\.\S+/gi, "")
+    .replace(/\S+@\S+\.\S+/g, "")
+    .replace(/(^|\s)@[\w.\-]+/g, "$1")
+    .replace(/[a-z0-9\-]+\.(nl|be|de|eu|com|net|org|io|co|app|dev|online|site|shop)(\/\S*)?/gi, "")
+    .replace(/\s{2,}/g, " ").trim();
+  return schoon || huidigeDeelzin();
+}
+
 async function openDeel(){
   document.getElementById("deel-overlay").classList.add("open");
   const veld = document.getElementById("deel-tekst");
@@ -686,7 +701,7 @@ function wrapRegels(ctx, tekst, maxW){
 }
 
 async function tekenDeelbeeld(zin){
-  zin = (zin || "").trim() || huidigeDeelzin();
+  zin = deelSchoon(zin);
   const cv = document.getElementById("deel-canvas");
   const ctx = cv.getContext("2d");
   const W = 1200, H = 1500;
@@ -763,7 +778,7 @@ function deelDownload(){
 }
 
 async function deelKopieer(){
-  const zin = (document.getElementById("deel-tekst").value || "").trim() || huidigeDeelzin();
+  const zin = deelSchoon(document.getElementById("deel-tekst").value);
   const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${zin}'. scan.happly.nl`;
   const knop = document.getElementById("deel-kopieer");
   try{
