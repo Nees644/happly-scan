@@ -96,6 +96,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 /* route + sprint */
 .route p{font-size:13.5px;font-weight:300;color:#3A2E46;line-height:1.78;margin-bottom:12px}
 .nulpunt{font-family:"DM Serif Display",serif;font-style:italic;font-size:16px;color:var(--dp);line-height:1.5;margin-top:6px}
+/* overgangsmoment: ademruimte tussen duiding/route en het Sprint-blok */
+.overgang{margin-top:52px;border-top:1px solid var(--bd);padding-top:26px}
+.overgang p{font-size:13.5px;font-weight:300;color:var(--mut);line-height:1.7;text-align:center;margin-bottom:0}
 .sprintbox{background:var(--dp);border-radius:12px;padding:26px 30px;margin-top:26px}
 .sprintbox h3{font-family:"DM Serif Display",serif;font-size:20px;color:#fff;margin-bottom:9px}
 .sprintbox p{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.66;margin-bottom:18px;font-weight:300}
@@ -430,6 +433,7 @@ function renderResults(){
       <div class="sec-h">De route</div>
       <div id="route-body"></div>
       <p class="nulpunt">${NULPUNT}</p>
+      <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
       <div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
         <p>De Index wijst de plek aan. De Sprint onderzoekt wat en hoe je kunt veranderen: zes weken, wekelijkse calls, één cohort tegelijk.</p>
