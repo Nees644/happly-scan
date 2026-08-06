@@ -199,7 +199,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
     <div class="deel-sub">De zin komt uit jouw duiding. Delen is helemaal aan jou; je score staat er niet op.</div>
     <canvas id="deel-canvas" width="1200" height="1500"></canvas>
     <div class="deel-knoppen" style="margin-top:14px">
-      <a class="btn" style="width:100%;justify-content:center" id="deel-linkedin" target="_blank" rel="noopener">Deel op LinkedIn</a>
+      <a class="btn" style="width:100%;justify-content:center" id="deel-linkedin" target="_blank" rel="noopener" onclick="logEvent('deel_klik','linkedin',false)">Deel op LinkedIn</a>
       <button class="btn ghost" style="width:100%;justify-content:center" onclick="deelDownload()">Download beeld</button>
     </div>
     <div class="deel-sluit"><button class="linkbtn" onclick="sluitDeel()">Sluiten</button></div>
@@ -759,6 +759,7 @@ async function tekenDeelbeeld(zin){
 }
 
 function deelDownload(){
+  logEvent("zin_gekopieerd","download",false);  // de zin verlaat de pagina als beeld
   const cv = document.getElementById("deel-canvas");
   cv.toBlob(b => {
     const a = document.createElement("a");
