@@ -147,3 +147,31 @@ create unique index if not exists index_scan_results_deel_id_idx
 insert into storage.buckets (id, name, public)
   values ('deelbeelden', 'deelbeelden', true)
   on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- MIGRATIE 12-08-2026 · hermetingen herkennen en labelen
+-- Voor het bestaande project: draai alleen dit blok in de SQL-editor.
+--
+-- Principe (briefing 12-08-2026): iedereen mag opnieuw meten, maar per
+-- e-mailadres telt alleen de eerste afgeronde meting mee in de onderzoeksdata.
+-- Latere metingen krijgen is_hermeting = true en verwijzen naar de eerste.
+-- Er wordt niets geblokkeerd of verwijderd; geen unique constraint op email.
+alter table public.index_scan_results
+  add column if not exists is_hermeting boolean not null default false,
+  add column if not exists eerste_meting_id uuid references public.index_scan_results(id);
+
+-- Eenmalige opschoning van bestaande data: groepeer op genormaliseerd adres
+-- (trim + lower, dezelfde normalisatie als api/hermeting.js en api/lead.js)
+-- en label alle latere metingen als hermeting met verwijzing naar de oudste.
+with eerste as (
+  select distinct on (lower(trim(email))) id, lower(trim(email)) as adres
+  from public.index_scan_results
+  where email is not null and trim(email) <> ''
+  order by lower(trim(email)), created_at asc
+)
+update public.index_scan_results r
+set is_hermeting = true, eerste_meting_id = e.id
+from eerste e
+where r.email is not null
+  and lower(trim(r.email)) = e.adres
+  and r.id <> e.id;

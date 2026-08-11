@@ -180,6 +180,21 @@ export default async function handler(req, res){
 
     const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+    // 0. Hermetingdetectie (briefing 12-08-2026): zoek de oudste eerdere
+    //    afgeronde meting met hetzelfde genormaliseerde adres (trim + lower),
+    //    vóórdat deze meting haar e-mailadres krijgt. Zelfde aanpak als
+    //    api/hermeting.js: kleine tabel, normalisatie in JS.
+    let eersteMeting = null;
+    try{
+      const adres = email.trim().toLowerCase();
+      const q = await db.from("index_scan_results")
+        .select("id,created_at,email")
+        .not("email", "is", null)
+        .order("created_at", { ascending: true });
+      eersteMeting = (q.data || []).find(r =>
+        (r.email || "").trim().toLowerCase() === adres && r.id !== id) || null;
+    }catch(hermErr){ /* stil: detectie mag de lead nooit blokkeren */ }
+
     // 1. Lees de opgeslagen meting (bron voor de mail) en koppel de lead eraan.
     let row = null;
     let scanId = id || null;
@@ -215,6 +230,19 @@ export default async function handler(req, res){
       duiding: (row && row.duiding) || duiding || null,
       datum: fmtDatum(row && row.created_at ? new Date(row.created_at) : new Date())
     };
+
+    // 1b. Label een hermeting: latere metingen met hetzelfde adres tellen niet
+    //     mee in de onderzoeksdata, met verwijzing naar de eerste meting.
+    //     Aparte update die stil faalt zolang de migratie 12-08-2026
+    //     (kolommen is_hermeting en eerste_meting_id) nog niet is gedraaid.
+    //     De uitslagervaring verandert niet: mail en opvolgreeks lopen gewoon.
+    if (eersteMeting && scanId){
+      try{
+        await db.from("index_scan_results")
+          .update({ is_hermeting: true, eerste_meting_id: eersteMeting.id })
+          .eq("id", scanId);
+      }catch(hermErr){ /* stil */ }
+    }
 
     // 2. Zet de opvolgreeks klaar (dag 3, 7 en 56 verstuurt de cron /api/opvolg).
     //    Eén reeks per meting; een nieuwe meting met hetzelfde adres vervangt een

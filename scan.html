@@ -64,6 +64,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .sub-vak{font-size:9.5px;font-weight:400;color:var(--mut);margin-top:2px}
 .sec{margin-top:34px}
 .sec-h{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);margin-bottom:14px}
+.herm{background:var(--rt);border-radius:12px;padding:18px 22px;margin:0 0 26px;display:none}
+.herm p{font-size:13px;font-weight:300;color:#4A3C56;line-height:1.72;margin:0}
+.herm strong{color:var(--dp);font-weight:600}
 .canon{background:var(--rt);border-radius:12px;padding:24px 26px;margin-top:8px}
 .canon .op{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp);margin-bottom:12px}
 .canon p{font-size:13px;font-weight:300;color:#4A3C56;line-height:1.72;margin-bottom:10px}
@@ -308,6 +311,7 @@ let ctxAns  = {age:null, work:null};
 let scores  = null;
 let scanId  = null;
 let leadEmail = null;         // ingevuld op het mailscherm vóór de uitslag; null = overgeslagen
+let hermetingInfo = null;     // {datum} als dit adres al eerder mat (/api/hermeting); vult de melding op de uitslag
 let leadName = null;          // optioneel, van het mailscherm
 let leadCompany = null;       // optioneel, van het mailscherm
 let duidingPromise = null;    // start al op het mailscherm, zodat de uitslag sneller compleet is
@@ -384,7 +388,33 @@ function mailSubmit(){
   leadName = document.getElementById("m-name").value.trim() || null;
   leadCompany = document.getElementById("m-company").value.trim() || null;
   logEvent("mail_ingevuld");      // na scan_afgerond, vóór uitslag_getoond
+  checkHermeting(email);          // fire-and-forget; vult de melding zodra bekend
   toResults();
+}
+
+/* Hermetingdetectie (briefing 12-08-2026): checkt op de mailstap of dit adres al
+   eerder een afgeronde meting heeft. Alleen voor de vriendelijke melding op de
+   uitslagpagina; het label zelf zet de server (api/lead.js). Opnieuw meten is
+   welkom, dus geen blokkade en geen melding vóór het invullen. */
+async function checkHermeting(email){
+  try{
+    const r = await fetch("/api/hermeting",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+    if(!r.ok) return;
+    const d = await r.json();
+    if(!d.hermeting) return;
+    const datum = d.eerste_datum
+      ? new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"long",year:"numeric",timeZone:"Europe/Amsterdam"}).format(new Date(d.eerste_datum))
+      : null;
+    hermetingInfo = { datum };
+    logEvent("hermeting_gedetecteerd");
+    toonHermeting();
+  }catch(e){/* stil: detectie mag de uitslag nooit ophouden */}
+}
+function toonHermeting(){
+  const el = document.getElementById("hermeting-melding");
+  if(!el || !hermetingInfo) return;
+  el.innerHTML = `<p><strong>Je hebt de meting eerder gedaan</strong>${hermetingInfo.datum ? ` (op ${hermetingInfo.datum})` : ""}. Leuk dat je opnieuw meet: zo zie je of er iets verschoven is. Voor het landelijke onderzoek telt je eerste meting mee, zodat iedereen even vaak meetelt. Deze nieuwe uitslag is helemaal voor jou.</p>`;
+  el.style.display = "block";
 }
 function mailSkip(){
   leadEmail = null; leadName = null; leadCompany = null;
@@ -395,6 +425,7 @@ function mailSkip(){
 /* ======================= UITSLAG ======================= */
 function toResults(){
   renderResults();
+  toonHermeting();   // als de hermetingcheck al terug was vóór de render
   show("s-r");
   logEvent("uitslag_getoond");
   // Flow-volgorde: duiding afwachten -> tonen -> opslaan in één insert -> als er
@@ -412,6 +443,10 @@ function niveauRow(name, s){
 function renderResults(){
   const s = scores;
   document.getElementById("r-body").innerHTML = `
+    <!-- Hermetingmelding (briefing 12-08-2026): rustig kader, alleen zichtbaar
+         als /api/hermeting dit adres eerder zag; gevuld door toonHermeting() -->
+    <div class="herm" id="hermeting-melding"></div>
+
     <div class="r-eye">Jouw Zelfkracht Index</div>
 
     <!-- Blok 1: het getal -->

@@ -146,9 +146,15 @@ async function showApp(){
 }
 
 async function loadData(){
-  const {data,error}=await db.from("index_scan_results")
-    .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation")
+  let {data,error}=await db.from("index_scan_results")
+    .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation,is_hermeting,eerste_meting_id")
     .order("created_at",{ascending:false});
+  if(error){
+    // Vangnet zolang de migratie 12-08-2026 (hermetingkolommen) nog niet draait.
+    ({data,error}=await db.from("index_scan_results")
+      .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation")
+      .order("created_at",{ascending:false}));
+  }
   if(error){
     document.getElementById("c-recent").innerHTML=`<div class="empty">Kon data niet laden. Is de leespolicy voor ingelogde gebruikers gezet? (${error.message})</div>`;
     return;
@@ -167,7 +173,8 @@ function exportXlsx(){
     Index:r.index_score, Zien:r.zien, Sturen:r.sturen, Doen:r.doen,
     ...Object.fromEntries(ITEM_CODES.map(c=>[c, r.items?r.items[c]:null])),
     Leeftijdsband:r.age_band||"", Werksituatie:r.work_situation||"",
-    "E-mail":r.email||"", Naam:r.name||"", Bedrijf:r.company||""
+    "E-mail":r.email||"", Naam:r.name||"", Bedrijf:r.company||"",
+    Hermeting:r.is_hermeting?"ja":"nee", "Eerste meting":r.eerste_meting_id||""
   });
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ALL_ROWS.map(baseRow)), "Metingen");
@@ -178,36 +185,41 @@ function exportXlsx(){
 }
 
 function render(rows){
-  const n=rows.length;
+  // Onderzoeksdata (briefing 12-08-2026): hermetingen (zelfde adres, latere
+  // meting) tellen niet mee in tellingen en gemiddelden. In de recente-tabel
+  // en de export blijven ze gewoon zichtbaar, herkenbaar aan het label.
+  const onderzoek=rows.filter(r=>!r.is_hermeting);
+  const n=onderzoek.length;
   // KPI's
   document.getElementById("k-total").textContent=n;
   const pct=Math.min(100,Math.round(n/200*100));
   document.getElementById("k-progress").style.width=pct+"%";
-  document.getElementById("k-progress-txt").textContent=`${pct}% richting 200 voor de itemanalyse`;
+  const herm=rows.length-n;
+  document.getElementById("k-progress-txt").textContent=`${pct}% richting 200 voor de itemanalyse`+(herm?` · ${herm} hermeting${herm===1?"":"en"} niet meegeteld`:"");
   const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;
-  const avgIdx=avg(rows.map(r=>r.index_score));
+  const avgIdx=avg(onderzoek.map(r=>r.index_score));
   document.getElementById("k-avg").textContent=n?avgIdx:"–";
   document.getElementById("k-avg-sub").textContent=n?`niveau ${niveau(avgIdx)}`:" ";
   const leads=rows.filter(r=>r.email).length;
   document.getElementById("k-leads").textContent=leads;
-  document.getElementById("k-leads-sub").textContent=n?`${Math.round(leads/n*100)}% van de metingen`:"e-mail achtergelaten";
+  document.getElementById("k-leads-sub").textContent=rows.length?`${Math.round(leads/rows.length*100)}% van de metingen`:"e-mail achtergelaten";
   const weekAgo=Date.now()-7*24*3600*1000;
   document.getElementById("k-week").textContent=rows.filter(r=>new Date(r.created_at).getTime()>weekAgo).length;
-  if(!n)return;
+  if(!rows.length)return;
 
   // Dimensiegemiddelden
-  const dims=[["Zien",avg(rows.map(r=>r.zien))],["Sturen",avg(rows.map(r=>r.sturen))],["Doen",avg(rows.map(r=>r.doen))]];
+  const dims=[["Zien",avg(onderzoek.map(r=>r.zien))],["Sturen",avg(onderzoek.map(r=>r.sturen))],["Doen",avg(onderzoek.map(r=>r.doen))]];
   document.getElementById("c-dims").innerHTML=dims.map(([l,v])=>
     `<div class="row"><div class="lab">${l}</div><div class="track"><div class="fill" style="width:${v}%"></div></div><div class="val">${v}</div></div>`).join("");
 
   // Niveauverdeling
   const lv={"Laag":0,"Beperkt":0,"Redelijk":0,"Sterk":0,"Zeer sterk":0};
-  rows.forEach(r=>lv[niveau(r.index_score)]++);
+  onderzoek.forEach(r=>lv[niveau(r.index_score)]++);
   document.getElementById("c-levels").innerHTML=Object.entries(lv).map(([l,c])=>
     `<div class="row"><div class="lab">${l}</div><div class="track"><div class="fill" style="width:${n?Math.round(c/n*100):0}%"></div></div><div class="val">${c}</div></div>`).join("");
 
   // Itemgemiddelden
-  const withItems=rows.filter(r=>r.items);
+  const withItems=onderzoek.filter(r=>r.items);
   if(withItems.length){
     const iAvg=ITEM_CODES.map(c=>{
       const vals=withItems.map(r=>r.items[c]).filter(v=>typeof v==="number");
@@ -223,7 +235,7 @@ function render(rows){
   const recent=rows.slice(0,25).map(r=>{
     const d=new Date(r.created_at);
     const ds=d.toLocaleDateString("nl-NL",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
-    const lead=r.email?`<span class="pill">lead</span> ${r.email}${r.name?" · "+r.name:""}`:"";
+    const lead=(r.is_hermeting?`<span class="pill">hermeting</span> `:"")+(r.email?`<span class="pill">lead</span> ${r.email}${r.name?" · "+r.name:""}`:"");
     return `<tr><td class="mut">${ds}</td><td class="b">${r.index_score}</td><td>${r.zien}</td><td>${r.sturen}</td><td>${r.doen}</td><td class="mut">${r.age_band||""}</td><td class="mut">${r.work_situation||""}</td><td>${lead}</td></tr>`;
   }).join("");
   document.getElementById("c-recent").innerHTML=`<table>
