@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Zelfkracht Sprint · Happly</title>
-<meta name="description" content="De Index wijst de plek aan, de Sprint onderzoekt wat en hoe je kunt veranderen. Zes weken, drie bewegingen, kleine groep. Start 18 september 2026.">
+<meta name="description" content="Je uitslag laat zien waar bij jou de meeste ruimte zit om te groeien; in deze training van zes weken werk je daar gericht aan. Kleine groep, start 18 september 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -93,6 +93,12 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
 .incl b{font-weight:600;color:var(--ink)}
 .incl .opt{color:var(--mut);font-size:12.5px}
 
+/* wie geeft dit */
+.wie{display:flex;gap:22px;align-items:flex-start;margin:20px 0;padding:22px 26px;background:#fff;border:1px solid var(--lijn);border-radius:16px}
+.wie p{margin-bottom:0}
+.wie-foto{flex-shrink:0;width:92px;height:92px;border-radius:50%;object-fit:cover;border:1px solid var(--lijn)}
+@media(max-width:480px){.wie{flex-direction:column;gap:16px}}
+
 /* prijs: witte kaart, eigen zwaarder moment */
 .prijs{background:#fff;border:1px solid var(--lijn);border-radius:16px;padding:34px 36px;margin-top:10px;color:var(--tx);box-shadow:0 10px 34px rgba(26,11,46,.10)}
 .prijs .groot{font-family:"DM Serif Display",serif;font-weight:400;font-size:46px;line-height:1;color:var(--ink)}
@@ -133,9 +139,9 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   <div class="wrap">
     <header><img src="happly-logo.svg" alt="Happly"><a href="scan">&larr; Naar de Zelfkracht Index</a></header>
     <div class="hero-inner">
-      <p class="eyebrow">Zelfkracht Sprint · 6 weken · kleine groep</p>
+      <p class="eyebrow">Zelfkracht Sprint · training van zes weken · kleine groep</p>
       <h1>Je kent je getal. Hier ga je ermee <em>aan de slag</em>.</h1>
-      <p class="lead"><b>De Index wijst de plek aan. In de Zelfkracht Sprint onderzoek je wat en hoe je kunt veranderen.</b> Je uitslag laat zien waar bij jou de meeste ruimte zit; in zes weken werk je gericht op die plek. Aan het eind meet je opnieuw, en zie je zwart op wit wat er verschoven is.</p>
+      <p class="lead"><b>Je uitslag laat zien waar bij jou de meeste ruimte zit om te groeien.</b> In deze training van zes weken werk je daar gericht aan. Aan het eind meet je opnieuw, en zie je zwart op wit wat er veranderd is.</p>
       <p class="scanlink">Nog geen getal? <a href="scan">Doe eerst de Zelfkracht Index</a>, dan weet je waar jouw route begint.</p>
       <div class="cta-row">
         <a class="cta" href="#meedoen">
@@ -152,8 +158,8 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
 
   <!-- Blok 2: de zes weken in drie bewegingen -->
   <div class="eye">Het programma</div>
-  <h2>Zes weken, drie bewegingen</h2>
-  <p>Van scherp zien, naar zelf sturen, naar echt in beweging komen. Elke week bouwt op de vorige. In je uitslag staat bij welke weken jouw profiel het meest te halen heeft.</p>
+  <h2>Zes weken, drie stappen</h2>
+  <p>Van scherp zien, naar zelf sturen, naar echt in beweging komen. Elke week bouwt op de vorige. Je uitslag vertelt welke weken voor jou het belangrijkst zijn.</p>
 
   <div class="bew">
     <div class="bh"><h3>Zien</h3><span class="wk">Week 1 en 2</span></div>
@@ -170,7 +176,7 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
     <div class="week"><div class="n">Week 5</div><p><b>De eerste stap.</b> De kleinste beweging die "ik weet het" verandert in "ik doe het".</p></div>
     <div class="week"><div class="n">Week 6</div><p><b>Vasthouden.</b> Je maakt er een gewoonte van. En je meet precies hoeveel je verschoof.</p></div>
   </div>
-  <p class="routezin">Verwees jouw uitslag naar week 3 en 4? Dan begint jouw onderzoek bij Sturen. De andere weken loop je gewoon mee; de nadruk ligt waar jouw ruimte zit.</p>
+  <p class="routezin">Verwees jouw uitslag naar week 3 en 4? Dan ligt voor jou de nadruk op Sturen. De andere weken loop je gewoon mee.</p>
 
   <!-- Blok 3: wat erbij zit -->
   <div class="eye">Inbegrepen</div>
@@ -180,10 +186,19 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
     <li><span class="dot"></span><span><b>Een werkboek</b> waarin je jouw eigen situatie uitwerkt, week voor week.</span></li>
     <li><span class="dot"></span><span><b>Zes live sessies</b>, elke woensdag om 20:00, in een kleine groep die dezelfde weg loopt.</span></li>
     <li><span class="dot"></span><span><b>Een meting vooraf en achteraf.</b> Je Index bij de start is je nulpunt; na zes weken meet je opnieuw.</span></li>
-    <li><span class="dot"></span><span><b>Switchr</b>, optioneel, voor een klein zetje elke dag.</span></li>
+    <li><span class="dot"></span><span>Elke dag een klein duwtje in je telefoon via <b>Switchr</b>, onze reminder-app. <span class="opt">Optioneel, voor wie het ritme erin wil houden.</span></span></li>
   </ul>
 
-  <!-- Blok 4: prijs en voorverkoop -->
+  <!-- Blok 4: wie geeft dit. Foto levert Maarten aan; tot die tijd alleen naam
+       plus tekst. Zodra het bestand er is: de img-regel hieronder aanzetten. -->
+  <div class="eye">Wie geeft dit</div>
+  <h2>Maarten Neeskens</h2>
+  <div class="wie">
+    <!-- <img class="wie-foto" src="assets/maarten.jpg" alt="Maarten Neeskens"> -->
+    <p>Ik ben Maarten Neeskens. Ik ontwikkelde de Zelfkracht Index en meet er dit najaar heel werkend Nederland mee; de Sprint is voor wie niet wil wachten op het rapport, maar zelf in beweging wil komen. De eerste deelnemers hebben geboekt, de eerste groep start 18 september.</p>
+  </div>
+
+  <!-- Blok 5: prijs en voorverkoop -->
   <div class="eye" id="meedoen">Voorverkoop</div>
   <h2>Meedoen</h2>
   <div class="prijs">
@@ -206,15 +221,17 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   const FUNNEL_URL = "https://uqulkznqcqpbagbvtqdr.supabase.co/rest/v1/funnel_events";
   const FUNNEL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8";
   const FUNNEL_SESSIE = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
-  const FUNNEL_SRC = new URLSearchParams(location.search).get("src") || null;
+  const FUNNEL_SRC = (()=>{ try{ const s=(new URLSearchParams(location.search).get("src")||"").trim().slice(0,60); return s||null; }catch(e){ return null; } })();
   function logEvent(event, bron){
     try{
+      const row = { event, bron: bron || null, sessie: FUNNEL_SESSIE };
+      if (FUNNEL_SRC) row.src = FUNNEL_SRC;   // zelfde patroon als scan.html: key weglaten als er geen src is
       fetch(FUNNEL_URL, {
         method: "POST",
         keepalive: true,   // de Mollie-klik overleeft de navigatie naar de betaalpagina
         headers: { apikey: FUNNEL_KEY, Authorization: "Bearer " + FUNNEL_KEY,
                    "Content-Type": "application/json", Prefer: "return=minimal" },
-        body: JSON.stringify({ event, bron: bron || null, sessie: FUNNEL_SESSIE })
+        body: JSON.stringify(row)
       }).catch(()=>{});
     }catch(e){}
   }
