@@ -37,11 +37,11 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
 <main><div class="wrap">
   <div class="eye">Zelfkracht Sprint · inschrijving bevestigd</div>
   <h1>Je plek staat vast.</h1>
-  <p>Je inschrijving voor de Zelfkracht Sprint is rond. De betaalbevestiging van Mollie ontvang je op het e-mailadres dat je bij de betaling opgaf.</p>
+  <p>Je inschrijving voor de Zelfkracht Sprint, de training van zes weken, is rond. De betaalbevestiging van Mollie ontvang je op het e-mailadres dat je bij de betaling opgaf.</p>
 
   <div class="blok">
     <h2>Wat er nu gebeurt</h2>
-    <p>Voor de start ontvang je per mail de details: de toegang tot de sessies, het e-book Zelfkracht en het werkboek van week 1.</p>
+    <p>In de week voor de start ontvang je per mail de details: de toegang tot de sessies, het e-book Zelfkracht en het werkboek van week 1.</p>
     <p>De Sprint start <b>vrijdag 18 september 2026</b>. De zes live sessies zijn op <b>woensdagavond 20:00</b>, vanaf 23 september.</p>
     <p>Na de eerste week beslis je definitief of de Sprint bij je past. Zo begin je met een open keuze, niet met een verplichting.</p>
   </div>
@@ -49,5 +49,29 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   <p class="nulpunt">Nog geen Zelfkracht Index gemeten? <a href="scan">Doe de meting vóór de start</a>; dat getal is je nulpunt voor de nameting.</p>
 </div></main>
 <footer class="foot"><div class="wrap">Zelfkracht Sprint · een programma van Happly · <a href="privacy">Privacy</a></div></footer>
+
+<script>
+/* Funnelmeting: bedankt_getoond, onze proxy voor een geslaagde betaling.
+   Zelfde patroon als scan.html/sprint.html. Let op: de Mollie-redirect draagt
+   geen src mee, dus dit event komt doorgaans zonder src binnen. */
+const FUNNEL_URL = "https://uqulkznqcqpbagbvtqdr.supabase.co/rest/v1/funnel_events";
+const FUNNEL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8";
+const FUNNEL_SESSIE = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+const FUNNEL_SRC = (()=>{ try{ const s=(new URLSearchParams(location.search).get("src")||"").trim().slice(0,60); return s||null; }catch(e){ return null; } })();
+function logEvent(event, bron){
+  try{
+    const row = { event, bron: bron || null, sessie: FUNNEL_SESSIE };
+    if (FUNNEL_SRC) row.src = FUNNEL_SRC;
+    fetch(FUNNEL_URL, {
+      method: "POST",
+      keepalive: true,
+      headers: { apikey: FUNNEL_KEY, Authorization: "Bearer " + FUNNEL_KEY,
+                 "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(row)
+    }).catch(()=>{});
+  }catch(e){}
+}
+logEvent("bedankt_getoond", FUNNEL_SRC);
+</script>
 </body>
 </html>

@@ -22,7 +22,7 @@ const BASE = "https://scan.happly.nl";
 
 /* Vaste teksten, gelijk aan de uitslagpagina en sprint.html. */
 const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
-const ROLVERDELING = "De Index wijst de plek aan. In de Zelfkracht Sprint onderzoek je wat en hoe je kunt veranderen.";
+const ROLVERDELING = "De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.";
 const BESLISMOMENT = "Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.";
 const SPRINT_WEKEN = { Zien: "week 1 en 2", Sturen: "week 3 en 4", Doen: "week 5 en 6" };
 

@@ -502,7 +502,7 @@ function renderResults(){
       <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
       <div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
-        <p>De Index wijst de plek aan. De Sprint onderzoekt wat en hoe je kunt veranderen: zes weken, wekelijkse calls, één cohort tegelijk.</p>
+        <p>De Index wijst aan waar jouw ruimte om te groeien zit. De Sprint, onze training van zes weken, onderzoekt wat en hoe je kunt veranderen: wekelijkse calls, één cohort tegelijk.</p>
         <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
       </div>
     </div>
@@ -547,7 +547,7 @@ function renderRoute(){
   const low = laagsteDimensie();
   let html = "";
   if(g){
-    html += `<p>De grootste winst zit bij <strong>${g.n}: +${g.or.plus}</strong>. Dat is de dimensie waar je meting de meeste ruimte laat zien, en dus de plek waar het werk het meest oplevert.</p>`;
+    html += `<p>De grootste winst zit bij <strong>${g.n}: +${g.or.plus}</strong>. Dat is de dimensie waar je meting de meeste ruimte laat zien, en dus waar het werk het meest oplevert.</p>`;
   } else {
     html += `<p>Je drie deelscores staan alle drie hoog. Voor jou gaat het minder om eraan werken en meer om onderhouden: vasthouden wat er staat.</p>`;
   }
@@ -656,7 +656,7 @@ function fallbackDuiding(){
     Doen:"in beweging komen en afmaken wat je begint"
   };
   let p1 = `Het grootste verschil in je profiel zit tussen ${hoog[0]} en ${laag[0]}: ${gap} punten. Je meting laat ${hoog[1]>=laag[1]?"veel":"meer"} ${uitleg[hoog[0]]}, en minder ${uitleg[laag[0]]}. Die combinatie tekent waar bij jou de spanning zit.`;
-  let p2 = `De ruimte in je profiel zit vooral bij ${laag[0]} (${laag[1]}). Dat is geen oordeel: het is de dimensie die op dit moment het minst voor je werkt, en daarmee de plek waar een verschuiving het meest merkbaar is.`;
+  let p2 = `De ruimte in je profiel zit vooral bij ${laag[0]} (${laag[1]}). Dat is geen oordeel: het is de dimensie die op dit moment het minst voor je werkt, en daarmee waar een verschuiving het meest merkbaar is.`;
   let p3 = `Deze stand is niet aangeboren. Ze is gevormd: in kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden. Wat je vaak genoeg doet, wordt automatisch. En wat automatisch is, zie je niet meer.`;
   let route = g
     ? `De grootste ruimte zit bij ${g.n}: +${g.or.plus} tot een stevige ${g.or.doel}. Voor jouw profiel betekent werken aan ${g.n.toLowerCase()} niet harder, maar gerichter: het patroon zichtbaar maken en er anders mee omgaan. Dat is haalbaar met gericht werk; de Index beweegt traag, en juist daarom telt een verschuiving. Hoe dat bij jou is gegroeid, onderzoek je in ${SPRINT_WEKEN[low]} van de Zelfkracht Sprint.`

@@ -146,8 +146,8 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl }
         <!-- Sprint-contextblok -->
         <div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">
           ${kop("Over de Zelfkracht Sprint").replace("margin:30px 0 12px","margin:0 0 12px")}
-          ${p("De Index wijst de plek aan. In de Zelfkracht Sprint onderzoek je wat en hoe je kunt veranderen.")}
-          ${p(`Zes weken in een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
+          ${p("De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.")}
+          ${p(`In een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
 Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een nameting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
 Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.<br>
 Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.`, "font-size:13px")}
