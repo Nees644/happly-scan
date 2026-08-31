@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zelfkracht Index voor professionals · Happly</title>
+<meta name="description" content="Zet de Zelfkracht Index in bij jouw klanten. Een gevalideerd meetinstrument met AI-duiding, onder jouw begeleiding. Vanaf 95 euro per maand.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1A0B2E;
+    --pink:#D6026F;
+    --pink-bright:#E870B8;
+    --cream:#F6F1EE;
+    --cream-dim:#C9BBD2;
+    --line:rgba(246,241,238,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  button,input,select,textarea{font:inherit}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"DM Sans",system-ui,sans-serif;
+    background:var(--ink);
+    color:var(--cream);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  a{color:inherit}
+  .wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 28px}
+
+  header{padding:34px 0 0}
+  header img{height:26px;display:block}
+
+  .hero{padding:64px 0 48px;position:relative;overflow:hidden}
+  .hero::after{
+    content:"";position:absolute;right:-180px;top:40%;transform:translateY(-50%);
+    width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle at center,rgba(214,2,111,.30),rgba(214,2,111,0) 68%);
+    pointer-events:none;z-index:0;
+  }
+  .hero .wrap{position:relative;z-index:1}
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink-bright);margin-bottom:26px}
+  h1{
+    font-family:"DM Serif Display",serif;font-weight:400;
+    font-size:clamp(2.2rem,5.2vw,3.8rem);
+    line-height:1.06;letter-spacing:-.02em;max-width:19ch;margin-bottom:28px;
+  }
+  h1 em{font-style:italic;color:var(--pink-bright)}
+  .lead{font-size:clamp(1.02rem,1.5vw,1.18rem);font-weight:300;color:var(--cream-dim);max-width:58ch;margin-bottom:16px}
+  .lead b{color:var(--cream);font-weight:500}
+
+  h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:clamp(1.5rem,2.6vw,2.1rem);margin-bottom:22px}
+  h2 em{font-style:italic;color:var(--pink-bright)}
+
+  .pillars{border-top:1px solid var(--line);padding:52px 0}
+  .pillars .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:8px}
+  .pillar .num{font-family:"DM Serif Display",serif;font-size:.95rem;color:var(--pink-bright);margin-bottom:6px}
+  .pillar h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.3rem;margin-bottom:8px}
+  .pillar p{font-size:.97rem;font-weight:300;color:var(--cream-dim)}
+
+  .founding{border:1px solid var(--pink);border-radius:16px;padding:20px 26px;margin:0 0 40px;background:rgba(214,2,111,.08)}
+  .founding b{color:var(--pink-bright)}
+  .founding p{font-size:.98rem;font-weight:300;color:var(--cream)}
+
+  .plans{border-top:1px solid var(--line);padding:52px 0}
+  .plans .grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:6px}
+  .plan{border:1px solid var(--line);border-radius:18px;padding:30px 28px;display:flex;flex-direction:column}
+  .plan.badge{border-color:var(--pink)}
+  .plan .name{font-family:"DM Serif Display",serif;font-size:1.4rem;margin-bottom:2px}
+  .plan .for{font-size:.9rem;color:var(--cream-dim);margin-bottom:18px}
+  .plan .price{font-size:2rem;font-weight:700;margin-bottom:2px}
+  .plan .price span{font-size:.95rem;font-weight:300;color:var(--cream-dim)}
+  .plan .year{font-size:.88rem;color:var(--pink-bright);margin-bottom:20px}
+  .plan ul{list-style:none;margin:0 0 24px;flex:1}
+  .plan li{font-size:.95rem;font-weight:300;color:var(--cream-dim);padding:7px 0;border-top:1px solid var(--line)}
+  .plan li b{color:var(--cream);font-weight:500}
+  .plan li:first-child{border-top:none}
+
+  .cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:12px;
+    background:var(--pink);color:#fff;text-decoration:none;
+    font-weight:700;font-size:1.02rem;padding:15px 28px;border-radius:999px;
+    transition:transform .15s ease,background .15s ease;border:none;cursor:pointer;
+  }
+  .cta:hover{background:var(--pink-bright);transform:translateY(-2px)}
+  .cta.ghost{background:transparent;border:1px solid var(--cream-dim);color:var(--cream)}
+  .cta.ghost:hover{background:rgba(246,241,238,.08)}
+
+  .org{border-top:1px solid var(--line);padding:44px 0}
+  .org p{font-size:1rem;font-weight:300;color:var(--cream-dim);max-width:62ch}
+  .org b{color:var(--cream);font-weight:500}
+
+  .how{border-top:1px solid var(--line);padding:52px 0}
+  .how ol{list-style:none;counter-reset:s;max-width:640px}
+  .how li{counter-increment:s;padding:14px 0;border-top:1px solid var(--line);font-weight:300;color:var(--cream-dim);display:flex;gap:18px}
+  .how li:first-child{border-top:none}
+  .how li::before{content:counter(s);font-family:"DM Serif Display",serif;color:var(--pink-bright);font-size:1.2rem;min-width:22px}
+  .how li b{color:var(--cream);font-weight:500}
+
+  .signup{border-top:1px solid var(--line);padding:52px 0 64px}
+  .signup form{max-width:520px;display:flex;flex-direction:column;gap:14px;margin-top:8px}
+  .signup label{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+  .signup input,.signup select{
+    background:rgba(246,241,238,.06);border:1px solid var(--line);border-radius:12px;
+    padding:13px 16px;color:var(--cream);width:100%;
+  }
+  .signup input:focus,.signup select:focus{outline:2px solid var(--pink);border-color:var(--pink)}
+  .signup .note{font-size:.88rem;font-weight:300;color:var(--cream-dim);margin-top:6px}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 40px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.88rem;color:var(--cream-dim)}
+  footer a{text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+  footer a:hover{color:var(--cream)}
+
+  @media(max-width:760px){
+    .pillars .grid,.plans .grid{grid-template-columns:1fr;gap:24px}
+    .hero{padding:46px 0 38px}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap"><img src="happly-logo.svg" alt="Happly"></div>
+</header>
+
+<main class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Zelfkracht Index · voor professionals</p>
+    <h1>Geef jouw klanten <em>een eigen getal</em>.</h1>
+    <p class="lead">Coaches, trainers en vitaliteitsprofessionals zetten de Zelfkracht Index in als vast instrument in hun trajecten: één score van 0 tot 100, drie deelscores, en een AI-duiding die het gesprek opent. <b>Jij begeleidt, de Index meet.</b></p>
+    <p class="lead">En het sterkste argument zit in de herhaling: de jaarlijkse hermeting geeft jou <b>een vast terugkeermoment met elke klant</b>. Geen instrument erbij, maar retentie in je eigen praktijk.</p>
+  </div>
+</main>
+
+<section class="pillars">
+  <div class="wrap">
+    <h2>Wat je in handen krijgt</h2>
+    <div class="grid">
+      <div class="pillar">
+        <div class="num">Meten</div>
+        <h3>Een gevalideerd startpunt</h3>
+        <p>Twaalf stellingen, drie tot vier minuten, direct een score op Zien, Sturen en Doen. Jouw klant begint het traject met een getal in plaats van een gevoel.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">Duiden</div>
+        <h3>AI-duiding als opening</h3>
+        <p>Elke meting komt met een persoonlijke duiding die de laagste deelscore concreet maakt. Jij bepaalt wat ermee gebeurt; het gesprek is al geopend.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">Herhalen</div>
+        <h3>De hermeting als anker</h3>
+        <p>Na een jaar meet je opnieuw. Het getal wordt een nulpunt, de voortgang wordt zichtbaar, en jouw klant heeft een reden om terug te komen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="plans" id="pakketten">
+  <div class="wrap">
+    <div class="founding">
+      <p><b>Founding partners:</b> de eerste tien professionals betalen drie maanden de helft en denken mee over de rapportage. Op is op, en dat is geen kunstmatige schaarste: tien is wat wij persoonlijk kunnen begeleiden.</p>
+    </div>
+    <h2>Twee licenties, <em>één afspraak</em>: verdient zich terug met één klant.</h2>
+    <div class="grid">
+      <div class="plan">
+        <div class="name">Professional</div>
+        <div class="for">Voor de zelfstandige coach of trainer</div>
+        <div class="price">&euro; 95 <span>per maand</span></div>
+        <div class="year">Jaarbetaling: twee maanden gratis</div>
+        <ul>
+          <li><b>10 metingen</b> per maand inbegrepen</li>
+          <li>Persoonlijke AI-duiding per meting</li>
+          <li>Overzicht van al je klantmetingen</li>
+          <li>Jaarlijkse hermeting inbegrepen</li>
+          <li>Meerverbruik: &euro; 12 per meting</li>
+          <li>Maandelijks opzegbaar</li>
+        </ul>
+        <a class="cta" href="mailto:hallo@happly.nl?subject=Aanmelding%20Zelfkracht%20Index%20Professional&body=Naam%3A%0AOrganisatie%3A%0APakket%3A%20Professional%20(95%2Fmnd)%0AFounding%20partner%3A%20ja%2Fnee" data-pakket="Professional">Word partner</a>
+      </div>
+      <div class="plan badge">
+        <div class="name">Bureau</div>
+        <div class="for">Voor vitaliteitsbureaus en HR-adviseurs</div>
+        <div class="price">&euro; 245 <span>per maand</span></div>
+        <div class="year">Jaarbetaling: twee maanden gratis</div>
+        <ul>
+          <li><b>40 metingen</b> per maand inbegrepen</li>
+          <li>Teamrapportage voor organisaties</li>
+          <li>Eigen logo op het rapport</li>
+          <li>Jaarlijkse hermeting inbegrepen</li>
+          <li>Meerverbruik: &euro; 12 per meting</li>
+          <li>Maandelijks opzegbaar</li>
+        </ul>
+        <a class="cta" href="mailto:hallo@happly.nl?subject=Aanmelding%20Zelfkracht%20Index%20Bureau&body=Naam%3A%0AOrganisatie%3A%0APakket%3A%20Bureau%20(245%2Fmnd)%0AFounding%20partner%3A%20ja%2Fnee" data-pakket="Bureau">Word partner</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="org">
+  <div class="wrap">
+    <h2>Meet je voor <em>één organisatie</em>?</h2>
+    <p>Voor een eenmalige teammeting is er het <b>Teampakket</b> (vanaf &euro; 950). Wil een organisatie jaarlijks blijven meten, dan is er de <b>organisatie-jaarlicentie</b> (&euro; 1.950 per jaar) met hermeting en voortgangsbeeld. Mail <a href="mailto:hallo@happly.nl?subject=Zelfkracht%20Index%20voor%20organisatie">hallo@happly.nl</a> en we richten het in.</p>
+  </div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <h2>Zo werkt het</h2>
+    <ol>
+      <li><b>Meld je aan.</b> Je krijgt binnen één werkdag persoonlijk antwoord en je eigen omgeving.</li>
+      <li><b>Nodig je klanten uit.</b> Elke klant meet in vier minuten, jij ziet de resultaten binnenkomen.</li>
+      <li><b>Begeleid op het getal.</b> De duiding opent het gesprek, de deelscores wijzen de richting, de hermeting sluit de cirkel.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="signup" id="aanmelden">
+  <div class="wrap">
+    <h2>Aanmelden of eerst <em>even sparren</em>?</h2>
+    <form id="pform">
+      <div>
+        <label for="naam">Naam</label>
+        <input id="naam" name="naam" type="text" autocomplete="name" required>
+      </div>
+      <div>
+        <label for="org">Praktijk of bureau</label>
+        <input id="org" name="org" type="text" autocomplete="organization">
+      </div>
+      <div>
+        <label for="pakket">Pakket</label>
+        <select id="pakket" name="pakket">
+          <option value="Professional">Professional · 95 per maand</option>
+          <option value="Bureau">Bureau · 245 per maand</option>
+          <option value="Twijfel">Weet ik nog niet, eerst sparren</option>
+        </select>
+      </div>
+      <button class="cta" type="submit">Verstuur aanmelding</button>
+      <p class="note">De knop opent een ingevulde mail aan hallo@happly.nl. Binnen één werkdag persoonlijk antwoord, betaling daarna via een veilig Mollie-betaalverzoek. Geen automatische incasso zonder gesprek.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Happly · Zelfkracht in mens en organisatie</span>
+    <span><a href="/">Zelfkracht Index voor jezelf</a> &nbsp;·&nbsp; <a href="privacy">Privacy</a></span>
+  </div>
+</footer>
+
+<script>
+document.getElementById("pform").addEventListener("submit",function(e){
+  e.preventDefault();
+  var naam=encodeURIComponent(document.getElementById("naam").value||"");
+  var org=encodeURIComponent(document.getElementById("org").value||"");
+  var pakket=document.getElementById("pakket").value;
+  var sub=encodeURIComponent("Aanmelding Zelfkracht Index "+pakket);
+  var body="Naam%3A%20"+naam+"%0AOrganisatie%3A%20"+org+"%0APakket%3A%20"+encodeURIComponent(pakket)+"%0AFounding%20partner%3A%20graag";
+  location.href="mailto:hallo@happly.nl?subject="+sub+"&body="+body;
+});
+</script>
+
+</body>
+</html>
