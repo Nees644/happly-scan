@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happly · Markers voor teamsucces meetbaar gemaakt</title>
+<meta name="description" content="Happly voor professionals is het meetinstrument onder je eigen teamtrajecten: de Zelfkracht Index voor de deelnemer, de Teamkracht Index voor het team. De Teamfoto opent je traject, de hermeting levert het bewijs. De eerste Teamfoto is kosteloos.">
+<meta property="og:title" content="Happly · Markers voor teamsucces meetbaar gemaakt">
+<meta property="og:description" content="Het meetinstrument onder de teamtrajecten van coaches, adviseurs en bureaus. De Teamfoto opent je traject, de hermeting levert het bewijs.">
+<meta property="og:image" content="https://happly.nl/og.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://happly.nl">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1A0B2E; --ink-soft:#2A1745;
+    --pink:#D6026F; --pink-deep:#A8025A;
+    --paper:#F7F3F0; --paper2:#EFE8E4;
+    --lav:#B9AECB; --lav-deep:#6B6472;
+    --line:#E2D8D2; --line-dark:rgba(247,243,240,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  *,*::before,*::after{font-family:inherit}
+  html{scroll-behavior:smooth}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 28px}
+  h1,h2,h3{font-family:"DM Serif Display",serif;font-weight:400;line-height:1.08;letter-spacing:-.015em}
+  h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin-bottom:22px;max-width:22ch}
+  h3{font-size:1.35rem;margin-bottom:8px}
+  p{max-width:62ch}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);margin-bottom:16px}
+  section{padding:88px 0}
+  section.alt{background:var(--paper2)}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--pink);color:#fff;text-decoration:none;font-weight:600;font-size:1rem;padding:15px 28px;border-radius:999px;transition:transform .15s,background .15s}
+  .btn:hover{background:var(--pink-deep);transform:translateY(-2px)}
+  .btn.ghost{background:transparent;color:inherit;border:1.5px solid currentColor}
+  .btn.ghost:hover{background:rgba(0,0,0,.04);transform:none}
+  .link{text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+  .link:hover{border-color:var(--pink)}
+
+  /* header + hero (donker) */
+  .top{background:var(--ink);color:var(--paper)}
+  header{padding:30px 0}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}
+  header img{height:26px;display:block}
+  nav{display:flex;align-items:center;gap:26px;font-size:.95rem}
+  nav a{text-decoration:none;color:var(--lav)}
+  nav a:hover{color:var(--paper)}
+  nav .btn{padding:11px 20px;font-size:.92rem;color:#fff}
+  .hero{padding:70px 0 84px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-200px;top:-120px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(214,2,111,.28),rgba(214,2,111,0) 68%);pointer-events:none}
+  .hero .wrap{position:relative;z-index:1}
+  .hero h1{font-size:clamp(2.6rem,6vw,4.4rem);max-width:15ch;margin-bottom:26px;color:#fff}
+  .hero h1 em{font-style:italic;color:var(--pink)}
+  .hero .lead{font-size:clamp(1.05rem,1.5vw,1.25rem);font-weight:300;color:var(--lav);max-width:58ch;margin-bottom:36px}
+  .hero .lead b{color:var(--paper);font-weight:500}
+  .hero .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px 26px}
+  .hero .meta{font-size:.92rem;color:var(--lav)}
+  .hero .meta a{color:var(--paper)}
+
+  /* drie vaardigheden */
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:34px 0 30px}
+  .three div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px}
+  .three p{font-size:.97rem;color:var(--lav-deep)}
+
+  /* vierslag */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:34px}
+  .step{border-top:2px solid var(--line);padding-top:18px}
+  .step .num{font-family:"DM Serif Display",serif;color:var(--pink);font-size:1rem;margin-bottom:6px}
+  .step p{font-size:.95rem;color:var(--lav-deep)}
+  .step.us{border-top-color:var(--pink)}
+  .step .who{display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lav-deep);margin-top:12px}
+  .step.us .who{color:var(--pink)}
+
+  /* teamfoto voorbeeld */
+  .foto{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 32px;margin-top:40px;max-width:640px}
+  .foto .t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
+  .foto .t b{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.3rem}
+  .foto .t span{font-size:.82rem;color:var(--lav-deep)}
+  .bar{margin-bottom:16px}
+  .bar .l{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:6px}
+  .bar .l span:last-child{color:var(--lav-deep)}
+  .bar .tr{position:relative;height:10px;background:var(--paper2);border-radius:99px}
+  .bar .f{position:absolute;left:0;top:0;height:100%;background:var(--ink);border-radius:99px}
+  .bar .n{position:absolute;top:-4px;width:2px;height:18px;background:var(--pink)}
+  .foto .q{border-top:1px solid var(--line);margin-top:22px;padding-top:16px;font-size:.92rem;color:var(--lav-deep)}
+  .foto .q b{color:var(--ink);font-weight:500}
+  .cap{font-size:.85rem;color:var(--lav-deep);margin-top:10px}
+
+  /* prijzen */
+  table{width:100%;border-collapse:collapse;margin-top:30px;font-size:.96rem;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  th,td{text-align:left;padding:16px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lav-deep)}
+  tr:last-child td{border-bottom:0}
+  td.p{white-space:nowrap;font-weight:500}
+  tr.hi td{background:#FDF2F7}
+  .small{font-size:.9rem;color:var(--lav-deep);margin-top:16px}
+
+  /* niet-doen */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:22px 40px;margin-top:30px}
+  .rules p{font-size:.97rem}
+  .rules b{font-weight:500}
+
+  /* verhaal */
+  .story{display:grid;grid-template-columns:200px 1fr;gap:44px;align-items:start}
+  .story img{width:200px;border-radius:14px;display:block}
+  .story .sig{margin-top:18px;font-size:.9rem;color:var(--lav-deep)}
+
+  /* faq */
+  details{border-top:1px solid var(--line);padding:18px 0}
+  details:last-of-type{border-bottom:1px solid var(--line)}
+  summary{cursor:pointer;font-weight:500;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;gap:20px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--pink);font-family:"DM Serif Display",serif;font-size:1.4rem;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p{margin-top:12px;color:var(--lav-deep);max-width:70ch}
+  .faq-h{font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lav-deep);margin:34px 0 8px}
+
+  /* footer */
+  footer{background:var(--ink);color:var(--lav);padding:44px 0 50px;font-size:.92rem}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px 40px}
+  footer a{text-decoration:none;border-bottom:1px solid var(--line-dark);padding-bottom:1px}
+  footer a:hover{color:var(--paper)}
+  footer nav{gap:20px}
+
+  @media(max-width:760px){
+    section{padding:64px 0}
+    nav .hide{display:none}
+    .three,.steps,.rules{grid-template-columns:1fr}
+    .story{grid-template-columns:1fr}
+    .story img{width:140px}
+    th:nth-child(3),td:nth-child(3){display:none}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="top">
+<header>
+  <div class="wrap">
+    <a href="#top"><img src="logo.png" alt="Happly"></a>
+    <nav>
+      <a class="hide" href="#professionals">Voor professionals</a>
+      <a class="hide" href="#organisaties">Voor organisaties</a>
+      <a class="hide" href="teamkracht.html">Teamkracht Index beta</a>
+      <a class="hide" href="onderzoek.html">Onderzoek</a>
+      <a class="btn" href="https://cal.com/maarten-neeskens-aoijqe?src=site_nav">Plan een kennismaking</a>
+    </nav>
+  </div>
+</header>
+
+<main class="hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Happly voor professionals</p>
+    <h1>Teams die het <em>zelf</em> oplossen.</h1>
+    <p class="lead">Markers voor teamsucces meetbaar gemaakt. Happly voor professionals is <b>het meetinstrument onder je eigen teamtrajecten</b>: de Zelfkracht Index voor iedere deelnemer, de Teamkracht Index voor het team. De Teamfoto opent je traject, de hermeting levert het bewijs. Voor coaches, adviseurs en bureaus.</p>
+    <div class="cta-row">
+      <a class="btn" href="https://cal.com/maarten-neeskens-aoijqe?src=site_hero">Plan een kennismaking</a>
+      <span class="meta">De eerste Teamfoto bij een klant van jou is kosteloos · <a class="link" href="#organisaties">leidinggevende? Voor organisaties</a></span>
+    </div>
+  </div>
+</main>
+</div>
+
+<section id="professionals">
+  <div class="wrap">
+    <p class="eyebrow">Voor coaches, adviseurs en bureaus</p>
+    <h2>Wat je traject oplevert, kun je nu laten zien</h2>
+    <p>Je opdrachtgever wil een team dat het zelf oplost: mensen die eigenaarschap nemen, initiatief tonen en verantwoordelijkheid pakken. Daar bouw jij in je traject aan, samen met het team en de leidinggevende. Aan het eind is er een evaluatie: hoe hebben de deelnemers het ervaren, wat vonden ze van de sessies.</p>
+    <p style="margin-top:16px">Wat er in het gedrag van het team is veranderd, staat daar nog niet in. Precies dat maak je met Happly zichtbaar: een meting vooraf en een meting achteraf, op hetzelfde instrument. Dat verschil neem je mee naar de directie van je opdrachtgever, en naar je volgende offerte.</p>
+    <p style="margin-top:16px">Wat een opdrachtgever wil zien, is gedrag: een probleem dat gemeld wordt mét een voorstel erbij, iemand die zegt "dat pak ik op", het gesprek dat in het overleg wordt gevoerd in plaats van daarna op de gang. Dat gedrag komt uit drie vaardigheden, en die drie zijn te meten en te ontwikkelen. <b>Wij meten ze. Jij ontwikkelt ze.</b></p>
+  </div>
+</section>
+
+<section class="alt" id="zelfkracht">
+  <div class="wrap">
+    <p class="eyebrow">Wat we meten</p>
+    <h2>Drie markers, één beeld</h2>
+    <p>Eigenaarschap, initiatief en regie zijn geen eigenschappen maar gedrag: wat iemand doet, of nalaat, als het erop aankomt. Onder dat gedrag liggen drie vaardigheden die los van elkaar staan en los van elkaar te ontwikkelen zijn. Samen noemen we ze zelfkracht: wat iemand zelf doet. Opgeteld over een team wordt het teamkracht: wat het team samen doet. De Zelfkracht Index meet het eerste, de Teamkracht Index het tweede.</p>
+    <div class="three">
+      <div><h3>Zien</h3><p>Scherp waarnemen wat er speelt: in het project, het team, de opdracht. Ook wat niemand hardop zegt.</p></div>
+      <div><h3>Sturen</h3><p>Zelf richting kiezen. Een voorstel doen, bijsturen, beslissen wat van jou is binnen je rol.</p></div>
+      <div><h3>Doen</h3><p>In beweging komen en blijven, ook als het spannend is. Op tijd, bij iemand die er iets mee kan.</p></div>
+    </div>
+    <p>Uit het doorlopende Zelfkracht-onderzoek onder werkend Nederland komt telkens hetzelfde patroon: <b>het zien is er meestal al. De ruimte zit in de stap naar doen.</b> Wat meetbaar is, wordt bespreekbaar; wat bespreekbaar is, wordt ontwikkelbaar.</p>
+  </div>
+</section>
+
+<section id="hoe">
+  <div class="wrap">
+    <p class="eyebrow">Zo werkt het, in je eigen traject</p>
+    <h2>Meten, ontwikkelen, aan de slag, weer meten</h2>
+    <p>Jij houdt je klant, je aanpak en je begeleiding. Wij leveren het instrument, het teambeeld en de hermeting.</p>
+    <div class="steps">
+      <div class="step us"><div class="num">1</div><h3>Meten</h3><p>Iedereen in het team doet de Zelfkracht Index: drie minuten, anoniem. Elke deelnemer krijgt direct een uitslag met duiding. Jij ontvangt de Teamkracht Index: de Teamfoto met het teambeeld en de gespreksvragen die je nabespreking openen.</p><span class="who">Happly</span></div>
+      <div class="step"><div class="num">2</div><h3>Ontwikkelen</h3><p>De Teamfoto is de opening van jouw traject. Het team benoemt zelf wat iedereen al wist, en jij bouwt daar je begeleiding omheen, in je eigen aanpak.</p><span class="who">Jij</span></div>
+      <div class="step"><div class="num">3</div><h3>Aan de slag</h3><p>Het doelgedrag landt op de werkvloer, onder jouw begeleiding: het voorstel bij het probleem, het "dat pak ik op", het gesprek in het overleg.</p><span class="who">Jij</span></div>
+      <div class="step us"><div class="num">4</div><h3>Weer meten</h3><p>Hermeting op hetzelfde instrument, anoniem op teamniveau. Geen tevredenheidsevaluatie maar een voor- en nameting, klaar voor de directie van je opdrachtgever en voor je volgende offerte.</p><span class="who">Happly</span></div>
+    </div>
+
+    <div class="foto" aria-label="Voorbeeld van een Teamfoto (fictief)">
+      <div class="t"><b>Teamfoto · Team Noord</b><span>nulmeting · 11 deelnemers</span></div>
+      <div class="bar"><div class="l"><span>Zien</span><span>boven het landelijke beeld</span></div><div class="tr"><div class="f" style="width:74%"></div><div class="n" style="left:66%"></div></div></div>
+      <div class="bar"><div class="l"><span>Sturen</span><span>rond het landelijke beeld</span></div><div class="tr"><div class="f" style="width:58%"></div><div class="n" style="left:60%"></div></div></div>
+      <div class="bar"><div class="l"><span>Doen</span><span>onder het landelijke beeld</span></div><div class="tr"><div class="f" style="width:41%"></div><div class="n" style="left:57%"></div></div></div>
+      <div class="q"><b>Gespreksvraag voor de nabespreking:</b> dit team ziet scherp en kiest richting, maar de stap naar doen blijft achter. Waar in de afgelopen maand hebben jullie iets gezien, en besloten het (nog) niet te zeggen?</div>
+    </div>
+    <p class="cap">Voorbeeld, fictief. De magenta streep is het actuele landelijke gemiddelde beeld uit het doorlopende Zelfkracht-onderzoek. Werk je met een pool in plaats van vaste teams (detachering, interim)? Dan heet het beeld de Bureaufoto.</p>
+  </div>
+</section>
+
+<section class="alt" id="teamkracht">
+  <div class="wrap">
+    <p class="eyebrow">Teamkracht Index beta</p>
+    <h2>Waar kan je het team versterken? In één beeld.</h2>
+    <p>De Teamkracht Index laat zien waar zien, sturen en doen in een team op elkaar aansluiten en waar het stokt, welk doel het team kiest en wat er bij de hermeting is veranderd. Startbeeld, doelbeeld en eindbeeld in één plaat, met de interventies erbij. De eerste tien praktijken bouwen mee.</p>
+    <p style="margin-top:22px"><a class="btn ghost" href="teamkracht.html">Bekijk het voorbeeld</a></p>
+  </div>
+</section>
+
+<section id="investering">
+  <div class="wrap">
+    <p class="eyebrow">Investering</p>
+    <h2>Je rekent af per Teamfoto, nooit per meting</h2>
+    <p>Een profielinstrument kost al snel een paar honderd euro per persoon. Hier betaal je voor het teambeeld en het bewijs erna, en de metingen zijn onbeperkt.</p>
+    <table>
+      <thead><tr><th>Vorm</th><th>Prijs</th><th>Wat erin zit</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td>Kennismaking</td><td class="p">kosteloos</td><td>Eén Teamfoto met nabespreking, eenmalig per praktijk</td></tr>
+        <tr><td>Begeleider</td><td class="p">€ 89 per maand<br><span style="font-weight:300">of € 890 per jaar</span></td><td>Onbeperkt metingen, twee Teamfoto's per jaar, je eigen naam en logo op de PDF</td></tr>
+        <tr><td>Praktijk</td><td class="p">€ 349 per maand<br><span style="font-weight:300">of € 3.490 per jaar</span></td><td>Vijf begeleiders, tien Teamfoto's per jaar, verwerkersovereenkomst op maat</td></tr>
+        <tr><td>Extra Teamfoto</td><td class="p">€ 395</td><td>Nulmeting van een extra team, inclusief alle metingen</td></tr>
+        <tr><td>Hermeting</td><td class="p">€ 295</td><td>Het tweede meetmoment, het verschil zwart op wit</td></tr>
+      </tbody>
+    </table>
+    <p class="small">Prijzen exclusief btw. Werk je met een pool (detachering, interim) of met een netwerk van begeleiders (arbodienst, opleider, HR-netwerk)? Daarvoor is er een licentie op maat; <a class="link" href="https://cal.com/maarten-neeskens-aoijqe?src=site_licentie">vraag ernaar</a>.</p>
+  </div>
+</section>
+
+<section class="alt" id="grenzen">
+  <div class="wrap">
+    <p class="eyebrow">Wat wij bewust niet doen</p>
+    <h2>Jouw klant blijft jouw klant</h2>
+    <div class="rules">
+      <p><b>Wij benaderen nooit een organisatie die jij hebt aangemeld.</b> Dat staat in de partnervoorwaarden en het is de reden dat je ons instrument onder je eigen naam kunt zetten.</p>
+      <p><b>Individuele uitslagen zijn alleen zichtbaar voor de deelnemer zelf.</b> Jij en je opdrachtgever zien uitsluitend het teambeeld, vanaf vijf deelnemers. Daarom vullen mensen eerlijk in en klopt het beeld.</p>
+      <p><b>Het instrument is er voor ontwikkeling.</b> Nooit voor beoordeling, selectie, matching of dossiervorming. Er komt ook geen export die dat alsnog mogelijk maakt.</p>
+      <p><b>Wij beloven geen verzuim- of rendementpercentages.</b> Wij maken de factor onder eigenaarschap zichtbaar en meten de verandering. Wees gerust wantrouwig bij wie dat wél belooft.</p>
+    </div>
+  </div>
+</section>
+
+<section id="organisaties">
+  <div class="wrap">
+    <p class="eyebrow">Voor organisaties</p>
+    <h2>Leidinggevende? Zo werkt het bij jou</h2>
+    <p>De meeste teams werken met Happly via hun eigen coach, adviseur of bureau: die kent je organisatie al en bouwt zijn traject op de Teamfoto. Werk je nog niet met iemand, dan brengen we je graag in contact met een aangesloten professional.</p>
+    <p style="margin-top:16px">Wil je rechtstreeks aan de slag, dan is er het Eigenaarschapsprogramma: één team, tien weken, meten, ontwikkelen, aan de slag, weer meten, met de verandering aan het eind zwart op wit. Dat leveren we in een beperkt aantal trajecten per jaar.</p>
+    <p style="margin-top:26px"><a class="btn ghost" href="eigenaarschap/?src=site_org">Bekijk het Eigenaarschapsprogramma</a></p>
+  </div>
+</section>
+
+<section class="alt" id="verhaal">
+  <div class="wrap">
+    <p class="eyebrow">Het verhaal</p>
+    <div class="story">
+      <img src="maarten.jpg" alt="Maarten Neeskens">
+      <div>
+        <h2>Ik zag veel, maar deed niets</h2>
+        <p>Ik ken dit probleem niet uit de literatuur, maar uit mijn eigen leven. Ik was het kind dat alles zag en niets zei. De ommekeer kwam niet door motivatie of mindset, maar toen ik het ben gaan aankijken, onderzoeken, vormgeven, en ben gaan doen.</p>
+        <p style="margin-top:14px">Dat heb ik zelfkracht genoemd. Ik heb er een boek over geschreven, het onderbouwd met wetenschappelijk onderzoek en er een meting van gemaakt. Die meting is nu het instrument onder de trajecten van professionals die willen laten zien dat hun werk werkt.</p>
+        <p class="sig">Maarten Neeskens · bedenker van de Zelfkracht Index · auteur van Zelfkracht</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="onderzoek">
+  <div class="wrap">
+    <p class="eyebrow">Het onderzoek</p>
+    <h2>Het doorlopende Zelfkracht-onderzoek</h2>
+    <p>Elke meting draagt anoniem bij aan het doorlopende Zelfkracht-onderzoek onder werkend Nederland. Daaruit komt het actuele landelijke gemiddelde beeld waar elke Teamfoto tegen wordt afgezet. Ieder kwartaal publiceren we het kwartaalbeeld: het patroon op zien, sturen en doen, en hoe het verschuift. De eerste editie, een tussenstand, verschijnt eind september 2026.</p>
+    <p style="margin-top:22px"><a class="link" href="onderzoek.html">Over het onderzoek en de verantwoording</a> · <a class="link" href="https://scan.happly.nl?src=site_onderzoek">zelf meedoen aan de meting</a></p>
+  </div>
+</section>
+
+<section class="alt" id="faq">
+  <div class="wrap">
+    <p class="eyebrow">Veelgestelde vragen</p>
+    <h2>Twijfel je nog ergens over?</h2>
+
+    <p class="faq-h">Voor professionals</p>
+    <details><summary>Wat ziet mijn opdrachtgever, en wat zie ik?</summary><p>Allebei hetzelfde: de Teamkracht Index in de vorm van de Teamfoto, het geanonimiseerde teambeeld op zien, sturen en doen, afgezet tegen het landelijke beeld, met de gespreksvragen. Individuele uitslagen ziet niemand behalve de deelnemer zelf, ook jij niet. Dat is de reden dat mensen eerlijk invullen.</p></details>
+    <details><summary>Hoeveel deelnemers heb ik minimaal nodig?</summary><p>Vijf. Onder dat aantal maken we geen Teamfoto, omdat individuele uitslagen dan herleidbaar worden. De drempel is een productkenmerk, geen factuurregel: je betaalt per Teamfoto, niet per deelnemer.</p></details>
+    <details><summary>Kan de Teamfoto onder mijn eigen naam?</summary><p>Ja. Vanaf de vorm Begeleider staan je eigen naam en logo op de PDF die je aan je opdrachtgever geeft. Happly staat er klein op als instrument.</p></details>
+    <details><summary>Wat als het team laag scoort?</summary><p>Dan heb je een opening. Een lage score op doen bij een hoge score op zien wijst vaker op een context die initiatief afstraft dan op een gebrek aan kunnen, en dat is precies het gesprek dat jij als begeleider wilt voeren. De gespreksvragen bij de Teamfoto zijn daarop gebouwd.</p></details>
+    <details><summary>Is dit wetenschappelijk onderbouwd?</summary><p>De Zelfkracht Index is ontwikkeld op basis van de literatuur over zelfinzicht, zelfregie en gedragsverandering, en wordt doorlopend aangescherpt met de binnenkomende metingen. De verantwoording staat op de <a class="link" href="onderzoek.html">onderzoekspagina</a>.</p></details>
+
+    <p class="faq-h">Voor organisaties</p>
+    <details><summary>Wij meten al medewerkerstevredenheid. Wat voegt dit toe?</summary><p>Een tevredenheidsmeting is een thermometer: die vertelt je dát er iets knelt. De Zelfkracht Index meet of je mensen de vaardigheid hebben om er zelf iets aan te veranderen. De twee vervangen elkaar niet; de onze verklaart waarom de eerste al jaren hetzelfde beeld laat zien.</p></details>
+    <details><summary>Hoe zit het met de AVG en de ondernemingsraad?</summary><p>Strakker dan gebruikelijk. Individuele uitslagen zijn uitsluitend zichtbaar voor de deelnemer; de organisatie ontvangt alleen de Teamfoto. Het instrument wordt nooit gebruikt voor beoordeling, selectie of dossiervorming, en we doen geen medische uitspraken. Dat maakt het gesprek met de OR doorgaans kort.</p></details>
+    <details><summary>Kunnen we teams met elkaar vergelijken?</summary><p>Nee, bewust niet. De Teamkracht Index van een team wordt alleen afgezet tegen het landelijke beeld en tegen de eigen vorige meting, nooit tegen andere teams in dezelfde organisatie. Zodra teams naast elkaar komen te staan, wordt een ontwikkelinstrument een beoordeling, en daar is het niet voor.</p></details>
+    <details><summary>Gaat ons verzuim hiervan omlaag?</summary><p>Dat beloven we niet. Verzuim heeft veel oorzaken. Wat wij doen: de factor eronder zichtbaar en ontwikkelbaar maken, en de verandering meten met een voor- en nameting op hetzelfde instrument. Je ziet wat er verschuift, zwart op wit.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Happly · Maarten Neeskens · <a href="mailto:hallo@happly.nl">hallo@happly.nl</a> · <a href="https://www.linkedin.com/company/109477184">LinkedIn</a></div>
+    <nav>
+      <a href="#professionals">Voor professionals</a>
+      <a href="eigenaarschap/?src=site_footer">Voor organisaties</a>
+      <a href="onderzoek.html">Onderzoek</a>
+      <a href="https://scan.happly.nl?src=site_footer">Meet mee</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
