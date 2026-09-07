@@ -27,7 +27,7 @@ export const PATROON = "Het verlies van regie ontstaat niet in één moment. Het
 /* Deze zin is per 07-09-2026 uit de uitslag gehaald en wordt niet meer getoond.
    Hij staat hier alleen nog om hem weg te knippen uit duidingen die eerder zijn
    gegenereerd en in de database staan; die teksten worden niet herschreven. */
-export const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
+export const OUDE_SLOTZIN = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 
 /* De vaste zin onder het profiel in de eigen uitslag (briefing paragraaf 7). */
 export const PATROON_VOORBEHOUD = "Een patroon beschrijft wat je nu doet in deze context, niet wie je bent. Bij de hermeting zie je wat er is verschoven.";
@@ -41,11 +41,11 @@ const KOP_DUIDING = /(^|\n)[ \t]*[#*]*[ \t]*Wat opvalt in jouw antwoorden[^\n]*(
 
 export function splitDuiding(text){
   const marker = /(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[^\n]*(\n|$)/i;
-  const zonderNulpunt = t => t.replace(NULPUNT, "").trim();
+  const zonderSlotzin = t => t.replace(OUDE_SLOTZIN, "").trim();
   const m = text.match(marker);
   if (m){
-    return { duiding: zonderNulpunt(text.slice(0, m.index).replace(KOP_DUIDING, "$1")),
-             route:   zonderNulpunt(text.slice(m.index + m[0].length)) };
+    return { duiding: zonderSlotzin(text.slice(0, m.index).replace(KOP_DUIDING, "$1")),
+             route:   zonderSlotzin(text.slice(m.index + m[0].length)) };
   }
-  return { duiding: zonderNulpunt(text.replace(KOP_DUIDING, "$1")), route: null };
+  return { duiding: zonderSlotzin(text.replace(KOP_DUIDING, "$1")), route: null };
 }

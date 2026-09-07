@@ -36,7 +36,7 @@ export default async function handler(req, res){
     }
     const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     await db.from("opvolgreeks").update({ afgemeld: true }).eq("id", r);
-    res.status(200).send(pagina("Je bent afgemeld", "Je ontvangt geen verdere mail over deze meting. Je uitslagmail mag je gewoon bewaren; dat blijft je nulpunt."));
+    res.status(200).send(pagina("Je bent afgemeld", "Je ontvangt geen verdere mail over deze meting. Je uitslagmail mag je gewoon bewaren; dat blijft je startpunt."));
   }catch(e){
     res.status(500).send(pagina("Dat ging mis", "Afmelden lukte nu niet. Probeer het later nog eens, of mail <a href='mailto:hallo@happly.nl'>hallo@happly.nl</a>."));
   }

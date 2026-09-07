@@ -94,7 +94,7 @@ function mailHermeting({ name, index, afmeldUrl }){
   const getal = typeof index === "number" ? `: ${index}` : "";
   const inhoud = `
     ${p(name ? `Hallo ${name},` : "Hallo,")}
-    ${p(`Acht weken geleden mat je je Zelfkracht Index${getal}. Dat getal was je nulpunt.`)}
+    ${p(`Acht weken geleden mat je je Zelfkracht Index${getal}. Dat getal was je startpunt.`)}
     ${p("Een Index is een momentopname. Wie er in de tussentijd aan gewerkt heeft, ziet dat terug in het getal. Opnieuw meten duurt drie tot vier minuten.")}
     ${p(`<a href="${BASE}/scan?src=hermeting" style="color:${PK};font-weight:700;text-decoration:none">Meet je Index opnieuw &rarr;</a>`, "margin:22px 0 0")}`;
   return { subject: "Tijd om opnieuw te meten", html: shell(inhoud, afmeldUrl) };

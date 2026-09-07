@@ -98,7 +98,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .patroon p{font-size:13.5px;font-weight:300;font-style:italic;color:#4A3C56;line-height:1.8}
 /* route + sprint */
 .route p{font-size:13.5px;font-weight:300;color:#3A2E46;line-height:1.78;margin-bottom:12px}
-.nulpunt{font-family:"DM Serif Display",serif;font-style:italic;font-size:16px;color:var(--dp);line-height:1.5;margin-top:6px}
 /* overgangsmoment: ademruimte tussen duiding/route en het Sprint-blok */
 .overgang{margin-top:52px;border-top:1px solid var(--bd);padding-top:26px}
 .overgang p{font-size:13.5px;font-weight:300;color:var(--mut);line-height:1.7;text-align:center;margin-bottom:0}
@@ -275,7 +274,7 @@ function ontwikkelruimte(s){
 const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
 /* Per 07-09-2026 niet meer getoond. Blijft staan om de zin weg te knippen uit
    duidingen die eerder zijn gegenereerd en zijn opgeslagen. */
-const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
+const OUDE_SLOTZIN = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 
 /* ======================= FUNNEL (anonieme events) =======================
    Conversiemeting zonder cookies of fingerprinting: per paginabezoek een
@@ -610,13 +609,13 @@ function renderDuiding(text){
   if(!el) return;
   // De AI levert twee koppen; "Waar het werk zit" hoort onder Blok 6 (De route).
   const parts = splitDuiding(text);
-  el.innerHTML = fmt(parts.duiding.replace(NULPUNT,"").trim());
+  el.innerHTML = fmt(parts.duiding.replace(OUDE_SLOTZIN,"").trim());
   const dr = document.getElementById("deel-rij");
   if (dr) dr.style.display = "block";
   const rb = document.getElementById("route-body");
   if(rb){
     if(parts.route){
-      const route = parts.route.replace(NULPUNT,"").trim();  // nulpuntzin staat al als vast slotelement
+      const route = parts.route.replace(OUDE_SLOTZIN,"").trim();  // de oude slotzin wordt niet meer getoond
       rb.innerHTML = fmt(route);
     } else {
       renderRoute();  // terugval: cliëntgemaakte route als de tekst geen routekop had

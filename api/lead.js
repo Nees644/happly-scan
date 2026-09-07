@@ -65,7 +65,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
       <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Index</div>
       <div style="padding:30px 32px 36px">
 
-        ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je nulpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:${uitslagUrl ? "6px" : "22px"}`)}
+        ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je startpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:${uitslagUrl ? "6px" : "22px"}`)}
         ${uitslagUrl ? p(`<a href="${uitslagUrl}" style="color:${PK}">Bekijk je uitslag online</a>. Die link is van jou alleen; deel hem niet.`, `font-size:12.5px;color:${MUT};margin-bottom:22px`) : ""}
         ${p(hi)}
 
