@@ -321,6 +321,11 @@ create table if not exists public.teamkracht_config (
   -- berekend; met deze twee wel, want ze gaan mee in config_snapshot.
   norm_n                int,
   norm_gemeten_op       date,
+  -- Een naam voor deze versie van de referentie, bijvoorbeeld '2026.1'. Een
+  -- doorlopend onderzoek levert een bewegend gemiddelde op; door versies te
+  -- publiceren in plaats van continu bij te stellen, meet een startbeeld en het
+  -- eindbeeld van hetzelfde traject altijd langs dezelfde meetlat.
+  norm_versie           text,
   updated_at            timestamptz not null default now()
 );
 
@@ -580,8 +585,8 @@ create policy "eigen feedback lezen" on public.teamkracht_feedback
 insert into public.teamkracht_config
   (id, middenband_sd, min_deelnemers_lijnen, min_deelnemers_kaart, norm_bron,
    norm_zien, norm_sturen, norm_doen, sd_zien, sd_sturen, sd_doen,
-   norm_n, norm_gemeten_op)
-values (1, 0.25, 10, 5, 'vast', 74, 69, 65, 12, 16, 16, 73, date '2026-09-07')
+   norm_n, norm_gemeten_op, norm_versie)
+values (1, 0.25, 10, 5, 'vast', 74, 69, 65, 12, 16, 16, 73, date '2026-09-07', '2026.1')
 on conflict (id) do nothing;
 
 -- Profielen. tekst_deelnemer is een ik-vorm-placeholder, afgeleid van "zo ziet

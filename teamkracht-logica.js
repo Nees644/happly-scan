@@ -259,7 +259,8 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start
       // Waar de norm op rustte toen dit beeld werd berekend. Hoort erbij: een
       // norm zonder aantal is een getal zonder gewicht.
       norm_n: config.norm_n ?? null,
-      norm_gemeten_op: config.norm_gemeten_op ?? null
+      norm_gemeten_op: config.norm_gemeten_op ?? null,
+      norm_versie: config.norm_versie ?? null
     },
     // Niet voor opslag: de aanroeper heeft de codes nodig om profiel_code per
     // deelnemer weg te schrijven. Zit bewust niet in teamkracht_teambeeld.

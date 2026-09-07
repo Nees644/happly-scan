@@ -108,7 +108,8 @@ export const VOORBEELD_TEAMBEELD = {
     "min_deelnemers_lijnen": 10,
     "norm_bron": "vast",
     "norm_n": null,
-    "norm_gemeten_op": null
+    "norm_gemeten_op": null,
+    "norm_versie": null
   }
 };
 
