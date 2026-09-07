@@ -426,12 +426,40 @@ create table if not exists public.teamkracht_interventies (
   actief boolean not null default true, volgorde int
 );
 
+-- Het interventieplan van dit team. De bibliotheek levert een suggestie, de
+-- coach mag alles overschrijven; wat hier staat is wat het team gaat doen.
 create table if not exists public.teamkracht_plan (
   id               uuid primary key default gen_random_uuid(),
   doel_id          uuid not null references public.teamkracht_doel(id) on delete cascade,
   interventie_code text references public.teamkracht_interventies(code),
-  eigen_tekst text, eigenaar text, ritme text, telling text, volgorde int
+  eigen_tekst text, eigenaar text, ritme text, telling text,
+  eigen_gespreksvraag text,
+  volgorde int
 );
+
+-- Oogst van coachvragen. De gespreksvraag uit de bibliotheek is een voorbeeld;
+-- een coach die er een betere formuleert, formuleert hem vaak scherper dan wij
+-- aan de tekentafel kunnen. Elke afwijkende vraag komt hier terecht, naast de
+-- suggestie die hij verving, zodat de bibliotheek kan leren van wat er in
+-- echte sessies wordt gevraagd.
+--
+-- Geen deelnemergegevens. Wel vrije tekst van een coach, dus een teamnaam kan
+-- er per ongeluk in belanden; behandel de inhoud als vertrouwelijk en toon hem
+-- alleen aan de beheerder.
+create table if not exists public.teamkracht_coachvragen (
+  id               uuid primary key default gen_random_uuid(),
+  created_at       timestamptz not null default now(),
+  interventie_code text references public.teamkracht_interventies(code),
+  suggestie        text,          -- de vraag die de bibliotheek aanbood
+  vraag            text not null, -- de vraag die de coach ervan maakte
+  coach_user_id    uuid references auth.users(id) on delete set null,
+  teambeeld_id     uuid references public.teamkracht_teambeeld(id) on delete set null,
+  werkte           text check (werkte in ('ja','deels','nee')),  -- ingevuld na de sessie
+  opgenomen        boolean not null default false                -- overgenomen in de bibliotheek
+);
+
+create index if not exists teamkracht_coachvragen_interventie_idx
+  on public.teamkracht_coachvragen (interventie_code, created_at);
 
 -- Fase 3, nu alleen aanleggen. Nooit persoonsgebonden.
 create table if not exists public.teamkracht_feedback (
@@ -453,6 +481,7 @@ alter table public.teamkracht_doel         enable row level security;
 alter table public.teamkracht_doelregels   enable row level security;
 alter table public.teamkracht_interventies enable row level security;
 alter table public.teamkracht_plan         enable row level security;
+alter table public.teamkracht_coachvragen  enable row level security;
 alter table public.teamkracht_feedback     enable row level security;
 
 -- Referentietabellen: leesbaar voor iedere ingelogde gebruiker. Er staat geen
@@ -496,6 +525,13 @@ drop policy if exists "eigen plan lezen" on public.teamkracht_plan;
 create policy "eigen plan lezen" on public.teamkracht_plan
   for select to authenticated
   using (exists (select 1 from public.teamkracht_doel d where d.id = doel_id));
+
+-- Coachvragen: de coach ziet zijn eigen vragen terug, de beheerder ziet de
+-- hele oogst en kan daaruit de bibliotheek bijwerken.
+drop policy if exists "eigen coachvragen lezen" on public.teamkracht_coachvragen;
+create policy "eigen coachvragen lezen" on public.teamkracht_coachvragen
+  for select to authenticated
+  using (coach_user_id = auth.uid() or public.teamkracht_is_beheerder());
 
 drop policy if exists "eigen feedback lezen" on public.teamkracht_feedback;
 create policy "eigen feedback lezen" on public.teamkracht_feedback

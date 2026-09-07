@@ -62,7 +62,16 @@
   .kaartje dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;font-weight:300;
               border-top:1px solid var(--lijn);padding-top:9px}
   .kaartje dt{font-weight:600;color:var(--gedempt)}
-  .kaartje .vraag{margin-top:10px;font-size:13px;font-style:italic;color:var(--inkt)}
+  .kaartje .vraag{margin-top:12px}
+  .kaartje .vraaglabel{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+    font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--gedempt);margin-bottom:4px}
+  .kaartje .eigen{color:var(--magenta);letter-spacing:.1em}
+  .kaartje textarea,.kaartje input.bewerk{width:100%;font:inherit;font-size:13px;font-weight:300;color:var(--inkt);
+    background:#FDFBFA;border:1px solid var(--lijn);border-radius:6px;padding:8px 9px;resize:vertical}
+  .kaartje textarea{font-style:italic;min-height:62px;line-height:1.45}
+  .kaartje textarea:focus,.kaartje input.bewerk:focus{outline:none;border-color:var(--magenta);background:#fff}
+  .kaartje dd input.bewerk{padding:3px 6px;font-size:12.5px;border-radius:4px}
+  .hint{font-size:12.5px;font-weight:300;color:var(--gedempt);margin-top:14px}
   @media(max-width:880px){.romp{grid-template-columns:1fr}}
 </style>
 </head>
@@ -95,6 +104,7 @@
     <h2>Wat hiervoor nodig is</h2>
     <p class="regel">De interventies die horen bij de breuk van dit team en bij de profielen die er het vaakst in zitten. Elke interventie heeft een ritme en iets om te tellen, want zonder telling is het een voornemen. De gespreksvraag is voor de nabespreking.</p>
     <div class="kaartjes" id="interventies"></div>
+    <p class="hint">De gespreksvraag en de telling zijn voorstellen. Formuleer gerust een betere vraag; die gaat mee met dit team en wordt bewaard, zodat de bibliotheek leert van wat er in echte sessies wordt gevraagd.</p>
   </section>
 </div>
 
@@ -237,12 +247,20 @@ async function opslaan(){
         teambeeld_id: teambeeldId,
         doel_code: "sturen_doen_boven_norm",
         doel_zien: doel.zien, doel_sturen: doel.sturen, doel_doen: doel.doen,
-        gekozen_door: "coach"
+        gekozen_door: "coach",
+        plan: passendeInterventies().map(i => ({
+          interventie_code: i.code,
+          eigenaar: i.eigenaar_suggestie,
+          ritme: i.ritme,
+          telling: keuze[i.code].telling,
+          suggestie: i.gespreksvraag,
+          eigen_gespreksvraag: keuze[i.code].eigen_gespreksvraag
+        }))
       })
     });
     const uit = await r.json().catch(() => ({}));
     el("melding").textContent = r.ok
-      ? "Doelbeeld vastgelegd. Bij de hermeting komt het eindbeeld hierover te liggen."
+      ? `Doelbeeld vastgelegd${uit.plan_opgeslagen ? " met de interventies erbij" : ""}. Bij de hermeting komt het eindbeeld hierover te liggen.`
       : `Vastleggen mislukt: ${uit.error || r.status}`;
   }catch(e){
     el("melding").textContent = "Vastleggen mislukt: geen verbinding.";
@@ -274,8 +292,20 @@ function profielnaam(code){
   return (profielen.find(p => p.code === code) || {}).naam || code;
 }
 
+/* Wat de coach ervan maakt. De bibliotheek levert het voorstel, dit is de
+   versie die dit team gaat gebruiken. Een afwijkende gespreksvraag wordt bij
+   het opslaan geoogst, zodat de bibliotheek ervan kan leren. */
+const keuze = {};
+const gewijzigd = i => keuze[i.code] && keuze[i.code].eigen_gespreksvraag !== (i.gespreksvraag || "");
+
 function toonInterventies(){
   const lijst = passendeInterventies();
+  for (const i of lijst){
+    if (!keuze[i.code]) keuze[i.code] = {
+      telling: i.telling || "",
+      eigen_gespreksvraag: i.gespreksvraag || ""
+    };
+  }
   el("interventies").innerHTML = lijst.map(i => {
     const herkomst = i.breuk
       ? `BIJ DE BREUK &middot; ${i.breuk.replace("_", " en ").toUpperCase()}`
@@ -287,11 +317,29 @@ function toonInterventies(){
       <dl>
         ${i.eigenaar_suggestie ? `<dt>Eigenaar</dt><dd>${i.eigenaar_suggestie}</dd>` : ""}
         ${i.ritme ? `<dt>Ritme</dt><dd>${i.ritme}</dd>` : ""}
-        ${i.telling ? `<dt>Tellen</dt><dd>${i.telling}</dd>` : ""}
+        <dt>Tellen</dt><dd><input class="bewerk" data-veld="telling" data-code="${i.code}"
+          value="${(keuze[i.code].telling || "").replace(/"/g, "&quot;")}"
+          aria-label="Wat dit team telt bij ${i.titel}"></dd>
       </dl>
-      ${i.gespreksvraag ? `<p class="vraag">${i.gespreksvraag}</p>` : ""}
+      <div class="vraag">
+        <div class="vraaglabel">
+          <span>Gespreksvraag</span>
+          <span class="eigen" data-eigen="${i.code}" ${gewijzigd(i) ? "" : "hidden"}>EIGEN VRAAG</span>
+        </div>
+        <textarea data-veld="eigen_gespreksvraag" data-code="${i.code}"
+          aria-label="Gespreksvraag bij ${i.titel}">${keuze[i.code].eigen_gespreksvraag || ""}</textarea>
+      </div>
     </article>`;
   }).join("") || '<p class="regel">Geen interventies gevonden voor deze combinatie.</p>';
+
+  for (const veld of el("interventies").querySelectorAll("[data-veld]")){
+    veld.addEventListener("input", e => {
+      const { code, veld: naam } = e.target.dataset;
+      keuze[code][naam] = e.target.value;
+      const merk = el("interventies").querySelector(`[data-eigen="${code}"]`);
+      if (merk) merk.hidden = !gewijzigd(interventies.find(x => x.code === code));
+    });
+  }
 }
 
 async function start(){

@@ -14,6 +14,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CODES = ["sturen_doen_boven_norm", "naar_landelijk", "halverwege", "bundel"];
 
 const getal = v => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100;
+/* Vrije tekst uit de browser: knippen op een redelijke lengte, leeg wordt null. */
+const tekst = v => (typeof v === "string" && v.trim()) ? v.trim().slice(0, 600) : null;
 
 export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }
@@ -22,6 +24,7 @@ export default async function handler(req, res){
 
   const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
   const { teambeeld_id, doel_code, doel_zien, doel_sturen, doel_doen, gekozen_door } = body;
+  const plan = Array.isArray(body.plan) ? body.plan.slice(0, 20) : [];
 
   if (!UUID.test(teambeeld_id || "")){ res.status(400).json({ error: "ongeldig teambeeld_id" }); return; }
   if (!CODES.includes(doel_code)){ res.status(400).json({ error: "onbekende doel_code" }); return; }
@@ -55,5 +58,49 @@ export default async function handler(req, res){
   }).select("id, created_at").single();
   if (ins.error){ res.status(500).json({ error: "vastleggen mislukt" }); return; }
 
-  res.status(200).json({ id: ins.data.id, created_at: ins.data.created_at });
+  const doel_id = ins.data.id;
+
+  // Het interventieplan hoort bij het doel: wat het team gaat doen om de
+  // verschuiving waar te maken. Mislukt dit, dan blijft het doel wel staan;
+  // een half opgeslagen doel is beter dan geen doel.
+  let planFout = null;
+  if (plan.length){
+    const rijen = plan
+      .filter(r => typeof r.interventie_code === "string" && r.interventie_code.length <= 12)
+      .map((r, i) => ({
+        doel_id,
+        interventie_code: r.interventie_code,
+        eigen_tekst: tekst(r.eigen_tekst),
+        eigenaar: tekst(r.eigenaar),
+        ritme: tekst(r.ritme),
+        telling: tekst(r.telling),
+        eigen_gespreksvraag: tekst(r.eigen_gespreksvraag),
+        volgorde: i + 1
+      }));
+    if (rijen.length){
+      const p = await db.from("teamkracht_plan").insert(rijen);
+      if (p.error) planFout = "plan niet opgeslagen";
+    }
+
+    // Oogst: elke vraag die de coach zelf formuleerde, naast de suggestie die
+    // hij verving. Hier leert de bibliotheek van wat er echt wordt gevraagd.
+    const geoogst = plan
+      .filter(r => tekst(r.eigen_gespreksvraag)
+                && tekst(r.eigen_gespreksvraag) !== tekst(r.suggestie))
+      .map(r => ({
+        interventie_code: r.interventie_code,
+        suggestie: tekst(r.suggestie),
+        vraag: tekst(r.eigen_gespreksvraag),
+        coach_user_id: gebruiker.user_id,
+        teambeeld_id
+      }));
+    if (geoogst.length) await db.from("teamkracht_coachvragen").insert(geoogst);
+  }
+
+  res.status(200).json({
+    id: doel_id,
+    created_at: ins.data.created_at,
+    plan_opgeslagen: plan.length && !planFout,
+    ...(planFout ? { waarschuwing: planFout } : {})
+  });
 }
