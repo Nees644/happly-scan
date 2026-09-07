@@ -585,7 +585,9 @@ select
   round(stddev_samp(zien))::numeric   as sd_zien,
   round(stddev_samp(sturen))::numeric as sd_sturen,
   round(stddev_samp(doen))::numeric   as sd_doen,
-  round(stddev_samp(sturen) / nullif(sqrt(count(*)), 0) * 1.96, 1) as marge_sturen,
+  -- round met decimalen bestaat alleen voor numeric; stddev_samp en sqrt
+  -- geven double precision, vandaar de cast.
+  round((stddev_samp(sturen) / nullif(sqrt(count(*)), 0) * 1.96)::numeric, 1) as marge_sturen,
   max(created_at)::date               as tot_en_met
 from public.index_scan_results
 where is_hermeting = false
