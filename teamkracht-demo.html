@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Teamkracht &middot; hoe het werkt</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--lav:#B9AECB;--lijn:#E2D8D2;--gedempt:#6B6472;--wit:#fff}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--papier);color:var(--inkt);font-size:16px;line-height:1.6}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header.top{padding:70px 0 44px;border-bottom:1px solid var(--lijn)}
+  .kruimel{font-size:11.5px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:16px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:3.2rem;line-height:1.06;margin-bottom:18px}
+  h1 .punt{color:var(--magenta)}
+  .intro{font-size:1.13rem;font-weight:300;color:var(--gedempt);max-width:62ch}
+  .stap{padding:52px 0;border-bottom:1px solid var(--lijn)}
+  .nr{font-size:11.5px;font-weight:600;letter-spacing:.2em;color:var(--magenta);margin-bottom:10px}
+  h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:2.05rem;line-height:1.15;margin-bottom:12px}
+  .stap p{font-weight:300;max-width:64ch;margin-bottom:14px}
+  .stap p.klein{font-size:14px;color:var(--gedempt)}
+  .vak{background:var(--wit);border:1px solid var(--lijn);border-radius:10px;padding:22px 24px;margin:22px 0}
+  .link{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;background:var(--papier);
+        border:1px solid var(--lijn);border-radius:7px;padding:11px 14px;display:inline-block;overflow-wrap:anywhere}
+  .patroon{border-left:3px solid var(--magenta);padding-left:18px}
+  .patroon h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.4rem;margin-bottom:8px}
+  .patroon .vast{font-size:14px;color:var(--gedempt);margin-top:12px}
+  .schakel{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+  button{font:inherit;font-size:13.5px;font-weight:600;border-radius:999px;padding:9px 17px;cursor:pointer;
+         border:1.5px solid var(--inkt);background:transparent;color:var(--inkt)}
+  button[aria-pressed="true"]{background:var(--inkt);color:var(--papier)}
+  .kaartvak{background:var(--wit);border:1px solid var(--lijn);border-radius:10px;padding:10px;margin-top:8px}
+  iframe{width:100%;border:0;display:block;border-radius:6px;background:var(--wit)}
+  iframe.kaart{height:560px;transition:height .15s}
+  iframe.doel{height:1180px}
+  .let{font-size:14px;font-weight:300;color:var(--gedempt);margin-top:10px}
+  .let b{font-weight:600;color:var(--inkt)}
+  ul.regels{list-style:none;margin:16px 0 0}
+  ul.regels li{padding-left:22px;position:relative;font-weight:300;margin-bottom:9px;max-width:64ch}
+  ul.regels li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--magenta)}
+  footer{padding:48px 0 90px}
+  footer p{font-size:13.5px;font-weight:300;color:var(--gedempt);max-width:70ch}
+  @media(max-width:700px){h1{font-size:2.3rem}h2{font-size:1.6rem}iframe.doel{height:1320px}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <p class="kruimel">TEAMKRACHT &middot; VOOR COACHES</p>
+  <h1>De keten van een team, in één foto<span class="punt">.</span></h1>
+  <p class="intro">De Zelfkracht Index meet per persoon drie vaardigheden: zien wat er speelt, kiezen wat van jou is, en in beweging komen. Teamkracht laat zien hoe die drie in een team op elkaar inwerken, en vooral waar de keten breekt. Hieronder loopt u het hele traject door met een fictief team. Alles wat u ziet is het werkende instrument, geen plaatje.</p>
+</div></header>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">STAP 1</p>
+  <h2>U stuurt één link</h2>
+  <p>U maakt een team aan en krijgt een link met een code erin. Die deelt u met het team, per mail of in de groepsapp.</p>
+  <div class="vak"><span class="link">scan.happly.nl/scan?team=PAJBAV</span></div>
+  <p class="klein">Twaalf stellingen, ongeveer vier minuten. Geen extra vragen over wie met wie samenwerkt, en geen inlog.</p>
+</div></section>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">STAP 2</p>
+  <h2>Uw teamlid krijgt zijn eigen uitslag</h2>
+  <p>Niet een cijfer voor de coach, maar een uitslag voor zichzelf: drie deelscores, een geschreven duiding, en het patroon dat hij op dit moment laat zien.</p>
+  <div class="vak"><div class="patroon">
+    <h3 id="p-naam"></h3>
+    <p id="p-tekst" style="margin-bottom:0"></p>
+    <p class="vast">Een patroon beschrijft wat je nu doet in deze context, niet wie je bent. Bij de hermeting zie je wat er is verschoven.</p>
+  </div>
+  <div class="schakel" id="p-knoppen"></div></div>
+  <p class="klein">Deze tekst is alleen zichtbaar voor de deelnemer zelf, via zijn eigen resultaatlink. Hij staat niet in een mail aan u en niet in uw overzicht.</p>
+</div></section>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">STAP 3</p>
+  <h2>U krijgt de Teamkrachtkaart</h2>
+  <p>Vanaf vijf deelnemers rekent het instrument het startbeeld uit: waar de teamlijn loopt, waar de keten zakt, welke patronen er in de groep zitten, en de drie dynamieken die het meest waarschijnlijk spelen. Elk met één interventie en één gespreksvraag.</p>
+
+  <div class="schakel">
+    <button id="k11" aria-pressed="true">Team van elf</button>
+    <button id="k7" aria-pressed="false">Team van zeven</button>
+  </div>
+  <p class="let" id="k-let"></p>
+  <div class="kaartvak"><iframe class="kaart" id="kaartframe" title="Teamkrachtkaart"></iframe></div>
+  <p class="klein">Openen op ware grootte: <a id="k-groot" href="#" target="_blank" rel="noopener">de kaart als A4</a>. Ook leverbaar als poster op A3 en A1.</p>
+</div></section>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">STAP 4</p>
+  <h2>Het team bepaalt zelf waar het heen wil</h2>
+  <p>De kaart is geen eindoordeel maar het begin van een gesprek. In de sessie schuift u samen naar het doelbeeld. Het instrument zegt er direct bij hoe groot die stap is: onder vijf punten per jaar is bescheiden, vijf tot tien is wat een team met een serieus traject werkelijk verschuift, boven vijftien is waarschijnlijk een wens.</p>
+  <p>Daaronder staat wat die stap vraagt: de interventie die bij de breuk van dit team hoort en die bij de profielen die er het vaakst in zitten. Met een eigenaar, een ritme, en iets om te tellen. De gespreksvraag mag u overschrijven; wij leren van de vragen die u zelf formuleert.</p>
+  <div class="kaartvak"><iframe class="doel" src="/teamkracht-doel" title="Doelbeeld bepalen"></iframe></div>
+  <p class="klein">Schuif gerust. <a href="/teamkracht-doel" target="_blank" rel="noopener">Op een eigen tabblad</a> werkt hij prettiger.</p>
+</div></section>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">STAP 5</p>
+  <h2>Bij de hermeting ligt het bewijs er</h2>
+  <p>Na het traject meet het team opnieuw, via dezelfde link. Het eindbeeld wordt over het startbeeld gelegd, met dezelfde meetlat: de referentie wordt bevroren op het moment van de nulmeting, zodat een verschuiving een verschuiving is en geen gevolg van een bijgestelde norm.</p>
+  <p>Dat is wat een traject van een gesprek onderscheidt. U opent met de foto en u sluit met het verschil.</p>
+</div></section>
+
+<section class="stap"><div class="wrap">
+  <p class="nr">WAAR WE ONS AAN HOUDEN</p>
+  <h2>Wat dit instrument niet doet</h2>
+  <ul class="regels">
+    <li>Individuele scores en profielen zijn alleen zichtbaar voor de deelnemer zelf. De kaart toont nooit een naam.</li>
+    <li>Onder de tien deelnemers verdwijnen de individuele lijnen. Dat is een regel in de code, geen instelling die iemand kan omzetten.</li>
+    <li>Nooit voor beoordeling, selectie of matching. Er is geen export van individuele profielen naar de coach of het bedrijf.</li>
+    <li>Het instrument wijst geen schuldige aan. Het zegt wat waarschijnlijk speelt; de vertaling gebeurt in de sessie, door de deelnemers zelf.</li>
+    <li>Een profiel beschrijft gedrag in deze context, niet de persoon. Dezelfde mens is in het ene team Ziener en in het andere Trekker.</li>
+  </ul>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Fictief voorbeeld, team Noord. De cijfers zijn verzonnen, het rekenwerk en de teksten zijn echt: dezelfde code die een echt team zou gebruiken. De referentielijn rust op de metingen die tot nu toe zijn gedaan en wordt als versie gepubliceerd, niet doorlopend bijgesteld.</p>
+</div></footer>
+
+<script type="module">
+import { bouwTeambeeld } from "./teamkracht-logica.js";
+import { bouwKaartHtml } from "./teamkracht-kaart.js";
+import {
+  VOORBEELD_DEELNEMERS, VOORBEELD_NORM, VOORBEELD_CONFIG,
+  VOORBEELD_REGELS, VOORBEELD_PROFIELEN
+} from "./teamkracht-voorbeeld-data.js";
+
+const el = id => document.getElementById(id);
+
+/* De kaart is een A4 liggend, 297 mm oftewel ruim elfhonderd pixels breed. In
+   het venster hieronder past dat niet, dus schalen we hem terug in plaats van
+   de lezer te laten schuiven. De kaart zelf verandert er niet van; wie hem
+   opent of afdrukt krijgt gewoon een A4. */
+const A4_BREED = 1122, A4_HOOG = 794;
+
+function schaalVan(){
+  const frame = el("kaartframe");
+  const schaal = Math.min(1, (frame.clientWidth - 2) / A4_BREED);
+  frame.style.height = Math.round(A4_HOOG * schaal + 2) + "px";
+  return schaal;
+}
+
+function passend(html, schaal){
+  return html.replace("</head>",
+    `<style>body{background:#fff;margin:0;overflow:hidden}` +
+    `.kaart{transform:scale(${schaal});transform-origin:top left}</style></head>`);
+}
+
+/* De kaart wordt hier op hetzelfde moment berekend als bij een echt team; er
+   zit geen opgeslagen uitkomst tussen. */
+function kaart(aantal){
+  const deelnemers = VOORBEELD_DEELNEMERS.slice(0, aantal);
+  const teambeeld = bouwTeambeeld({
+    deelnemers, norm: VOORBEELD_NORM, config: VOORBEELD_CONFIG, regels: VOORBEELD_REGELS
+  });
+  return bouwKaartHtml({
+    teambeeld, regels: VOORBEELD_REGELS, profielen: VOORBEELD_PROFIELEN,
+    teamnaam: "Noord", formaat: "a4"
+  });
+}
+
+const TOELICHTING = {
+  11: "Elf deelnemers. De dunne lijnen zijn de teamleden, naamloos en gesorteerd op Zien, zodat de volgorde niets verraadt.",
+  7: "Zeven deelnemers. Onder de tien verdwijnen de individuele lijnen automatisch en blijft alleen de teamlijn met de verdeling over."
+};
+
+let huidigAantal = 11;
+
+function toonKaart(aantal){
+  huidigAantal = aantal;
+  el("kaartframe").srcdoc = passend(kaart(aantal), schaalVan());
+  el("k-let").innerHTML = `<b>${aantal === 11 ? "Elf" : "Zeven"} deelnemers.</b> ${TOELICHTING[aantal].split(". ").slice(1).join(". ")}`;
+  // Dezelfde kaart, onverkleind, voor wie hem op ware grootte wil zien of
+  // afdrukken. Een blob-URL, zodat er geen los bestand voor nodig is.
+  const groot = URL.createObjectURL(new Blob([kaart(aantal)], { type: "text/html" }));
+  el("k-groot").href = groot;
+
+  el("k11").setAttribute("aria-pressed", String(aantal === 11));
+  el("k7").setAttribute("aria-pressed", String(aantal === 7));
+}
+el("k11").addEventListener("click", () => toonKaart(11));
+el("k7").addEventListener("click", () => toonKaart(7));
+toonKaart(11);
+
+let hertekenen;
+addEventListener("resize", () => {
+  clearTimeout(hertekenen);
+  hertekenen = setTimeout(() => toonKaart(huidigAantal), 180);
+});
+
+/* De patronen die in dit team voorkomen, zodat een coach ziet wat zijn
+   teamleden terugkrijgen. */
+const AANWEZIG = ["HLL", "LHH", "HHH", "LLL", "MMM"];
+let gekozen = "HLL";
+
+function toonPatroon(){
+  const p = VOORBEELD_PROFIELEN.find(x => x.code === gekozen);
+  el("p-naam").textContent = `Jouw patroon op dit moment: ${p.code === "MMM" ? "de middenband" : p.naam}`;
+  el("p-tekst").textContent = p.tekst_deelnemer || "";
+  for (const knop of el("p-knoppen").children){
+    knop.setAttribute("aria-pressed", String(knop.dataset.code === gekozen));
+  }
+}
+el("p-knoppen").innerHTML = AANWEZIG.map(code => {
+  const p = VOORBEELD_PROFIELEN.find(x => x.code === code);
+  return `<button data-code="${code}">${code === "MMM" ? "Middenband" : p.naam}</button>`;
+}).join("");
+el("p-knoppen").addEventListener("click", e => {
+  if (!e.target.dataset.code) return;
+  gekozen = e.target.dataset.code;
+  toonPatroon();
+});
+toonPatroon();
+</script>
+</body>
+</html>

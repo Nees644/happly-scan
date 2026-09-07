@@ -78,14 +78,29 @@ export function leesTestdata(){
   };
 }
 
-/* De profielen uit de seed: code en naam zijn genoeg om de kaart te vullen. */
+/* De profielen uit de seed. Negen tekstvelden in vaste volgorde, waarvan de
+   laatste de versie voor de deelnemer zelf is. */
+const PROFIELVELDEN = ["zo_ziet_het_eruit", "zin", "voegt_toe", "kost_team",
+  "kost_persoon", "breuk", "ontwikkelrichting", "valkuil_coach", "tekst_deelnemer"];
+
 export function leesProfielen(){
   const blok = leesSeedblok();
   const start = blok.indexOf("insert into public.teamkracht_profielen");
   const eind  = blok.indexOf("on conflict (code) do nothing;", start);
   const body  = blok.slice(start, eind);
-  return [...body.matchAll(/^\('([A-Z]{3})','([^']+)',/gm)]
-    .map(m => ({ code: m[1], naam: m[2] }));
+
+  return body.split(/\n(?=\('[A-Z]{3}')/).slice(1).map(stuk => {
+    const kop = stuk.match(/^\('([A-Z]{3})','([^']+)',/);
+    if (!kop) throw new Error(`profiel niet te lezen: ${stuk.slice(0, 40)}`);
+    const rest = stuk.slice(kop[0].length);
+    const velden = [];
+    const veld = /\$t\$([\s\S]*?)\$t\$|\bnull\b/g;
+    let m;
+    while (velden.length < PROFIELVELDEN.length && (m = veld.exec(rest)) !== null) velden.push(m[1] ?? null);
+    const uit = { code: kop[1], naam: kop[2], actief: true };
+    PROFIELVELDEN.forEach((naam, i) => { uit[naam] = velden[i] ?? null; });
+    return uit;
+  });
 }
 
 /* De interventies uit de seed. Zelfde aanpak als bij de regels: één bron. */

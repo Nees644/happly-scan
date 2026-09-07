@@ -43,6 +43,14 @@ export const VOORBEELD_INTERVENTIES = ${JSON.stringify(leesInterventies(), null,
 export const VOORBEELD_PROFIELEN = ${JSON.stringify(profielen, null, 2)};
 
 export const VOORBEELD_DOELREGELS = ${JSON.stringify(leesDoelregels(), null, 2)};
+
+export const VOORBEELD_REGELS = ${JSON.stringify(regels, null, 2)};
+
+export const VOORBEELD_DEELNEMERS = ${JSON.stringify(deelnemers)};
+
+export const VOORBEELD_NORM = ${JSON.stringify(norm)};
+
+export const VOORBEELD_CONFIG = ${JSON.stringify(config)};
 `;
   writeFileSync(new URL("../teamkracht-voorbeeld-data.js", import.meta.url), data);
   console.log("teamkracht-voorbeeld-data.js geschreven");
