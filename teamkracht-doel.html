@@ -273,7 +273,7 @@ function teken(){
 
 async function opslaan(){
   if (!teambeeldId){
-    el("melding").textContent = "Dit is het voorbeeldteam; vastleggen kan zodra de kaart aan een echt team hangt.";
+    el("melding").textContent = "Dit is een voorbeeld, dus er wordt niets vastgelegd. Bij een echt team werkt deze knop wel.";
     return;
   }
   if (bezig) return;
@@ -401,11 +401,11 @@ async function start(){
       if (rd.ok){ const d = await rd.json(); doelregels = d.doelregels || doelregels; }
     }catch(e){
       el("voorbeeldbalk").hidden = false;
-      el("voorbeeldbalk").textContent = "Dit teambeeld kon niet worden geladen; hieronder staat het voorbeeldteam.";
+      el("voorbeeldbalk").textContent = "Dit teambeeld kon niet worden geladen. Hieronder staat een voorbeeld, zodat u wel kunt zien hoe het werkt.";
     }
   } else {
     el("voorbeeldbalk").hidden = false;
-    el("voorbeeldbalk").textContent = "Voorbeeld met het fictieve team Noord uit de briefing. Voeg teambeeld=<id> aan de URL toe voor een echt team.";
+    el("voorbeeldbalk").textContent = "Dit is een voorbeeld met een verzonnen team. Schuif gerust; er wordt niets opgeslagen. Bij een echt team opent u deze pagina vanuit de Teamkrachtkaart.";
   }
 
   el("regel").textContent =
