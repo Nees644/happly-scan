@@ -4,6 +4,10 @@
     {
       "source": "/deel/:id",
       "destination": "/api/deel?d=:id"
+    },
+    {
+      "source": "/uitslag/:token",
+      "destination": "/api/uitslag?t=:token"
     }
   ],
   "functions": {
@@ -50,6 +54,9 @@
       "maxDuration": 10
     },
     "api/teamkracht-doelregels.js": {
+      "maxDuration": 10
+    },
+    "api/uitslag.js": {
       "maxDuration": 10
     }
   },

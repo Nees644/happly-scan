@@ -9,24 +9,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
+import { niveau, ontwikkelruimte, PATROON, NULPUNT, splitDuiding } from "../zelfkracht-uitslag.js";
 
-/* Niveaubanden + plus-rekenregel: identiek aan scan.html en api/duiding.js; wijzig ze samen. */
-function niveau(s){
-  if (s < 30) return "Laag";
-  if (s < 50) return "Beperkt";
-  if (s < 70) return "Redelijk";
-  if (s < 90) return "Sterk";
-  return "Zeer sterk";
-}
-function ontwikkelruimte(s){
-  if (s >= 90) return {onderhoud:true, plus:null, doel:null};
-  if (s >= 80) return {onderhoud:false, plus:90 - s, doel:90};
-  return {onderhoud:false, plus:80 - s, doel:80};
-}
-
-/* Vaste teksten, gelijk aan de uitslagpagina (scan.html). */
-const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
-const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
+/* Niveaubanden, plus-rekenregel en de vaste teksten: één bron, gedeeld met de
+   uitslagpagina. scan.html en api/duiding.js houden hun eigen kopie; wijzig ze
+   samen, zoals daar ook staat. */
 
 /* Mailveilige opmaak: alles inline, geen serif-terugval (dus nooit Times), geen beeld. */
 const FONT = "'DM Sans',Helvetica,Arial,sans-serif";
@@ -43,19 +30,6 @@ function fmtBlok(t){
   }).join("");
 }
 
-/* Zelfde splitsing en kopfilter als de uitslagpagina (scan.html); wijzig ze samen.
-   Ruim gematcht: [#*]-opmaak en een verhaspelde uitloop als "antwoordenatie"
-   komen in de praktijk voor; de hele kopregel verdwijnt. */
-const KOP_DUIDING = /(^|\n)[ \t]*[#*]*[ \t]*Wat opvalt in jouw antwoorden[^\n]*(\n|$)/i;
-function splitDuiding(text){
-  const marker = /(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[^\n]*(\n|$)/i;
-  const m = text.match(marker);
-  if (m){
-    return { duiding: text.slice(0, m.index).replace(KOP_DUIDING,"$1").trim(),
-             route:   text.slice(m.index + m[0].length).trim() };
-  }
-  return { duiding: text.replace(KOP_DUIDING,"$1").trim(), route:null };
-}
 
 function fmtDatum(d){
   return new Intl.DateTimeFormat("nl-NL", {day:"numeric", month:"long", year:"numeric", timeZone:"Europe/Amsterdam"}).format(d);
@@ -75,7 +49,7 @@ function nivRow(nm, s){
   </tr>`;
 }
 
-function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl }){
+function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route.replace(NULPUNT, "").trim() : null;
@@ -91,7 +65,8 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl }
       <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Index</div>
       <div style="padding:30px 32px 36px">
 
-        ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je nulpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:22px`)}
+        ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je nulpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:${uitslagUrl ? "6px" : "22px"}`)}
+        ${uitslagUrl ? p(`<a href="${uitslagUrl}" style="color:${PK}">Bekijk je uitslag online</a>. Die link is van jou alleen; deel hem niet.`, `font-size:12.5px;color:${MUT};margin-bottom:22px`) : ""}
         ${p(hi)}
 
         <!-- Het getal -->
@@ -200,7 +175,12 @@ export default async function handler(req, res){
     let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
-        .select("index_score,zien,sturen,doen,duiding,created_at").eq("id", id).single();
+        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token").eq("id", id).single();
+      if (q.error){
+        // Vangnet zolang de migratie 07-09-2026 (resultaat_token) nog niet draait.
+        q = await db.from("index_scan_results")
+          .select("index_score,zien,sturen,doen,duiding,created_at").eq("id", id).single();
+      }
       if (q.error){
         // Vangnet zolang de duiding-migratie (supabase.sql, 24-07-2026) nog niet draait.
         q = await db.from("index_scan_results")
@@ -265,7 +245,11 @@ export default async function handler(req, res){
         from: "Happly <hallo@happly.nl>",
         to: email,
         subject: `Jouw Zelfkracht Index: ${m.index}`,
-        html: mailHtml({ ...m, afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null })
+        html: mailHtml({
+          ...m,
+          afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null,
+          uitslagUrl: row && row.resultaat_token ? `https://scan.happly.nl/uitslag/${row.resultaat_token}` : null
+        })
       });
     }catch(mailErr){ /* stil */ }
 
