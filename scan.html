@@ -321,6 +321,11 @@ let savePromise = null;       // de ene insert (scores + duiding) via /api/scan
 let deelZin = null;           // meest markante zin uit de duiding (/api/deelzin)
 let deelzinPromise = null;    // loopt parallel aan de duiding-render
 let deelId = null;            // publiek id van de deelpagina (/deel/[id]); nooit het scan-id
+/* Teamtoken uit de link van de coach (scan?team=ABC123). Alleen een koppeling:
+   de vragen, de scoring en de uitslag zijn identiek aan een gewone meting. De
+   deelnemer ziet zijn eigen uitslag zoals altijd; de coach ziet nooit meer dan
+   de geanonimiseerde teamlijn. */
+const teamToken = (new URLSearchParams(location.search).get("team") || "").trim().toUpperCase() || null;
 
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);}
 function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
@@ -823,7 +828,7 @@ async function saveScan(){
   try{
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
-        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:deelZin})});
+        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:deelZin,team:teamToken})});
     if(r.ok){ const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null; }
   }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
 }
