@@ -52,6 +52,15 @@
   .melding{font-size:13px;font-weight:300;color:var(--gedempt);min-height:1.4em}
   .voorbeeldbalk{background:#FBEFF5;border:1px solid #F3D6E5;border-radius:8px;padding:11px 14px;margin-bottom:22px;
                  font-size:13px;font-weight:300;color:#8A2160}
+  .oordeel{border-radius:8px;padding:13px 15px;margin-bottom:12px;border:1px solid var(--lijn);background:#fff}
+  .oordeel .band{font-family:"DM Serif Display",serif;font-size:1.25rem;margin-right:10px}
+  .oordeel .tempo{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--gedempt);text-transform:uppercase}
+  .oordeel p{font-size:13.5px;font-weight:300;margin-top:7px}
+  .oordeel.haalbaar{border-left:4px solid #1F8A5B}
+  .oordeel.ambitieus{border-left:4px solid #C9860B}
+  .oordeel.onwaarschijnlijk{border-left:4px solid var(--magenta);background:#FDF4F8}
+  .horizonrij{display:flex;align-items:center;gap:10px;margin:12px 0 16px;font-size:13.5px;font-weight:300;color:var(--gedempt)}
+  .horizonrij select{font:inherit;font-size:13.5px;padding:5px 8px;border:1px solid var(--lijn);border-radius:6px;background:#fff;color:var(--inkt)}
   .nodig{margin-top:40px;border-top:1px solid var(--lijn);padding-top:26px}
   .nodig h2{margin-bottom:6px}
   .kaartjes{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
@@ -79,7 +88,7 @@
 <div class="wrap">
   <p class="kruimel" id="kruimel">TEAMFOTO &middot; DOELBEELD &middot; TEAMKRACHT</p>
   <h1>Teamkracht <span class="punt">&middot;</span> doelbeeld</h1>
-  <p class="inleiding">Schuif per vaardigheid waar dit team over zes maanden wil staan. De gestippelde magenta lijn is het doel, de dikke lijn is waar het team nu staat. Sturen en Doen moeten boven het landelijke beeld uitkomen; die ondergrens is in de schuifjes verwerkt.</p>
+  <p class="inleiding">Schuif per vaardigheid waar dit team aan het eind van het traject wil staan. De gestippelde magenta lijn is het doel, de dikke lijn is waar het team nu staat. Het doel is een verschuiving vanaf de eigen startlijn, niet het halen van de referentie; hoe groot die verschuiving is, staat eronder.</p>
 
   <div class="voorbeeldbalk" id="voorbeeldbalk" hidden></div>
 
@@ -90,10 +99,19 @@
       <p class="regel" id="regel"></p>
       <div id="schuifjes"></div>
       <div class="samenvatting" id="samenvatting"></div>
+      <div class="oordeel" id="oordeel"></div>
       <p class="regel" id="gevolg"></p>
+      <p class="horizonrij">
+        <label for="horizon">Looptijd van het traject</label>
+        <select id="horizon">
+          <option value="6">zes maanden</option>
+          <option value="12" selected>een jaar</option>
+          <option value="24">twee jaar</option>
+        </select>
+      </p>
       <div class="knoppen">
         <button class="primair" id="opslaan">Doelbeeld vastleggen</button>
-        <button id="netboven">Net boven het landelijke beeld</button>
+        <button id="netboven">Normale ambitie</button>
         <button id="terug">Terug naar nu</button>
       </div>
       <p class="melding" id="melding"></p>
@@ -110,7 +128,8 @@
 
 <script type="module">
 import { tekenKaartSvg } from "./teamkracht-kaart.js";
-import { VOORBEELD_TEAMBEELD, VOORBEELD_INTERVENTIES, VOORBEELD_PROFIELEN } from "./teamkracht-voorbeeld-data.js";
+import { beoordeelDoel } from "./teamkracht-logica.js";
+import { VOORBEELD_TEAMBEELD, VOORBEELD_INTERVENTIES, VOORBEELD_PROFIELEN, VOORBEELD_DOELREGELS } from "./teamkracht-voorbeeld-data.js";
 
 
 const VAARDIGHEDEN = [
@@ -125,30 +144,34 @@ const teambeeldId = new URLSearchParams(location.search).get("teambeeld");
 let teambeeld = VOORBEELD_TEAMBEELD;
 let interventies = VOORBEELD_INTERVENTIES;
 let profielen = VOORBEELD_PROFIELEN;
+let doelregels = VOORBEELD_DOELREGELS;
+let horizon = 12;
 let doel = null;
 let bezig = false;
 
 const nu   = v => teambeeld[`team_${v}`];
 const norm = v => teambeeld[`norm_${v}`];
 
-/* Jouw regel: Sturen en Doen komen boven het landelijke beeld. Zien is vrij. */
-const minimum = v => {
-  const spec = VAARDIGHEDEN.find(x => x.sleutel === v);
-  return spec.ondergrens ? Math.floor(norm(v)) + 1 : 0;
-};
+/* De referentielijn blokkeert niet meer. Met de gemeten referentie zou een
+   harde ondergrens voor veel teams een sprong van meer dan vijftien punten
+   afdwingen, en dat noemen de doelregels onhaalbaar. De lijn blijft zichtbaar
+   als markering en de pagina zegt of het doel eronder ligt. */
+const minimum = () => 0;
 
 function beginDoel(){
   const uit = {};
-  for (const { sleutel } of VAARDIGHEDEN){
-    uit[sleutel] = Math.max(Math.round(nu(sleutel)), minimum(sleutel));
-  }
+  for (const { sleutel } of VAARDIGHEDEN) uit[sleutel] = Math.round(nu(sleutel));
   return uit;
 }
 
-function netBovenNorm(){
+/* Een normale ambitie volgens de doelregels: acht punten per jaar op de
+   vaardigheden onder de referentie. */
+function normaleAmbitie(){
+  const stap = Math.round(8 * horizon / 12);
   const uit = {};
-  for (const { sleutel, ondergrens } of VAARDIGHEDEN){
-    uit[sleutel] = ondergrens ? minimum(sleutel) : Math.round(nu(sleutel));
+  for (const { sleutel } of VAARDIGHEDEN){
+    const doelwaarde = Math.round(nu(sleutel)) + (nu(sleutel) < norm(sleutel) ? stap : 0);
+    uit[sleutel] = Math.min(100, doelwaarde);
   }
   return uit;
 }
@@ -204,7 +227,6 @@ function teken(){
     el(`tl-${sleutel}`).style.left = plek(norm(sleutel));
   }
 
-  const boven = VAARDIGHEDEN.filter(x => x.ondergrens).every(x => doel[x.sleutel] > norm(x.sleutel));
   const verschuiving = VAARDIGHEDEN
     .map(({ sleutel, naam }) => {
       const p = Math.round(doel[sleutel] - nu(sleutel));
@@ -212,18 +234,28 @@ function teken(){
     }).join(", ");
 
   el("samenvatting").innerHTML =
-    `Doel: <b>Zien ${doel.zien}</b>, <b>Sturen ${doel.sturen}</b>, <b>Doen ${doel.doen}</b>. `
-    + (boven
-       ? "Sturen en Doen liggen boven het landelijke beeld, zoals afgesproken."
-       : "Sturen en Doen liggen nog niet boven het landelijke beeld.")
-    + `<br>Gevraagde verschuiving: <b>${verschuiving}</b> punten.`;
+    `Doel: <b>Zien ${doel.zien}</b>, <b>Sturen ${doel.sturen}</b>, <b>Doen ${doel.doen}</b>.`
+    + `<br>Gevraagde verschuiving: <b>${verschuiving}</b> punten in ${horizon} maanden.`;
 
   // De lat opplussen mag niet zonder gevolg zijn. Wat een verschuiving van
   // deze omvang betekent, volgt uit teamkracht_doelregels; die tabel is
   // aangelegd maar nog leeg, omdat de normdata er nog niet is. Tot die tijd
   // toont de pagina het aantal punten en spreekt zij geen oordeel uit.
-  el("gevolg").textContent = teambeeld.beoordeling?.melding
-    || "Aan de omvang van deze verschuiving zijn nog geen normregels verbonden. Die volgen zodra er genoeg hermetingen zijn om te zien hoeveel een team in een traject werkelijk verschuift.";
+  const oordeel = beoordeelDoel(teambeeld, doel, doelregels, horizon);
+  const onder = VAARDIGHEDEN
+    .filter(x => doel[x.sleutel] <= norm(x.sleutel))
+    .map(x => x.naam);
+
+  el("oordeel").className = "oordeel " + (oordeel.oordeel || "");
+  el("oordeel").innerHTML =
+    `<span class="band">${oordeel.titel || "Geen verandering"}</span>`
+    + `<span class="tempo">${oordeel.zwaarste_per_jaar} punten per jaar</span>`
+    + (oordeel.melding ? `<p>${oordeel.melding}</p>` : "");
+
+  const opmerkingen = [];
+  if (onder.length) opmerkingen.push(`${onder.join(" en ")} ${onder.length === 1 ? "blijft" : "blijven"} onder de referentie van deze meting.`);
+  if (oordeel.dalingen.length) opmerkingen.push(`Let op: het doel ligt lager dan nu op ${oordeel.dalingen.join(" en ")}.`);
+  el("gevolg").textContent = opmerkingen.join(" ");
 }
 
 async function opslaan(){
@@ -248,6 +280,7 @@ async function opslaan(){
         doel_code: "sturen_doen_boven_norm",
         doel_zien: doel.zien, doel_sturen: doel.sturen, doel_doen: doel.doen,
         gekozen_door: "coach",
+        horizon_maanden: horizon,
         plan: passendeInterventies().map(i => ({
           interventie_code: i.code,
           eigenaar: i.eigenaar_suggestie,
@@ -373,7 +406,8 @@ async function start(){
 
   toonInterventies();
   el("opslaan").addEventListener("click", opslaan);
-  el("netboven").addEventListener("click", () => { doel = netBovenNorm(); teken(); });
+  el("netboven").addEventListener("click", () => { doel = normaleAmbitie(); teken(); });
+  el("horizon").addEventListener("change", e => { horizon = Number(e.target.value); teken(); });
   el("terug").addEventListener("click", () => { doel = beginDoel(); teken(); });
 }
 

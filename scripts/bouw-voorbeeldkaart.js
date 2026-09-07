@@ -9,7 +9,7 @@
 import { writeFileSync } from "node:fs";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { bouwKaartHtml } from "../teamkracht-kaart.js";
-import { leesRegels, leesProfielen, leesInterventies, leesTestdata } from "../test/seed-lezen.js";
+import { leesRegels, leesProfielen, leesInterventies, leesDoelregels, leesTestdata } from "../test/seed-lezen.js";
 
 const { norm, deelnemers } = leesTestdata();
 const regels = leesRegels();
@@ -41,6 +41,8 @@ export const VOORBEELD_TEAMBEELD = ${JSON.stringify(zonderProfielen, null, 2)};
 export const VOORBEELD_INTERVENTIES = ${JSON.stringify(leesInterventies(), null, 2)};
 
 export const VOORBEELD_PROFIELEN = ${JSON.stringify(profielen, null, 2)};
+
+export const VOORBEELD_DOELREGELS = ${JSON.stringify(leesDoelregels(), null, 2)};
 `;
   writeFileSync(new URL("../teamkracht-voorbeeld-data.js", import.meta.url), data);
   console.log("teamkracht-voorbeeld-data.js geschreven");

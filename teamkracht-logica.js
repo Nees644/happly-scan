@@ -266,3 +266,53 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start
     profielen
   };
 }
+
+/* ------------------------------------------------------------- doelbeeld */
+
+/* De gevraagde verschuiving per vaardigheid, omgerekend naar punten per jaar,
+   zodat een doel over zes maanden en een doel over twee jaar met dezelfde
+   meetlat worden beoordeeld. */
+export function verschuiving(teambeeld, doel, horizonMaanden = 12){
+  const jaren = Math.max(horizonMaanden, 1) / 12;
+  const uit = {};
+  for (const v of VAARDIGHEDEN){
+    const punten = doel[v] - teambeeld[`team_${v}`];
+    uit[v] = { punten: Math.round(punten * 10) / 10, per_jaar: Math.round((punten / jaren) * 10) / 10 };
+  }
+  return uit;
+}
+
+/* Beoordeelt een doel tegen teamkracht_doelregels. De regels kijken naar de
+   sterkst gevraagde stijging per jaar; die bepaalt de band. Een daling telt
+   niet mee als ambitie, maar wordt wel apart gemeld. */
+export function beoordeelDoel(teambeeld, doel, doelregels, horizonMaanden = 12){
+  const delta = verschuiving(teambeeld, doel, horizonMaanden);
+  const stijgingen = VAARDIGHEDEN.map(v => delta[v].per_jaar);
+  const zwaarste = Math.max(...stijgingen, 0);
+  // Alleen een echte daling melden. De teamlijn is onafgerond en het doel staat
+  // in hele punten, dus een verschil van een paar tienden is afronding, geen
+  // keuze van de coach.
+  const dalers = VAARDIGHEDEN.filter(v => delta[v].punten <= -1);
+
+  const passend = (doelregels || [])
+    .filter(r => r.actief !== false)
+    .filter(r => {
+      const w = r.voorwaarde || {};
+      if (w.min_stijging !== undefined && !(zwaarste >= w.min_stijging)) return false;
+      if (w.max_stijging !== undefined && !(zwaarste < w.max_stijging)) return false;
+      return true;
+    })
+    .sort((a, b) => (b.volgorde ?? 0) - (a.volgorde ?? 0));
+
+  const regel = passend[0] || null;
+  return {
+    verschuiving: delta,
+    zwaarste_per_jaar: Math.round(zwaarste * 10) / 10,
+    horizon_maanden: horizonMaanden,
+    code: regel?.code ?? null,
+    titel: regel?.titel ?? null,
+    oordeel: regel?.oordeel ?? null,
+    melding: regel?.melding ?? null,
+    dalingen: dalers
+  };
+}

@@ -340,3 +340,52 @@ export const VOORBEELD_PROFIELEN = [
     "naam": "Middenband"
   }
 ];
+
+export const VOORBEELD_DOELREGELS = [
+  {
+    "code": "D1",
+    "titel": "Lage ambitie",
+    "voorwaarde": {
+      "max_stijging": 5
+    },
+    "oordeel": "haalbaar",
+    "melding": "Minder dan vijf punten per jaar. Bescheiden, en goed als dit team eerst ritme moet opbouwen. Houd er rekening mee dat een verschuiving van deze omvang bij de hermeting nauwelijks te onderscheiden is van toeval.",
+    "volgorde": 1,
+    "actief": true
+  },
+  {
+    "code": "D2",
+    "titel": "Normale ambitie",
+    "voorwaarde": {
+      "min_stijging": 5,
+      "max_stijging": 10
+    },
+    "oordeel": "haalbaar",
+    "melding": "Vijf tot tien punten per jaar. Dit is wat een team met een serieus traject werkelijk kan verschuiven.",
+    "volgorde": 2,
+    "actief": true
+  },
+  {
+    "code": "D3",
+    "titel": "Hoge ambitie",
+    "voorwaarde": {
+      "min_stijging": 10,
+      "max_stijging": 15
+    },
+    "oordeel": "ambitieus",
+    "melding": "Tien tot vijftien punten per jaar. Ambitieus. Haalbaar als het team wekelijks oefent en de telling ook echt bijhoudt.",
+    "volgorde": 3,
+    "actief": true
+  },
+  {
+    "code": "D4",
+    "titel": "Waarschijnlijk niet haalbaar",
+    "voorwaarde": {
+      "min_stijging": 15
+    },
+    "oordeel": "onwaarschijnlijk",
+    "melding": "Meer dan vijftien punten per jaar. Een verschuiving van deze omvang komt zelden voor. Kies een kleiner doel, of geef het traject een langere looptijd.",
+    "volgorde": 4,
+    "actief": true
+  }
+];

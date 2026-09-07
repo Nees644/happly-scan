@@ -388,6 +388,10 @@ create table if not exists public.teamkracht_doel (
   doel_sturen numeric check (doel_sturen between 0 and 100),
   doel_doen   numeric check (doel_doen   between 0 and 100),
   gekozen_door text check (gekozen_door in ('team','coach')),
+  -- De looptijd waarover het doel geldt. De ambitiebanden in
+  -- teamkracht_doelregels rekenen in punten per jaar, dus zonder horizon is
+  -- een verschuiving niet te beoordelen.
+  horizon_maanden int not null default 12 check (horizon_maanden between 1 and 60),
   -- Wie het heeft vastgelegd en wanneer. created_at hierboven geeft het moment;
   -- deze kolom geeft het account, zodat een doelbeeld herleidbaar is naar de
   -- coach die het opsloeg. Geen deelnemergegeven.
@@ -837,6 +841,31 @@ values
  $t$Het team kiest samen.$t$,
  $t$Maandelijks$t$, $t$Aantal keren dat het gekozen gedrag is vertoond.$t$,
  $t$Wat zou je gedaan hebben als niemand het had gevraagd?$t$, 13)
+on conflict (code) do nothing;
+
+-- Doelregels: hoe groot is de gevraagde verschuiving, en wat betekent dat.
+-- De grenzen komen van de opdrachtgever (07-09-2026) als werkhypothese: onder
+-- vijf punten per jaar is een lage ambitie, vijf tot tien normaal, tien tot
+-- vijftien hoog, en meer dan vijftien waarschijnlijk niet haalbaar.
+--
+-- Dit is nadrukkelijk een hypothese, geen bevinding. Zodra er hermetingen zijn
+-- kan de werkelijke verdeling van verschuivingen deze grenzen vervangen: de
+-- mediaan als normaal, het derde kwartiel als hoog, en wat vrijwel nooit
+-- voorkomt als onwaarschijnlijk. De regels staan daarom in de database en niet
+-- in de code.
+--
+-- De voorwaarde rekent in punten per jaar op de sterkst verschoven
+-- vaardigheid; de zwaarste band die afgaat bepaalt het oordeel.
+insert into public.teamkracht_doelregels (code, titel, voorwaarde, oordeel, melding, volgorde)
+values
+('D1', $t$Lage ambitie$t$, '{"max_stijging": 5}', 'haalbaar',
+ $t$Minder dan vijf punten per jaar. Bescheiden, en goed als dit team eerst ritme moet opbouwen. Houd er rekening mee dat een verschuiving van deze omvang bij de hermeting nauwelijks te onderscheiden is van toeval.$t$, 1),
+('D2', $t$Normale ambitie$t$, '{"min_stijging": 5, "max_stijging": 10}', 'haalbaar',
+ $t$Vijf tot tien punten per jaar. Dit is wat een team met een serieus traject werkelijk kan verschuiven.$t$, 2),
+('D3', $t$Hoge ambitie$t$, '{"min_stijging": 10, "max_stijging": 15}', 'ambitieus',
+ $t$Tien tot vijftien punten per jaar. Ambitieus. Haalbaar als het team wekelijks oefent en de telling ook echt bijhoudt.$t$, 3),
+('D4', $t$Waarschijnlijk niet haalbaar$t$, '{"min_stijging": 15}', 'onwaarschijnlijk',
+ $t$Meer dan vijftien punten per jaar. Een verschuiving van deze omvang komt zelden voor. Kies een kleiner doel, of geef het traject een langere looptijd.$t$, 4)
 on conflict (code) do nothing;
 
 

@@ -14,10 +14,10 @@ import assert from "node:assert/strict";
 import {
   bepaalProfiel, bepaalTeamlijn, bepaalBreuk, bepaalVerdeling,
   voorwaardeWaar, controleerVoorwaarde, scoreRegel, kiesDynamieken,
-  vulPlaceholders, bouwTeambeeld
+  vulPlaceholders, bouwTeambeeld, beoordeelDoel, verschuiving
 } from "../teamkracht-logica.js";
 
-import { leesRegels, leesProfielen, leesInterventies, leesTestdata, leesSeedblok } from "./seed-lezen.js";
+import { leesRegels, leesProfielen, leesInterventies, leesDoelregels, leesTestdata, leesSeedblok } from "./seed-lezen.js";
 
 const REGELS = leesRegels();
 const { norm, deelnemers } = leesTestdata();
@@ -204,4 +204,58 @@ test("elke breuk en elk profiel heeft minstens één interventie", () => {
     assert.ok(lijst.some(i => (i.profielen || []).includes(p.code)),
       `geen interventie voor profiel ${p.code}`);
   }
+});
+
+/* ------------------------------------------------------- ambitiebanden */
+
+const DOELREGELS = leesDoelregels();
+const START = beeld(deelnemers);   // Zien 66,3  Sturen 51,2  Doen 49,5
+
+const band = (doel, horizon = 12) => beoordeelDoel(START, doel, DOELREGELS, horizon);
+
+test("de vier ambitiebanden dekken elke stijging", () => {
+  assert.equal(DOELREGELS.length, 4);
+  for (let punten = 0; punten <= 40; punten++){
+    const uit = band({ zien: START.team_zien + punten, sturen: START.team_sturen, doen: START.team_doen });
+    assert.ok(uit.code, `geen band voor een stijging van ${punten} punten`);
+  }
+});
+
+test("de banden vallen op de grenzen die de opdrachtgever noemde", () => {
+  const bij = punten => band({ zien: START.team_zien + punten, sturen: START.team_sturen, doen: START.team_doen });
+  assert.equal(bij(3).titel,  "Lage ambitie");
+  assert.equal(bij(7).titel,  "Normale ambitie");
+  assert.equal(bij(12).titel, "Hoge ambitie");
+  assert.equal(bij(20).titel, "Waarschijnlijk niet haalbaar");
+  assert.equal(bij(5).titel,  "Normale ambitie", "vijf hoort bij normaal, niet bij laag");
+  assert.equal(bij(15).titel, "Waarschijnlijk niet haalbaar", "vijftien is de bovengrens van hoog");
+});
+
+test("de sterkst verschoven vaardigheid bepaalt de band", () => {
+  const uit = band({ zien: START.team_zien, sturen: START.team_sturen + 12, doen: START.team_doen + 1 });
+  assert.equal(uit.titel, "Hoge ambitie");
+  assert.equal(uit.zwaarste_per_jaar, 12);
+});
+
+test("een langere looptijd maakt dezelfde sprong minder ambitieus", () => {
+  const doel = { zien: START.team_zien, sturen: START.team_sturen + 12, doen: START.team_doen };
+  assert.equal(band(doel, 12).titel, "Hoge ambitie");
+  assert.equal(band(doel, 24).titel, "Normale ambitie");
+});
+
+test("een verschil van een paar tienden is afronding, geen daling", () => {
+  const uit = band({ zien: Math.round(START.team_zien), sturen: Math.round(START.team_sturen), doen: Math.round(START.team_doen) });
+  assert.deepEqual(uit.dalingen, []);
+});
+
+test("een daling wordt apart gemeld en telt niet als ambitie", () => {
+  const uit = band({ zien: START.team_zien - 8, sturen: START.team_sturen + 2, doen: START.team_doen });
+  assert.deepEqual(uit.dalingen, ["zien"]);
+  assert.equal(uit.titel, "Lage ambitie");
+});
+
+test("de verschuiving rekent netjes naar punten per jaar", () => {
+  const d = verschuiving(START, { zien: START.team_zien + 6, sturen: START.team_sturen, doen: START.team_doen }, 6);
+  assert.equal(d.zien.punten, 6);
+  assert.equal(d.zien.per_jaar, 12);
 });

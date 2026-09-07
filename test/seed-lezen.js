@@ -115,3 +115,20 @@ export function leesInterventies(){
     };
   });
 }
+
+/* De doelregels uit de seed: de ambitiebanden. */
+export function leesDoelregels(){
+  const blok = leesSeedblok();
+  const start = blok.indexOf("insert into public.teamkracht_doelregels");
+  const eind  = blok.indexOf("on conflict (code) do nothing;", start);
+  const body  = blok.slice(start, eind);
+
+  return body.split(/\n(?=\('D)/).slice(1).map(stuk => {
+    const m = stuk.match(/^\('([^']+)',\s*\$t\$([\s\S]*?)\$t\$,\s*'(\{[^']*\})',\s*'(\w+)',\s*\$t\$([\s\S]*?)\$t\$,\s*(\d+)\)/);
+    if (!m) throw new Error(`doelregel niet te lezen: ${stuk.slice(0, 40)}`);
+    return {
+      code: m[1], titel: m[2], voorwaarde: JSON.parse(m[3]),
+      oordeel: m[4], melding: m[5], volgorde: Number(m[6]), actief: true
+    };
+  });
+}
