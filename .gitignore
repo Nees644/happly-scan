@@ -4,3 +4,6 @@ node_modules/
 
 # Export van de migratie voor de SQL-editor; de bron staat in supabase.sql
 migratie-teamkracht-*.sql
+# Werkbestanden van scripts/bouw-voorbeeldkaart.js; de demopagina rekent zelf
+teamkracht-voorbeeld.html
+teamkracht-voorbeeld-poster-*.html
