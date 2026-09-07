@@ -563,24 +563,55 @@ create policy "eigen feedback lezen" on public.teamkracht_feedback
 -- zodat teksten die de opdrachtgever in het dashboard heeft aangepast blijven
 -- staan. Wil je een rij terugzetten naar de seed, verwijder hem eerst.
 
+-- De referentie, als view zodat er precies één definitie van bestaat.
+--
+-- Drie filters, en alle drie hebben een reden:
+--   is_hermeting = false        elke persoon telt één keer mee, de eerste keer
+--   teamkracht_team_id is null  deelnemers die via een teamtraject binnenkomen
+--                               tellen niet mee. Zonder dit filter gaat het
+--                               instrument zijn eigen interventies meten: het
+--                               gemiddelde kruipt omhoog omdat wij eraan hebben
+--                               gewerkt, niet omdat de populatie verandert.
+--
+-- security_invoker zorgt dat de leesrechten op index_scan_results ook voor deze
+-- view gelden; wie de onderliggende tabel niet mag lezen, krijgt hier niets.
+create or replace view public.teamkracht_referentie
+  with (security_invoker = true) as
+select
+  count(*)::int                       as n,
+  round(avg(zien))::numeric           as norm_zien,
+  round(avg(sturen))::numeric         as norm_sturen,
+  round(avg(doen))::numeric           as norm_doen,
+  round(stddev_samp(zien))::numeric   as sd_zien,
+  round(stddev_samp(sturen))::numeric as sd_sturen,
+  round(stddev_samp(doen))::numeric   as sd_doen,
+  round(stddev_samp(sturen) / nullif(sqrt(count(*)), 0) * 1.96, 1) as marge_sturen,
+  max(created_at)::date               as tot_en_met
+from public.index_scan_results
+where is_hermeting = false
+  and teamkracht_team_id is null;
+
+revoke all on public.teamkracht_referentie from anon;
+grant select on public.teamkracht_referentie to authenticated;
+
 -- Config: norm_bron 'vast' tot er 200 metingen zijn (besluit 07-09-2026).
 --
 -- De waarden hieronder zijn de werkelijke cijfers uit index_scan_results op
 -- 07-09-2026, gemeten over 73 metingen zonder hermetingen. Dat is een kleine
 -- en zelfgeselecteerde groep: mensen die uit eigen beweging een zelfkrachtscan
--- doen. Het is een referentie, geen landelijk gemiddelde. Ververs deze waarden
--- met de query hieronder zodra er meer metingen zijn, en zet norm_bron pas op
--- 'landelijk' als de standaarddeviatie tot rust is gekomen.
+-- doen. Het is een referentie, geen landelijk gemiddelde.
 --
---   select round(avg(zien))::numeric   as norm_zien,
---          round(avg(sturen))::numeric as norm_sturen,
---          round(avg(doen))::numeric   as norm_doen,
---          round(stddev_samp(zien))::numeric   as sd_zien,
---          round(stddev_samp(sturen))::numeric as sd_sturen,
---          round(stddev_samp(doen))::numeric   as sd_doen,
---          count(*) as n
---   from public.index_scan_results
---   where is_hermeting = false;
+-- Ververs deze waarden met select * from public.teamkracht_referentie zodra er
+-- meer metingen zijn. Zet norm_bron pas op 'landelijk' als aan twee
+-- voorwaarden is voldaan: n is minstens 250, zodat marge_sturen onder de twee
+-- punten zakt, en de standaarddeviatie beweegt over de laatste honderd
+-- metingen minder dan een punt. Op tweehonderd metingen alleen is de
+-- referentie nog te wiebelig voor een middenband van vier punten.
+--
+-- Publiceer een nieuwe referentie als versie, niet als bijstelling: verhoog
+-- norm_versie en laat bestaande teambeelden met rust. Die bevriezen hun eigen
+-- norm, dus een hermeting wordt langs dezelfde meetlat gemeten als het
+-- startbeeld waar hij bij hoort.
 --
 insert into public.teamkracht_config
   (id, middenband_sd, min_deelnemers_lijnen, min_deelnemers_kaart, norm_bron,
