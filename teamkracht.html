@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Teamkracht &middot; dashboard</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--wt:#fff;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78;--lav:#B9AECB}
+body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-height:100vh}
+/* login gate, zelfde patroon als dashboard-index.html */
+.login-screen{position:fixed;inset:0;background:var(--dp);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:var(--wt);border-radius:12px;padding:40px 36px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-box h1{font-family:"DM Serif Display",serif;font-size:24px;color:var(--dp);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--mut);margin-bottom:22px;line-height:1.5}
+.login-err{color:var(--pk);font-size:12.5px;margin-bottom:12px;display:none;line-height:1.4}
+.inp{width:100%;padding:12px 15px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13.5px;margin-bottom:12px;outline:none}
+.inp:focus{border-color:var(--pk)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pk);color:#fff;font-family:inherit;font-size:13.5px;font-weight:500;padding:12px 24px;border:none;border-radius:7px;cursor:pointer}
+.btn:hover{background:#b80260}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.w{width:100%}
+.btn.lijn{background:transparent;color:var(--dp);border:1.5px solid var(--bd)}
+.btn.lijn:hover{background:var(--wt);border-color:var(--dp)}
+.btn.klein{padding:8px 14px;font-size:12.5px}
+/* app */
+#app{display:none}
+.hdr{background:var(--dp);padding:18px 0}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.hdr .wrap{display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-family:"DM Serif Display",serif;font-size:19px;color:#fff;font-weight:400}
+.hdr .uit{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit}
+main{padding:28px 0 70px}
+h2{font-family:"DM Serif Display",serif;font-size:22px;color:var(--dp);font-weight:400;margin-bottom:4px}
+.sub{font-size:13px;color:var(--mut);margin-bottom:18px;line-height:1.5;max-width:70ch}
+.kaart{background:var(--wt);border:1px solid var(--bd);border-radius:10px;padding:20px 22px;margin-bottom:16px}
+.teamrij{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.teamrij h3{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);font-weight:400}
+.meta{font-size:12.5px;color:var(--mut);margin-top:3px}
+.link{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.link code{background:#F7F3F0;border:1px solid var(--bd);border-radius:6px;padding:7px 10px;font-size:12.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dp);overflow-wrap:anywhere}
+.acties{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pil{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:99px}
+.pil.klaar{background:#E6F4EC;color:#14603D}
+.pil.wacht{background:#FBF0DC;color:#8A5B06}
+.melding{font-size:12.5px;color:var(--mut);margin-top:10px;min-height:1.2em}
+.melding.fout{color:var(--pk)}
+.nieuw{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end}
+.nieuw .inp{margin-bottom:0}
+label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.leeg{font-size:13.5px;color:var(--mut);font-weight:300}
+iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;background:#fff;margin-top:14px}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen" style="display:none">
+  <div class="login-box">
+    <h1>Teamkracht</h1>
+    <p>Log in met je Happly-dashboardaccount.</p>
+    <div class="login-err" id="login-err"></div>
+    <input class="inp" id="login-email" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input class="inp" id="login-pass" type="password" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn w" id="login-btn" onclick="doLogin()">Inloggen</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="hdr"><div class="wrap">
+    <h1>Teamkracht</h1>
+    <button class="uit" onclick="doLogout()">Uitloggen</button>
+  </div></div>
+  <main class="wrap">
+    <h2>Nieuw team</h2>
+    <p class="sub">Een team is één meetmoment bij één groep. Je krijgt een link met een token; iedereen die via die link meet, telt mee in de Teamkrachtkaart van dit team. De deelnemer ziet zijn eigen uitslag zoals altijd.</p>
+    <div class="kaart">
+      <div class="nieuw">
+        <div><label for="n-naam">Teamnaam</label><input class="inp" id="n-naam" placeholder="Team Noord"></div>
+        <div><label for="n-org">Organisatie</label><input class="inp" id="n-org" placeholder="optioneel"></div>
+        <div><label for="n-coach">Coach</label><input class="inp" id="n-coach" placeholder="optioneel"></div>
+        <button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button>
+      </div>
+      <p class="melding" id="n-melding"></p>
+    </div>
+
+    <h2 style="margin-top:30px">Teams</h2>
+    <p class="sub">Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.</p>
+    <div id="teams"><p class="leeg">Laden...</p></div>
+
+    <div id="kaartvenster"></div>
+  </main>
+</div>
+
+<script>
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+let TEAMS = [];
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* Elke aanroep gaat met het access token van de sessie; de route valideert dat
+   en zoekt de rol op in teamkracht_gebruikers. */
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, {
+    ...opties,
+    headers: { "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{}) }
+  });
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+async function doLogin(){
+  const email = el("login-email").value.trim(), pass = el("login-pass").value;
+  const err = el("login-err"); err.style.display = "none";
+  el("login-btn").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  el("login-btn").disabled = false;
+  if (error){ err.textContent = "Inloggen mislukt. Controleer je gegevens."; err.style.display = "block"; return; }
+  toonApp();
+}
+function doLogout(){ db.auth.signOut().then(() => location.reload()); }
+
+async function toonApp(){
+  el("login-screen").style.display = "none";
+  el("app").style.display = "block";
+  laadTeams();
+}
+
+async function laadTeams(){
+  try{
+    const uit = await api("/api/teamkracht-team");
+    TEAMS = uit.teams || [];
+    render();
+  }catch(e){
+    el("teams").innerHTML = `<div class="kaart"><p class="melding fout">Teams laden mislukt: ${esc(e.message)}. Staat je account in teamkracht_gebruikers?</p></div>`;
+  }
+}
+
+function render(){
+  if (!TEAMS.length){
+    el("teams").innerHTML = '<div class="kaart"><p class="leeg">Nog geen teams. Maak er hierboven een aan.</p></div>';
+    return;
+  }
+  const basis = location.origin;
+  el("teams").innerHTML = TEAMS.map(t => {
+    const n = t.aantal_metingen;
+    const genoeg = n >= 5;
+    return `<div class="kaart">
+      <div class="teamrij">
+        <div>
+          <h3>${esc(t.naam)}</h3>
+          <div class="meta">${esc(t.organisatie || "")}${t.organisatie && t.coach_naam ? " &middot; " : ""}${esc(t.coach_naam || "")}</div>
+          <div class="meta">${n} ${n === 1 ? "meting" : "metingen"}${n && n < 10 ? ", onder tien dus zonder individuele lijnen" : ""}</div>
+        </div>
+        <div class="acties">
+          <span class="pil ${genoeg ? "klaar" : "wacht"}">${genoeg ? "kaart mogelijk" : `nog ${5 - n} te gaan`}</span>
+          <button class="btn klein" ${genoeg ? "" : "disabled"} onclick="maakKaart('${t.id}','${esc(t.naam)}')">Teamkrachtkaart maken</button>
+        </div>
+      </div>
+      <div class="link">
+        <code>${basis}/scan?team=${esc(t.token)}</code>
+        <button class="btn lijn klein" onclick="kopieer('${basis}/scan?team=${esc(t.token)}', this)">Kopieer link</button>
+      </div>
+      <p class="melding" id="m-${t.id}"></p>
+    </div>`;
+  }).join("");
+}
+
+function kopieer(tekst, knop){
+  navigator.clipboard.writeText(tekst).then(() => {
+    const oud = knop.textContent; knop.textContent = "Gekopieerd";
+    setTimeout(() => { knop.textContent = oud; }, 1600);
+  });
+}
+
+async function maakTeam(){
+  const naam = el("n-naam").value.trim();
+  const melding = el("n-melding"); melding.className = "melding";
+  if (!naam){ melding.textContent = "Vul een teamnaam in."; melding.className = "melding fout"; return; }
+  el("n-btn").disabled = true; melding.textContent = "Bezig...";
+  try{
+    await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify({
+      naam, organisatie: el("n-org").value.trim() || null, coach_naam: el("n-coach").value.trim() || null
+    })});
+    el("n-naam").value = el("n-org").value = el("n-coach").value = "";
+    melding.textContent = "Team aangemaakt. De link staat hieronder.";
+    await laadTeams();
+  }catch(e){
+    melding.textContent = `Aanmaken mislukt: ${e.message}`; melding.className = "melding fout";
+  }finally{
+    el("n-btn").disabled = false;
+  }
+}
+
+async function maakKaart(teamId, naam){
+  const melding = el(`m-${teamId}`); melding.className = "melding";
+  melding.textContent = "Bezig met rekenen...";
+  try{
+    const beeld = await api("/api/teamkracht-bereken", { method:"POST", body: JSON.stringify({ team_id: teamId, soort: "start" })});
+    melding.textContent = `Startbeeld berekend over ${beeld.n} deelnemers. Breuk: ${beeld.breuk.replace("_"," en ")}.`;
+    toonKaart(beeld.id, naam);
+  }catch(e){
+    melding.textContent = e.message; melding.className = "melding fout";
+  }
+}
+
+/* De kaartroute zit achter dezelfde authenticatie als de rest, en een iframe
+   of een gewone link stuurt geen Authorization-header mee. Daarom halen we de
+   HTML hier op met de header en tonen hem lokaal: de iframe krijgt srcdoc, de
+   knoppen krijgen een blob-URL. Afdrukken werkt daar gewoon, inclusief de
+   print-CSS die het papierformaat zet. */
+async function haalKaart(id, extra = ""){
+  const { data:{ session } } = await db.auth.getSession();
+  const r = await fetch(`/api/teamkracht-kaart?teambeeld_id=${id}${extra}`, {
+    headers: { Authorization: `Bearer ${session.access_token}` }
+  });
+  if (!r.ok) throw new Error(`kaart ophalen mislukt (${r.status})`);
+  return r.text();
+}
+
+async function toonKaart(id, naam){
+  el("kaartvenster").innerHTML = `
+    <h2 style="margin-top:30px">Teamkrachtkaart ${esc(naam)}</h2>
+    <p class="sub">De kaart hieronder is de A4. Afdrukken naar PDF gaat via de browser; de print-CSS zet het papierformaat goed. De posters openen in een eigen tabblad.</p>
+    <div class="acties" id="kaartknoppen"><span class="leeg">Kaart wordt opgehaald...</span></div>
+    <iframe id="kaartframe" title="Teamkrachtkaart"></iframe>`;
+  el("kaartvenster").scrollIntoView({ behavior:"smooth", block:"start" });
+
+  try{
+    const varianten = [
+      ["Openen als A4", "&formaat=a4"],
+      ["Poster A3",     "&formaat=a3&poster=1"],
+      ["Poster A1",     "&formaat=a1&poster=1"]
+    ];
+    const documenten = await Promise.all(varianten.map(([, extra]) => haalKaart(id, extra)));
+    el("kaartframe").srcdoc = documenten[0];
+    el("kaartknoppen").innerHTML = varianten.map(([label], i) => {
+      const url = URL.createObjectURL(new Blob([documenten[i]], { type: "text/html" }));
+      return `<a class="btn lijn klein" href="${url}" target="_blank" rel="noopener">${label}</a>`;
+    }).join("") + `<a class="btn klein" href="/teamkracht-doel?teambeeld=${id}" target="_blank" rel="noopener">Doelbeeld bepalen</a>`;
+  }catch(e){
+    el("kaartknoppen").innerHTML = `<span class="melding fout">${esc(e.message)}</span>`;
+  }
+}
+
+db.auth.getSession().then(({ data:{ session } }) => {
+  if (session) toonApp(); else el("login-screen").style.display = "flex";
+});
+</script>
+</body>
+</html>

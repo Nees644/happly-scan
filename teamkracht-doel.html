@@ -6,6 +6,7 @@
 <title>Teamkracht &middot; doelbeeld bepalen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
   :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--lavendel:#B9AECB;--lijn:#E2D8D2;--gedempt:#6B6472}
@@ -141,6 +142,15 @@ const VAARDIGHEDEN = [
 const el = id => document.getElementById(id);
 const teambeeldId = new URLSearchParams(location.search).get("teambeeld");
 
+/* Dezelfde sessie als het Teamkracht-dashboard. De routes willen het access
+   token als Bearer; zonder sessie valt de pagina terug op het voorbeeldteam. */
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+async function bearer(){
+  const { data:{ session } } = await db.auth.getSession();
+  return session ? { Authorization: `Bearer ${session.access_token}` } : {};
+}
+
 let teambeeld = VOORBEELD_TEAMBEELD;
 let interventies = VOORBEELD_INTERVENTIES;
 let profielen = VOORBEELD_PROFIELEN;
@@ -268,13 +278,9 @@ async function opslaan(){
   el("opslaan").disabled = true;
   el("melding").textContent = "Bezig met vastleggen...";
   try{
-    const sessie = window.supabase ? (await window.supabase.auth.getSession()).data.session : null;
     const r = await fetch("/api/teamkracht-doel", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(sessie ? { Authorization: `Bearer ${sessie.access_token}` } : {})
-      },
+      headers: { "Content-Type": "application/json", ...(await bearer()) },
       body: JSON.stringify({
         teambeeld_id: teambeeldId,
         doel_code: "sturen_doen_boven_norm",
@@ -378,15 +384,18 @@ function toonInterventies(){
 async function start(){
   if (teambeeldId){
     try{
-      const r = await fetch(`/api/teamkracht-teambeeld?id=${encodeURIComponent(teambeeldId)}`);
+      const kop = await bearer();
+      const r = await fetch(`/api/teamkracht-teambeeld?id=${encodeURIComponent(teambeeldId)}`, { headers: kop });
       if (!r.ok) throw new Error("niet gevonden");
       teambeeld = await r.json();
-      const ri = await fetch("/api/teamkracht-interventies");
+      const ri = await fetch("/api/teamkracht-interventies", { headers: kop });
       if (ri.ok){
         const data = await ri.json();
         interventies = data.interventies || interventies;
         profielen = data.profielen || profielen;
       }
+      const rd = await fetch("/api/teamkracht-doelregels", { headers: kop });
+      if (rd.ok){ const d = await rd.json(); doelregels = d.doelregels || doelregels; }
     }catch(e){
       el("voorbeeldbalk").hidden = false;
       el("voorbeeldbalk").textContent = "Dit teambeeld kon niet worden geladen; hieronder staat het voorbeeldteam.";
