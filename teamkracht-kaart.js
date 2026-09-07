@@ -109,6 +109,12 @@ export function tekenKaartSvg(teambeeld){
 
 /* ----------------------------------------------------------------- html */
 
+/* De drie beelden van een traject. Het doelbeeld is fase 2; de kaart kent de
+   naam nu al zodat er later niets aan de titel hoeft te veranderen. */
+export const BEELDNAAM = { start: "startbeeld", doel: "doelbeeld", hermeting: "eindbeeld" };
+const MOMENT = { start: "NULMETING", doel: "DOELBEELD", hermeting: "HERMETING" };
+
+
 /* Meervoud van een profielnaam. Alle namen krijgen een s; middenband blijft
    enkelvoud en met kleine letter, zoals in de briefing. */
 function profielnaam(code, aantal, profielen){
@@ -156,12 +162,12 @@ function dynamiekHtml(regel, teambeeld){
 export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
-  const hermeting = teambeeld.soort === "hermeting";
-  const beeldnaam = hermeting ? "eindbeeld" : "startbeeld";
+  const beeldnaam = BEELDNAAM[teambeeld.soort] || BEELDNAAM.start;
+  const moment = MOMENT[teambeeld.soort] || MOMENT.start;
   const heeftLijnen = Array.isArray(teambeeld.lijnen) && teambeeld.lijnen.length > 0;
 
   const kruimel = ["TEAMFOTO", teamnaam ? `TEAM ${teamnaam.toUpperCase()}` : null,
-                   hermeting ? "HERMETING" : "NULMETING", "TEAMKRACHTKAART"]
+                   moment, "TEAMKRACHTKAART"]
     .filter(Boolean).map(esc).join(" &middot; ");
 
   const inleiding = heeftLijnen
