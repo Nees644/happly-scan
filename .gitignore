@@ -1,3 +1,6 @@
 node_modules/
 .env
 .vercel
+
+# Export van de migratie voor de SQL-editor; de bron staat in supabase.sql
+migratie-teamkracht-*.sql
