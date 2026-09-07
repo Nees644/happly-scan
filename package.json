@@ -10,6 +10,7 @@
     "resend": "^4.0.0"
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "voorbeeld": "node scripts/bouw-voorbeeldkaart.js"
   }
 }

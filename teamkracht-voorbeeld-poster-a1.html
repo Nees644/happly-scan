@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Teamkrachtkaart Noord (voorbeeld)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --inkt:#1A0B2E; --magenta:#D6026F; --papier:#F7F3F0;
+    --lavendel:#B9AECB; --lijn:#E2D8D2; --gedempt:#6B6472;
+    --schaal:2.83;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#E9E2DC;font-family:"DM Sans",system-ui,sans-serif;color:var(--inkt)}
+  .kaart{
+    width:841mm;height:594mm;margin:0 auto;background:var(--papier);
+    font-size:calc(var(--schaal) * 7.4pt);
+    display:flex;flex-direction:column;padding:2.1em 2.4em 1.2em;
+  }
+  .kop{margin-bottom:1.4em}
+  .kruimel{font-size:.85em;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:.7em}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:4.1em;line-height:1.05;margin-bottom:.28em}
+  h1 .punt{color:var(--magenta)}
+  .inleiding{font-size:1.1em;font-weight:300;line-height:1.5;max-width:52em;color:var(--gedempt)}
+  .romp{flex:1;display:grid;grid-template-columns:52% 1fr;column-gap:2.4em;min-height:0}
+  .romp.poster{grid-template-columns:1fr;grid-template-rows:1fr auto;row-gap:1.6em}
+  .romp.poster .tekening{align-self:stretch;display:flex;align-items:center;justify-content:center;min-height:0}
+  .romp.poster .tekening svg{width:auto;height:100%;max-width:100%}
+  .romp.poster .rechts{flex-direction:row;gap:1.8em;align-items:stretch}
+  .romp.poster .rechts>section{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .tekening{background:#fff;border:1px solid var(--lijn);border-radius:.4em;padding:.9em;align-self:start}
+  .tekening svg{width:100%;height:auto;display:block}
+  .rechts{display:flex;flex-direction:column;gap:.95em;min-width:0}
+  h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:2.1em;line-height:1.2}
+  h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:2em;line-height:1.2;margin-bottom:.4em}
+  h4{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.75em;line-height:1.2;margin-bottom:.3em}
+  p{font-size:1.1em;font-weight:300;line-height:1.5}
+  .breuk{background:var(--inkt);color:var(--papier);padding:1.1em 1.2em;border-radius:.4em}
+  .breuk h2{margin-bottom:.35em}
+  .breuk .cijfers{margin-top:.5em;font-size:.95em;color:var(--lavendel)}
+  .tag-licht{font-size:.82em;font-weight:600;letter-spacing:.2em;color:var(--magenta);margin-bottom:.5em}
+  .vak{border:1px solid var(--lijn);border-radius:.4em;padding:.75em .9em;background:#fff}
+  .verdeling{font-size:1.1em;font-weight:300;display:flex;flex-wrap:wrap;align-items:baseline}
+  .verdeling b{font-weight:600}
+  .verdeling .punt{color:var(--lavendel);font-style:normal;margin:0 .5em}
+  .dynamieken{display:flex;flex-direction:column;gap:.7em}
+  .dyn{border-top:1.5px solid var(--magenta);padding-top:.5em}
+  .dyn.heeft-grijze-streep{border-top-color:var(--lijn)}
+  .dyn p{font-size:1.05em;line-height:1.45}
+  .dyn strong{font-weight:700}
+  .tag{font-size:.82em;font-weight:600;letter-spacing:.16em;margin-bottom:.25em}
+  .tag.remt{color:var(--magenta)}
+  .tag.versterkt,.tag.neutraal{color:var(--gedempt)}
+  .voet{border-top:1px solid var(--lijn);margin-top:1em;padding-top:.6em;
+    font-size:.82em;font-weight:300;line-height:1.45;color:var(--gedempt)}
+  .logo{align-self:flex-end;margin-top:auto}
+  .logo img{width:9em;height:auto;display:block}
+  @page{size:841mm 594mm;margin:0}
+  @media print{body{background:none}.kaart{margin:0}}
+</style>
+</head>
+<body>
+  <div class="kaart">
+    <header class="kop">
+      <p class="kruimel">TEAMFOTO &middot; TEAM NOORD (VOORBEELD) &middot; NULMETING &middot; TEAMKRACHTKAART</p>
+      <h1>Teamkracht <span class="punt">&middot;</span> startbeeld</h1>
+      
+    </header>
+    <div class="romp poster">
+      <div class="tekening"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Teamkrachtkaart: de keten zien, sturen en doen van dit team naast het landelijke beeld"><line x1="150" y1="60" x2="150" y2="540" stroke="#E2D8D2" stroke-width="2"/><text x="150" y="570" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="#6B6472">ZIEN</text><line x1="90" y1="303.2" x2="210" y2="303.2" stroke="#D6026F" stroke-width="3" opacity=".8"/><line x1="400" y1="60" x2="400" y2="540" stroke="#E2D8D2" stroke-width="2"/><text x="400" y="570" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="#6B6472">STUREN</text><line x1="340" y1="348" x2="460" y2="348" stroke="#D6026F" stroke-width="3" opacity=".8"/><line x1="650" y1="60" x2="650" y2="540" stroke="#E2D8D2" stroke-width="2"/><text x="650" y="570" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="#6B6472">DOEN</text><line x1="590" y1="380" x2="710" y2="380" stroke="#D6026F" stroke-width="3" opacity=".8"/><text x="718" y="384" font-family="DM Sans, sans-serif" font-size="11" letter-spacing="1" fill="#D6026F">LANDELIJK</text><polyline points="150,456.8 400,495.2 650,508" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="456.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="495.2" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="508" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,444 400,482.4 650,495.2" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="444" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="482.4" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="495.2" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,392.8 400,264.8 650,162.4" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="392.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="264.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="162.4" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,367.2 400,252 650,188" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="367.2" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="252" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="188" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,316 400,367.2 650,392.8" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="316" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="367.2" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="392.8" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,296.8 400,354.4 650,386.4" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="296.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="354.4" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="386.4" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,188 400,444 650,456.8" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="188" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="444" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="456.8" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,162.4 400,431.2 650,482.4" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="162.4" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="431.2" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="482.4" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,149.6 400,424.8 650,501.6" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="149.6" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="424.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="501.6" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,136.8 400,418.4 650,495.2" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="136.8" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="418.4" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="495.2" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,124 400,162.4 650,149.6" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".2" stroke-linejoin="round"/><circle cx="150" cy="124" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="400" cy="162.4" r="4" fill="#1A0B2E" opacity=".28"/><circle cx="650" cy="149.6" r="4" fill="#1A0B2E" opacity=".28"/><polyline points="150,275.7 400,372.3 650,383.2" fill="none" stroke="#1A0B2E" stroke-width="5" stroke-linejoin="round"/><circle cx="150" cy="275.7" r="9" fill="#1A0B2E" stroke="#fff" stroke-width="3"/><circle cx="400" cy="372.3" r="9" fill="#1A0B2E" stroke="#fff" stroke-width="3"/><circle cx="650" cy="383.2" r="9" fill="#1A0B2E" stroke="#fff" stroke-width="3"/><text x="130" y="280.7" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#1A0B2E">team</text><text x="275" y="298" text-anchor="middle" font-family="DM Serif Display, serif" font-style="italic" font-size="16" fill="#D6026F">hier zakt de keten</text></svg></div>
+      <div class="rechts"><section class="breuk"><p class="tag-licht">DE BREUK IN DE KETEN</p><h2>De keten zakt tussen Zien en Sturen</h2></section>
+       <section><h3>Profielverdeling</h3><div class="vak verdeling"><span><b>4</b> Zieners</span><i class="punt">&middot;</i><span><b>2</b> Aanpakkers</span><i class="punt">&middot;</i><span><b>2</b> Afwachters</span><i class="punt">&middot;</i><span><b>1</b> Trekker</span><i class="punt">&middot;</i><span><b>2</b> middenband</span></div></section></div>
+    </div>
+    <div class="logo"><img src="/happly-logo.svg" alt="Happly"></div>
+  </div>
+</body>
+</html>
