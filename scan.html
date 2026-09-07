@@ -81,6 +81,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .tbl .sc{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp)}
 .lvl{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;background:var(--rt);color:var(--pk)}
 .plus{font-weight:600;color:var(--pk)}
+.naar{font-weight:400;color:var(--mut);font-size:12px}
 .plus.onh{color:var(--mut);font-weight:500}
 .legend{font-size:11px;font-weight:300;color:var(--mut);line-height:1.6;margin-top:12px}
 /* duiding */
@@ -264,10 +265,16 @@ function niveau(s){
   if (s < 90) return "Sterk";
   return "Zeer sterk";
 }
+/* Adviesregel (vastgesteld door Maarten, 07-09-2026, vervangt de regel van
+   23-07-2026): het advies is de eerstvolgende stap, dus het aantal punten tot
+   het volgende niveau. Klein en haalbaar in plaats van een berg, en het is
+   dezelfde maat waarin de coach in de sessie naar het ambitieniveau vraagt.
+   Wie al op Zeer sterk staat krijgt geen advies maar onderhouden. */
+const NIVEAUGRENZEN = [[30, "Beperkt"], [50, "Redelijk"], [70, "Sterk"], [90, "Zeer sterk"]];
 function ontwikkelruimte(s){
-  if (s >= 90) return {onderhoud:true, plus:null, doel:null};
-  if (s >= 80) return {onderhoud:false, plus:90 - s, doel:90};
-  return {onderhoud:false, plus:80 - s, doel:80};
+  const volgende = NIVEAUGRENZEN.find(([grens]) => s < grens);
+  if (!volgende) return {onderhoud:true, plus:null, doel:null, niveau:null};
+  return {onderhoud:false, plus:volgende[0] - s, doel:volgende[0], niveau:volgende[1]};
 }
 
 /* ======================= CANON (vaste teksten) ======================= */
@@ -442,7 +449,9 @@ function toResults(){
 function niveauRow(name, s){
   const nv = niveau(s);
   const or = ontwikkelruimte(s);
-  const plus = or.onderhoud ? `<span class="plus onh">onderhouden</span>` : `<span class="plus">+${or.plus}</span>`;
+  const plus = or.onderhoud
+    ? `<span class="plus onh">onderhouden</span>`
+    : `<span class="plus">+${or.plus}</span> <span class="naar">naar ${or.niveau}</span>`;
   return `<tr><td class="nm">${name}</td><td class="sc">${s}</td><td><span class="lvl">${nv}</span></td><td class="r">${plus}</td></tr>`;
 }
 
@@ -474,11 +483,11 @@ function renderResults(){
       <p>Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
     </div>
 
-    <!-- Blok 3: niveautabel met ontwikkelruimte -->
+    <!-- Blok 3: niveautabel met het advies -->
     <div class="sec">
       <div class="sec-h">Waar je nu staat</div>
       <table class="tbl">
-        <thead><tr><th>&nbsp;</th><th>Score</th><th>Niveau</th><th class="r">Ontwikkelruimte</th></tr></thead>
+        <thead><tr><th>&nbsp;</th><th>Score</th><th>Niveau</th><th class="r">Advies</th></tr></thead>
         <tbody>
           ${niveauRow("Totaal", s.index)}
           ${niveauRow("Zien", s.zien)}
@@ -486,7 +495,7 @@ function renderResults(){
           ${niveauRow("Doen", s.doen)}
         </tbody>
       </table>
-      <p class="legend">De ontwikkelruimte is de afstand tot stevig in het eerstvolgende niveau. Het maakt de weg concreet en eindig.</p>
+      <p class="legend">Het advies is je eerstvolgende stap: het aantal punten tot het volgende niveau. Klein genoeg om te zetten, en het is dezelfde maat waarin een coach naar je ambitie vraagt.</p>
     </div>
 
     <!-- Blok 4: AI-duiding -->
@@ -544,7 +553,7 @@ function grootsteRuimte(){
     .map(([n,s])=>({n,s,or:ontwikkelruimte(s)}))
     .filter(x=>!x.or.onderhoud);
   if(!arr.length) return null;
-  arr.sort((a,b)=>b.or.plus-a.or.plus);
+  arr.sort((a,b)=>a.s-b.s);
   return arr[0];
 }
 function renderRoute(){
@@ -552,7 +561,7 @@ function renderRoute(){
   const low = laagsteDimensie();
   let html = "";
   if(g){
-    html += `<p>De grootste winst zit bij <strong>${g.n}: +${g.or.plus}</strong>. Dat is de dimensie waar je meting de meeste ruimte laat zien, en dus waar het werk het meest oplevert.</p>`;
+    html += `<p>De eerstvolgende stap zit bij <strong>${g.n}: +${g.or.plus} naar ${g.or.niveau}</strong>. Dat is de dimensie waar je meting de meeste ruimte laat zien, en dus waar het werk het meest oplevert.</p>`;
   } else {
     html += `<p>Je drie deelscores staan alle drie hoog. Voor jou gaat het minder om eraan werken en meer om onderhouden: vasthouden wat er staat.</p>`;
   }

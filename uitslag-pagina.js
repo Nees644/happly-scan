@@ -28,7 +28,7 @@ function niveauRij(naam, score){
   const or = ontwikkelruimte(score);
   const plus = or.onderhoud
     ? '<span class="onderhoud">onderhouden</span>'
-    : `<span class="plus">+${or.plus}</span>`;
+    : `<span class="plus">+${or.plus}</span> <span class="naar">naar ${or.niveau}</span>`;
   return `<tr><td class="nm">${naam}</td><td class="sc">${score}</td><td>${niveau(score)}</td><td class="r">${plus}</td></tr>`;
 }
 
@@ -89,6 +89,7 @@ export function bouwUitslagPagina({ meting, profiel }){
   td.sc{font-family:"DM Serif Display",serif;font-size:18px;color:var(--dp)}
   td.r{text-align:right}
   .plus{color:var(--pk);font-weight:700}
+  .naar{color:var(--mut);font-weight:300;font-size:12.5px}
   .onderhoud{color:var(--mut);font-weight:500}
   .legend{font-size:12.5px;color:var(--mut);margin-top:10px}
   .patroon{background:var(--rt);border-radius:10px;padding:22px 24px}
@@ -123,7 +124,7 @@ export function bouwUitslagPagina({ meting, profiel }){
         ${niveauRij("Sturen", meting.sturen)}
         ${niveauRij("Doen", meting.doen)}
       </table>
-      <p class="legend">De ontwikkelruimte is de afstand tot stevig in het eerstvolgende niveau. Het maakt de weg concreet en eindig.</p>
+      <p class="legend">Het advies is je eerstvolgende stap: het aantal punten tot het volgende niveau. Klein genoeg om te zetten, en het is dezelfde maat waarin een coach naar je ambitie vraagt.</p>
     </section>
 
     ${delen.duiding ? `<section class="sec">

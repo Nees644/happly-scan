@@ -319,3 +319,36 @@ test("de taalregel weigert een gedachtestreep en een uitroepteken", () => {
   assert.match(taalcontrole("Zo — niet"), /gedachtestreep/);
   assert.match(taalcontrole("Zo – niet"), /gedachtestreep/);
 });
+
+/* ------------------------------------------------------------- advies */
+
+import { niveau as niveauVan, ontwikkelruimte } from "../zelfkracht-uitslag.js";
+
+test("het advies is precies de stap naar het volgende niveau", () => {
+  for (let score = 0; score <= 100; score++){
+    const or = ontwikkelruimte(score);
+    if (score >= 90){
+      assert.equal(or.onderhoud, true, `${score} hoort onderhouden te zijn`);
+      continue;
+    }
+    assert.equal(or.onderhoud, false);
+    // De banden zijn 30, 20, 20 en 20 punten breed, dus dertig is het maximum
+    // en dat komt alleen voor bij een score van nul.
+    assert.ok(or.plus >= 1 && or.plus <= 30, `${score} geeft een advies van ${or.plus}`);
+    assert.equal(niveauVan(score + or.plus), or.niveau,
+      `${score} plus ${or.plus} hoort ${or.niveau} te zijn`);
+    assert.notEqual(niveauVan(score), or.niveau, `${score} staat al op ${or.niveau}`);
+  }
+});
+
+test("het advies blijft een stap en wordt geen berg", () => {
+  // Vanaf Beperkt is elke band twintig punten breed; alleen wie helemaal
+  // onderin de band Laag zit krijgt een groter getal te zien.
+  const vanafBeperkt = Array.from({ length: 60 }, (_, i) => ontwikkelruimte(30 + i).plus);
+  assert.ok(Math.max(...vanafBeperkt) <= 20, "een advies van meer dan twintig punten is geen stap");
+
+  // Ter vergelijking: de oude regel mikte vanuit elke score op 80 of 90.
+  const oudeRegel = s => (s >= 90 ? null : s >= 80 ? 90 - s : 80 - s);
+  assert.equal(oudeRegel(22), 58);
+  assert.equal(ontwikkelruimte(22).plus, 8, "de nieuwe regel maakt van dezelfde score een stap");
+});

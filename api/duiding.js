@@ -22,14 +22,16 @@ const ITEM_META = {
 };
 
 // Ontwikkelruimte identiek aan de scanpagina (scan.html); wijzig ze samen.
-// Plus-regel (vastgesteld door Maarten, 23-07-2026): één stap omhoog, plafond 90.
-// - score < 80  -> richtgetal 80 (stevig in Sterk)
-// - 80 tot 90   -> richtgetal 90 (Zeer sterk halen)
-// - 90 en hoger -> geen plus, "onderhouden"
+/* Adviesregel (vastgesteld door Maarten, 07-09-2026, vervangt de regel van
+   23-07-2026): het advies is de eerstvolgende stap, dus het aantal punten tot
+   het volgende niveau. Klein en haalbaar in plaats van een berg, en het is
+   dezelfde maat waarin de coach in de sessie naar het ambitieniveau vraagt.
+   Wie al op Zeer sterk staat krijgt geen advies maar onderhouden. */
+const NIVEAUGRENZEN = [[30, "Beperkt"], [50, "Redelijk"], [70, "Sterk"], [90, "Zeer sterk"]];
 function ontwikkelruimte(s){
-  if (s >= 90) return {onderhoud:true, plus:null, doel:null};
-  if (s >= 80) return {onderhoud:false, plus:90 - s, doel:90};
-  return {onderhoud:false, plus:80 - s, doel:80};
+  const volgende = NIVEAUGRENZEN.find(([grens]) => s < grens);
+  if (!volgende) return {onderhoud:true, plus:null, doel:null, niveau:null};
+  return {onderhoud:false, plus:volgende[0] - s, doel:volgende[0], niveau:volgende[1]};
 }
 
 const SYSTEM = `Je schrijft de persoonlijke duiding bij een Zelfkracht Index-meting. Je krijgt de totaalscore, drie deelscores en twaalf itemscores. Je schrijft in het Nederlands, in de je-vorm, in meettaal: cijfers en feiten dragen de tekst, niet beloftes of aanmoedigingen.
@@ -55,7 +57,7 @@ Regels voor de duiding:
 
 Regels voor de route:
 - Alleen als "fijnslijp" in de invoer true is, open de sectie "Waar het werk zit" dan met één zin meetbescheidenheid, in de trant van: "Je scores liggen dicht bij elkaar en zijn hoog; zie de accenten hieronder als fijnslijpen, niet als gebreken." Is "fijnslijp" false, dan laat je die zin volledig weg en begin je direct met de ontwikkelruimte.
-- Benoem de dimensie met de grootste ontwikkelruimte, met de plus als getal. Gebruik exact het getal en de dimensie uit "grootste_ruimte" in de invoer.
+- Benoem de dimensie uit "grootste_ruimte" als eerstvolgende stap, met de plus als getal en het niveau waar die stap heen leidt. Gebruik exact het getal, de dimensie en het niveau uit de invoer. Formuleer het als advies en als iets wat binnen bereik ligt, niet als een tekort.
 - Vertaal wat werken aan die dimensie voor dit profiel betekent, in één zin, zonder methode of stappen prijs te geven.
 - Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6. Alleen als "lage_score" true is, vervang je die verwijzing door exact deze autonomiezin, met de juiste weeknummers ingevuld: "Je hoeft hier niets mee. Maar als je wilt kijken hoe dit werkt, is dat precies wat je onderzoekt in week X en Y van de Zelfkracht Sprint."
 
@@ -80,11 +82,17 @@ export default async function handler(req, res){
       res.status(400).json({error:"ongeldige invoer"}); return;
     }
 
-    // Grootste ontwikkelruimte + laagste dimensie (consistent met de scanpagina).
+    // De dimensie waar het advies over gaat, en de laagste dimensie voor de
+    // Sprint-koppeling. Consistent met de scanpagina: de prioriteit is de
+    // laagste score, niet de grootste sprong. Sinds de grenzen per niveau
+    // gelden kan een hogere score namelijk een groter gat naar het volgende
+    // niveau hebben, en dan zou de verkeerde dimensie voorrang krijgen.
     const dims = [["Zien",zien],["Sturen",sturen],["Doen",doen]];
     const ruimte = dims.map(([n,s]) => ({n,s,or:ontwikkelruimte(s)})).filter(x=>!x.or.onderhoud);
-    ruimte.sort((a,b)=>b.or.plus-a.or.plus);
-    const grootste = ruimte.length ? {dimensie:ruimte[0].n, plus:ruimte[0].or.plus, doel:ruimte[0].or.doel} : null;
+    ruimte.sort((a,b)=>a.s-b.s);
+    const grootste = ruimte.length
+      ? {dimensie:ruimte[0].n, plus:ruimte[0].or.plus, doel:ruimte[0].or.doel, volgende_niveau:ruimte[0].or.niveau}
+      : null;
     const laagste = [...dims].sort((a,b)=>a[1]-b[1])[0][0];
 
     // Fijnslijp-zin alleen bij hoge, vlakke profielen: totaal boven 75 en het

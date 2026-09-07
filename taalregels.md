@@ -26,6 +26,12 @@ in `zelfkracht-uitslag.js` en `scan.html` onder de naam `OUDE_SLOTZIN`, uitsluit
 weg te knippen uit duidingen die eerder zijn gegenereerd en in de database staan. Die
 tekst blijft letterlijk staan, anders herkent hij zichzelf niet meer.
 
+**Advies, geen tekort.** De kolom naast de score heet Advies en toont de eerstvolgende
+stap: het aantal punten tot het volgende niveau. Klein en haalbaar, en het is dezelfde maat
+waarin de coach in de sessie naar het ambitieniveau vraagt. Tot 7 september 2026 mikte die
+kolom op een vast doel van 80, wat iemand op 22 een advies van +58 gaf; dat is geen stap
+maar een berg.
+
 **Beweging boven stand.** Een verschuiving vanaf de eigen startlijn zegt meer dan een
 plek op een schaal. Vergelijk iemand met zichzelf van een half jaar geleden, niet met een
 gemiddelde.
