@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teamkracht &middot; doelbeeld bepalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--lavendel:#B9AECB;--lijn:#E2D8D2;--gedempt:#6B6472}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--papier);color:var(--inkt);font-family:"DM Sans",system-ui,sans-serif;
+       font-size:15px;line-height:1.6;padding:34px 26px 60px}
+  .wrap{max-width:1120px;margin:0 auto}
+  .kruimel{font-size:11px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:12px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:2.5rem;line-height:1.1;margin-bottom:10px}
+  h1 .punt{color:var(--magenta)}
+  .inleiding{font-weight:300;color:var(--gedempt);max-width:60ch;margin-bottom:26px}
+  .romp{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr);gap:30px;align-items:start}
+  .tekening{background:#fff;border:1px solid var(--lijn);border-radius:8px;padding:16px}
+  .tekening svg{width:100%;height:auto;display:block}
+  h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.55rem;margin-bottom:4px}
+  .regel{font-size:13.5px;font-weight:300;color:var(--gedempt);margin-bottom:20px}
+  .schuif{margin-bottom:22px}
+  .schuif .rij{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+  .schuif .naam{font-weight:600;letter-spacing:.1em;font-size:12px;text-transform:uppercase;color:var(--gedempt)}
+  .schuif .waarde{font-family:"DM Serif Display",serif;font-size:1.5rem}
+  .schuif .delta{font-size:12.5px;font-weight:300;color:var(--gedempt);margin-left:8px}
+  .schuif .delta.op{color:var(--magenta)}
+  .baan{position:relative;height:30px}
+  .spoor{position:absolute;top:11px;left:0;right:0;height:8px;border-radius:4px;background:var(--lijn)}
+  .blok{position:absolute;top:11px;left:0;height:8px;border-radius:4px 0 0 4px;z-index:1;
+        background:repeating-linear-gradient(135deg,#EFE6E0,#EFE6E0 3px,#E2D8D2 3px,#E2D8D2 6px)}
+  .tik{position:absolute;top:5px;width:2px;height:20px;background:var(--magenta);z-index:2}
+  .tik.nu{background:var(--inkt);opacity:.45}
+  .tiklabel{position:absolute;top:26px;font-size:10px;letter-spacing:.08em;color:var(--magenta);transform:translateX(-50%);white-space:nowrap}
+  .tiklabel.nu{color:var(--gedempt)}
+  input[type=range]{position:relative;z-index:3;width:100%;margin:0;background:transparent;-webkit-appearance:none;appearance:none;height:30px}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:transparent}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--inkt);border:3px solid #fff;box-shadow:0 1px 4px rgba(26,11,46,.3);margin-top:-7px;cursor:grab}
+  input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:transparent}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--inkt);border:3px solid #fff;cursor:grab}
+  .samenvatting{background:var(--inkt);color:var(--papier);border-radius:8px;padding:16px 18px;margin:6px 0 18px;font-weight:300;font-size:14px}
+  .samenvatting b{font-weight:600}
+  .knoppen{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  button{font:inherit;font-size:13.5px;font-weight:600;border-radius:999px;padding:10px 18px;cursor:pointer;border:1px solid var(--inkt);
+         background:transparent;color:var(--inkt)}
+  button.primair{background:var(--magenta);border-color:var(--magenta);color:#fff}
+  button:disabled{opacity:.42;cursor:not-allowed}
+  .melding{font-size:13px;font-weight:300;color:var(--gedempt);min-height:1.4em}
+  .voorbeeldbalk{background:#FBEFF5;border:1px solid #F3D6E5;border-radius:8px;padding:11px 14px;margin-bottom:22px;
+                 font-size:13px;font-weight:300;color:#8A2160}
+  @media(max-width:880px){.romp{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kruimel" id="kruimel">TEAMFOTO &middot; DOELBEELD &middot; TEAMKRACHT</p>
+  <h1>Teamkracht <span class="punt">&middot;</span> doelbeeld</h1>
+  <p class="inleiding">Schuif per vaardigheid waar dit team over zes maanden wil staan. De gestippelde magenta lijn is het doel, de dikke lijn is waar het team nu staat. Sturen en Doen moeten boven het landelijke beeld uitkomen; die ondergrens is in de schuifjes verwerkt.</p>
+
+  <div class="voorbeeldbalk" id="voorbeeldbalk" hidden></div>
+
+  <div class="romp">
+    <div class="tekening" id="tekening"></div>
+    <div>
+      <h2>Waar wil dit team staan</h2>
+      <p class="regel" id="regel"></p>
+      <div id="schuifjes"></div>
+      <div class="samenvatting" id="samenvatting"></div>
+      <div class="knoppen">
+        <button class="primair" id="opslaan">Doelbeeld vastleggen</button>
+        <button id="netboven">Net boven het landelijke beeld</button>
+        <button id="terug">Terug naar nu</button>
+      </div>
+      <p class="melding" id="melding"></p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { tekenKaartSvg } from "./teamkracht-kaart.js";
+
+/* Fictief team Noord uit de briefing. Wordt alleen gebruikt als er geen
+   teambeeld-id in de URL staat, zodat de pagina zonder database te bekijken
+   is. Er staan geen echte deelnemers in. */
+const VOORBEELD = {"soort":"start","n":11,"team_zien":66.3,"team_sturen":51.2,"team_doen":49.5,"norm_zien":62,"norm_sturen":55,"norm_doen":50,"verdeling":{"HLL":4,"LHH":2,"HHH":1,"LLL":2,"MMM":2},"breuk":"zien_sturen","dynamieken":[{"code":"R1","score":0.7},{"code":"R11","score":0.6},{"code":"R12","score":0.5}],"lijnen":[[38,32,30,0],[40,34,32,0],[48,68,84,0],[52,70,80,0],[60,52,48,0],[63,54,49,0],[80,40,38,0],[84,42,34,0],[86,43,31,0],[88,44,32,0],[90,84,86,0]],"config_snapshot":{"middenband_sd":0.25,"min_deelnemers_lijnen":10,"norm_bron":"vast"}};
+
+const VAARDIGHEDEN = [
+  { sleutel: "zien",   naam: "Zien",   ondergrens: false },
+  { sleutel: "sturen", naam: "Sturen", ondergrens: true  },
+  { sleutel: "doen",   naam: "Doen",   ondergrens: true  }
+];
+
+const el = id => document.getElementById(id);
+const teambeeldId = new URLSearchParams(location.search).get("teambeeld");
+
+let teambeeld = VOORBEELD;
+let doel = null;
+let bezig = false;
+
+const nu   = v => teambeeld[`team_${v}`];
+const norm = v => teambeeld[`norm_${v}`];
+
+/* Jouw regel: Sturen en Doen komen boven het landelijke beeld. Zien is vrij. */
+const minimum = v => {
+  const spec = VAARDIGHEDEN.find(x => x.sleutel === v);
+  return spec.ondergrens ? Math.floor(norm(v)) + 1 : 0;
+};
+
+function beginDoel(){
+  const uit = {};
+  for (const { sleutel } of VAARDIGHEDEN){
+    uit[sleutel] = Math.max(Math.round(nu(sleutel)), minimum(sleutel));
+  }
+  return uit;
+}
+
+function netBovenNorm(){
+  const uit = {};
+  for (const { sleutel, ondergrens } of VAARDIGHEDEN){
+    uit[sleutel] = ondergrens ? minimum(sleutel) : Math.round(nu(sleutel));
+  }
+  return uit;
+}
+
+function bouwSchuifjes(){
+  el("schuifjes").innerHTML = VAARDIGHEDEN.map(({ sleutel, naam }) => `
+    <div class="schuif" data-v="${sleutel}">
+      <div class="rij">
+        <span class="naam">${naam}</span>
+        <span><span class="waarde" id="w-${sleutel}"></span><span class="delta" id="d-${sleutel}"></span></span>
+      </div>
+      <div class="baan">
+        <div class="spoor"></div>
+        <div class="blok" id="blok-${sleutel}"></div>
+        <div class="tik nu" id="tiknu-${sleutel}"></div>
+        <div class="tik" id="tik-${sleutel}"></div>
+        <input type="range" min="0" max="100" step="1" id="s-${sleutel}" aria-label="${naam}">
+        <span class="tiklabel" id="tl-${sleutel}">landelijk</span>
+      </div>
+    </div>`).join("");
+
+  for (const { sleutel } of VAARDIGHEDEN){
+    el(`s-${sleutel}`).addEventListener("input", e => {
+      const grens = minimum(sleutel);
+      let v = Number(e.target.value);
+      if (v < grens){ v = grens; e.target.value = String(v); }
+      doel[sleutel] = v;
+      teken();
+    });
+  }
+}
+
+function teken(){
+  el("tekening").innerHTML = tekenKaartSvg(teambeeld, { doel });
+
+  for (const { sleutel } of VAARDIGHEDEN){
+    const grens = minimum(sleutel);
+    el(`s-${sleutel}`).value = String(doel[sleutel]);
+    el(`w-${sleutel}`).textContent = doel[sleutel];
+
+    const verschil = Math.round(doel[sleutel] - nu(sleutel));
+    const d = el(`d-${sleutel}`);
+    d.textContent = verschil === 0 ? "gelijk aan nu" : `${verschil > 0 ? "+" : ""}${verschil} ten opzichte van nu`;
+    d.className = "delta" + (verschil > 0 ? " op" : "");
+
+    // De baan loopt van 0 tot 100; de duim heeft 22px breedte, dus de
+    // markeringen schuiven mee met dezelfde correctie als de duim.
+    const plek = w => `calc(${w}% + ${(50 - w) * 0.22}px)`;
+    el(`blok-${sleutel}`).style.width = grens ? plek(grens) : "0";
+    el(`tik-${sleutel}`).style.left = plek(norm(sleutel));
+    el(`tik-${sleutel}`).style.display = "block";
+    el(`tiknu-${sleutel}`).style.left = plek(nu(sleutel));
+    el(`tl-${sleutel}`).style.left = plek(norm(sleutel));
+  }
+
+  const boven = VAARDIGHEDEN.filter(x => x.ondergrens).every(x => doel[x.sleutel] > norm(x.sleutel));
+  el("samenvatting").innerHTML =
+    `Doel: <b>Zien ${doel.zien}</b>, <b>Sturen ${doel.sturen}</b>, <b>Doen ${doel.doen}</b>. `
+    + (boven
+       ? "Sturen en Doen liggen boven het landelijke beeld, zoals afgesproken."
+       : "Sturen en Doen liggen nog niet boven het landelijke beeld.");
+}
+
+async function opslaan(){
+  if (!teambeeldId){
+    el("melding").textContent = "Dit is het voorbeeldteam; vastleggen kan zodra de kaart aan een echt team hangt.";
+    return;
+  }
+  if (bezig) return;
+  bezig = true;
+  el("opslaan").disabled = true;
+  el("melding").textContent = "Bezig met vastleggen...";
+  try{
+    const sessie = window.supabase ? (await window.supabase.auth.getSession()).data.session : null;
+    const r = await fetch("/api/teamkracht-doel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessie ? { Authorization: `Bearer ${sessie.access_token}` } : {})
+      },
+      body: JSON.stringify({
+        teambeeld_id: teambeeldId,
+        doel_code: "sturen_doen_boven_norm",
+        doel_zien: doel.zien, doel_sturen: doel.sturen, doel_doen: doel.doen,
+        gekozen_door: "coach"
+      })
+    });
+    const uit = await r.json().catch(() => ({}));
+    el("melding").textContent = r.ok
+      ? "Doelbeeld vastgelegd. Bij de hermeting komt het eindbeeld hierover te liggen."
+      : `Vastleggen mislukt: ${uit.error || r.status}`;
+  }catch(e){
+    el("melding").textContent = "Vastleggen mislukt: geen verbinding.";
+  }finally{
+    bezig = false;
+    el("opslaan").disabled = false;
+  }
+}
+
+async function start(){
+  if (teambeeldId){
+    try{
+      const r = await fetch(`/api/teamkracht-teambeeld?id=${encodeURIComponent(teambeeldId)}`);
+      if (r.ok) teambeeld = await r.json();
+      else throw new Error("niet gevonden");
+    }catch(e){
+      el("voorbeeldbalk").hidden = false;
+      el("voorbeeldbalk").textContent = "Dit teambeeld kon niet worden geladen; hieronder staat het voorbeeldteam.";
+    }
+  } else {
+    el("voorbeeldbalk").hidden = false;
+    el("voorbeeldbalk").textContent = "Voorbeeld met het fictieve team Noord uit de briefing. Voeg teambeeld=<id> aan de URL toe voor een echt team.";
+  }
+
+  el("regel").textContent =
+    `Dit team staat nu op Zien ${Math.round(nu("zien"))}, Sturen ${Math.round(nu("sturen"))} en Doen ${Math.round(nu("doen"))}. `
+    + `Het landelijke beeld ligt op ${norm("zien")}, ${norm("sturen")} en ${norm("doen")}.`;
+
+  doel = beginDoel();
+  bouwSchuifjes();
+  teken();
+
+  el("opslaan").addEventListener("click", opslaan);
+  el("netboven").addEventListener("click", () => { doel = netBovenNorm(); teken(); });
+  el("terug").addEventListener("click", () => { doel = beginDoel(); teken(); });
+}
+
+start();
+</script>
+</body>
+</html>

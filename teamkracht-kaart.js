@@ -68,7 +68,7 @@ const RICHTING_LABEL = {
 
 /* ------------------------------------------------------------------ svg */
 
-export function tekenKaartSvg(teambeeld){
+export function tekenKaartSvg(teambeeld, opties = {}){
   const team = { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen };
   const norm = { zien: teambeeld.norm_zien, sturen: teambeeld.norm_sturen, doen: teambeeld.norm_doen };
   const punt = bron => Object.entries(KOLOM).map(([v, x]) => [x, yVoorScore(bron[v])]);
@@ -91,11 +91,27 @@ export function tekenKaartSvg(teambeeld){
     for (const [x, y] of p) d.push(`<circle cx="${x}" cy="${y}" r="4" fill="${KLEUR.inkt}" opacity=".28"/>`);
   }
 
+  // Doellijn, gestippeld magenta. Alleen bij het doelbeeld en het eindbeeld;
+  // fase 1 geeft hem niet mee.
+  const doel = opties.doel || null;
+  let pd = null;
+  if (doel){
+    pd = punt(doel);
+    d.push(`<polyline points="${pd.map(([x, y]) => `${x},${y}`).join(" ")}" fill="none" stroke="${KLEUR.magenta}" stroke-width="4" stroke-linejoin="round" stroke-dasharray="4,7" stroke-linecap="round"/>`);
+    for (const [x, y] of pd) d.push(`<circle cx="${x}" cy="${y}" r="9" fill="${KLEUR.magenta}" stroke="#fff" stroke-width="3"/>`);
+  }
+
   // Teamlijn.
   const pt = punt(team);
   d.push(`<polyline points="${pt.map(([x, y]) => `${x},${y}`).join(" ")}" fill="none" stroke="${KLEUR.inkt}" stroke-width="5" stroke-linejoin="round"/>`);
   for (const [x, y] of pt) d.push(`<circle cx="${x}" cy="${y}" r="9" fill="${KLEUR.inkt}" stroke="#fff" stroke-width="3"/>`);
-  d.push(`<text x="${KOLOM.zien - 20}" y="${pt[0][1] + 5}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.inkt}">team</text>`);
+  const dichtbij = pd && Math.abs(pd[0][1] - pt[0][1]) < 16;
+  const yTeam = pt[0][1] + (dichtbij ? 19 : 5);
+  d.push(`<text x="${KOLOM.zien - 20}" y="${yTeam}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.inkt}">team</text>`);
+  if (pd){
+    const yDoel = pd[0][1] + (dichtbij ? -8 : 5);
+    d.push(`<text x="${KOLOM.zien - 20}" y="${yDoel}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.magenta}">doel</text>`);
+  }
 
   // Waar de keten zakt.
   if (teambeeld.breuk === "zien_sturen" || teambeeld.breuk === "sturen_doen"){
@@ -159,7 +175,7 @@ function dynamiekHtml(regel, teambeeld){
 
 /* De volledige kaart. teambeeld komt uit bouwTeambeeld, regels en profielen
    zijn de rijen uit teamkracht_regels en teamkracht_profielen. */
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false }){
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
   const beeldnaam = BEELDNAAM[teambeeld.soort] || BEELDNAAM.start;
@@ -265,7 +281,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
     </header>
     <div class="romp${poster ? " poster" : ""}">
-      <div class="tekening">${tekenKaartSvg(teambeeld)}</div>
+      <div class="tekening">${tekenKaartSvg(teambeeld, { doel })}</div>
       <div class="rechts">${rechts}</div>
     </div>
     ${poster
