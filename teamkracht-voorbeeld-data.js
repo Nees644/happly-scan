@@ -106,7 +106,9 @@ export const VOORBEELD_TEAMBEELD = {
   "config_snapshot": {
     "middenband_sd": 0.25,
     "min_deelnemers_lijnen": 10,
-    "norm_bron": "vast"
+    "norm_bron": "vast",
+    "norm_n": null,
+    "norm_gemeten_op": null
   }
 };
 

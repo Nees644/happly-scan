@@ -255,7 +255,11 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start
     config_snapshot: {
       middenband_sd: middenbandSd,
       min_deelnemers_lijnen: minLijnen,
-      norm_bron: config.norm_bron ?? "vast"
+      norm_bron: config.norm_bron ?? "vast",
+      // Waar de norm op rustte toen dit beeld werd berekend. Hoort erbij: een
+      // norm zonder aantal is een getal zonder gewicht.
+      norm_n: config.norm_n ?? null,
+      norm_gemeten_op: config.norm_gemeten_op ?? null
     },
     // Niet voor opslag: de aanroeper heeft de codes nodig om profiel_code per
     // deelnemer weg te schrijven. Zit bewust niet in teamkracht_teambeeld.

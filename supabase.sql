@@ -316,6 +316,11 @@ create table if not exists public.teamkracht_config (
   norm_bron             text not null default 'vast' check (norm_bron in ('landelijk','vast')),
   norm_zien numeric, norm_sturen numeric, norm_doen numeric,   -- alleen bij norm_bron = 'vast'
   sd_zien   numeric, sd_sturen   numeric, sd_doen   numeric,
+  -- Waar de vaste norm op rust. Zonder deze twee is niet meer na te gaan hoe
+  -- stevig het referentiebeeld was op het moment dat een teambeeld werd
+  -- berekend; met deze twee wel, want ze gaan mee in config_snapshot.
+  norm_n                int,
+  norm_gemeten_op       date,
   updated_at            timestamptz not null default now()
 );
 
@@ -550,9 +555,13 @@ create policy "eigen feedback lezen" on public.teamkracht_feedback
 -- staan. Wil je een rij terugzetten naar de seed, verwijder hem eerst.
 
 -- Config: norm_bron 'vast' tot er 200 metingen zijn (besluit 07-09-2026).
--- De waarden hieronder zijn werkwaarden uit de testdata en moeten vervangen
--- worden door de echte cijfers. Deze query levert ze, met dezelfde
--- hermetingfilter als dashboard-index.html:
+--
+-- De waarden hieronder zijn de werkelijke cijfers uit index_scan_results op
+-- 07-09-2026, gemeten over 73 metingen zonder hermetingen. Dat is een kleine
+-- en zelfgeselecteerde groep: mensen die uit eigen beweging een zelfkrachtscan
+-- doen. Het is een referentie, geen landelijk gemiddelde. Ververs deze waarden
+-- met de query hieronder zodra er meer metingen zijn, en zet norm_bron pas op
+-- 'landelijk' als de standaarddeviatie tot rust is gekomen.
 --
 --   select round(avg(zien))::numeric   as norm_zien,
 --          round(avg(sturen))::numeric as norm_sturen,
@@ -566,8 +575,9 @@ create policy "eigen feedback lezen" on public.teamkracht_feedback
 --
 insert into public.teamkracht_config
   (id, middenband_sd, min_deelnemers_lijnen, min_deelnemers_kaart, norm_bron,
-   norm_zien, norm_sturen, norm_doen, sd_zien, sd_sturen, sd_doen)
-values (1, 0.25, 10, 5, 'vast', 62, 55, 50, 12, 12, 12)
+   norm_zien, norm_sturen, norm_doen, sd_zien, sd_sturen, sd_doen,
+   norm_n, norm_gemeten_op)
+values (1, 0.25, 10, 5, 'vast', 74, 69, 65, 12, 16, 16, 73, date '2026-09-07')
 on conflict (id) do nothing;
 
 -- Profielen. tekst_deelnemer is een ik-vorm-placeholder, afgeleid van "zo ziet
