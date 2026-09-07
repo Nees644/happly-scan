@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Teamkracht &middot; beheer</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--wt:#fff;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78;--lav:#B9AECB}
+body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-height:100vh}
+.login-screen{position:fixed;inset:0;background:var(--dp);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:var(--wt);border-radius:12px;padding:40px 36px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-box h1{font-family:"DM Serif Display",serif;font-size:24px;color:var(--dp);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--mut);margin-bottom:22px;line-height:1.5}
+.login-err{color:var(--pk);font-size:12.5px;margin-bottom:12px;display:none;line-height:1.4}
+.inp{width:100%;padding:12px 15px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13.5px;margin-bottom:12px;outline:none}
+.inp:focus{border-color:var(--pk)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pk);color:#fff;font-family:inherit;font-size:13.5px;font-weight:500;padding:11px 22px;border:none;border-radius:7px;cursor:pointer}
+.btn:hover{background:#b80260}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.w{width:100%}
+.btn.lijn{background:transparent;color:var(--dp);border:1.5px solid var(--bd)}
+.btn.klein{padding:8px 14px;font-size:12.5px}
+#app{display:none}
+.hdr{background:var(--dp);padding:18px 0}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px}
+.hdr .wrap{display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-family:"DM Serif Display",serif;font-size:19px;color:#fff;font-weight:400}
+.hdr a,.hdr button{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit;text-decoration:none;margin-left:16px}
+main{padding:26px 0 80px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{font:inherit;font-size:13px;font-weight:600;padding:8px 15px;border-radius:999px;border:1.5px solid var(--bd);background:var(--wt);color:var(--dp);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--dp);border-color:var(--dp);color:#fff}
+h2{font-family:"DM Serif Display",serif;font-size:23px;color:var(--dp);font-weight:400;margin-bottom:4px}
+.uitleg{font-size:13px;color:var(--mut);margin-bottom:20px;line-height:1.55;max-width:74ch}
+.rij{background:var(--wt);border:1px solid var(--bd);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.rij>summary{padding:15px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:14px;list-style:none}
+.rij>summary::-webkit-details-marker{display:none}
+.rij>summary:hover{background:#FCFAFD}
+.rij .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--mut);
+  background:#F4EFF6;border-radius:5px;padding:3px 7px;margin-right:10px}
+.rij .naam{font-family:"DM Serif Display",serif;font-size:17px;color:var(--dp)}
+.rij .staat{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.rij .staat.uit{color:var(--pk)}
+.velden{padding:4px 20px 20px;border-top:1px solid var(--bd)}
+.veld{margin-top:15px}
+label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+textarea,select,input[type=text],input[type=number]{width:100%;padding:10px 13px;border:1.5px solid var(--bd);border-radius:8px;
+  font-family:inherit;font-size:13.5px;color:var(--tx);outline:none;background:var(--wt)}
+textarea{min-height:76px;resize:vertical;line-height:1.55}
+textarea.json{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;min-height:56px}
+textarea:focus,select:focus,input:focus{border-color:var(--pk)}
+.vink{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--tx)}
+.vink input{width:17px;height:17px;accent-color:var(--pk)}
+.onder{display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+.melding{font-size:12.5px;color:var(--mut)}
+.melding.fout{color:var(--pk)}
+.melding.goed{color:#14603D}
+.let{background:#FBF0DC;border:1px solid #F0DDB4;border-radius:8px;padding:11px 14px;font-size:12.5px;color:#8A5B06;margin-bottom:18px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen" style="display:none">
+  <div class="login-box">
+    <h1>Beheer</h1>
+    <p>Alleen voor de beheerder. Log in met je Happly-dashboardaccount.</p>
+    <div class="login-err" id="login-err"></div>
+    <input class="inp" id="login-email" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input class="inp" id="login-pass" type="password" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn w" id="login-btn" onclick="doLogin()">Inloggen</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="hdr"><div class="wrap">
+    <h1>Teamkracht &middot; beheer</h1>
+    <div><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
+  </div></div>
+  <main class="wrap">
+    <p class="let">Wijzigingen werken door bij de volgende berekening. Kaarten die al gemaakt zijn veranderen niet: die hebben hun teksten en hun referentie bevroren. Geen gedachtestreep en geen uitroepteken in de teksten; dat wordt bij het opslaan gecontroleerd.</p>
+    <div class="tabs" id="tabs"></div>
+    <h2 id="t-naam"></h2>
+    <p class="uitleg" id="t-uitleg"></p>
+    <div id="rijen"></div>
+  </main>
+</div>
+
+<script type="module">
+import { SCHEMA } from "./teamkracht-beheer-schema.js";
+
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+let huidig = "regels";
+
+window.doLogin = async function(){
+  const err = el("login-err"); err.style.display = "none";
+  el("login-btn").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email: el("login-email").value.trim(), password: el("login-pass").value });
+  el("login-btn").disabled = false;
+  if (error){ err.textContent = "Inloggen mislukt."; err.style.display = "block"; return; }
+  toonApp();
+};
+window.doLogout = () => db.auth.signOut().then(() => location.reload());
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, { ...opties, headers: {
+    "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{})
+  }});
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+function toonApp(){
+  el("login-screen").style.display = "none";
+  el("app").style.display = "block";
+  el("tabs").innerHTML = Object.entries(SCHEMA)
+    .map(([sleutel, def]) => `<button data-t="${sleutel}">${def.naam}</button>`).join("");
+  el("tabs").addEventListener("click", e => { if (e.target.dataset.t) laad(e.target.dataset.t); });
+  laad(huidig);
+}
+
+function veldHtml(veld, waarde, id){
+  const w = waarde ?? "";
+  if (veld.type === "vinkje"){
+    return `<div class="veld"><div class="vink">
+      <input type="checkbox" id="${id}" ${waarde ? "checked" : ""}><label for="${id}" style="margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:400;color:var(--tx)">${esc(veld.label)}</label>
+    </div></div>`;
+  }
+  const kop = `<label for="${id}">${esc(veld.label)}</label>`;
+  if (veld.type === "keuze"){
+    return `<div class="veld">${kop}<select id="${id}">${veld.opties
+      .map(o => `<option ${o === waarde ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></div>`;
+  }
+  if (veld.type === "getal"){
+    return `<div class="veld">${kop}<input type="number" step="any" id="${id}" value="${esc(w)}"></div>`;
+  }
+  if (veld.type === "json"){
+    return `<div class="veld">${kop}<textarea class="json" id="${id}">${esc(waarde === null || waarde === undefined ? "" : JSON.stringify(waarde))}</textarea></div>`;
+  }
+  if (veld.type === "tekstvak"){
+    return `<div class="veld">${kop}<textarea id="${id}">${esc(w)}</textarea></div>`;
+  }
+  return `<div class="veld">${kop}<input type="text" id="${id}" value="${esc(w)}"></div>`;
+}
+
+async function laad(naam){
+  huidig = naam;
+  const def = SCHEMA[naam];
+  for (const knop of el("tabs").children) knop.setAttribute("aria-pressed", String(knop.dataset.t === naam));
+  el("t-naam").textContent = def.naam;
+  el("t-uitleg").textContent = def.uitleg;
+  el("rijen").innerHTML = '<p class="melding">Laden...</p>';
+
+  let uit;
+  try{ uit = await api(`/api/teamkracht-beheer?tabel=${naam}`); }
+  catch(e){ el("rijen").innerHTML = `<p class="melding fout">${esc(e.message)}. Deze pagina is alleen voor de beheerder.</p>`; return; }
+
+  el("rijen").innerHTML = uit.rijen.map((rij, i) => {
+    const sleutel = rij[def.sleutel];
+    const titel = def.titelveld ? rij[def.titelveld] : def.naam;
+    const open = def.enkel ? " open" : "";
+    return `<details class="rij" data-sleutel="${esc(sleutel)}"${open}>
+      <summary>
+        <span>${def.enkel ? "" : `<span class="code">${esc(sleutel)}</span>`}<span class="naam">${esc(titel)}</span></span>
+        <span class="staat ${rij.actief === false ? "uit" : ""}">${rij.actief === false ? "uit" : ""}</span>
+      </summary>
+      <div class="velden">
+        ${def.velden.map(v => veldHtml(v, rij[v.kolom], `v-${i}-${v.kolom}`)).join("")}
+        <div class="onder">
+          <button class="btn klein" data-i="${i}">Opslaan</button>
+          <span class="melding" id="m-${i}"></span>
+        </div>
+      </div>
+    </details>`;
+  }).join("");
+
+  el("rijen").addEventListener("click", async e => {
+    const i = e.target.dataset?.i;
+    if (i === undefined) return;
+    await bewaar(Number(i), e.target);
+  });
+}
+
+async function bewaar(i, knop){
+  const def = SCHEMA[huidig];
+  const blok = el("rijen").children[i];
+  const melding = el(`m-${i}`);
+  melding.className = "melding"; melding.textContent = "Opslaan...";
+  knop.disabled = true;
+
+  const waarden = {};
+  for (const veld of def.velden){
+    const veldEl = el(`v-${i}-${veld.kolom}`);
+    if (!veldEl) continue;
+    waarden[veld.kolom] = veld.type === "vinkje" ? veldEl.checked : veldEl.value;
+  }
+
+  try{
+    await api("/api/teamkracht-beheer", { method: "PUT", body: JSON.stringify({
+      tabel: huidig, sleutel: blok.dataset.sleutel, waarden
+    })});
+    melding.className = "melding goed";
+    melding.textContent = "Opgeslagen. Werkt door bij de volgende berekening.";
+  }catch(e){
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }finally{
+    knop.disabled = false;
+  }
+}
+
+db.auth.getSession().then(({ data:{ session } }) => {
+  if (session) toonApp(); else el("login-screen").style.display = "flex";
+});
+</script>
+</body>
+</html>

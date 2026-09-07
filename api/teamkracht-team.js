@@ -39,8 +39,23 @@ export default async function handler(req, res){
       telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
     }
 
+    // De beelden die al zijn berekend, zodat het dashboard weet of het
+    // startbeeld er is en of er dus een hermeting bij kan.
+    const beelden = await db.from("teamkracht_teambeeld")
+      .select("id, team_id, soort, n, breuk, created_at")
+      .in("team_id", (teams.data || []).map(t => t.id))
+      .order("created_at", { ascending: true });
+    const perTeam = {};
+    for (const b of beelden.data || []){
+      (perTeam[b.team_id] = perTeam[b.team_id] || []).push(b);
+    }
+
     res.status(200).json({
-      teams: (teams.data || []).map(t => ({ ...t, aantal_metingen: telling[t.id] || 0 }))
+      teams: (teams.data || []).map(t => ({
+        ...t,
+        aantal_metingen: telling[t.id] || 0,
+        beelden: perTeam[t.id] || []
+      }))
     });
     return;
   }

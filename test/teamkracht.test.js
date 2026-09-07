@@ -17,7 +17,7 @@ import {
   vulPlaceholders, bouwTeambeeld, beoordeelDoel, verschuiving
 } from "../teamkracht-logica.js";
 
-import { leesRegels, leesProfielen, leesInterventies, leesDoelregels, leesTestdata, leesSeedblok } from "./seed-lezen.js";
+import { leesRegels, leesProfielen, leesInterventies, leesDoelregels, leesTestdata, leesSeedblok, leesSql } from "./seed-lezen.js";
 
 const REGELS = leesRegels();
 const { norm, deelnemers } = leesTestdata();
@@ -258,4 +258,64 @@ test("de verschuiving rekent netjes naar punten per jaar", () => {
   const d = verschuiving(START, { zien: START.team_zien + 6, sturen: START.team_sturen, doen: START.team_doen }, 6);
   assert.equal(d.zien.punten, 6);
   assert.equal(d.zien.per_jaar, 12);
+});
+
+/* ------------------------------------------------------------ beheer */
+
+import { SCHEMA, taalcontrole } from "../teamkracht-beheer-schema.js";
+
+/* De beheerpagina schrijft rechtstreeks in de tabellen. Eén typefout in een
+   kolomnaam levert pas bij het opslaan een fout op, en dan bij de gebruiker.
+   Daarom hier tegen de migratie aan gehouden. */
+function kolommenVan(tabel){
+  const sql = leesSql();
+  const start = sql.indexOf(`create table if not exists public.${tabel} (`);
+  if (start < 0) throw new Error(`tabel ${tabel} niet gevonden`);
+  const eind = sql.indexOf("\n);", start);
+  const body = sql.slice(start, eind)
+    .split("\n").slice(1)
+    .map(r => r.replace(/--.*$/, "").trim())
+    .filter(Boolean)
+    .join(" ");
+
+  // Meerdere kolommen op één regel komen voor, en een check-clausule bevat zelf
+  // komma's. Dus splitsen op komma's buiten haakjes.
+  const delen = [];
+  let diep = 0, huidig = "";
+  for (const teken of body){
+    if (teken === "(") diep++;
+    else if (teken === ")") diep--;
+    if (teken === "," && diep === 0){ delen.push(huidig); huidig = ""; continue; }
+    huidig += teken;
+  }
+  delen.push(huidig);
+
+  return delen.map(d => d.trim().split(/\s/)[0]).filter(Boolean);
+}
+
+test("elke kolom in het beheerschema bestaat ook echt", () => {
+  for (const [naam, def] of Object.entries(SCHEMA)){
+    const kolommen = kolommenVan(def.tabel);
+    assert.ok(kolommen.includes(def.sleutel), `${naam}: sleutel ${def.sleutel} bestaat niet`);
+    for (const veld of def.velden){
+      assert.ok(kolommen.includes(veld.kolom), `${naam}: kolom ${veld.kolom} bestaat niet in ${def.tabel}`);
+    }
+    if (def.updated) assert.ok(kolommen.includes("updated_at"), `${naam}: geen updated_at`);
+  }
+});
+
+test("het beheerschema laat niets bewerken wat bevroren hoort te blijven", () => {
+  const verboden = ["teamkracht_teambeeld", "teamkracht_doel", "teamkracht_plan",
+                    "teamkracht_coachvragen", "teamkracht_teams", "teamkracht_gebruikers"];
+  for (const def of Object.values(SCHEMA)){
+    assert.ok(!verboden.includes(def.tabel), `${def.tabel} hoort niet bewerkbaar te zijn`);
+  }
+});
+
+test("de taalregel weigert een gedachtestreep en een uitroepteken", () => {
+  assert.equal(taalcontrole("Een gewone zin, met een komma."), null);
+  assert.equal(taalcontrole("Een koppel-teken mag wel."), null);
+  assert.match(taalcontrole("Zo niet!"), /uitroepteken/);
+  assert.match(taalcontrole("Zo — niet"), /gedachtestreep/);
+  assert.match(taalcontrole("Zo – niet"), /gedachtestreep/);
 });
