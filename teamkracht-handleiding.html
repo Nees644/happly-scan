@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Teamkracht &middot; werkinstructie voor coaches</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--rt:#FBEFF5;--lav:#B9AECB;--lijn:#E2D8D2;--gedempt:#6B6472;--wit:#fff}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--papier);color:var(--inkt);font-size:16px;line-height:1.65}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  header.top{padding:64px 0 40px;border-bottom:1px solid var(--lijn)}
+  .kruimel{font-size:11.5px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:14px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:2.9rem;line-height:1.08;margin-bottom:16px}
+  h1 .punt{color:var(--magenta)}
+  .intro{font-size:1.1rem;font-weight:300;color:var(--gedempt)}
+  nav{padding:26px 0;border-bottom:1px solid var(--lijn)}
+  nav ol{list-style:none;counter-reset:s;display:grid;gap:6px}
+  nav li{counter-increment:s;font-size:14.5px;font-weight:300}
+  nav li::before{content:counter(s) ". ";color:var(--magenta);font-weight:600}
+  nav a{color:var(--inkt);text-decoration:none;border-bottom:1px solid var(--lijn)}
+  nav a:hover{border-color:var(--magenta)}
+  section{padding:44px 0;border-bottom:1px solid var(--lijn)}
+  .stapnr{font-size:11.5px;font-weight:600;letter-spacing:.2em;color:var(--magenta);margin-bottom:9px}
+  h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.9rem;line-height:1.2;margin-bottom:12px}
+  h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.25rem;margin:24px 0 8px}
+  p{font-weight:300;margin-bottom:14px}
+  ul{list-style:none;margin:0 0 14px}
+  li.punt{padding-left:20px;position:relative;font-weight:300;margin-bottom:8px}
+  li.punt::before{content:"";position:absolute;left:0;top:.66em;width:7px;height:7px;border-radius:50%;background:var(--magenta)}
+  .vak{background:var(--wit);border:1px solid var(--lijn);border-radius:10px;padding:20px 22px;margin:18px 0}
+  .vak.let{background:var(--rt);border-color:#F0D9E6}
+  .vak h3{margin-top:0}
+  .knip{background:var(--papier);border:1px solid var(--lijn);border-radius:8px;padding:16px 18px;
+        font-size:14.5px;font-weight:300;white-space:pre-wrap;line-height:1.6}
+  button{font:inherit;font-size:13.5px;font-weight:600;border-radius:999px;padding:9px 18px;cursor:pointer;
+         border:1.5px solid var(--inkt);background:transparent;color:var(--inkt);margin-top:12px}
+  button:hover{background:var(--inkt);color:var(--papier)}
+  table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:14.5px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--lijn);font-weight:300;vertical-align:top}
+  th{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gedempt)}
+  td b{font-weight:600}
+  .vraag{font-family:"DM Serif Display",serif;font-size:1.1rem;font-style:italic;color:var(--inkt);
+         border-left:3px solid var(--magenta);padding-left:16px;margin:14px 0}
+  footer{padding:40px 0 90px;font-size:13.5px;font-weight:300;color:var(--gedempt)}
+  a.link{color:var(--magenta)}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <p class="kruimel">TEAMKRACHT &middot; WERKINSTRUCTIE</p>
+  <h1>Zo werk je met de Teamkrachtkaart<span class="punt">.</span></h1>
+  <p class="intro">Van uitnodiging tot hermeting, in zes stappen. Lees dit één keer door voordat je je eerste team uitnodigt; daarna heb je aan de stappen genoeg.</p>
+</div></header>
+
+<nav><div class="wrap"><ol>
+  <li><a href="#s1">Team aanmaken</a></li>
+  <li><a href="#s2">Je team uitnodigen</a></li>
+  <li><a href="#s3">De kaart maken</a></li>
+  <li><a href="#s4">De sessie</a></li>
+  <li><a href="#s5">Doelbeeld en plan</a></li>
+  <li><a href="#s6">De hermeting</a></li>
+  <li><a href="#grenzen">Wat je wel en niet zegt</a></li>
+  <li><a href="#vragen">Vragen die je krijgt</a></li>
+</ol></div></nav>
+
+<section id="s1"><div class="wrap">
+  <p class="stapnr">STAP 1</p>
+  <h2>Team aanmaken</h2>
+  <p>Log in op de Teamkracht-pagina met je Happly-account. Vul een teamnaam in, eventueel de organisatie en je eigen naam, en druk op aanmaken. Je krijgt meteen een link met een code erin, iets als <b>scan?team=PAJBAV</b>.</p>
+  <p>Die code is de enige verbinding tussen een meting en jouw team. Maak per meetmoment één team aan, niet per afdeling: de hermeting hoort straks bij hetzelfde team.</p>
+  <div class="vak let">
+    <p style="margin:0"><b>Vanaf vijf deelnemers</b> kun je een kaart maken. <b>Vanaf tien</b> laat de kaart ook de individuele lijnen zien. Daaronder blijft alleen de teamlijn staan, zodat niemand zichzelf kan aanwijzen.</p>
+  </div>
+</div></section>
+
+<section id="s2"><div class="wrap">
+  <p class="stapnr">STAP 2</p>
+  <h2>Je team uitnodigen</h2>
+  <p>Stuur de link met een korte toelichting. Hoe minder je uitlegt over wat er gemeten wordt, hoe eerlijker de antwoorden. Deze tekst kun je overnemen; vul de link en je eigen naam in.</p>
+  <div class="vak">
+    <div class="knip" id="uitnodiging">Hoi allemaal,
+
+Voor onze sessie op [datum] vraag ik je een korte vragenlijst in te vullen: twaalf stellingen, ongeveer vier minuten.
+
+[LINK]
+
+Je krijgt meteen je eigen uitslag te zien, met een persoonlijke toelichting. Die is van jou. Ik zie alleen het beeld van het team als geheel, nooit individuele scores en nooit wie wat heeft ingevuld.
+
+Wil je het doen voor [datum]? Dan kunnen we er in de sessie mee aan de slag.
+
+[jouw naam]</div>
+    <button onclick="kopieer()">Kopieer deze tekst</button>
+  </div>
+  <p>Vertel er niet bij welke profielen er bestaan of hoe de scoring werkt. Dat kleurt de antwoorden, en het is bovendien het interessantst als het team het beeld voor het eerst in de sessie ziet.</p>
+</div></section>
+
+<section id="s3"><div class="wrap">
+  <p class="stapnr">STAP 3</p>
+  <h2>De kaart maken</h2>
+  <p>In het dashboard zie je per team hoeveel mensen hebben ingevuld. Staat de teller op vijf of hoger, dan wordt de knop actief. Eén klik en de kaart staat er.</p>
+  <p>Wacht niet tot iedereen heeft ingevuld als dat lang duurt. Een kaart over acht van de elf is bruikbaar; wel noem je in de sessie hoeveel mensen meededen, want dat hoort bij de betrouwbaarheid van het beeld.</p>
+  <p>De kaart kun je openen als A4 en afdrukken naar PDF via je browser. Er zijn ook posterformaten, A3 en A1, met alleen de tekening en de kern. Die werken goed als je de kaart de hele sessie wilt laten hangen.</p>
+
+  <h3>Wat er op de kaart staat</h3>
+  <table>
+    <tr><th>Onderdeel</th><th>Wat het zegt</th></tr>
+    <tr><td><b>De tekening</b></td><td>Drie kolommen: Zien, Sturen, Doen. De dikke lijn is het team, de dunne lijnen zijn de deelnemers, naamloos. De magenta streepjes zijn het gemiddelde van alle metingen tot nu toe.</td></tr>
+    <tr><td><b>De breuk</b></td><td>Waar de keten het sterkst zakt. Tussen Zien en Sturen betekent: dit team ziet het wel, maar claimt het niet. Tussen Sturen en Doen: er wordt gekozen, maar er komt geen beweging.</td></tr>
+    <tr><td><b>De verdeling</b></td><td>Hoeveel mensen welk patroon laten zien. Alleen aantallen, geen namen.</td></tr>
+    <tr><td><b>Drie dynamieken</b></td><td>Wat er waarschijnlijk speelt, met per stuk één interventie en één gespreksvraag.</td></tr>
+  </table>
+</div></section>
+
+<section id="s4"><div class="wrap">
+  <p class="stapnr">STAP 4</p>
+  <h2>De sessie</h2>
+  <p>De kaart is geen conclusie maar een opening. Je legt hem neer als hypothese en laat het team er zelf betekenis aan geven. Een opzet die werkt:</p>
+  <ul>
+    <li class="punt"><b>Begin met de grens.</b> Zeg voordat je de kaart laat zien dat een profiel gedrag in deze context beschrijft en niet de persoon, en dat dezelfde mens in een ander team een ander patroon laat zien. Dat is de belangrijkste zin van de hele sessie.</li>
+    <li class="punt"><b>Laat de tekening eerst zien, zonder tekst.</b> Vraag wat mensen zien voordat je zegt wat er staat. Vaak benoemen ze de breuk zelf.</li>
+    <li class="punt"><b>Neem dan de eerste dynamiek.</b> Lees de kop en de dynamiek voor, en stel de gespreksvraag die eronder staat. Die vragen zijn zo gemaakt dat ze naar een concreet voorval leiden en niet naar een mening.</li>
+    <li class="punt"><b>Toets, niet overtuig.</b> Herkent het team de dynamiek niet, dan is dat een uitkomst en geen probleem. Noteer het; het gaat mee in de leerlus.</li>
+    <li class="punt"><b>Doe er hooguit twee.</b> Drie dynamieken bespreken in één sessie is bijna altijd te veel. Kies de twee waar het gesprek vanzelf naartoe trekt.</li>
+  </ul>
+  <div class="vak let">
+    <p style="margin:0">Vraag nooit wie welk profiel heeft, en laat niemand het raden. Gaat iemand uit zichzelf vertellen wat hij heeft, dan mag dat, maar nodig er niet toe uit. Zodra profielen aan personen hangen, verandert het instrument in een etiketmachine.</p>
+  </div>
+</div></section>
+
+<section id="s5"><div class="wrap">
+  <p class="stapnr">STAP 5</p>
+  <h2>Doelbeeld en plan</h2>
+  <p>Aan het eind van de sessie bepaal je samen het doelbeeld. Op de doelbeeldpagina schuif je per vaardigheid waar het team over een jaar wil staan. De gestippelde lijn beweegt mee.</p>
+  <p>Onder de schuifjes staat direct hoe groot die stap is, in punten per jaar:</p>
+  <table>
+    <tr><th>Stap per jaar</th><th>Wat dat betekent</th></tr>
+    <tr><td><b>Onder de 5</b></td><td>Lage ambitie. Prima als het team eerst ritme moet opbouwen, maar bij de hermeting nauwelijks van toeval te onderscheiden.</td></tr>
+    <tr><td><b>5 tot 10</b></td><td>Normale ambitie. Dit is wat een team met een serieus traject werkelijk verschuift.</td></tr>
+    <tr><td><b>10 tot 15</b></td><td>Hoge ambitie. Haalbaar als het team wekelijks oefent en de telling ook echt bijhoudt.</td></tr>
+    <tr><td><b>Boven de 15</b></td><td>Waarschijnlijk niet haalbaar. Kies een kleiner doel, of geef het traject een langere looptijd.</td></tr>
+  </table>
+  <p>Op elke baan staat een streepje waar het gemiddelde van alle metingen ligt. Alle drie de vaardigheden horen daar op termijn boven uit te komen. Ligt dat gemiddelde ver weg, kies dan een langere looptijd in plaats van een groter getal.</p>
+
+  <h3>Het plan</h3>
+  <p>Onder het doelbeeld staat wat die stap vraagt: de interventie die bij de breuk van dit team hoort, en die bij de profielen die er het vaakst in zitten. Elke interventie heeft een eigenaar, een ritme en iets om te tellen.</p>
+  <p>Die telling is het belangrijkste veld van de hele pagina. Zonder telling is een interventie een voornemen, en dan heb je bij de hermeting alleen een cijfer dat omhoog of omlaag ging, zonder verhaal erachter. Pas de telling gerust aan zodat het iets is wat dit team werkelijk gaat bijhouden.</p>
+  <p>De gespreksvraag mag je ook overschrijven. Formuleer je een betere, dan bewaren we die en wordt de bibliotheek er beter van.</p>
+</div></section>
+
+<section id="s6"><div class="wrap">
+  <p class="stapnr">STAP 6</p>
+  <h2>De hermeting</h2>
+  <p>Na het traject stuur je dezelfde link opnieuw. In het dashboard staat dan Hermeting berekenen, en die telt alleen de metingen die na het startbeeld binnenkwamen. Je hebt er weer minstens vijf nodig.</p>
+  <p>Het eindbeeld gebruikt hetzelfde gemiddelde als het startbeeld, bevroren op het moment van de eerste meting. Een verschuiving is dus een echte verschuiving en niet het gevolg van een bijgesteld gemiddelde.</p>
+  <p>In de nabespreking leg je de twee beelden naast elkaar en pak je de telling erbij. De vraag is niet of het cijfer omhoog ging, maar of het team het gedrag heeft volgehouden dat erachter zit.</p>
+</div></section>
+
+<section id="grenzen"><div class="wrap">
+  <h2>Wat je wel en niet zegt</h2>
+  <ul>
+    <li class="punt"><b>Waarschijnlijk, nooit zeker.</b> Alles op de kaart is een hypothese voor de nabespreking. Zeg "dit speelt waarschijnlijk", niet "dit team is".</li>
+    <li class="punt"><b>Nooit voor beoordeling, selectie of matching.</b> Niet in een functioneringsgesprek, niet bij het samenstellen van teams, niet bij een sollicitatie. Vraagt een opdrachtgever erom, dan is het antwoord nee.</li>
+    <li class="punt"><b>Geen individuele scores, aan niemand.</b> Ook niet aan de leidinggevende, ook niet geanonimiseerd op een manier waarop iemand te herleiden is.</li>
+    <li class="punt"><b>Het instrument wijst niemand aan.</b> Het zegt niets over wie wie afremt. Die vertaling maken de deelnemers zelf, in de sessie, onder jouw regie.</li>
+    <li class="punt"><b>Een patroon is geen type.</b> Het beschrijft gedrag in deze context. Vaak zegt het meer over wat de omgeving beloont dan over wat iemand kan.</li>
+  </ul>
+</div></section>
+
+<section id="vragen"><div class="wrap">
+  <h2>Vragen die je krijgt</h2>
+
+  <p class="vraag">Ziet mijn leidinggevende mijn score?</p>
+  <p>Nee. De coach ziet de teamlijn, de verdeling in aantallen en het aantal deelnemers. Individuele scores en profielen zijn alleen zichtbaar voor de deelnemer zelf, op zijn eigen resultaatpagina.</p>
+
+  <p class="vraag">Kan iemand mij herkennen aan een lijn op de kaart?</p>
+  <p>Onder de tien deelnemers staan er geen individuele lijnen op. Daarboven wel, maar naamloos en gesorteerd op de eerste score, zodat de volgorde niets verraadt over wie wanneer heeft ingevuld.</p>
+
+  <p class="vraag">Wat gebeurt er met mijn antwoorden?</p>
+  <p>Ze tellen mee in het beeld van het team, en verder in het doorlopende onderzoek achter de Zelfkracht Index. Metingen die via een teamlink binnenkomen tellen bewust niet mee in het gemiddelde, want anders zou het instrument zijn eigen trajecten gaan meten.</p>
+
+  <p class="vraag">Ik ben mijn uitslag kwijt.</p>
+  <p>De link staat in de uitslagmail die na de meting is verstuurd. Die link is persoonlijk: wie hem heeft, ziet die uitslag. Doorsturen is dus geen goed idee. Is de mail weg, dan kan de meting opnieuw; de eerste blijft dan gelden voor het onderzoek.</p>
+
+  <p class="vraag">Ik herken mezelf niet in mijn patroon.</p>
+  <p>Dat mag. Een patroon beschrijft wat iemand op dit moment in deze context doet, afgezet tegen het gemiddelde van alle metingen. Zit iemand dicht bij een grens, dan kan een paar punten verschil een ander patroon geven. Het is een gespreksstarter, geen diagnose.</p>
+
+  <p class="vraag">Moet ik dit invullen?</p>
+  <p>Nee. Deelname is vrijwillig, en dat mag je hardop zeggen. Een team waarin mensen zich verplicht voelen, levert een beeld op dat je niet kunt gebruiken.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Vragen die hier niet in staan, of een dynamiek die telkens niet herkend wordt? Laat het weten. De regels en de teksten worden per kwartaal bijgesteld op basis van wat er in sessies gebeurt, en jouw waarneming is daarvoor de bron.</p>
+</div></footer>
+
+<script>
+function kopieer(){
+  const tekst = document.getElementById("uitnodiging").textContent;
+  navigator.clipboard.writeText(tekst).then(() => {
+    const knop = document.querySelector("button");
+    const oud = knop.textContent;
+    knop.textContent = "Gekopieerd";
+    setTimeout(() => { knop.textContent = oud; }, 1800);
+  });
+}
+</script>
+</body>
+</html>
