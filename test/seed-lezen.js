@@ -87,3 +87,31 @@ export function leesProfielen(){
   return [...body.matchAll(/^\('([A-Z]{3})','([^']+)',/gm)]
     .map(m => ({ code: m[1], naam: m[2] }));
 }
+
+/* De interventies uit de seed. Zelfde aanpak als bij de regels: één bron. */
+export function leesInterventies(){
+  const blok = leesSeedblok();
+  const start = blok.indexOf("insert into public.teamkracht_interventies");
+  const eind  = blok.indexOf("on conflict (code) do nothing;", start);
+  const body  = blok.slice(start, eind);
+
+  return body.split(/\n(?=\('[BP]\d)/).slice(1).map(stuk => {
+    const kop = stuk.match(/^\('([^']+)',\s*\$t\$([\s\S]*?)\$t\$,\s*(?:'([^']*)'|null),\s*(?:'(\[[^\]]*\])'|null),/);
+    if (!kop) throw new Error(`interventie niet te lezen: ${stuk.slice(0, 40)}`);
+    const rest = stuk.slice(kop[0].length);
+    const velden = [];
+    const veld = /\$t\$([\s\S]*?)\$t\$|\bnull\b/g;
+    let m;
+    while (velden.length < 5 && (m = veld.exec(rest)) !== null) velden.push(m[1] ?? null);
+    const volgorde = stuk.match(/,\s*(\d+)\)\s*,?\s*$/m);
+    return {
+      code: kop[1], titel: kop[2],
+      breuk: kop[3] ?? null,
+      profielen: kop[4] ? JSON.parse(kop[4]) : null,
+      tekst: velden[0], eigenaar_suggestie: velden[1],
+      ritme: velden[2], telling: velden[3], gespreksvraag: velden[4],
+      actief: true,
+      volgorde: volgorde ? Number(volgorde[1]) : null
+    };
+  });
+}

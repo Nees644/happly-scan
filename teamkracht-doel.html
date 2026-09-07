@@ -52,6 +52,17 @@
   .melding{font-size:13px;font-weight:300;color:var(--gedempt);min-height:1.4em}
   .voorbeeldbalk{background:#FBEFF5;border:1px solid #F3D6E5;border-radius:8px;padding:11px 14px;margin-bottom:22px;
                  font-size:13px;font-weight:300;color:#8A2160}
+  .nodig{margin-top:40px;border-top:1px solid var(--lijn);padding-top:26px}
+  .nodig h2{margin-bottom:6px}
+  .kaartjes{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+  .kaartje{background:#fff;border:1px solid var(--lijn);border-radius:8px;padding:16px 17px}
+  .kaartje .herkomst{font-size:10.5px;font-weight:600;letter-spacing:.16em;color:var(--magenta);margin-bottom:6px}
+  .kaartje h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.2rem;margin-bottom:6px}
+  .kaartje p{font-size:13.5px;font-weight:300;margin-bottom:10px}
+  .kaartje dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;font-weight:300;
+              border-top:1px solid var(--lijn);padding-top:9px}
+  .kaartje dt{font-weight:600;color:var(--gedempt)}
+  .kaartje .vraag{margin-top:10px;font-size:13px;font-style:italic;color:var(--inkt)}
   @media(max-width:880px){.romp{grid-template-columns:1fr}}
 </style>
 </head>
@@ -70,6 +81,7 @@
       <p class="regel" id="regel"></p>
       <div id="schuifjes"></div>
       <div class="samenvatting" id="samenvatting"></div>
+      <p class="regel" id="gevolg"></p>
       <div class="knoppen">
         <button class="primair" id="opslaan">Doelbeeld vastleggen</button>
         <button id="netboven">Net boven het landelijke beeld</button>
@@ -78,15 +90,18 @@
       <p class="melding" id="melding"></p>
     </div>
   </div>
+
+  <section class="nodig">
+    <h2>Wat hiervoor nodig is</h2>
+    <p class="regel">De interventies die horen bij de breuk van dit team en bij de profielen die er het vaakst in zitten. Elke interventie heeft een ritme en iets om te tellen, want zonder telling is het een voornemen. De gespreksvraag is voor de nabespreking.</p>
+    <div class="kaartjes" id="interventies"></div>
+  </section>
 </div>
 
 <script type="module">
 import { tekenKaartSvg } from "./teamkracht-kaart.js";
+import { VOORBEELD_TEAMBEELD, VOORBEELD_INTERVENTIES, VOORBEELD_PROFIELEN } from "./teamkracht-voorbeeld-data.js";
 
-/* Fictief team Noord uit de briefing. Wordt alleen gebruikt als er geen
-   teambeeld-id in de URL staat, zodat de pagina zonder database te bekijken
-   is. Er staan geen echte deelnemers in. */
-const VOORBEELD = {"soort":"start","n":11,"team_zien":66.3,"team_sturen":51.2,"team_doen":49.5,"norm_zien":62,"norm_sturen":55,"norm_doen":50,"verdeling":{"HLL":4,"LHH":2,"HHH":1,"LLL":2,"MMM":2},"breuk":"zien_sturen","dynamieken":[{"code":"R1","score":0.7},{"code":"R11","score":0.6},{"code":"R12","score":0.5}],"lijnen":[[38,32,30,0],[40,34,32,0],[48,68,84,0],[52,70,80,0],[60,52,48,0],[63,54,49,0],[80,40,38,0],[84,42,34,0],[86,43,31,0],[88,44,32,0],[90,84,86,0]],"config_snapshot":{"middenband_sd":0.25,"min_deelnemers_lijnen":10,"norm_bron":"vast"}};
 
 const VAARDIGHEDEN = [
   { sleutel: "zien",   naam: "Zien",   ondergrens: false },
@@ -97,7 +112,9 @@ const VAARDIGHEDEN = [
 const el = id => document.getElementById(id);
 const teambeeldId = new URLSearchParams(location.search).get("teambeeld");
 
-let teambeeld = VOORBEELD;
+let teambeeld = VOORBEELD_TEAMBEELD;
+let interventies = VOORBEELD_INTERVENTIES;
+let profielen = VOORBEELD_PROFIELEN;
 let doel = null;
 let bezig = false;
 
@@ -178,11 +195,25 @@ function teken(){
   }
 
   const boven = VAARDIGHEDEN.filter(x => x.ondergrens).every(x => doel[x.sleutel] > norm(x.sleutel));
+  const verschuiving = VAARDIGHEDEN
+    .map(({ sleutel, naam }) => {
+      const p = Math.round(doel[sleutel] - nu(sleutel));
+      return `${naam} ${p > 0 ? "+" : ""}${p}`;
+    }).join(", ");
+
   el("samenvatting").innerHTML =
     `Doel: <b>Zien ${doel.zien}</b>, <b>Sturen ${doel.sturen}</b>, <b>Doen ${doel.doen}</b>. `
     + (boven
        ? "Sturen en Doen liggen boven het landelijke beeld, zoals afgesproken."
-       : "Sturen en Doen liggen nog niet boven het landelijke beeld.");
+       : "Sturen en Doen liggen nog niet boven het landelijke beeld.")
+    + `<br>Gevraagde verschuiving: <b>${verschuiving}</b> punten.`;
+
+  // De lat opplussen mag niet zonder gevolg zijn. Wat een verschuiving van
+  // deze omvang betekent, volgt uit teamkracht_doelregels; die tabel is
+  // aangelegd maar nog leeg, omdat de normdata er nog niet is. Tot die tijd
+  // toont de pagina het aantal punten en spreekt zij geen oordeel uit.
+  el("gevolg").textContent = teambeeld.beoordeling?.melding
+    || "Aan de omvang van deze verschuiving zijn nog geen normregels verbonden. Die volgen zodra er genoeg hermetingen zijn om te zien hoeveel een team in een traject werkelijk verschuift.";
 }
 
 async function opslaan(){
@@ -221,12 +252,60 @@ async function opslaan(){
   }
 }
 
+/* De interventies die bij dit team horen: die van de breuk, plus die van de
+   profielen die er het vaakst in zitten. De volgorde is de volgorde uit de
+   bibliotheek, zodat de coach hem herkent. */
+function passendeInterventies(){
+  const aanwezig = Object.entries(teambeeld.verdeling)
+    .filter(([, aantal]) => aantal > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([code]) => code);
+
+  return interventies
+    .filter(i => i.actief !== false)
+    .filter(i => i.breuk === teambeeld.breuk
+              || (Array.isArray(i.profielen) && i.profielen.some(c => aanwezig.includes(c))))
+    .sort((a, b) => (a.volgorde ?? 99) - (b.volgorde ?? 99));
+}
+
+function profielnaam(code){
+  if (code === "MMM") return "middenband";
+  return (profielen.find(p => p.code === code) || {}).naam || code;
+}
+
+function toonInterventies(){
+  const lijst = passendeInterventies();
+  el("interventies").innerHTML = lijst.map(i => {
+    const herkomst = i.breuk
+      ? `BIJ DE BREUK &middot; ${i.breuk.replace("_", " en ").toUpperCase()}`
+      : `BIJ ${(i.profielen || []).map(profielnaam).join(" en ").toUpperCase()}`;
+    return `<article class="kaartje">
+      <p class="herkomst">${herkomst}</p>
+      <h3>${i.titel}</h3>
+      <p>${i.tekst}</p>
+      <dl>
+        ${i.eigenaar_suggestie ? `<dt>Eigenaar</dt><dd>${i.eigenaar_suggestie}</dd>` : ""}
+        ${i.ritme ? `<dt>Ritme</dt><dd>${i.ritme}</dd>` : ""}
+        ${i.telling ? `<dt>Tellen</dt><dd>${i.telling}</dd>` : ""}
+      </dl>
+      ${i.gespreksvraag ? `<p class="vraag">${i.gespreksvraag}</p>` : ""}
+    </article>`;
+  }).join("") || '<p class="regel">Geen interventies gevonden voor deze combinatie.</p>';
+}
+
 async function start(){
   if (teambeeldId){
     try{
       const r = await fetch(`/api/teamkracht-teambeeld?id=${encodeURIComponent(teambeeldId)}`);
-      if (r.ok) teambeeld = await r.json();
-      else throw new Error("niet gevonden");
+      if (!r.ok) throw new Error("niet gevonden");
+      teambeeld = await r.json();
+      const ri = await fetch("/api/teamkracht-interventies");
+      if (ri.ok){
+        const data = await ri.json();
+        interventies = data.interventies || interventies;
+        profielen = data.profielen || profielen;
+      }
     }catch(e){
       el("voorbeeldbalk").hidden = false;
       el("voorbeeldbalk").textContent = "Dit teambeeld kon niet worden geladen; hieronder staat het voorbeeldteam.";
@@ -244,6 +323,7 @@ async function start(){
   bouwSchuifjes();
   teken();
 
+  toonInterventies();
   el("opslaan").addEventListener("click", opslaan);
   el("netboven").addEventListener("click", () => { doel = netBovenNorm(); teken(); });
   el("terug").addEventListener("click", () => { doel = beginDoel(); teken(); });

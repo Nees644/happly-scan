@@ -17,7 +17,7 @@ import {
   vulPlaceholders, bouwTeambeeld
 } from "../teamkracht-logica.js";
 
-import { leesRegels, leesTestdata, leesSeedblok } from "./seed-lezen.js";
+import { leesRegels, leesProfielen, leesInterventies, leesTestdata, leesSeedblok } from "./seed-lezen.js";
 
 const REGELS = leesRegels();
 const { norm, deelnemers } = leesTestdata();
@@ -174,12 +174,34 @@ test("criterium 7: geen gedachtestreep en geen uitroepteken in de seed", () => {
 });
 
 test("elke regel heeft een dynamiek, een interventie en een gespreksvraag", () => {
-  const blok = leesSeedblok();
-  const rijen = blok.split(/\n(?=\('R)/).slice(1);
-  assert.equal(rijen.length, 13);
-  for (const rij of rijen){
-    const teksten = [...rij.matchAll(/\$t\$([\s\S]*?)\$t\$/g)].map(m => m[1]);
-    assert.ok(teksten.length >= 3, `te weinig teksten in ${rij.slice(0, 20)}`);
-    for (const t of teksten) assert.ok(t.trim().length > 10);
+  for (const r of REGELS){
+    for (const veld of ["dynamiek", "interventie", "gespreksvraag"]){
+      assert.ok(r[veld] && r[veld].trim().length > 10, `${r.code} mist ${veld}`);
+    }
+    assert.ok(r.titel.trim().length > 3, `${r.code} mist een kop`);
+  }
+});
+
+test("elke interventie is meetbaar gemaakt", () => {
+  const lijst = leesInterventies();
+  assert.equal(lijst.length, 13);
+  for (const i of lijst){
+    assert.ok(i.tekst && i.tekst.trim().length > 20, `${i.code} mist tekst`);
+    assert.ok(i.ritme && i.ritme.trim(), `${i.code} mist een ritme`);
+    assert.ok(i.telling && i.telling.trim(), `${i.code} mist iets om te tellen`);
+    assert.ok(i.gespreksvraag && i.gespreksvraag.includes("?"), `${i.code} mist een gespreksvraag`);
+    assert.ok(i.breuk || (Array.isArray(i.profielen) && i.profielen.length),
+      `${i.code} hangt aan niets`);
+  }
+});
+
+test("elke breuk en elk profiel heeft minstens één interventie", () => {
+  const lijst = leesInterventies();
+  for (const breuk of ["zien_sturen", "sturen_doen", "geen", "begin"]){
+    assert.ok(lijst.some(i => i.breuk === breuk), `geen interventie voor breuk ${breuk}`);
+  }
+  for (const p of leesProfielen()){
+    assert.ok(lijst.some(i => (i.profielen || []).includes(p.code)),
+      `geen interventie voor profiel ${p.code}`);
   }
 });

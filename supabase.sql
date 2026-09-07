@@ -382,12 +382,47 @@ create table if not exists public.teamkracht_doel (
   doel_zien   numeric check (doel_zien   between 0 and 100),
   doel_sturen numeric check (doel_sturen between 0 and 100),
   doel_doen   numeric check (doel_doen   between 0 and 100),
-  gekozen_door text check (gekozen_door in ('team','coach'))
+  gekozen_door text check (gekozen_door in ('team','coach')),
+  -- Wie het heeft vastgelegd en wanneer. created_at hierboven geeft het moment;
+  -- deze kolom geeft het account, zodat een doelbeeld herleidbaar is naar de
+  -- coach die het opsloeg. Geen deelnemergegeven.
+  gekozen_user_id uuid references auth.users(id) on delete set null,
+  -- Uitkomst van teamkracht_doelregels op het moment van kiezen, bevroren.
+  -- Zo blijft zichtbaar wat het team destijds is verteld, ook als de regels
+  -- later scherper worden gezet. Null zolang er nog geen regels zijn.
+  beoordeling jsonb
 );
 
+-- Doelregels: wat het betekent als een team de lat op een bepaalde hoogte legt.
+-- De lat opplussen mag niet zonder gevolg zijn (besluit 07-09-2026). De regels
+-- kijken naar de gevraagde verschuiving per vaardigheid, niet naar de absolute
+-- hoogte, en zeggen of die verschuiving haalbaar, ambitieus of onwaarschijnlijk
+-- is binnen de looptijd van het traject.
+--
+-- Deze tabel wordt bewust LEEG geseed. De grenzen volgen uit normdata die er nog
+-- niet is: de werkelijke verschuiving tussen startbeeld en eindbeeld per team,
+-- af te leiden uit teamkracht_teambeeld zodra er hermetingen zijn. Tot die tijd
+-- toont de doelbeeldpagina de gevraagde verschuiving in punten en spreekt zij
+-- geen oordeel uit.
+create table if not exists public.teamkracht_doelregels (
+  code        text primary key,
+  titel       text not null,
+  voorwaarde  jsonb not null,        -- op de verschuiving, bv {"min_stijging": {"sturen": 10}}
+  oordeel     text not null check (oordeel in ('haalbaar','ambitieus','onwaarschijnlijk')),
+  melding     text not null,         -- wat de coach en het team te zien krijgen
+  actief      boolean not null default true,
+  volgorde    int,
+  updated_at  timestamptz not null default now()
+);
+
+-- Interventies: wat een team moet doen om de verschuiving uit het doelbeeld
+-- waar te maken. Een interventie hangt aan een breuk, aan een of meer
+-- profielen, of aan allebei. ritme en telling maken hem meetbaar; zonder
+-- telling is een interventie een voornemen.
 create table if not exists public.teamkracht_interventies (
   code text primary key, titel text not null, breuk text, profielen jsonb,
   tekst text not null, eigenaar_suggestie text, ritme text, telling text,
+  gespreksvraag text,
   actief boolean not null default true, volgorde int
 );
 
@@ -415,6 +450,7 @@ alter table public.teamkracht_profielen    enable row level security;
 alter table public.teamkracht_regels       enable row level security;
 alter table public.teamkracht_teambeeld    enable row level security;
 alter table public.teamkracht_doel         enable row level security;
+alter table public.teamkracht_doelregels   enable row level security;
 alter table public.teamkracht_interventies enable row level security;
 alter table public.teamkracht_plan         enable row level security;
 alter table public.teamkracht_feedback     enable row level security;
@@ -431,6 +467,10 @@ create policy "authenticated read" on public.teamkracht_profielen
 
 drop policy if exists "authenticated read" on public.teamkracht_regels;
 create policy "authenticated read" on public.teamkracht_regels
+  for select to authenticated using (true);
+
+drop policy if exists "authenticated read" on public.teamkracht_doelregels;
+create policy "authenticated read" on public.teamkracht_doelregels
   for select to authenticated using (true);
 
 drop policy if exists "authenticated read" on public.teamkracht_interventies;
@@ -676,6 +716,81 @@ values
  null,
  $t$Signalen gaan naar één eigenaar per onderwerp, die terugkoppelt wat ermee is gebeurd.$t$,
  $t$Welk signaal is de afgelopen maand een besluit geworden, en hoe wist de melder dat?$t$, 0, 13)
+on conflict (code) do nothing;
+
+-- Interventies. De teksten komen uit model v4: bij de breukinterventies uit de
+-- interventies van de regels, bij de profielinterventies uit de
+-- ontwikkelrichting van dat profiel. Ritme en telling zijn een voorstel van de
+-- bouwer, geen materiaal van de opdrachtgever; die twee kolommen zijn bedoeld
+-- om aangepast te worden.
+insert into public.teamkracht_interventies
+  (code, titel, breuk, profielen, tekst, eigenaar_suggestie, ritme, telling, gespreksvraag, volgorde)
+values
+('B1', $t$Van signaal naar eigenaar$t$, 'zien_sturen', null,
+ $t$Elk signaal dat in het overleg wordt genoemd krijgt ter plekke een eigenaar, en die koppelt de volgende keer terug wat ermee is gebeurd.$t$,
+ $t$Niet de leidinggevende; degene die het signaal inbrengt kiest of hij het zelf houdt.$t$,
+ $t$Elk teamoverleg$t$, $t$Aantal signalen dat een eigenaar kreeg, en hoeveel daarvan zijn teruggekoppeld.$t$,
+ $t$Welk signaal uit dit team is de afgelopen maand een besluit geworden, en hoe wist de melder dat?$t$, 1),
+('B2', $t$Elk besluit een eerste stap$t$, 'sturen_doen', null,
+ $t$Bij elk besluit wordt genoteerd wie binnen een week de eerste stap zet, hoe klein ook.$t$,
+ $t$Degene die het besluit nam, niet degene die het uitvoert.$t$,
+ $t$Elk overleg waarin een besluit valt$t$, $t$Aantal besluiten met een eerste stap die ook is gezet.$t$,
+ $t$Welk besluit staat hier langer dan twee weken zonder eerste stap?$t$, 2),
+('B3', $t$Eén gedrag oefenen en tellen$t$, 'geen', null,
+ $t$Het team kiest één concreet gedrag en houdt een maand bij hoe vaak het voorkomt.$t$,
+ $t$Het team kiest, iemand anders dan de leidinggevende telt.$t$,
+ $t$Maandelijks kiezen, wekelijks tellen$t$, $t$Aantal keren dat het gekozen gedrag is vertoond.$t$,
+ $t$Wat heeft dit team de afgelopen maand gedaan dat niemand had gevraagd?$t$, 3),
+('B4', $t$Eerst zien, nog niet kiezen$t$, 'begin', null,
+ $t$Aan het begin van elk overleg meldt iedereen één ding dat hem opviel, zonder dat er een besluit aan hangt.$t$,
+ $t$De voorzitter opent de ronde en laat hem leeg als er niets is.$t$,
+ $t$Elk overleg$t$, $t$Aantal mensen dat iets meldde.$t$,
+ $t$Wanneer is voor het laatst iemand hier beloond voor het melden van slecht nieuws?$t$, 4),
+('P1', $t$Overdragen in plaats van oppakken$t$, null, '["HHH"]',
+ $t$Niet minder doen, maar overdragen: vragen stellen in plaats van oppakken, en het ongemak van een gat verdragen tot een ander het vult.$t$,
+ $t$De Trekker zelf, met iemand die hem eraan herinnert.$t$,
+ $t$Wekelijks$t$, $t$Aantal onderwerpen met een eigenaar die niet de Trekker is.$t$,
+ $t$Wat gebeurt er in dit team in de week dat jij er niet bent?$t$, 5),
+('P2', $t$Eén signaal per week uitspreken$t$, null, '["HLL"]',
+ $t$De kleinste stap naar sturen: één signaal per week in het overleg zeggen, met de vraag erbij wat we ermee doen. Niet meteen doen; eerst claimen.$t$,
+ $t$De Ziener zelf; de voorzitter maakt er ruimte voor.$t$,
+ $t$Wekelijks$t$, $t$Aantal signalen dat in het overleg is uitgesproken.$t$,
+ $t$Wat hield je tegen om het te zeggen op de plek waar het telde?$t$, 6),
+('P3', $t$Elk besluit een eigen eerste stap$t$, null, '["HHL"]',
+ $t$Elk besluit koppelen aan een eerste stap die de Beslisser zelf zet binnen een week, hoe klein ook.$t$,
+ $t$De Beslisser zelf.$t$,
+ $t$Per besluit$t$, $t$Aantal besluiten waarbij de Beslisser zelf de eerste stap zette.$t$,
+ $t$Welk besluit van jou wacht nog op jouw eerste stap?$t$, 7),
+('P4', $t$Eén ding per week teruggeven$t$, null, '["HLH"]',
+ $t$Eén ding per week weigeren of teruggeven met de vraag van wie dit eigenlijk is. Sturen leren is hier eerst nee leren zeggen.$t$,
+ $t$De Meewerker zelf; de leidinggevende dekt hem.$t$,
+ $t$Wekelijks$t$, $t$Aantal keren teruggegeven, en wat er daarna mee gebeurde.$t$,
+ $t$Wat heb je deze week opgelost dat eigenlijk van iemand anders was?$t$, 8),
+('P5', $t$Eén vraag voordat je begint$t$, null, '["LHH"]',
+ $t$Voor het kiezen één vraag stellen aan iemand die anders kijkt. Niet langzamer worden; beter geïnformeerd starten.$t$,
+ $t$De Aanpakker zelf, gekoppeld aan een Ziener.$t$,
+ $t$Voor elke start$t$, $t$Aantal starts met een vraag vooraf.$t$,
+ $t$Wie kijkt hier anders naar dan jij, en heb je het gevraagd?$t$, 9),
+('P6', $t$Eén observatie per overleg$t$, null, '["LLH"]',
+ $t$Zien oefenen, niet doen: één observatie per overleg over wat hem opviel in het werk.$t$,
+ $t$De Uitvoerder zelf; de voorzitter vraagt het uit.$t$,
+ $t$Elk overleg$t$, $t$Aantal observaties.$t$,
+ $t$Wat viel je deze week op in het werk dat je niet hebt gemeld?$t$, 10),
+('P7', $t$Eén onderwerp erbij kiezen$t$, null, '["LHL"]',
+ $t$Sturen omdraaien: van wat is niet van mij naar wat kies ik erbij. Eén onderwerp buiten de eigen rol, met eigen keuze.$t$,
+ $t$De Afbakener zelf, na het gesprek over eerdere overvraging.$t$,
+ $t$Maandelijks$t$, $t$Aantal onderwerpen dat erbij is gekozen.$t$,
+ $t$Wat zou je erbij pakken als niemand het je kwalijk nam?$t$, 11),
+('P8', $t$Eerst veiligheid, dan zien$t$, null, '["LLL"]',
+ $t$Eerst veiligheid, dan zien. Begin bij de context, niet bij de persoon: één ronde per overleg waarin iedereen één ding meldt zonder dat het een besluit wordt.$t$,
+ $t$De leidinggevende, want dit gaat over de context.$t$,
+ $t$Elk overleg$t$, $t$Aantal keren dat er iets is gemeld zonder dat het gevolgen had.$t$,
+ $t$Wat gebeurde er de laatste keer dat je hier iets meldde?$t$, 12),
+('P9', $t$Doelgedrag kiezen en tellen$t$, null, '["MMM"]',
+ $t$Doelgedrag kiezen: één concreet gedrag dat het team de komende maand oefent en telt.$t$,
+ $t$Het team kiest samen.$t$,
+ $t$Maandelijks$t$, $t$Aantal keren dat het gekozen gedrag is vertoond.$t$,
+ $t$Wat zou je gedaan hebben als niemand het had gevraagd?$t$, 13)
 on conflict (code) do nothing;
 
 

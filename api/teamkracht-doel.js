@@ -46,10 +46,14 @@ export default async function handler(req, res){
     return;
   }
 
+  // beoordeling blijft null zolang teamkracht_doelregels leeg is; zodra er
+  // normdata is wordt de uitkomst hier bevroren, net als de norm bij het
+  // teambeeld, zodat later zichtbaar blijft wat het team destijds is verteld.
   const ins = await db.from("teamkracht_doel").insert({
-    teambeeld_id, doel_code, doel_zien, doel_sturen, doel_doen, gekozen_door
-  }).select("id").single();
+    teambeeld_id, doel_code, doel_zien, doel_sturen, doel_doen, gekozen_door,
+    gekozen_user_id: gebruiker.user_id
+  }).select("id, created_at").single();
   if (ins.error){ res.status(500).json({ error: "vastleggen mislukt" }); return; }
 
-  res.status(200).json({ id: ins.data.id });
+  res.status(200).json({ id: ins.data.id, created_at: ins.data.created_at });
 }
