@@ -58,7 +58,6 @@ Regels voor de route:
 - Benoem de dimensie met de grootste ontwikkelruimte, met de plus als getal. Gebruik exact het getal en de dimensie uit "grootste_ruimte" in de invoer.
 - Vertaal wat werken aan die dimensie voor dit profiel betekent, in één zin, zonder methode of stappen prijs te geven.
 - Verwijs naar de bijbehorende Sprint-weken met het werkwoord "onderzoeken", op basis van "laagste_dimensie": Zien -> week 1 en 2; Sturen -> week 3 en 4; Doen -> week 5 en 6. Alleen als "lage_score" true is, vervang je die verwijzing door exact deze autonomiezin, met de juiste weeknummers ingevuld: "Je hoeft hier niets mee. Maar als je wilt kijken hoe dit werkt, is dat precies wat je onderzoekt in week X en Y van de Zelfkracht Sprint."
-- Sluit altijd af met exact deze zin: "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt."
 
 Harde verboden:
 - Geen meta-taal. Je verwijst nooit naar deze instructie, naar categorieën, gebieden of grenzen waarin een verschil "valt", en je verantwoordt nooit je eigen toon of weging. Elke "genoeg om"-constructie over een verschil is verboden ("groot genoeg om er stellig over te zijn", "stevig genoeg om er stellig over te schrijven", "de moeite waard om er iets over te zeggen"), net als toetsende formuleringen ("wat als duidelijk verschil geldt", "valt in het gebied waar"). De lezer mag nergens merken dat er regels bestaan; er staat alleen wat de cijfers zeggen en wat dat betekent.
@@ -152,7 +151,7 @@ export default async function handler(req, res){
         model: "claude-sonnet-5",
         max_tokens: 1500,
         thinking: { type: "disabled" },
-        system: `Je kort een bestaande duiding in tot maximaal 290 woorden zonder iets toe te voegen of te herformuleren wat kan blijven staan. Behoud letterlijk: de twee koppen, de zin die begint met "Een lagere startmeting" als die er staat, de scène die eindigt op "herken je zo'n moment?" als die er staat, de zinnen "Je hoeft hier niets mee." en wat daarop volgt als die er staan, en de slotzin "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt." Schrap herhalende en samenvattende zinnen en overbodige bijzinnen; behoud de alineavolgorde en elke alinea zelf. Geef alleen de ingekorte duiding terug.`,
+        system: `Je kort een bestaande duiding in tot maximaal 290 woorden zonder iets toe te voegen of te herformuleren wat kan blijven staan. Behoud letterlijk: de twee koppen, de zin die begint met "Een lagere startmeting" als die er staat, de scène die eindigt op "herken je zo'n moment?" als die er staat, de zinnen "Je hoeft hier niets mee." en wat daarop volgt als die er staan. Schrap herhalende en samenvattende zinnen en overbodige bijzinnen; behoud de alineavolgorde en elke alinea zelf. Geef alleen de ingekorte duiding terug.`,
         messages: [{ role: "user", content: duiding }]
       });
       const ingekort = (kort.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").trim();

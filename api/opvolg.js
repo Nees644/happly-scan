@@ -5,7 +5,7 @@
 //            (Zien: het inzicht in de auto · Sturen: de mail van 21:47 ·
 //             Doen: het tabblad; teksten letterlijk uit de Scènebibliotheek v1)
 //   dag 7  · Sprint-mail: rolverdelingszin, weekkoppeling, beslismoment,
-//            actieve trede-link (sprint-config.js), nulpuntzin
+//            actieve trede-link (sprint-config.js)
 //   dag 56 · hermeting-herinnering, link naar de scan met src=hermeting
 // Regels: sober, huisstijl, maximaal één inhoudelijke link per mail, en in
 // elke mail een afmeldlink (/api/afmelden) die de hele reeks stopt.
@@ -21,7 +21,6 @@ import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
 const BASE = "https://scan.happly.nl";
 
 /* Vaste teksten, gelijk aan de uitslagpagina en sprint.html. */
-const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 const ROLVERDELING = "De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.";
 const BESLISMOMENT = "Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.";
 const SPRINT_WEKEN = { Zien: "week 1 en 2", Sturen: "week 3 en 4", Doen: "week 5 en 6" };
@@ -77,7 +76,7 @@ function mailVerdieping({ name, laagste, afmeldUrl }){
   return { subject: sc.titel, html: shell(inhoud, afmeldUrl) };
 }
 
-/* Dag 7 · Sprint: rolverdeling, weekkoppeling, beslismoment, trede-link, nulpunt. */
+/* Dag 7 · Sprint: rolverdeling, weekkoppeling, beslismoment, trede-link. */
 function mailSprint({ name, laagste, afmeldUrl }){
   const weken = SPRINT_WEKEN[laagste] || SPRINT_WEKEN.Sturen;
   const trede = TREDES[ACTIEVE_TREDE];
@@ -86,8 +85,7 @@ function mailSprint({ name, laagste, afmeldUrl }){
     ${p(`<strong style="color:${DP}">${ROLVERDELING}</strong>`)}
     ${p(`Jouw meting liet de meeste ruimte zien bij ${laagste}. Dat is precies waar ${weken} van de Sprint op zijn gebouwd: zes weken, een kleine groep, start vrijdag 18 september.`)}
     ${p(BESLISMOMENT)}
-    ${p(`<a href="${trede.url}" style="color:${PK};font-weight:700;text-decoration:none">Reserveer je plek (${trede.prijs} euro) &rarr;</a>`, "margin:22px 0")}
-    ${p(`<em style="color:${DP};font-size:15px">${NULPUNT}</em>`, "margin-bottom:0")}`;
+    ${p(`<a href="${trede.url}" style="color:${PK};font-weight:700;text-decoration:none">Reserveer je plek (${trede.prijs} euro) &rarr;</a>`, "margin:22px 0 0")}`;
   return { subject: "Je kent je getal. Hier ga je ermee aan de slag.", html: shell(inhoud, afmeldUrl) };
 }
 

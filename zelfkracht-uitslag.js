@@ -24,6 +24,9 @@ export function ontwikkelruimte(s){
 
 export const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
 
+/* Deze zin is per 07-09-2026 uit de uitslag gehaald en wordt niet meer getoond.
+   Hij staat hier alleen nog om hem weg te knippen uit duidingen die eerder zijn
+   gegenereerd en in de database staan; die teksten worden niet herschreven. */
 export const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 
 /* De vaste zin onder het profiel in de eigen uitslag (briefing paragraaf 7). */
@@ -38,10 +41,11 @@ const KOP_DUIDING = /(^|\n)[ \t]*[#*]*[ \t]*Wat opvalt in jouw antwoorden[^\n]*(
 
 export function splitDuiding(text){
   const marker = /(^|\n)[ \t]*[#*]*[ \t]*Waar het werk zit[^\n]*(\n|$)/i;
+  const zonderNulpunt = t => t.replace(NULPUNT, "").trim();
   const m = text.match(marker);
   if (m){
-    return { duiding: text.slice(0, m.index).replace(KOP_DUIDING, "$1").trim(),
-             route:   text.slice(m.index + m[0].length).trim() };
+    return { duiding: zonderNulpunt(text.slice(0, m.index).replace(KOP_DUIDING, "$1")),
+             route:   zonderNulpunt(text.slice(m.index + m[0].length)) };
   }
-  return { duiding: text.replace(KOP_DUIDING, "$1").trim(), route: null };
+  return { duiding: zonderNulpunt(text.replace(KOP_DUIDING, "$1")), route: null };
 }

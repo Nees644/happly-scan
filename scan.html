@@ -273,6 +273,8 @@ function ontwikkelruimte(s){
 
 /* ======================= CANON (vaste teksten) ======================= */
 const PATROON = "Het verlies van regie ontstaat niet in één moment. Het ontstaat in honderden micro-beslissingen per dag, waarbij je kleine keuzes bij anderen laat of laat afhangen van de omstandigheden. Dat voelt in het moment als de gemakkelijkste weg. Maar wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
+/* Per 07-09-2026 niet meer getoond. Blijft staan om de zin weg te knippen uit
+   duidingen die eerder zijn gegenereerd en zijn opgeslagen. */
 const NULPUNT = "Over een jaar meet je opnieuw. Dan is dit getal geen oordeel meer, maar je nulpunt.";
 
 /* ======================= FUNNEL (anonieme events) =======================
@@ -499,11 +501,10 @@ function renderResults(){
       <div class="patroon"><p>${PATROON}</p></div>
     </div>
 
-    <!-- Blok 6: route + Sprint + nulpuntzin -->
+    <!-- Blok 6: route + Sprint -->
     <div class="sec route">
       <div class="sec-h">De route</div>
       <div id="route-body"></div>
-      <p class="nulpunt">${NULPUNT}</p>
       <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
       <div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
@@ -609,7 +610,7 @@ function renderDuiding(text){
   if(!el) return;
   // De AI levert twee koppen; "Waar het werk zit" hoort onder Blok 6 (De route).
   const parts = splitDuiding(text);
-  el.innerHTML = fmt(parts.duiding);
+  el.innerHTML = fmt(parts.duiding.replace(NULPUNT,"").trim());
   const dr = document.getElementById("deel-rij");
   if (dr) dr.style.display = "block";
   const rb = document.getElementById("route-body");

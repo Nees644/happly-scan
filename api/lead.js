@@ -9,7 +9,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
-import { niveau, ontwikkelruimte, PATROON, NULPUNT, splitDuiding } from "../zelfkracht-uitslag.js";
+import { niveau, ontwikkelruimte, PATROON, splitDuiding } from "../zelfkracht-uitslag.js";
 
 /* Niveaubanden, plus-rekenregel en de vaste teksten: één bron, gedeeld met de
    uitslagpagina. scan.html en api/duiding.js houden hun eigen kopie; wijzig ze
@@ -52,7 +52,7 @@ function nivRow(nm, s){
 function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
-  const route = parts && parts.route ? parts.route.replace(NULPUNT, "").trim() : null;
+  const route = parts && parts.route ? parts.route : null;
   const sprintUrl = "https://scan.happly.nl/sprint?src=mail";   // bron voor de funnelmeting
   const betaalUrl = TREDES[ACTIEVE_TREDE].url;
   const afmeld = afmeldUrl
@@ -113,10 +113,9 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
           ${p(`<em>${PATROON}</em>`, "margin-bottom:0;font-size:13.5px")}
         </div>
 
-        <!-- De route + nulpuntzin -->
+        <!-- De route -->
         ${kop("De route")}
         ${route ? fmtBlok(route) : ""}
-        ${p(`<em style="color:${DP};font-size:15px">${NULPUNT}</em>`, "margin:6px 0 0")}
 
         <!-- Sprint-contextblok -->
         <div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">

@@ -7,7 +7,7 @@
 // De coach ziet deze pagina nooit, en er staat geen teamgegeven op: het gaat
 // hier alleen over deze persoon.
 
-import { niveau, ontwikkelruimte, PATROON, NULPUNT, PATROON_VOORBEHOUD, splitDuiding } from "./zelfkracht-uitslag.js";
+import { niveau, ontwikkelruimte, PATROON, PATROON_VOORBEHOUD, splitDuiding } from "./zelfkracht-uitslag.js";
 
 const esc = t => String(t ?? "")
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -36,7 +36,7 @@ function niveauRij(naam, score){
    of null als deze deelnemer nog geen teamberekening heeft gehad. */
 export function bouwUitslagPagina({ meting, profiel }){
   const delen = meting.duiding ? splitDuiding(meting.duiding) : { duiding: null, route: null };
-  const routeTekst = delen.route ? delen.route.replace(NULPUNT, "").trim() : null;
+  const routeTekst = delen.route || null;
 
   const datum = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Amsterdam" })
     .format(new Date(meting.created_at));
@@ -95,7 +95,6 @@ export function bouwUitslagPagina({ meting, profiel }){
   .patroon .sec-h{border-color:#F0D9E6}
   .patroon .voorbehoud{font-size:12.5px;color:var(--mut);margin-top:14px}
   .venster{background:var(--pap);border-left:3px solid var(--lav);padding:16px 20px;font-style:italic}
-  .nulpunt{font-size:13px;color:var(--mut);margin-top:16px}
   .voet{border-top:1px solid var(--bd);padding-top:16px;font-size:12px;color:var(--mut)}
   @media(max-width:600px){.body{padding:24px 20px 50px}.kop{padding:18px 20px}}
 </style>
@@ -141,7 +140,6 @@ export function bouwUitslagPagina({ meting, profiel }){
 
     <section class="sec" style="margin-top:34px">
       <div class="venster"><p>${esc(PATROON)}</p></div>
-      <p class="nulpunt">${esc(NULPUNT)}</p>
     </section>
 
     <p class="voet">Deze link is persoonlijk. Wie hem heeft, ziet jouw uitslag; deel hem dus niet. Je coach en je werkgever krijgen deze pagina niet te zien.</p>
