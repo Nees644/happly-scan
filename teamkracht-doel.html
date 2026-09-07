@@ -89,7 +89,7 @@
 <div class="wrap">
   <p class="kruimel" id="kruimel">TEAMFOTO &middot; DOELBEELD &middot; TEAMKRACHT</p>
   <h1>Teamkracht <span class="punt">&middot;</span> doelbeeld</h1>
-  <p class="inleiding">Schuif per vaardigheid waar dit team aan het eind van het traject wil staan. De gestippelde magenta lijn is het doel, de dikke lijn is waar het team nu staat. Het doel is een verschuiving vanaf de eigen startlijn, niet het halen van de referentie; hoe groot die verschuiving is, staat eronder.</p>
+  <p class="inleiding">Schuif per vaardigheid waar dit team aan het eind van het traject wil staan. De gestippelde magenta lijn is het doel, de dikke lijn is waar het team nu staat. Alle drie de vaardigheden horen boven het gemiddelde uit te komen; op elke baan staat een streepje waar dat ligt. Het doel is een verschuiving vanaf de eigen startlijn, niet het halen van dat gemiddelde; hoe groot die verschuiving is, staat eronder.</p>
 
   <div class="voorbeeldbalk" id="voorbeeldbalk" hidden></div>
 
@@ -133,10 +133,13 @@ import { beoordeelDoel } from "./teamkracht-logica.js";
 import { VOORBEELD_TEAMBEELD, VOORBEELD_INTERVENTIES, VOORBEELD_PROFIELEN, VOORBEELD_DOELREGELS } from "./teamkracht-voorbeeld-data.js";
 
 
+/* Alle drie gelijk behandeld (besluit 07-09-2026): ook Zien hoort boven het
+   gemiddelde uit te komen. Het gemiddelde staat als streepje op elke baan en
+   de pagina meldt welke vaardigheid er nog onder blijft. */
 const VAARDIGHEDEN = [
-  { sleutel: "zien",   naam: "Zien",   ondergrens: false },
-  { sleutel: "sturen", naam: "Sturen", ondergrens: true  },
-  { sleutel: "doen",   naam: "Doen",   ondergrens: true  }
+  { sleutel: "zien",   naam: "Zien"   },
+  { sleutel: "sturen", naam: "Sturen" },
+  { sleutel: "doen",   naam: "Doen"   }
 ];
 
 const el = id => document.getElementById(id);
@@ -162,10 +165,10 @@ let bezig = false;
 const nu   = v => teambeeld[`team_${v}`];
 const norm = v => teambeeld[`norm_${v}`];
 
-/* De referentielijn blokkeert niet meer. Met de gemeten referentie zou een
-   harde ondergrens voor veel teams een sprong van meer dan vijftien punten
-   afdwingen, en dat noemen de doelregels onhaalbaar. De lijn blijft zichtbaar
-   als markering en de pagina zegt of het doel eronder ligt. */
+/* De lijn van het gemiddelde blokkeert niet. Met een gemiddelde van 74, 69 en
+   65 zou een harde ondergrens voor veel teams een sprong van meer dan vijftien
+   punten afdwingen, en dat noemen de ambitiebanden onhaalbaar. De lijn staat er
+   als markering en de pagina zegt welke vaardigheid er nog onder blijft. */
 const minimum = () => 0;
 
 function beginDoel(){
@@ -175,7 +178,7 @@ function beginDoel(){
 }
 
 /* Een normale ambitie volgens de doelregels: acht punten per jaar op de
-   vaardigheden onder de referentie. */
+   vaardigheid die nog onder het gemiddelde ligt. */
 function normaleAmbitie(){
   const stap = Math.round(8 * horizon / 12);
   const uit = {};
@@ -199,7 +202,7 @@ function bouwSchuifjes(){
         <div class="tik nu" id="tiknu-${sleutel}"></div>
         <div class="tik" id="tik-${sleutel}"></div>
         <input type="range" min="0" max="100" step="1" id="s-${sleutel}" aria-label="${naam}">
-        <span class="tiklabel" id="tl-${sleutel}">landelijk</span>
+        <span class="tiklabel" id="tl-${sleutel}">gemiddelde</span>
       </div>
     </div>`).join("");
 
@@ -263,7 +266,7 @@ function teken(){
     + (oordeel.melding ? `<p>${oordeel.melding}</p>` : "");
 
   const opmerkingen = [];
-  if (onder.length) opmerkingen.push(`${onder.join(" en ")} ${onder.length === 1 ? "blijft" : "blijven"} onder de referentie van deze meting.`);
+  if (onder.length) opmerkingen.push(`${onder.join(" en ")} ${onder.length === 1 ? "blijft" : "blijven"} nog onder het gemiddelde.`);
   if (oordeel.dalingen.length) opmerkingen.push(`Let op: het doel ligt lager dan nu op ${oordeel.dalingen.join(" en ")}.`);
   el("gevolg").textContent = opmerkingen.join(" ");
 }
@@ -407,7 +410,7 @@ async function start(){
 
   el("regel").textContent =
     `Dit team staat nu op Zien ${Math.round(nu("zien"))}, Sturen ${Math.round(nu("sturen"))} en Doen ${Math.round(nu("doen"))}. `
-    + `Het landelijke beeld ligt op ${norm("zien")}, ${norm("sturen")} en ${norm("doen")}.`;
+    + `Het gemiddelde van alle metingen ligt op ${norm("zien")}, ${norm("sturen")} en ${norm("doen")}.`;
 
   doel = beginDoel();
   bouwSchuifjes();

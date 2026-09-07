@@ -4,9 +4,10 @@
 // migratie 07-09-2026.
 //
 // Harde regel van de opdrachtgever (07-09-2026): Sturen en Doen komen bij het
-// doelbeeld boven het landelijke beeld uit. Die grens zit in de schuifjes en
-// wordt hier nog een keer gecontroleerd, want een grens in de browser is geen
-// grens. Zien is vrij.
+// doelbeeld boven het gemiddelde uit. Sinds 07-09-2026 geldt dat voor alle
+// drie de vaardigheden, ook Zien. De schuifjes markeren het gemiddelde en de
+// pagina meldt wat er nog onder blijft; blokkeren doet zij niet, want met het
+// huidige gemiddelde zou dat voor veel teams een onhaalbaar doel afdwingen.
 
 import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
 import { beoordeelDoel } from "../teamkracht-logica.js";

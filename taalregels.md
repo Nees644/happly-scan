@@ -36,6 +36,10 @@ maar een berg.
 plek op een schaal. Vergelijk iemand met zichzelf van een half jaar geleden, niet met een
 gemiddelde.
 
+**Op de kaart heet de lijn het gemiddelde.** Niet landelijk, want de metingen komen van
+mensen die uit eigen beweging de scan doen; niet referentie, want dat klinkt als een norm
+waar je aan moet voldoen. Gemiddelde is wat het is en wat het zegt.
+
 **Geen vergelijking met anderen in de individuele uitslag.** Geen landelijk gemiddelde,
 geen percentiel, geen ranglijst. Zie ook `verantwoording.html` en het verbod in de prompt
 van `api/duiding.js`.
@@ -59,6 +63,8 @@ Deze worden bij het opslaan in de beheerpagina gecontroleerd
 |---|---|
 | nulpunt | startpunt |
 | nameting | hermeting |
+| nulmeting | startmeting |
+| landelijk gemiddelde, referentie | gemiddelde |
 | rondje | alleen in het boek en binnen de Sprint, met uitleg |
 | je getal verzetten | eraan werken, in beweging komen, aan de slag |
 | garantie, risicoloos, geld terug | "Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug." |

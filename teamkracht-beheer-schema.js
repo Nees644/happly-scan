@@ -7,21 +7,21 @@ export const SCHEMA = {
   config: {
     tabel: "teamkracht_config", sleutel: "id", enkel: true, updated: true,
     naam: "Instellingen",
-    uitleg: "De breedte van de middenband en de referentie waar profielen tegen worden afgezet. Wijzigingen werken door bij de volgende berekening; bestaande teambeelden blijven bevroren.",
+    uitleg: "De breedte van de middenband en het gemiddelde waar profielen tegen worden afgezet. Wijzigingen werken door bij de volgende berekening; bestaande teambeelden blijven bevroren.",
     velden: [
       { kolom: "middenband_sd", label: "Breedte middenband in standaarddeviaties", type: "getal" },
       { kolom: "min_deelnemers_kaart", label: "Minimum deelnemers voor een kaart", type: "getal" },
       { kolom: "min_deelnemers_lijnen", label: "Minimum deelnemers voor individuele lijnen", type: "getal" },
-      { kolom: "norm_bron", label: "Bron van de referentie", type: "keuze", opties: ["vast", "landelijk"] },
-      { kolom: "norm_zien", label: "Referentie Zien", type: "getal" },
-      { kolom: "norm_sturen", label: "Referentie Sturen", type: "getal" },
-      { kolom: "norm_doen", label: "Referentie Doen", type: "getal" },
+      { kolom: "norm_bron", label: "Bron: vast ingevuld, of het gemiddelde uit alle metingen", type: "keuze", opties: ["vast", "landelijk"] },
+      { kolom: "norm_zien", label: "Gemiddelde Zien", type: "getal" },
+      { kolom: "norm_sturen", label: "Gemiddelde Sturen", type: "getal" },
+      { kolom: "norm_doen", label: "Gemiddelde Doen", type: "getal" },
       { kolom: "sd_zien", label: "Standaarddeviatie Zien", type: "getal" },
       { kolom: "sd_sturen", label: "Standaarddeviatie Sturen", type: "getal" },
       { kolom: "sd_doen", label: "Standaarddeviatie Doen", type: "getal" },
-      { kolom: "norm_n", label: "Aantal metingen onder de referentie", type: "getal" },
+      { kolom: "norm_n", label: "Aantal metingen onder het gemiddelde", type: "getal" },
       { kolom: "norm_gemeten_op", label: "Gemeten op (jjjj-mm-dd)", type: "tekst" },
-      { kolom: "norm_versie", label: "Versie van de referentie", type: "tekst" }
+      { kolom: "norm_versie", label: "Versie van het gemiddelde", type: "tekst" }
     ]
   },
   regels: {

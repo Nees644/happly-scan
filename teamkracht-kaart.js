@@ -54,7 +54,7 @@ export const BREUKBLOK = {
   },
   begin: {
     kop: "De keten begint laag",
-    tekst: "Dit team ligt op alle drie de stappen onder het landelijke beeld, zonder duidelijke breuk. De ontwikkelruimte begint waarschijnlijk bij zien: eerst waarnemen wat er speelt, daarna pas kiezen."
+    tekst: "Dit team ligt op alle drie de stappen onder het gemiddelde, zonder duidelijke breuk. De ontwikkelruimte begint waarschijnlijk bij zien: eerst waarnemen wat er speelt, daarna pas kiezen."
   }
 };
 
@@ -74,14 +74,14 @@ export function tekenKaartSvg(teambeeld, opties = {}){
   const punt = bron => Object.entries(KOLOM).map(([v, x]) => [x, yVoorScore(bron[v])]);
   const d = [];
 
-  // Kolommen met hun label en de landelijke streep.
+  // Kolommen met hun label en de streep van het gemiddelde.
   for (const [v, x] of Object.entries(KOLOM)){
     d.push(`<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BODEM}" stroke="${KLEUR.lijn}" stroke-width="2"/>`);
     d.push(`<text x="${x}" y="570" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="${KLEUR.gedempt}">${v.toUpperCase()}</text>`);
     const yn = yVoorScore(norm[v]);
     d.push(`<line x1="${x - 60}" y1="${yn}" x2="${x + 60}" y2="${yn}" stroke="${KLEUR.magenta}" stroke-width="3" opacity=".8"/>`);
   }
-  d.push(`<text x="${KOLOM.doen + 68}" y="${yVoorScore(norm.doen) + 4}" font-family="DM Sans, sans-serif" font-size="11" letter-spacing="1" fill="${KLEUR.magenta}">LANDELIJK</text>`);
+  d.push(`<text x="${KOLOM.doen + 66}" y="${yVoorScore(norm.doen) + 4}" font-family="DM Sans, sans-serif" font-size="11" letter-spacing="1" fill="${KLEUR.magenta}">GEMIDDELDE</text>`);
 
   // Individuele lijnen, alleen als er genoeg deelnemers zijn. Geen id, geen
   // titel, geen tooltip: er valt niets uit terug te leiden.
@@ -120,7 +120,7 @@ export function tekenKaartSvg(teambeeld, opties = {}){
     d.push(`<text x="${x}" y="${y}" text-anchor="middle" font-family="DM Serif Display, serif" font-style="italic" font-size="16" fill="${KLEUR.magenta}">hier zakt de keten</text>`);
   }
 
-  return `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Teamkrachtkaart: de keten zien, sturen en doen van dit team naast het landelijke beeld">${d.join("")}</svg>`;
+  return `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Teamkrachtkaart: de keten zien, sturen en doen van dit team naast het gemiddelde">${d.join("")}</svg>`;
 }
 
 /* ----------------------------------------------------------------- html */
@@ -128,7 +128,7 @@ export function tekenKaartSvg(teambeeld, opties = {}){
 /* De drie beelden van een traject. Het doelbeeld is fase 2; de kaart kent de
    naam nu al zodat er later niets aan de titel hoeft te veranderen. */
 export const BEELDNAAM = { start: "startbeeld", doel: "doelbeeld", hermeting: "eindbeeld" };
-const MOMENT = { start: "NULMETING", doel: "DOELBEELD", hermeting: "HERMETING" };
+const MOMENT = { start: "STARTMETING", doel: "DOELBEELD", hermeting: "HERMETING" };
 
 
 /* Meervoud van een profielnaam. Alle namen krijgen een s; middenband blijft
@@ -153,7 +153,7 @@ function verschilZin(teambeeld){
   const teken = x => (x > 0 ? "+" : "") + Math.round(x);
   return `Zien ${teken(teambeeld.team_zien - teambeeld.norm_zien)}, `
        + `Sturen ${teken(teambeeld.team_sturen - teambeeld.norm_sturen)}, `
-       + `Doen ${teken(teambeeld.team_doen - teambeeld.norm_doen)} ten opzichte van het landelijke beeld.`;
+       + `Doen ${teken(teambeeld.team_doen - teambeeld.norm_doen)} ten opzichte van het gemiddelde.`;
 }
 
 /* Eén dynamiek: streep, tag, kop, en daaronder de tekst als doorlopend
@@ -187,8 +187,8 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
     .filter(Boolean).map(esc).join(" &middot; ");
 
   const inleiding = heeftLijnen
-    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het landelijke beeld.`
-    : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen. Magenta is het landelijke beeld.`;
+    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het gemiddelde van alle metingen tot nu toe.`
+    : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen. Magenta is het gemiddelde van alle metingen tot nu toe.`;
 
   const dynamieken = teambeeld.dynamieken
     .map(({ code }) => regels.find(r => r.code === code))
