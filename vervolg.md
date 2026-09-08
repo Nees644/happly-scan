@@ -2,6 +2,18 @@
 
 Bijgehouden lijst. Bovenaan wat het meest oplevert.
 
+## Vastgelegde besluiten die telkens terugkomen
+
+**Het minimum voor een Teamfoto is vijf deelnemers.** Bevestigd op 7, 8 en 9
+september. In de briefings staat op drie plekken acht; dat is elke keer onjuist
+overgenomen. De regel staat in `teamkracht_config.min_deelnemers_kaart` en
+nergens anders. Onder de tien verdwijnen de individuele lijnen, dat is een
+aparte regel.
+
+**Bedragen op de site zijn exclusief btw, facturen inclusief.** De site is
+zakelijk. Wordt er ooit aan particulieren verkocht, dan moet de prijs inclusief
+worden getoond.
+
 ## 1. De startkaart voor teamleden
 
 Idee van Maarten, 8 september 2026.
