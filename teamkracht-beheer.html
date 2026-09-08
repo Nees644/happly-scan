@@ -59,6 +59,18 @@ textarea:focus,select:focus,input:focus{border-color:var(--pk)}
 .melding{font-size:12.5px;color:var(--mut)}
 .melding.fout{color:var(--pk)}
 .melding.goed{color:#14603D}
+.env{background:var(--wt);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:20px}
+.env h3{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);font-weight:400;margin-bottom:2px}
+.env .omg{font-size:12px;color:var(--mut);margin-bottom:14px}
+.env table{width:100%;border-collapse:collapse;font-size:13px}
+.env td{padding:7px 6px;border-bottom:1px solid var(--bd);font-weight:300;vertical-align:top}
+.env td.n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--dp);white-space:nowrap}
+.env td.s{text-align:right;font-weight:600;white-space:nowrap}
+.env .ja{color:#14603D}
+.env .nee{color:var(--pk)}
+.env .grijs{color:var(--mut);font-weight:400}
+.env .waarschuwing{background:#FBF0DC;border:1px solid #F0DDB4;border-radius:8px;padding:10px 13px;
+  font-size:12.5px;color:#8A5B06;margin-top:14px;line-height:1.5}
 .let{background:#FBF0DC;border:1px solid #F0DDB4;border-radius:8px;padding:11px 14px;font-size:12.5px;color:#8A5B06;margin-bottom:18px;line-height:1.5}
 </style>
 </head>
@@ -78,10 +90,11 @@ textarea:focus,select:focus,input:focus{border-color:var(--pk)}
 <div id="app">
   <div class="hdr"><div class="wrap">
     <h1>Teamkracht &middot; beheer</h1>
-    <div><a href="/api/instellingen-check" target="_blank" rel="noopener">Instellingen</a><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
+    <div><button onclick="toonInstellingen()">Instellingen</button><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
   </div></div>
   <main class="wrap">
     <p class="let">Wijzigingen werken door bij de volgende berekening. Kaarten die al gemaakt zijn veranderen niet: die hebben hun teksten en het gemiddelde bevroren. Geen gedachtestreep en geen uitroepteken in de teksten; dat wordt bij het opslaan gecontroleerd. De toon is die van een gedragsclub: positief, makkelijk, vooruit. De regels staan in taalregels.md.</p>
+    <div id="instellingen" hidden></div>
     <div class="tabs" id="tabs"></div>
     <h2 id="t-naam"></h2>
     <p class="uitleg" id="t-uitleg"></p>
@@ -118,6 +131,35 @@ async function api(pad, opties = {}){
   if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
   return uit;
 }
+
+/* De controle op de omgevingsvariabelen. Die route zit achter dezelfde
+   authenticatie als de rest, dus hij moet met het access token worden
+   opgehaald; een gewone link stuurt dat niet mee en levert een weigering op. */
+window.toonInstellingen = async function(){
+  const vak = el("instellingen");
+  vak.hidden = false;
+  vak.innerHTML = '<div class="env"><p class="melding">Ophalen...</p></div>';
+  try{
+    const uit = await api("/api/instellingen-check");
+    const rij = v => {
+      const goed = v.aanwezig;
+      const staat = !goed
+        ? `<span class="${v.nodig ? "nee" : "grijs"}">${v.nodig ? "ontbreekt" : "niet gezet"}</span>`
+        : `<span class="ja">aanwezig${v.modus ? " (" + esc(v.modus) + ")" : ""}</span>`;
+      return `<tr><td class="n">${esc(v.naam)}</td><td>${esc(v.waarvoor)}${v.waarde ? ` &middot; ${esc(v.waarde)}` : ""}</td><td class="s">${staat}</td></tr>`;
+    };
+    vak.innerHTML = `<div class="env">
+      <h3>Instellingen van deze omgeving</h3>
+      <p class="omg">Omgeving: <b>${esc(uit.omgeving)}</b>. Waarden worden nooit getoond, alleen of ze er zijn.</p>
+      <table><tbody>${uit.variabelen.map(rij).join("")}</tbody></table>
+      ${uit.waarschuwingen.length
+        ? uit.waarschuwingen.map(w => `<p class="waarschuwing">${esc(w)}</p>`).join("")
+        : '<p class="waarschuwing" style="background:#E6F4EC;border-color:#BFE3CE;color:#14603D">Niets bijzonders. De sleutel past bij deze omgeving.</p>'}
+    </div>`;
+  }catch(e){
+    vak.innerHTML = `<div class="env"><p class="melding fout">${esc(e.message)}</p></div>`;
+  }
+};
 
 function toonApp(){
   el("login-screen").style.display = "none";
