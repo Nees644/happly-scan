@@ -30,70 +30,84 @@ export default async function handler(req, res){
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
     if (teams.error){ await logFout("teamkracht-team", "ophalen mislukt"); res.status(500).json({ error: "ophalen mislukt" }); return; }
-
-    // Aantal metingen per team. Geen scores, geen namen: alleen een telling.
-    const metingen = await db.from("index_scan_results")
-      .select("teamkracht_team_id")
-      .in("teamkracht_team_id", (teams.data || []).map(t => t.id));
-    const telling = {};
-    for (const r of metingen.data || []){
-      telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
-    }
-
-    // De beelden die al zijn berekend, zodat het dashboard weet of het
-    // startbeeld er is en of er dus een hermeting bij kan.
-    const beelden = await db.from("teamkracht_teambeeld")
-      .select("id, team_id, soort, n, breuk, created_at")
-      .in("team_id", (teams.data || []).map(t => t.id))
-      .order("created_at", { ascending: true });
-    const perTeam = {};
-    for (const b of beelden.data || []){
-      (perTeam[b.team_id] = perTeam[b.team_id] || []).push(b);
-    }
-
-    // De doelbeelden die bij die beelden horen, zodat het dashboard ze kan
-    // teruggeven; zonder dit verdween een vastgelegd doel uit het zicht.
-    const doelen = await db.from("teamkracht_doel")
-      .select("id, teambeeld_id, doel_zien, doel_sturen, doel_doen, horizon_maanden, created_at")
-      .in("teambeeld_id", (beelden.data || []).map(b => b.id))
-      .order("created_at", { ascending: true });
-    const beeldTeam = Object.fromEntries((beelden.data || []).map(b => [b.id, b.team_id]));
-    for (const d of doelen.data || []){
-      const teamId = beeldTeam[d.teambeeld_id];
-      if (!teamId) continue;
-      const lijst = perTeam[teamId] || [];
-      const beeld = lijst.find(b => b.id === d.teambeeld_id);
-      if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
-    }
+    const rijen = teams.data || [];
+    const ids = rijen.map(t => t.id);
 
     // Wat de coach mag en wat het kost. Vooraf meesturen in plaats van pas bij
     // het klikken: iemand hoort te weten wat een knop gaat kosten voordat hij
     // erop drukt.
-    const [gq, bq, pq, vq] = await Promise.all([
-      db.from("teamkracht_gebruikers")
-        .select("licentie_actief, licentie_tot, niveau").eq("user_id", gebruiker.user_id).single(),
-      db.from("bestellingen")
-        .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
-        .eq("gebruiker_id", gebruiker.user_id),
-      db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM", "LIC-M"]),
-      db.from("module_voortgang").select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2])
-    ]);
+    //
+    // Dit hele blok is bijzaak: gaat er hier iets mis, dan hoort de coach nog
+    // steeds zijn teams te zien. Vandaar de vangnetten en de lege standen.
+    let ik = { rol: gebruiker.rol, licentie_actief: false, licentie_tot: null, leesdrempel_gehaald: false };
+    let prijzen = {}, bestellingen = [], gq = { data: null };
+    let telling = {}, perTeam = {};
 
-    const bestellingen = bq.data || [];
-    const prijzen = Object.fromEntries((pq.data || []).map(p => [p.code, { ...p, ...bedragMetBtw(p) }]));
-    const leesdrempel = (vq.data || []).length >= 2;
+    try{
+      const werk = [
+        db.from("teamkracht_gebruikers")
+          .select("licentie_actief, licentie_tot, niveau").eq("user_id", gebruiker.user_id).maybeSingle(),
+        db.from("bestellingen")
+          .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
+          .eq("gebruiker_id", gebruiker.user_id),
+        db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM", "LIC-M"]),
+        db.from("module_voortgang").select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2])
+      ];
+
+      // Alleen navragen als er teams zijn. Een in-filter met een lege lijst is
+      // geen filter maar een vraag zonder antwoord, en daar liep de route op
+      // vast bij iemand die nog geen team had.
+      if (ids.length){
+        werk.push(
+          db.from("index_scan_results").select("teamkracht_team_id").in("teamkracht_team_id", ids),
+          db.from("teamkracht_teambeeld")
+            .select("id, team_id, soort, n, breuk, created_at").in("team_id", ids)
+            .order("created_at", { ascending: true })
+        );
+      }
+
+      const uit = await Promise.all(werk);
+      const [g, b, p, v, m, bl] = uit;
+      gq = g;
+      bestellingen = b.data || [];
+      prijzen = Object.fromEntries((p.data || []).map(x => [x.code, { ...x, ...bedragMetBtw(x) }]));
+      ik = {
+        rol: gebruiker.rol,
+        licentie_actief: !!g.data?.licentie_actief,
+        licentie_tot: g.data?.licentie_tot || null,
+        leesdrempel_gehaald: (v.data || []).length >= 2
+      };
+
+      for (const r of m?.data || []){
+        telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
+      }
+      for (const beeld of bl?.data || []){
+        (perTeam[beeld.team_id] = perTeam[beeld.team_id] || []).push(beeld);
+      }
+
+      // De doelbeelden die bij die beelden horen, zodat een vastgelegd doel
+      // niet uit het zicht verdwijnt.
+      const beeldIds = (bl?.data || []).map(x => x.id);
+      if (beeldIds.length){
+        const doelen = await db.from("teamkracht_doel")
+          .select("id, teambeeld_id, doel_zien, doel_sturen, doel_doen, horizon_maanden, created_at")
+          .in("teambeeld_id", beeldIds).order("created_at", { ascending: true });
+        const beeldTeam = Object.fromEntries((bl.data || []).map(x => [x.id, x.team_id]));
+        for (const d of doelen.data || []){
+          const beeld = (perTeam[beeldTeam[d.teambeeld_id]] || []).find(x => x.id === d.teambeeld_id);
+          if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
+        }
+      }
+    }catch(e){
+      await logFout("teamkracht-team", `aanvullen mislukt: ${String(e.message).slice(0, 120)}`);
+    }
 
     res.status(200).json({
-      gebruiker: {
-        rol: gebruiker.rol,
-        licentie_actief: !!gq.data?.licentie_actief,
-        licentie_tot: gq.data?.licentie_tot || null,
-        leesdrempel_gehaald: leesdrempel
-      },
+      gebruiker: ik,
       prijzen,
-      teams: (teams.data || []).map(t => {
+      teams: rijen.map(t => {
         const beelden = perTeam[t.id] || [];
-        const soort = beelden.some(b => b.soort === "start") ? "hermeting" : "start";
+        const soort = beelden.some(x => x.soort === "start") ? "hermeting" : "start";
         return {
           ...t,
           aantal_metingen: telling[t.id] || 0,

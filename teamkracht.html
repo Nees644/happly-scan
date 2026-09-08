@@ -153,7 +153,7 @@ async function laadTeams(){
     PRIJZEN = uit.prijzen || {};
     render();
   }catch(e){
-    el("teams").innerHTML = `<div class="kaart"><p class="melding fout">Teams laden mislukt: ${esc(e.message)}. Staat je account in teamkracht_gebruikers?</p></div>`;
+    el("teams").innerHTML = `<div class="kaart"><p class="melding fout">Teams laden mislukt: ${esc(e.message)}. Probeer de pagina te verversen; blijft het misgaan, laat het dan weten.</p></div>`;
   }
 }
 
