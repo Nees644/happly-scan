@@ -48,6 +48,10 @@
   .klaar{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#14603D}
   .melding{font-size:13px;color:var(--gedempt);margin-top:10px;min-height:1.2em}
   .melding.fout{color:var(--magenta)}
+  .klaarvak{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:24px 26px;margin-bottom:8px}
+  .klaarvak h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.5rem;margin-bottom:8px;color:var(--inkt)}
+  .klaarvak p{font-weight:300;margin-bottom:16px;color:var(--inkt)}
+  .klaarvak .knop{display:inline-block;text-decoration:none}
   .koopvak{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:26px 28px;margin-top:30px}
   .koopvak h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.6rem;margin-bottom:8px}
   .koopvak p{font-weight:300;margin-bottom:14px}
@@ -140,7 +144,7 @@ async function doeLogin(){
         // zijn eigen Site URL, en die staat standaard op localhost. Met het
         // eigen adres werkt het zowel op productie als op een preview, mits het
         // adres in Supabase op de lijst met toegestane adressen staat.
-        options: { emailRedirectTo: `${location.origin}/module` }
+        options: { emailRedirectTo: `${location.origin}${location.pathname}` }
       })
     : await db.auth.signInWithPassword({ email: mail, password: ww });
   el("l-knop").disabled = false;
@@ -188,7 +192,11 @@ function teken(){
     ? ` Een Teamfoto kost ${euro(tf.ex)} euro per team, of is inbegrepen bij een licentie vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.`
     : "";
   el("voet").innerHTML = stand.leesdrempel_gehaald
-    ? `Je hebt de leesdrempel gehaald. Je kunt nu een Teamfoto aanvragen voor een team dat je zelf aanmaakt.${kosten} <a href="/teamkracht" style="color:var(--magenta)">Naar het dashboard</a>.`
+    ? `<div class="klaarvak">
+         <h2>Je kunt aan de slag</h2>
+         <p>De leesdrempel is gehaald. Maak een team aan, deel de link, en vanaf vijf deelnemers kun je de Teamkrachtkaart maken.${kosten}</p>
+         <a class="knop" href="/teamkracht">Naar het dashboard</a>
+       </div>`
     : `Rond hoofdstuk 1 en 2 af om een Teamfoto te kunnen aanvragen.${kosten}`;
 
   tekenKoop();
@@ -291,7 +299,7 @@ async function stuurOpnieuw(){
   knop.disabled = true;
   const { error } = await db.auth.resend({
     type: "signup", email: mail,
-    options: { emailRedirectTo: `${location.origin}/module` }
+    options: { emailRedirectTo: `${location.origin}${location.pathname}` }
   });
   knop.disabled = false;
   fout.style.color = "var(--gedempt)";
