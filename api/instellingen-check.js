@@ -39,6 +39,9 @@ export default async function handler(req, res){
   });
 
   const omgeving = process.env.VERCEL_ENV || "onbekend";
+  // Het adres waarop deze pagina is opgehaald. Zonder dit blijft het gissen of
+  // iemand naar productie kijkt of naar een preview.
+  const adres = req.headers?.host || "onbekend";
   const mollie = regels.find(r => r.naam === "MOLLIE_API_KEY");
   const waarschuwingen = [];
   if (omgeving === "production" && mollie?.modus === "test"){
@@ -53,6 +56,7 @@ export default async function handler(req, res){
 
   res.status(200).json({
     omgeving,
+    adres,
     ontbreekt_en_is_nodig: regels.filter(r => r.nodig && !r.aanwezig).map(r => r.naam),
     waarschuwingen,
     variabelen: regels

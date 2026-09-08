@@ -152,7 +152,7 @@ window.toonInstellingen = async function(){
     };
     vak.innerHTML = `<div class="env">
       <h3>Instellingen van deze omgeving</h3>
-      <p class="omg">Omgeving: <b>${esc(uit.omgeving)}</b>. Waarden worden nooit getoond, alleen of ze er zijn.</p>
+      <p class="omg">Omgeving: <b>${esc(uit.omgeving)}</b> &middot; adres: <b>${esc(uit.adres || "onbekend")}</b><br>Waarden worden nooit getoond, alleen of ze er zijn.</p>
       <table><tbody>${uit.variabelen.map(rij).join("")}</tbody></table>
       ${uit.waarschuwingen.length
         ? uit.waarschuwingen.map(w => `<p class="waarschuwing">${esc(w)}</p>`).join("")
