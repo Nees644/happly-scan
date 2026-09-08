@@ -132,7 +132,15 @@ async function doeLogin(){
   }
   el("l-knop").disabled = true;
   const { error } = aanmelden
-    ? await db.auth.signUp({ email: mail, password: ww })
+    ? await db.auth.signUp({
+        email: mail,
+        password: ww,
+        // Waar de bevestigingsmail naartoe stuurt. Zonder dit gebruikt Supabase
+        // zijn eigen Site URL, en die staat standaard op localhost. Met het
+        // eigen adres werkt het zowel op productie als op een preview, mits het
+        // adres in Supabase op de lijst met toegestane adressen staat.
+        options: { emailRedirectTo: `${location.origin}/module` }
+      })
     : await db.auth.signInWithPassword({ email: mail, password: ww });
   el("l-knop").disabled = false;
   if (error){
@@ -143,7 +151,8 @@ async function doeLogin(){
   }
   const { data:{ session } } = await db.auth.getSession();
   if (!session){
-    fout.textContent = "Je account is aangemaakt. Bevestig eerst je e-mailadres via de mail die we net stuurden.";
+    fout.style.color = "var(--gedempt)";
+    fout.textContent = "Je account is aangemaakt. We hebben je een mail gestuurd; klik op de link daarin en je komt hier terug.";
     fout.style.display = "block"; return;
   }
   toonApp();
