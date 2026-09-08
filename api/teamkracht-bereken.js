@@ -91,6 +91,9 @@ export default async function handler(req, res){
     return;
   }
 
+  const profielrijen = await db.from("teamkracht_profielen").select("code, naam").eq("actief", true);
+  if (profielrijen.error){ res.status(500).json({ error: "profielen niet leesbaar" }); return; }
+
   const regels = await db.from("teamkracht_regels")
     .select("code, titel, titel_geteld, richting, voorwaarde, dynamiek, signaal, interventie, gespreksvraag, gewicht_opslag, actief, volgorde")
     .eq("actief", true).order("volgorde");
@@ -98,14 +101,19 @@ export default async function handler(req, res){
 
   let teambeeld;
   try{
-    teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels: regels.data || [], soort });
+    teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels: regels.data || [], profielen: profielrijen.data || [], soort });
   }catch(e){
     res.status(500).json({ error: "berekening mislukt" }); return;
   }
   const { profielen, ...opslag } = teambeeld;
 
-  const ins = await db.from("teamkracht_teambeeld")
+  let ins = await db.from("teamkracht_teambeeld")
     .insert({ ...opslag, team_id }).select("id").single();
+  if (ins.error){
+    // Vangnet zolang de migratie 08-09-2026 (kolom teksten) nog niet draait.
+    const { teksten, ...zonderTeksten } = opslag;
+    ins = await db.from("teamkracht_teambeeld").insert({ ...zonderTeksten, team_id }).select("id").single();
+  }
   if (ins.error){ res.status(500).json({ error: "opslaan mislukt" }); return; }
 
   // Profielcode terug naar de eigen meting. Alleen de deelnemer zelf ziet hem,

@@ -35,6 +35,41 @@ export const VOORBEELD_TEAMBEELD = {
       "score": 0.5
     }
   ],
+  "teksten": {
+    "regels": {
+      "R1": {
+        "titel": "Ziet alles, rent de andere kant op",
+        "titel_geteld": "{n_HLL} Zieners en {n_LHH} Aanpakkers",
+        "richting": "remt",
+        "dynamiek": "Het team ziet alles en rent een andere kant op. De Aanpakker start zonder de waarneming van de Zieners; de Zieners zeggen achteraf dat ze het zagen. Deze dynamiek versterkt de teamkracht zodra Zieners en Aanpakkers elkaar spreken, en remt zolang dat gesprek uitblijft.",
+        "interventie": "Vaste vraag voor elke start: wie ziet iets wat we nog niet hebben besproken? De Aanpakker stelt hem, de Zieners beantwoorden hem.",
+        "gespreksvraag": "Waar hebben jullie de afgelopen maand iets gezien en besloten het nog niet te zeggen?"
+      },
+      "R11": {
+        "titel": "Het werkt zolang de Trekker er is",
+        "titel_geteld": null,
+        "richting": "remt",
+        "dynamiek": "De Trekker claimt en doet wat de Zieners zien; zolang dat werkt hoeven de Zieners niet te kiezen.",
+        "interventie": "Regie verdelen, elk signaal een eigenaar die niet de Trekker is; de Trekker wordt vragensteller.",
+        "gespreksvraag": "Wat gebeurt er in dit team in de week dat de trekker er niet is?"
+      },
+      "R12": {
+        "titel": "De waarneming is er al",
+        "titel_geteld": null,
+        "richting": "versterkt",
+        "dynamiek": "Dit team ziet meer dan gemiddeld; de verbetering zit niet in beter kijken maar in een route van signaal naar keuze.",
+        "interventie": "Signalen gaan naar één eigenaar per onderwerp, die terugkoppelt wat ermee is gebeurd.",
+        "gespreksvraag": "Welk signaal is de afgelopen maand een besluit geworden, en hoe wist de melder dat?"
+      }
+    },
+    "profielen": {
+      "HLL": "HLL",
+      "LHH": "LHH",
+      "HHH": "HHH",
+      "LLL": "LLL",
+      "MMM": "MMM"
+    }
+  },
   "lijnen": [
     [
       38,

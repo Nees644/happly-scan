@@ -224,20 +224,40 @@ const rond2 = x => Math.round(x * 100) / 100;
    norm:       {zien, sturen, doen, sd_zien, sd_sturen, sd_doen}
    config:     rij uit teamkracht_config
    regels:     rijen uit teamkracht_regels, voorwaarde al als object */
-export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start" }){
+export function bouwTeambeeld({ deelnemers, norm, config, regels, profielen = [], soort = "start" }){
   const n = deelnemers.length;
   if (!n) throw new Error("geen deelnemers");
 
   const middenbandSd = Number(config.middenband_sd ?? 0.25);
   const minLijnen    = Number(config.min_deelnemers_lijnen ?? 10);
 
-  const profielen = deelnemers.map(d => bepaalProfiel(d, norm, middenbandSd));
-  const verdeling = bepaalVerdeling(profielen);
+  const deelnemerprofielen = deelnemers.map(d => bepaalProfiel(d, norm, middenbandSd));
+  const verdeling = bepaalVerdeling(deelnemerprofielen);
   const teamlijn  = bepaalTeamlijn(deelnemers);
   const breuk     = bepaalBreuk(teamlijn, norm);
 
   const ctx = { verdeling, n, breuk, teamlijn, norm };
-  const dynamieken = kiesDynamieken(regels, ctx).map(d => ({ code: d.code, score: rond2(d.score) }));
+  const gekozen = kiesDynamieken(regels, ctx);
+  const dynamieken = gekozen.map(d => ({ code: d.code, score: rond2(d.score) }));
+
+  /* De teksten zoals ze nu zijn, bevroren bij het beeld. Zonder dit zou een
+     latere wijziging in de beheerpagina ook kaarten veranderen die al bij een
+     team op tafel liggen, en dan klopt niet meer wat dat team heeft gezien.
+     Alleen wat op deze kaart komt: de drie regels en de profielen die in de
+     verdeling voorkomen. */
+  const teksten = {
+    regels: Object.fromEntries(gekozen.map(d => {
+      const r = d.regel;
+      return [r.code, {
+        titel: r.titel, titel_geteld: r.titel_geteld ?? null, richting: r.richting,
+        dynamiek: r.dynamiek, interventie: r.interventie, gespreksvraag: r.gespreksvraag
+      }];
+    })),
+    profielen: Object.fromEntries(Object.keys(verdeling).map(code => {
+      const p = profielen.find(x => x.code === code);   // de bibliotheek, niet de deelnemers
+      return [code, p ? p.naam : code];
+    }))
+  };
 
   return {
     soort,
@@ -251,7 +271,8 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start
     verdeling,
     breuk,
     dynamieken,
-    lijnen: n >= minLijnen ? bouwLijnen(deelnemers, profielen) : null,
+    teksten,
+    lijnen: n >= minLijnen ? bouwLijnen(deelnemers, deelnemerprofielen) : null,
     config_snapshot: {
       middenband_sd: middenbandSd,
       min_deelnemers_lijnen: minLijnen,
@@ -264,7 +285,7 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, soort = "start
     },
     // Niet voor opslag: de aanroeper heeft de codes nodig om profiel_code per
     // deelnemer weg te schrijven. Zit bewust niet in teamkracht_teambeeld.
-    profielen
+    profielen: deelnemerprofielen
   };
 }
 

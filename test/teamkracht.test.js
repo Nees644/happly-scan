@@ -352,3 +352,68 @@ test("het advies blijft een stap en wordt geen berg", () => {
   assert.equal(oudeRegel(22), 58);
   assert.equal(ontwikkelruimte(22).plus, 8, "de nieuwe regel maakt van dezelfde score een stap");
 });
+
+/* ------------------------------------------------- bevroren teksten */
+
+test("criterium 4: een beeld bevriest de teksten die erop staan", () => {
+  const b = bouwTeambeeld({
+    deelnemers, norm, config: CONFIG, regels: REGELS, profielen: leesProfielen()
+  });
+  // Alleen wat op deze kaart komt: de drie dynamieken en de profielen uit de verdeling.
+  assert.deepEqual(Object.keys(b.teksten.regels).sort(), ["R1", "R11", "R12"]);
+  assert.deepEqual(Object.keys(b.teksten.profielen).sort(), Object.keys(b.verdeling).sort());
+  assert.equal(b.teksten.profielen.HLL, "Ziener");
+  for (const bevroren of Object.values(b.teksten.regels)){
+    for (const veld of ["titel", "dynamiek", "interventie", "gespreksvraag"]){
+      assert.ok(bevroren[veld] && bevroren[veld].length > 3, `${veld} ontbreekt in de momentopname`);
+    }
+  }
+});
+
+test("criterium 4: een latere tekstwijziging raakt een eerder beeld niet", async () => {
+  const { bouwKaartHtml } = await import("../teamkracht-kaart.js");
+  const profielen = leesProfielen();
+  const oud = bouwTeambeeld({ deelnemers, norm, config: CONFIG, regels: REGELS, profielen });
+
+  // De beheerder herschrijft R1 en hernoemt een profiel.
+  const nieuweRegels = REGELS.map(r =>
+    r.code === "R1" ? { ...r, titel: "Compleet andere kop", dynamiek: "Compleet andere dynamiektekst." } : r);
+  const nieuweProfielen = profielen.map(p => p.code === "HLL" ? { ...p, naam: "Waarnemer" } : p);
+
+  const kaartOud = bouwKaartHtml({ teambeeld: oud, regels: nieuweRegels, profielen: nieuweProfielen });
+  assert.ok(kaartOud.includes("Ziet alles, rent de andere kant op"), "de oude kaart houdt zijn eigen kop");
+  assert.ok(!kaartOud.includes("Compleet andere kop"), "de oude kaart mag niet meeveranderen");
+  assert.ok(kaartOud.includes("Zieners"), "de oude kaart houdt de oude profielnaam");
+
+  const nieuw = bouwTeambeeld({ deelnemers, norm, config: CONFIG, regels: nieuweRegels, profielen: nieuweProfielen });
+  const kaartNieuw = bouwKaartHtml({ teambeeld: nieuw, regels: nieuweRegels, profielen: nieuweProfielen });
+  assert.ok(kaartNieuw.includes("Compleet andere kop"), "een nieuw beeld toont de nieuwe tekst");
+  assert.ok(kaartNieuw.includes("Waarnemers"), "een nieuw beeld toont de nieuwe profielnaam");
+});
+
+test("een beeld van voor de migratie valt terug op de tabellen", async () => {
+  const { bouwKaartHtml } = await import("../teamkracht-kaart.js");
+  const profielen = leesProfielen();
+  const zonderTeksten = bouwTeambeeld({ deelnemers, norm, config: CONFIG, regels: REGELS, profielen });
+  delete zonderTeksten.teksten;
+  const kaart = bouwKaartHtml({ teambeeld: zonderTeksten, regels: REGELS, profielen });
+  assert.ok(kaart.includes("Ziet alles, rent de andere kant op"));
+  assert.ok(kaart.includes("Zieners"));
+});
+
+test("criterium 3: er staat niets in de SVG dat naar een deelnemer wijst", async () => {
+  const { tekenKaartSvg } = await import("../teamkracht-kaart.js");
+  const svg = tekenKaartSvg(bouwTeambeeld({ deelnemers, norm, config: CONFIG, regels: REGELS }));
+
+  for (const [wat, patroon] of [
+    ["een e-mailadres", /[\w.+-]+@[\w-]+\.[a-z]{2,}/i],
+    ["een uuid", /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i],
+    ["een id-attribuut", /\bid\s*=/],
+    ["een titel of tooltip", /<title|data-|aria-describedby/],
+    ["een naamachtig attribuut", /\b(name|naam|email|deelnemer)\s*=/i]
+  ]){
+    assert.ok(!patroon.test(svg), `de SVG bevat ${wat}`);
+  }
+  // Wel het beeld zelf: drie kolommen, elf lijnen plus de teamlijn.
+  assert.equal((svg.match(/<polyline/g) || []).length, 12);
+});

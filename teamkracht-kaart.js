@@ -133,19 +133,19 @@ const MOMENT = { start: "STARTMETING", doel: "DOELBEELD", hermeting: "HERMETING"
 
 /* Meervoud van een profielnaam. Alle namen krijgen een s; middenband blijft
    enkelvoud en met kleine letter, zoals in de briefing. */
-function profielnaam(code, aantal, profielen){
+function profielnaam(code, aantal, profielen, bevroren){
   if (code === "MMM") return "middenband";
-  const naam = (profielen.find(p => p.code === code) || {}).naam || code;
+  const naam = bevroren?.[code] || (profielen.find(p => p.code === code) || {}).naam || code;
   return aantal > 1 ? `${naam}s` : naam;
 }
 
 /* De verdeling als één regel: 4 Zieners, 2 Aanpakkers, 1 Trekker, en zo verder.
    Alleen codes die voorkomen; middenband achteraan. */
-function verdelingZin(verdeling, profielen){
+function verdelingZin(verdeling, profielen, bevroren){
   return Object.entries(verdeling)
     .filter(([, aantal]) => aantal > 0)
     .sort((a, b) => (a[0] === "MMM") - (b[0] === "MMM") || b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([code, aantal]) => `<span><b>${aantal}</b> ${esc(profielnaam(code, aantal, profielen))}</span>`)
+    .map(([code, aantal]) => `<span><b>${aantal}</b> ${esc(profielnaam(code, aantal, profielen, bevroren))}</span>`)
     .join('<i class="punt">&middot;</i>');
 }
 
@@ -190,13 +190,18 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
     ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het gemiddelde van alle metingen tot nu toe.`
     : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen. Magenta is het gemiddelde van alle metingen tot nu toe.`;
 
+  /* Bevroren teksten gaan voor: die horen bij dit beeld. Beelden van voor de
+     migratie van 08-09-2026 hebben ze niet en vallen terug op de tabellen. */
   const dynamieken = teambeeld.dynamieken
-    .map(({ code }) => regels.find(r => r.code === code))
+    .map(({ code }) => {
+      const bevroren = teambeeld.teksten?.regels?.[code];
+      return bevroren ? { code, ...bevroren } : regels.find(r => r.code === code);
+    })
     .filter(Boolean)
     .map(r => dynamiekHtml(r, teambeeld))
     .join("");
 
-  const verdelingBlok = `<div class="vak verdeling">${verdelingZin(teambeeld.verdeling, profielen)}</div>`;
+  const verdelingBlok = `<div class="vak verdeling">${verdelingZin(teambeeld.verdeling, profielen, teambeeld.teksten?.profielen)}</div>`;
 
   const rechts = poster
     ? `<section class="breuk"><p class="tag-licht">DE BREUK IN DE KETEN</p><h2>${esc(breuk.kop)}</h2></section>

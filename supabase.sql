@@ -925,3 +925,20 @@ on conflict (code) do nothing;
 -- drop policy if exists "authenticated read" on public.index_scan_results;
 -- create policy "beheerder read" on public.index_scan_results
 --   for select to authenticated using (public.teamkracht_is_beheerder());
+
+
+-- ===========================================================================
+-- MIGRATIE 08-09-2026 · teksten bevriezen bij het teambeeld
+--
+-- Acceptatiecriterium 4 uit de briefing: een wijziging van een regeltekst is
+-- zichtbaar op een nieuw berekende kaart en niet op een eerder berekende. Dat
+-- gold nog niet. Het teambeeld bevroor de norm en de instellingen, maar de
+-- teksten werden bij het tekenen opgehaald uit teamkracht_regels en
+-- teamkracht_profielen. Wie een regeltekst aanpaste, veranderde daarmee ook
+-- kaarten die al maanden bij een team op tafel lagen.
+--
+-- Deze kolom bewaart de teksten zoals ze waren op het moment van berekenen.
+-- De kaart gebruikt ze als ze er staan en valt anders terug op de tabellen,
+-- zodat beelden van voor deze migratie blijven werken.
+alter table public.teamkracht_teambeeld
+  add column if not exists teksten jsonb;
