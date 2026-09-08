@@ -35,6 +35,9 @@
     "api/afmelden.js": {
       "maxDuration": 10
     },
+    "api/dagtaken.js": {
+      "maxDuration": 15
+    },
     "api/teamkracht-bereken.js": {
       "maxDuration": 30
     },
@@ -67,6 +70,10 @@
     {
       "path": "/api/opvolg",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/dagtaken",
+      "schedule": "30 6 * * 1-5"
     }
   ]
 }
