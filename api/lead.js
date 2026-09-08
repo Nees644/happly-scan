@@ -49,7 +49,7 @@ function nivRow(nm, s){
   </tr>`;
 }
 
-function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl }){
+function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl, viaTeam }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route : null;
@@ -117,16 +117,17 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
         ${kop("De route")}
         ${route ? fmtBlok(route) : ""}
 
-        <!-- Sprint-contextblok -->
-        <div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">
+        <!-- Sprint-contextblok. Blijft weg bij een meting via een coach: die
+             deelnemer is geen lead, en verkoop in andermans traject hoort niet. -->
+        ${viaTeam ? "" : `<div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">
           ${kop("Over de Zelfkracht Sprint").replace("margin:30px 0 12px","margin:0 0 12px")}
           ${p("De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.")}
           ${p(`In een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
-Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een nameting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
+Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een hermeting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
 Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.<br>
 Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.`, "font-size:13px")}
           ${p(`<a href="${sprintUrl}" style="color:${PK};font-weight:700;text-decoration:none">Bekijk het programma</a> &nbsp;·&nbsp; <a href="${betaalUrl}" style="color:${PK};font-weight:700;text-decoration:none">Reserveer je plek</a>`)}
-        </div>
+        </div>`}
 
       </div>
     </div>
@@ -174,7 +175,7 @@ export default async function handler(req, res){
     let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
-        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token").eq("id", id).single();
+        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id").eq("id", id).single();
       if (q.error){
         // Vangnet zolang de migratie 07-09-2026 (resultaat_token) nog niet draait.
         q = await db.from("index_scan_results")
@@ -223,11 +224,16 @@ export default async function handler(req, res){
       }catch(hermErr){ /* stil */ }
     }
 
+    // Meet iemand via de link van een coach, dan slaan we de verkoop over: geen
+    // Sprint-blok in de mail en geen opvolgreeks. De coach doet de opvolging in
+    // zijn eigen traject, en drie mails van ons ertussendoor helpen niemand.
+    const viaTeam = !!(row && row.teamkracht_team_id);
+
     // 2. Zet de opvolgreeks klaar (dag 3, 7 en 56 verstuurt de cron /api/opvolg).
     //    Eén reeks per meting; een nieuwe meting met hetzelfde adres vervangt een
     //    eerdere, nog lopende reeks, zodat niemand dubbele mails krijgt.
     let reeksId = null;
-    try{
+    if (!viaTeam) try{
       await db.from("opvolgreeks").update({ afgemeld: true }).eq("email", email).eq("afgemeld", false);
       const ins = await db.from("opvolgreeks").insert({
         scan_id: scanId, email, name: name || null,
@@ -247,7 +253,8 @@ export default async function handler(req, res){
         html: mailHtml({
           ...m,
           afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null,
-          uitslagUrl: row && row.resultaat_token ? `https://scan.happly.nl/uitslag/${row.resultaat_token}` : null
+          uitslagUrl: row && row.resultaat_token ? `https://scan.happly.nl/uitslag/${row.resultaat_token}` : null,
+          viaTeam
         })
       });
     }catch(mailErr){ /* stil */ }
