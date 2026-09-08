@@ -115,7 +115,11 @@ create table if not exists public.certificaten (
   -- (besluit 09-09-2026). Wijzigt iemand later zijn naam in zijn profiel, dan
   -- verandert dit certificaat niet mee. Een diploma hoort niet met terugwerkende
   -- kracht op een andere naam te komen staan.
-  naam_op_certificaat text not null,
+  --
+  -- Mag leeg worden, en alleen bij verwijderen. Het recht om vergeten te worden
+  -- gaat voor op de wens om een uitgifte letterlijk te bewaren; wat overblijft
+  -- is dat er een certificaat was, zonder wie het was.
+  naam_op_certificaat text,
   niveau          text not null check (niveau in ('lezer','begeleider','opleider')),
   uitgegeven_op   date not null default current_date,
   uitgegeven_door uuid references auth.users(id) on delete set null,  -- null = Happly
@@ -242,6 +246,23 @@ create unique index if not exists licentie_reeks_code_idx
 
 
 -- ---------------------------------------------------------------------------
+-- BLOK D4 · signalering voor de beheerder
+--
+-- Een dagelijkse samenvatting in plaats van een kopie van elke mail. Alleen als
+-- er iets te melden is: nieuwe bestellingen, mislukte betalingen, licenties die
+-- deze maand aflopen, accounts die bevriezen of verwijderd gaan worden, en
+-- meldingen van Mollie die niet verwerkt konden worden.
+--
+-- Deze tabel is er alleen om te voorkomen dat dezelfde dag twee keer wordt
+-- verstuurd als de cron opnieuw draait.
+create table if not exists public.dagsignaal (
+  dag         date primary key,
+  verstuurd_op timestamptz not null default now(),
+  inhoud      jsonb                     -- wat er die dag in stond
+);
+
+
+-- ---------------------------------------------------------------------------
 -- BLOK E · het openbare register
 --
 -- De enige plek in dit hele systeem waar iemand zonder inlog een naam kan zien,
@@ -253,13 +274,14 @@ create unique index if not exists licentie_reeks_code_idx
 create or replace view public.register as
 select
   g.register_slug                       as slug,
-  c.naam_op_certificaat                 as naam,
-  g.organisatie,
-  g.website,
+  case when g.verwijderd_op is null then c.naam_op_certificaat end as naam,
+  case when g.verwijderd_op is null then g.organisatie end         as organisatie,
+  case when g.verwijderd_op is null then g.website end             as website,
   c.niveau,
   c.uitgegeven_op,
   c.verificatiecode,
   case
+    when g.verwijderd_op is not null then 'verwijderd op verzoek'
     when c.status <> 'actief' then 'niet actief'
     when g.licentie_actief and (g.licentie_tot is null or g.licentie_tot >= current_date) then 'actief'
     else 'niet actief'
@@ -268,7 +290,6 @@ from public.teamkracht_gebruikers g
 join public.certificaten c on c.gebruiker_id = g.user_id
 where g.register_toestemming = true
   and g.register_slug is not null
-  and g.verwijderd_op is null
   and c.status <> 'ingetrokken_op_verzoek';
 
 revoke all on public.register from public;
@@ -288,6 +309,7 @@ alter table public.bestellingen      enable row level security;
 alter table public.mollie_meldingen  enable row level security;
 alter table public.kaart_archief     enable row level security;
 alter table public.licentie_reeks    enable row level security;
+alter table public.dagsignaal        enable row level security;
 
 drop policy if exists "eigen voortgang" on public.module_voortgang;
 create policy "eigen voortgang" on public.module_voortgang
@@ -326,6 +348,10 @@ drop policy if exists "eigen verlengreeks" on public.licentie_reeks;
 create policy "eigen verlengreeks" on public.licentie_reeks
   for select to authenticated
   using (gebruiker_id = auth.uid() or public.teamkracht_is_beheerder());
+
+drop policy if exists "dagsignaal alleen beheerder" on public.dagsignaal;
+create policy "dagsignaal alleen beheerder" on public.dagsignaal
+  for select to authenticated using (public.teamkracht_is_beheerder());
 
 -- Meldingen van Mollie: alleen de beheerder, want er staan betaal-id's in.
 drop policy if exists "meldingen alleen beheerder" on public.mollie_meldingen;
@@ -427,7 +453,14 @@ on conflict (code) do nothing;
 --    inclusief. Daarom staat prijs_ex_btw in producten en worden bedrag_cent
 --    en btw_cent apart op de bestelling bevroren.
 --
--- NOG WEL NODIG, drie keuzes:
+-- 7. OPGELOST: verwijderen gebeurt een jaar na het bevriezen. De
+--    verificatiepagina blijft bestaan en toont dan "verwijderd op verzoek"
+--    zonder naam, organisatie of website. De badge blijft werken.
+--
+-- 8. OPGELOST: geen kopie van elke betaalmail, maar een dagelijkse
+--    samenvatting voor de beheerder; zie blok D4.
+--
+-- NOG WEL NODIG, een keuze:
 --
 -- A. Waar de kaarten worden gearchiveerd. Blok D2 kan allebei: 'supabase' of
 --    'drive'. Supabase Storage zit al in de stack, gebruiken we al voor de
@@ -437,33 +470,18 @@ on conflict (code) do nothing;
 --    Google-account. Mijn voorstel: standaard Supabase, en een knop
 --    "naar Drive" voor wie dat wil.
 --
--- B. Hoe lang na het bevriezen volgt het verwijderen. Er is nog geen termijn
---    afgesproken. Mijn voorstel: vierentwintig maanden, met een aankondiging
---    dertig dagen vooraf. Kort genoeg om geen slapende gegevens te bewaren,
---    lang genoeg om iemand die na een jaar terugkomt zijn materiaal terug te
---    geven.
---
--- C. Verwijderen breekt de verificatielink. Zie de aantekening hieronder; dit
---    is de belangrijkste van de drie.
---
 -- ---------------------------------------------------------------------------
--- LET OP, hier spreken twee afspraken elkaar tegen
+-- WAT ER BIJ HET VERWIJDEREN GEBEURT
 --
--- Acceptatiecriterium 3 van de certificeringsbriefing zegt: een ingetrokken of
--- verlopen licentie toont "niet actief" ZONDER de pagina te verwijderen. Dat
--- is ook de reden dat een badge op LinkedIn jaren blijft werken.
+-- Een jaar na het bevriezen, en alleen dan:
+--   naam, organisatie, website en btw_nummer op de gebruiker worden leeg
+--   naam_op_certificaat wordt leeg
+--   e-mailadres wordt leeg, het auth-account wordt opgeheven
+--   register_slug, certificaat, niveau en datum blijven staan
+--   bestellingen blijven staan zonder naam, want daar hangt de boekhouding aan
+--   gemaakte kaarten blijven staan, daar staat toch geen persoonsgegeven op
 --
--- Het account verwijderen haalt die pagina wel weg, want er staat een naam op
--- en die mag na verwijdering niet blijven staan. Een badge uit 2026 wijst dan
--- naar een pagina die niet meer bestaat, en dat leest als een vervalsing.
---
--- Drie manieren eruit, jij kiest:
---   1. Alleen bevriezen, nooit automatisch verwijderen. Verwijderen gebeurt
---      op verzoek van de persoon zelf, zoals de AVG voorschrijft. Het register
---      blijft dan altijd kloppen.
---   2. Verwijderen zoals je zegt, en de verificatiepagina toont daarna
---      "dit certificaat is verwijderd op verzoek" zonder naam. De link werkt,
---      de naam is weg. Dit is wat ik zou doen.
---   3. Verwijderen en de link laten breken. Dan moet je in de badge geen
---      verificatielink meer opnemen, want een dode link is erger dan geen link.
+-- Zo blijft een badge uit 2026 werken en klopt de administratie, terwijl er van
+-- de persoon niets terug te vinden is. Dertig dagen vooraf gaat er een mail uit
+-- met de mededeling en de mogelijkheid om alsnog te verlengen.
 -- ===========================================================================
