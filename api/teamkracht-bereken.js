@@ -7,7 +7,7 @@
 // gebruikt de norm van zijn eigen startbeeld, zodat het eindbeeld niet
 // verschuift doordat de referentie ondertussen is bijgesteld.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -32,7 +32,7 @@ export default async function handler(req, res){
   }
 
   const cfg = await db.from("teamkracht_config").select("*").eq("id", 1).single();
-  if (cfg.error || !cfg.data){ res.status(500).json({ error: "instellingen ontbreken" }); return; }
+  if (cfg.error || !cfg.data){ await logFout("teamkracht-bereken", "instellingen ontbreken"); res.status(500).json({ error: "instellingen ontbreken" }); return; }
   const config = cfg.data;
 
   // Een hermeting kijkt alleen naar metingen van na het startbeeld, en erft de
@@ -58,7 +58,7 @@ export default async function handler(req, res){
   if (!norm){
     if (config.norm_bron === "landelijk"){
       const ref = await db.from("teamkracht_referentie").select("*").single();
-      if (ref.error || !ref.data?.n){ res.status(500).json({ error: "referentie niet leesbaar" }); return; }
+      if (ref.error || !ref.data?.n){ await logFout("teamkracht-bereken", "referentie niet leesbaar"); res.status(500).json({ error: "referentie niet leesbaar" }); return; }
       norm = {
         zien: Number(ref.data.norm_zien), sturen: Number(ref.data.norm_sturen), doen: Number(ref.data.norm_doen),
         sd_zien: Number(ref.data.sd_zien), sd_sturen: Number(ref.data.sd_sturen), sd_doen: Number(ref.data.sd_doen)
@@ -71,7 +71,7 @@ export default async function handler(req, res){
     }
   }
   if (Object.values(norm).some(v => !Number.isFinite(v))){
-    res.status(500).json({ error: "de norm is niet volledig ingevuld" }); return;
+    await logFout("teamkracht-bereken", "de norm is niet volledig ingevuld"); res.status(500).json({ error: "de norm is niet volledig ingevuld" }); return;
   }
 
   let mq = db.from("index_scan_results")
@@ -79,7 +79,7 @@ export default async function handler(req, res){
     .eq("teamkracht_team_id", team_id);
   if (vanaf) mq = mq.gt("created_at", vanaf);
   const metingen = await mq;
-  if (metingen.error){ res.status(500).json({ error: "metingen niet leesbaar" }); return; }
+  if (metingen.error){ await logFout("teamkracht-bereken", "metingen niet leesbaar"); res.status(500).json({ error: "metingen niet leesbaar" }); return; }
 
   const deelnemers = (metingen.data || []).map(r => ({ zien: r.zien, sturen: r.sturen, doen: r.doen }));
   const drempel = Number(config.min_deelnemers_kaart ?? 5);
@@ -92,18 +92,18 @@ export default async function handler(req, res){
   }
 
   const profielrijen = await db.from("teamkracht_profielen").select("code, naam").eq("actief", true);
-  if (profielrijen.error){ res.status(500).json({ error: "profielen niet leesbaar" }); return; }
+  if (profielrijen.error){ await logFout("teamkracht-bereken", "profielen niet leesbaar"); res.status(500).json({ error: "profielen niet leesbaar" }); return; }
 
   const regels = await db.from("teamkracht_regels")
     .select("code, titel, titel_geteld, richting, voorwaarde, dynamiek, signaal, interventie, gespreksvraag, gewicht_opslag, actief, volgorde")
     .eq("actief", true).order("volgorde");
-  if (regels.error){ res.status(500).json({ error: "regels niet leesbaar" }); return; }
+  if (regels.error){ await logFout("teamkracht-bereken", "regels niet leesbaar"); res.status(500).json({ error: "regels niet leesbaar" }); return; }
 
   let teambeeld;
   try{
     teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels: regels.data || [], profielen: profielrijen.data || [], soort });
   }catch(e){
-    res.status(500).json({ error: "berekening mislukt" }); return;
+    await logFout("teamkracht-bereken", "berekening mislukt"); res.status(500).json({ error: "berekening mislukt" }); return;
   }
   const { profielen, ...opslag } = teambeeld;
 
@@ -114,7 +114,7 @@ export default async function handler(req, res){
     const { teksten, ...zonderTeksten } = opslag;
     ins = await db.from("teamkracht_teambeeld").insert({ ...zonderTeksten, team_id }).select("id").single();
   }
-  if (ins.error){ res.status(500).json({ error: "opslaan mislukt" }); return; }
+  if (ins.error){ await logFout("teamkracht-bereken", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
 
   // Profielcode terug naar de eigen meting. Alleen de deelnemer zelf ziet hem,
   // via zijn resultaat_token; hij staat niet in het teambeeld en niet in de kaart.

@@ -98,6 +98,9 @@ td.mut{color:var(--mut);font-weight:300}
       <div class="kpi"><div class="n" id="k-week">–</div><div class="l">Laatste 7 dagen</div><div class="s">metingen deze week</div></div>
     </div>
 
+    <h2 style="margin-top:34px">Normdata voor Teamkracht</h2>
+    <div class="card" id="c-norm"><div class="empty">Nog geen data</div></div>
+
     <div class="grid2" style="margin-top:34px">
       <div>
         <h2 style="margin-top:0">Gemiddelde per dimensie</h2>
@@ -152,7 +155,7 @@ async function showApp(){
 
 async function loadData(){
   let {data,error}=await db.from("index_scan_results")
-    .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation,is_hermeting,eerste_meting_id")
+    .select("id,created_at,index_score,zien,sturen,doen,items,email,name,company,age_band,work_situation,is_hermeting,eerste_meting_id,teamkracht_team_id")
     .order("created_at",{ascending:false});
   if(error){
     // Vangnet zolang de migratie 12-08-2026 (hermetingkolommen) nog niet draait.
@@ -189,6 +192,62 @@ function exportXlsx(){
   XLSX.writeFile(wb, `zelfkracht-index-export-${stamp}.xlsx`);
 }
 
+/* Het gemiddelde voor Teamkracht, naast wat er nu bevroren in de instellingen
+   staat. Twee dingen wil je zien: hoever de live cijfers afdrijven van de
+   ingestelde, en hoe hard je ze mag nemen. Die laatste is de marge: de halve
+   breedte van het 95%-interval rond het gemiddelde. Zolang die groter is dan de
+   halve middenband, is het gemiddelde te wiebelig om automatisch te laten
+   meelopen. Werkwijze staat in handleiding-beheer.md. */
+async function toonNormdata(rijen){
+  const doel = document.getElementById("c-norm");
+  const n = rijen.length;
+  if (!n){ doel.innerHTML = '<div class="empty">Nog geen metingen buiten teamtrajecten</div>'; return; }
+
+  const gem = a => a.reduce((x,y)=>x+y,0)/a.length;
+  const sd = a => { if (a.length<2) return 0; const m=gem(a); return Math.sqrt(a.reduce((t,v)=>t+(v-m)**2,0)/(a.length-1)); };
+  const dims = [["zien","Zien"],["sturen","Sturen"],["doen","Doen"]];
+  const live = Object.fromEntries(dims.map(([k])=>{
+    const v = rijen.map(r=>r[k]);
+    return [k, { gem: gem(v), sd: sd(v) }];
+  }));
+  const marge = 1.96 * live.sturen.sd / Math.sqrt(n);
+
+  let cfg = null;
+  try{
+    const q = await db.from("teamkracht_config").select("*").eq("id",1).single();
+    if (!q.error) cfg = q.data;
+  }catch(e){ /* stil: de config is er misschien nog niet */ }
+
+  const band = cfg ? Number(cfg.middenband_sd) : 0.25;
+  const klaar = n >= 250 && marge < 2;
+  const rij = ([k,label]) => {
+    const vast = cfg ? Number(cfg[`norm_${k}`]) : null;
+    const verschil = vast === null ? null : live[k].gem - vast;
+    return `<tr>
+      <td class="b">${label}</td>
+      <td>${live[k].gem.toFixed(1)}</td>
+      <td>${live[k].sd.toFixed(1)}</td>
+      <td>${vast === null ? "–" : vast}</td>
+      <td class="b" style="color:${verschil === null ? "var(--mut)" : Math.abs(verschil) > 2 ? "var(--pk)" : "var(--mut)"}">
+        ${verschil === null ? "–" : (verschil > 0 ? "+" : "") + verschil.toFixed(1)}</td>
+      <td>${(band * live[k].sd).toFixed(1)}</td>
+    </tr>`;
+  };
+
+  doel.innerHTML = `<div class="scrollx"><table>
+      <thead><tr><th>&nbsp;</th><th>Nu gemeten</th><th>Sd</th><th>Ingesteld</th><th>Verschil</th><th>Halve middenband</th></tr></thead>
+      <tbody>${dims.map(rij).join("")}</tbody>
+    </table></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.55">
+      ${n} metingen buiten teamtrajecten${cfg && cfg.norm_versie ? `, ingesteld op versie ${cfg.norm_versie}` : ""}${cfg && cfg.norm_n ? ` over ${cfg.norm_n} metingen` : ""}.
+      Marge op Sturen: <b>plusminus ${marge.toFixed(1)} punt</b>.
+      ${klaar
+        ? "Het gemiddelde is stevig genoeg om automatisch te laten meelopen; zet norm_bron op landelijk in de beheerpagina."
+        : `Nog te wiebelig om automatisch te laten meelopen. Daarvoor is de marge onder de 2 nodig, ongeveer 250 metingen; nu ${n}.`}
+      Wijkt het verschil meer dan een paar punten af, ververs de waarden dan in de beheerpagina en verhoog de versie.
+    </p>`;
+}
+
 function render(rows){
   // Onderzoeksdata (briefing 12-08-2026): hermetingen (zelfde adres, latere
   // meting) tellen niet mee in tellingen en gemiddelden. In de recente-tabel
@@ -216,6 +275,12 @@ function render(rows){
   const dims=[["Zien",avg(onderzoek.map(r=>r.zien))],["Sturen",avg(onderzoek.map(r=>r.sturen))],["Doen",avg(onderzoek.map(r=>r.doen))]];
   document.getElementById("c-dims").innerHTML=dims.map(([l,v])=>
     `<div class="row"><div class="lab">${l}</div><div class="track"><div class="fill" style="width:${v}%"></div></div><div class="val">${v}</div></div>`).join("");
+
+  // Normdata voor Teamkracht: het gemiddelde waar profielen tegen worden
+  // afgezet. Alleen metingen die niet via een teamlink binnenkwamen tellen mee,
+  // anders zou het instrument zijn eigen coaching gaan meten. Zelfde filter als
+  // de view teamkracht_referentie.
+  toonNormdata(onderzoek.filter(r=>!r.teamkracht_team_id));
 
   // Niveauverdeling
   const lv={"Laag":0,"Beperkt":0,"Redelijk":0,"Sterk":0,"Zeer sterk":0};

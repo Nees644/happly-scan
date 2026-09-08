@@ -3,7 +3,7 @@
 // Formaat a4, a3 of a1 liggend; afdrukken naar PDF gaat via de browser, de
 // print-CSS zet het papierformaat goed. Vereist de migratie 07-09-2026.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -42,7 +42,7 @@ export default async function handler(req, res){
       .select("code, titel, titel_geteld, richting, dynamiek, interventie, gespreksvraag").eq("actief", true),
     db.from("teamkracht_profielen").select("code, naam").eq("actief", true)
   ]);
-  if (regels.error || profielen.error){ res.status(500).json({ error: "teksten niet leesbaar" }); return; }
+  if (regels.error || profielen.error){ await logFout("teamkracht-kaart", "teksten niet leesbaar"); res.status(500).json({ error: "teksten niet leesbaar" }); return; }
 
   const html = bouwKaartHtml({
     teambeeld: beeld.data,

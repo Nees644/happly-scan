@@ -9,7 +9,7 @@
 // pagina meldt wat er nog onder blijft; blokkeren doet zij niet, want met het
 // huidige gemiddelde zou dat voor veel teams een onhaalbaar doel afdwingen.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { beoordeelDoel } from "../teamkracht-logica.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -71,7 +71,7 @@ export default async function handler(req, res){
     horizon_maanden: horizon, beoordeling,
     gekozen_user_id: gebruiker.user_id
   }).select("id, created_at").single();
-  if (ins.error){ res.status(500).json({ error: "vastleggen mislukt" }); return; }
+  if (ins.error){ await logFout("teamkracht-doel", "vastleggen mislukt"); res.status(500).json({ error: "vastleggen mislukt" }); return; }
 
   const doel_id = ins.data.id;
 

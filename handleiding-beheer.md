@@ -76,6 +76,11 @@ is met opzet: wat een team heeft gezien, blijft wat het heeft gezien.
 
 ## Het gemiddelde
 
+Sinds 8 september staat er een blok Normdata in : de live
+cijfers naast wat er is ingesteld, met het verschil en de marge erbij. Daar zie
+je in één oogopslag of het tijd is om te verversen. De cijfers hieronder leggen
+uit wat je dan doet.
+
 Op de kaart heet de magenta lijn het gemiddelde. Het staat nu op 74, 69 en 65,
 gemeten over 73 metingen op 7 september 2026, en het is vast ingesteld.
 
@@ -122,6 +127,17 @@ update public.teamkracht_coachvragen set opgenomen = true where id = '...';
 
 Dit is de plek waar de bibliotheek zichzelf verbetert. Ik zou er per kwartaal
 een halfuur voor nemen.
+
+## Zien of er iets stukging
+
+Elke echte fout in een Teamkracht-route landt in funnel_events. Gebruikersfouten
+niet, alleen de dingen die niet horen te gebeuren.
+
+
+
+Staat er niets, dan is er niets misgegaan. Staat er wel iets, dan zie je welke
+route en welke melding, en dan hoor je het van mij te horen in plaats van van
+een coach.
 
 ## Wat je niet moet aanraken
 

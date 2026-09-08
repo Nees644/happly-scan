@@ -35,3 +35,19 @@ export async function eisGebruiker(req, res, rollen = ["coach", "beheerder"]){
   if (!rollen.includes(gebruiker.rol)){ res.status(403).json({ error: "geen toegang" }); return null; }
   return gebruiker;
 }
+
+/* Een mislukking van een Teamkracht-route landt in funnel_events, zodat je in
+   het dashboard ziet dat er iets stukging in plaats van het van een coach te
+   horen. Alleen echte fouten, geen 400 of 403: dat zijn gebruikersfouten en
+   die zeggen niets over de software. Er staat geen persoonsgegeven in, alleen
+   de route en de melding die de gebruiker ook kreeg.
+   Loggen mag nooit een verzoek laten vallen, vandaar de lege catch. */
+export async function logFout(route, melding){
+  try{
+    await serviceClient().from("funnel_events").insert({
+      event: "teamkracht_fout",
+      bron: `${route}: ${String(melding).slice(0, 140)}`,
+      sessie: crypto.randomUUID()
+    });
+  }catch(e){ /* stil */ }
+}

@@ -6,7 +6,7 @@
 //      metingen erbij, zodat het dashboard weet of er genoeg deelnemers zijn.
 // POST maakt een team met een uniek token van zes tekens.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -28,7 +28,7 @@ export default async function handler(req, res){
       .order("created_at", { ascending: false });
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
-    if (teams.error){ res.status(500).json({ error: "ophalen mislukt" }); return; }
+    if (teams.error){ await logFout("teamkracht-team", "ophalen mislukt"); res.status(500).json({ error: "ophalen mislukt" }); return; }
 
     // Aantal metingen per team. Geen scores, geen namen: alleen een telling.
     const metingen = await db.from("index_scan_results")
@@ -77,10 +77,10 @@ export default async function handler(req, res){
 
       if (!ins.error){ res.status(200).json(ins.data); return; }
       if (!/duplicate|unique/i.test(ins.error.message || "")){
-        res.status(500).json({ error: "aanmaken mislukt" }); return;
+        await logFout("teamkracht-team", "aanmaken mislukt"); res.status(500).json({ error: "aanmaken mislukt" }); return;
       }
     }
-    res.status(500).json({ error: "geen vrij token gevonden" });
+    await logFout("teamkracht-team", "geen vrij token gevonden"); res.status(500).json({ error: "geen vrij token gevonden" });
     return;
   }
 

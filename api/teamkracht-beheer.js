@@ -7,7 +7,7 @@
 // bouwt de update zelf op uit de witte lijst in plaats van door te geven wat
 // binnenkomt.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { SCHEMA, taalcontrole } from "../teamkracht-beheer-schema.js";
 import { controleerVoorwaarde } from "../teamkracht-logica.js";
 
@@ -25,7 +25,7 @@ export default async function handler(req, res){
     let q = db.from(def.tabel).select(kolommen);
     if (!def.enkel) q = q.order(def.velden.some(v => v.kolom === "volgorde") ? "volgorde" : def.sleutel);
     const uit = await q;
-    if (uit.error){ res.status(500).json({ error: "ophalen mislukt" }); return; }
+    if (uit.error){ await logFout("teamkracht-beheer", "ophalen mislukt"); res.status(500).json({ error: "ophalen mislukt" }); return; }
     res.status(200).json({ tabel: naam, rijen: uit.data });
     return;
   }
@@ -80,7 +80,7 @@ export default async function handler(req, res){
     if (def.updated) waarden.updated_at = new Date().toISOString();
 
     const uit = await db.from(def.tabel).update(waarden).eq(def.sleutel, sleutel).select(def.sleutel).single();
-    if (uit.error){ res.status(500).json({ error: "opslaan mislukt" }); return; }
+    if (uit.error){ await logFout("teamkracht-beheer", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
 
     res.status(200).json({ ok: true, sleutel: uit.data[def.sleutel] });
     return;

@@ -3,7 +3,7 @@
 // Geen persoonsgegevens; wel achter dezelfde authenticatie als het dashboard,
 // omdat het materiaal van de opdrachtgever is. Vereist de migratie 07-09-2026.
 
-import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
+import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 
 export default async function handler(req, res){
   if (req.method !== "GET"){ res.status(405).json({ error: "method" }); return; }
@@ -17,7 +17,7 @@ export default async function handler(req, res){
       .eq("actief", true).order("volgorde"),
     db.from("teamkracht_profielen").select("code, naam").eq("actief", true)
   ]);
-  if (i.error || p.error){ res.status(500).json({ error: "ophalen mislukt" }); return; }
+  if (i.error || p.error){ await logFout("teamkracht-interventies", "ophalen mislukt"); res.status(500).json({ error: "ophalen mislukt" }); return; }
 
   res.status(200).json({ interventies: i.data, profielen: p.data });
 }
