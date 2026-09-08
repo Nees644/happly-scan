@@ -1,8 +1,10 @@
 -- ===========================================================================
 -- VOORSTEL · MIGRATIE 09-09-2026 · Certificering fase A
 --
--- TER REVIEW. Nog niet draaien. Vier dingen wil ik eerst van Maarten horen;
--- ze staan onderaan dit bestand bij OPEN PUNTEN.
+-- Alle open punten zijn beantwoord op 9 september 2026; onderaan staat welke
+-- en hoe. Dit blok kan gedraaid worden in de SQL-editor van
+-- uqulkznqcqpbagbvtqdr. Alles is herhaalbaar: create if not exists, on conflict
+-- do nothing, en elke policy wordt eerst gedropt.
 --
 -- Uitgangspunt: de bestaande teamkracht_gebruikers is de gebruikerstabel. Die
 -- hangt al aan auth.users en wordt al gebruikt door elke Teamkracht-route. Een
@@ -137,6 +139,73 @@ create index if not exists certificaten_gebruiker_idx
 
 
 -- ---------------------------------------------------------------------------
+-- BLOK C2 · de producten
+--
+-- Eén tabel met alle prijzen, zodat er nergens een bedrag in de code of in de
+-- frontend staat. Bedragen in centen exclusief btw; de btw wordt bij het
+-- afrekenen opgeteld, dus die staat er als percentage bij en niet als bedrag.
+--
+-- Mollie kent geen productcatalogus zoals Stripe. Er is dus geen price-id om
+-- mee te synchroniseren: deze tabel is de catalogus. Dat scheelt een
+-- koppeling die uit de pas kan lopen.
+--
+-- Prijswijziging: nieuwe rij met een nieuwe versie, oude rij op actief = false.
+-- Lopende abonnementen houden hun bedrag, want een Mollie-abonnement heeft zijn
+-- bedrag bij het aanmaken meegekregen.
+create table if not exists public.producten (
+  code            text primary key,
+  naam            text not null,
+  prijs_ex_btw    int  not null check (prijs_ex_btw >= 0),   -- in centen
+  btw_promille    int  not null default 210,                 -- 21,0 procent
+  interval        text check (interval in ('eenmalig','maand','jaar')),
+  soort           text not null check (soort in ('meting','certificering','licentie','credit')),
+  fase            text not null default 'later' check (fase in ('bestaand','A','later')),
+  bevat           text,
+  voorwaarde      text,
+  actief          boolean not null default true,
+  versie          int not null default 1,
+  updated_at      timestamptz not null default now()
+);
+
+alter table public.producten enable row level security;
+
+-- Prijzen zijn openbaar; ze staan straks op de website. Wel via een view zodat
+-- er geen kolom per ongeluk bijkomt die dat niet is.
+create or replace view public.prijslijst as
+select code, naam, prijs_ex_btw, btw_promille, interval, soort, bevat, voorwaarde
+from public.producten
+where actief = true and fase <> 'later';
+
+revoke all on public.prijslijst from public;
+grant select on public.prijslijst to anon, authenticated;
+
+drop policy if exists "producten lezen" on public.producten;
+create policy "producten lezen" on public.producten
+  for select to authenticated using (true);
+
+insert into public.producten (code, naam, prijs_ex_btw, interval, soort, fase, bevat, voorwaarde) values
+('ZKI',        'Zelfkracht Index, individueel',            0, 'eenmalig', 'meting',        'bestaand', 'De meting en de persoonlijke uitslag', null),
+('TF',         'Teamfoto, een team',                    9500, 'eenmalig', 'meting',        'A',        'De Teamkrachtkaart van een team',      'Hoofdstuk 1 en 2 van de Lezer-module afgerond'),
+('HM',         'Hermeting, een team',                   9500, 'eenmalig', 'meting',        'A',        'Het eindbeeld over het startbeeld',    'Eerder een Teamfoto voor dit team'),
+('LEZ-1',      'Lezer, instap',                        14900, 'eenmalig', 'certificering', 'A',        'Module, toets, certificaat, badge, register', null),
+('LEZ-2',      'Lezer, met licentie',                  39500, 'eenmalig', 'certificering', 'A',        'Lezer instap plus een jaar persoonlijke licentie', null),
+('LIC-M',      'Persoonlijke licentie, maand',           2900, 'maand',    'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
+('LIC-J',      'Persoonlijke licentie, jaar',           29000, 'jaar',     'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
+('LEZ-10',     'Lezer, organisatie tien plekken',      295000, 'eenmalig', 'certificering', 'later',    'Tien maal Lezer met licentie plus organisatiedashboard', null),
+('BEG-1',      'Begeleider, instap',                    69500, 'eenmalig', 'certificering', 'later',    'Opleidingsdag, drie intervisies, certificaat, badge, register', 'Geldig Lezer-certificaat'),
+('BEG-2',      'Begeleider, met licentie',              89500, 'eenmalig', 'certificering', 'later',    'Begeleider instap plus een jaar licentie, naam en logo op de kaart', 'Geldig Lezer-certificaat'),
+('BEG-8',      'Begeleider, in-company acht plekken',  495000, 'eenmalig', 'certificering', 'later',    'Acht maal Begeleider met licentie', null),
+('OPL-1',      'Opleider, instap',                     250000, 'eenmalig', 'certificering', 'later',    'Train de trainer en het eerste jaar opleiderslicentie', 'Geldig Begeleider-certificaat'),
+('OPL-2',      'Opleider, met startpakket',            325000, 'eenmalig', 'certificering', 'later',    'Opleider instap plus tien certificaatcredits en marketingpakket', 'Geldig Begeleider-certificaat'),
+('LIC-ORG-10', 'Organisatiebundel tien licenties',     249000, 'jaar',     'licentie',      'later',    'Tien persoonlijke licenties, toegekend door een beheerder', null),
+('LIC-ORG-30', 'Organisatiebundel dertig licenties',   649000, 'jaar',     'licentie',      'later',    'Dertig persoonlijke licenties', null),
+('LIC-ORG-X',  'Organisatiebundel onbeperkt',         1490000, 'jaar',     'licentie',      'later',    'Onbeperkt persoonlijke licenties', null),
+('LIC-OPL',    'Opleiderslicentie, verlenging',         99000, 'jaar',     'licentie',      'later',    'Verlenging van het opleiderschap met een jaar', 'Geldig Opleider-certificaat'),
+('CERT-AFD',   'Certificaatcredit',                      9500, 'eenmalig', 'credit',        'later',    'Een uit te reiken certificaat', 'Alleen voor Opleiders')
+on conflict (code) do nothing;
+
+
+-- ---------------------------------------------------------------------------
 -- BLOK D · betalingen
 --
 -- Staat niet in de briefing, maar acceptatiecriterium 1 en 4 kunnen niet
@@ -207,10 +276,18 @@ create table if not exists public.kaart_archief (
   formaat       text not null check (formaat in ('a4','a3','a1')),
   soort         text not null check (soort in ('startbeeld','doelbeeld','eindbeeld')),
   bestemming    text not null default 'supabase' check (bestemming in ('supabase','drive')),
-  pad           text not null,          -- bucketpad of Drive-bestand-id
+  pad           text not null,          -- bucketpad, of later een Drive-bestand-id
   bytes         int,
   check (teambeeld_id is not null or doel_id is not null)
 );
+
+-- De bucket voor de kaarten. Bewust NIET publiek, anders dan de bucket voor de
+-- deelbeelden: een deelbeeld is gemaakt om te delen, een Teamkrachtkaart hoort
+-- bij een team. De kaartroute geeft een tijdelijke link uit aan wie het
+-- teambeeld mag zien; niemand komt er rechtstreeks bij.
+insert into storage.buckets (id, name, public)
+  values ('teamkrachtkaarten', 'teamkrachtkaarten', false)
+  on conflict (id) do nothing;
 
 create index if not exists kaart_archief_teambeeld_idx
   on public.kaart_archief (teambeeld_id, aangemaakt_op desc);
@@ -359,73 +436,6 @@ create policy "meldingen alleen beheerder" on public.mollie_meldingen
   for select to authenticated using (public.teamkracht_is_beheerder());
 
 
--- ---------------------------------------------------------------------------
--- BLOK G · de producten
---
--- Eén tabel met alle prijzen, zodat er nergens een bedrag in de code of in de
--- frontend staat. Bedragen in centen exclusief btw; de btw wordt bij het
--- afrekenen opgeteld, dus die staat er als percentage bij en niet als bedrag.
---
--- Mollie kent geen productcatalogus zoals Stripe. Er is dus geen price-id om
--- mee te synchroniseren: deze tabel is de catalogus. Dat scheelt een
--- koppeling die uit de pas kan lopen.
---
--- Prijswijziging: nieuwe rij met een nieuwe versie, oude rij op actief = false.
--- Lopende abonnementen houden hun bedrag, want een Mollie-abonnement heeft zijn
--- bedrag bij het aanmaken meegekregen.
-create table if not exists public.producten (
-  code            text primary key,
-  naam            text not null,
-  prijs_ex_btw    int  not null check (prijs_ex_btw >= 0),   -- in centen
-  btw_promille    int  not null default 210,                 -- 21,0 procent
-  interval        text check (interval in ('eenmalig','maand','jaar')),
-  soort           text not null check (soort in ('meting','certificering','licentie','credit')),
-  fase            text not null default 'later' check (fase in ('bestaand','A','later')),
-  bevat           text,
-  voorwaarde      text,
-  actief          boolean not null default true,
-  versie          int not null default 1,
-  updated_at      timestamptz not null default now()
-);
-
-alter table public.producten enable row level security;
-
--- Prijzen zijn openbaar; ze staan straks op de website. Wel via een view zodat
--- er geen kolom per ongeluk bijkomt die dat niet is.
-create or replace view public.prijslijst as
-select code, naam, prijs_ex_btw, btw_promille, interval, soort, bevat, voorwaarde
-from public.producten
-where actief = true and fase <> 'later';
-
-revoke all on public.prijslijst from public;
-grant select on public.prijslijst to anon, authenticated;
-
-drop policy if exists "producten lezen" on public.producten;
-create policy "producten lezen" on public.producten
-  for select to authenticated using (true);
-
-insert into public.producten (code, naam, prijs_ex_btw, interval, soort, fase, bevat, voorwaarde) values
-('ZKI',        'Zelfkracht Index, individueel',            0, 'eenmalig', 'meting',        'bestaand', 'De meting en de persoonlijke uitslag', null),
-('TF',         'Teamfoto, een team',                    9500, 'eenmalig', 'meting',        'A',        'De Teamkrachtkaart van een team',      'Hoofdstuk 1 en 2 van de Lezer-module afgerond'),
-('HM',         'Hermeting, een team',                   9500, 'eenmalig', 'meting',        'A',        'Het eindbeeld over het startbeeld',    'Eerder een Teamfoto voor dit team'),
-('LEZ-1',      'Lezer, instap',                        14900, 'eenmalig', 'certificering', 'A',        'Module, toets, certificaat, badge, register', null),
-('LEZ-2',      'Lezer, met licentie',                  39500, 'eenmalig', 'certificering', 'A',        'Lezer instap plus een jaar persoonlijke licentie', null),
-('LIC-M',      'Persoonlijke licentie, maand',           2900, 'maand',    'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
-('LIC-J',      'Persoonlijke licentie, jaar',           29000, 'jaar',     'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
-('LEZ-10',     'Lezer, organisatie tien plekken',      295000, 'eenmalig', 'certificering', 'later',    'Tien maal Lezer met licentie plus organisatiedashboard', null),
-('BEG-1',      'Begeleider, instap',                    69500, 'eenmalig', 'certificering', 'later',    'Opleidingsdag, drie intervisies, certificaat, badge, register', 'Geldig Lezer-certificaat'),
-('BEG-2',      'Begeleider, met licentie',              89500, 'eenmalig', 'certificering', 'later',    'Begeleider instap plus een jaar licentie, naam en logo op de kaart', 'Geldig Lezer-certificaat'),
-('BEG-8',      'Begeleider, in-company acht plekken',  495000, 'eenmalig', 'certificering', 'later',    'Acht maal Begeleider met licentie', null),
-('OPL-1',      'Opleider, instap',                     250000, 'eenmalig', 'certificering', 'later',    'Train de trainer en het eerste jaar opleiderslicentie', 'Geldig Begeleider-certificaat'),
-('OPL-2',      'Opleider, met startpakket',            325000, 'eenmalig', 'certificering', 'later',    'Opleider instap plus tien certificaatcredits en marketingpakket', 'Geldig Begeleider-certificaat'),
-('LIC-ORG-10', 'Organisatiebundel tien licenties',     249000, 'jaar',     'licentie',      'later',    'Tien persoonlijke licenties, toegekend door een beheerder', null),
-('LIC-ORG-30', 'Organisatiebundel dertig licenties',   649000, 'jaar',     'licentie',      'later',    'Dertig persoonlijke licenties', null),
-('LIC-ORG-X',  'Organisatiebundel onbeperkt',         1490000, 'jaar',     'licentie',      'later',    'Onbeperkt persoonlijke licenties', null),
-('LIC-OPL',    'Opleiderslicentie, verlenging',         99000, 'jaar',     'licentie',      'later',    'Verlenging van het opleiderschap met een jaar', 'Geldig Opleider-certificaat'),
-('CERT-AFD',   'Certificaatcredit',                      9500, 'eenmalig', 'credit',        'later',    'Een uit te reiken certificaat', 'Alleen voor Opleiders')
-on conflict (code) do nothing;
-
-
 -- ===========================================================================
 -- OPEN PUNTEN, graag antwoord voordat dit draait
 --
@@ -460,15 +470,11 @@ on conflict (code) do nothing;
 -- 8. OPGELOST: geen kopie van elke betaalmail, maar een dagelijkse
 --    samenvatting voor de beheerder; zie blok D4.
 --
--- NOG WEL NODIG, een keuze:
+-- 9. OPGELOST: de kaarten worden bewaard in Supabase Storage, in een besloten
+--    bucket teamkrachtkaarten. Google Drive blijft mogelijk als bestemming in
+--    het datamodel, maar wordt niet gebouwd.
 --
--- A. Waar de kaarten worden gearchiveerd. Blok D2 kan allebei: 'supabase' of
---    'drive'. Supabase Storage zit al in de stack, gebruiken we al voor de
---    deelbeelden, heeft dezelfde rechten als de rest en kost niets extra aan
---    koppeling. Google Drive is prettiger om zelf in te bladeren, maar vraagt
---    een OAuth-koppeling die kan verlopen, en zet klantmateriaal in een
---    Google-account. Mijn voorstel: standaard Supabase, en een knop
---    "naar Drive" voor wie dat wil.
+-- Er staat nu niets meer open. Dit blok kan gedraaid worden.
 --
 -- ---------------------------------------------------------------------------
 -- WAT ER BIJ HET VERWIJDEREN GEBEURT
