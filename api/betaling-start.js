@@ -86,12 +86,19 @@ export default async function handler(req, res){
 
   const basis = basisUrl(req);
   const geheim = process.env.MOLLIE_WEBHOOK_SECRET || "";
+  // Een preview staat achter Deployment Protection en daar komt Mollie niet
+  // door. Vercel geeft daar een sleutel voor als je Protection Bypass aanzet;
+  // die hangen we aan de melding-URL. Op productie staat geen bescherming en
+  // doet dit niets.
+  const doorlaat = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+    ? `&x-vercel-protection-bypass=${encodeURIComponent(process.env.VERCEL_AUTOMATION_BYPASS_SECRET)}`
+    : "";
   try{
     const betaling = await maakBetaling({
       centen: bedrag.totaal,
       omschrijving: omschrijving(product, teamnaam),
       redirectUrl: `${basis}/betaald?b=${bestelling.data.id}`,
-      webhookUrl: `${basis}/api/betaling-webhook${geheim ? `?s=${encodeURIComponent(geheim)}` : ""}`,
+      webhookUrl: `${basis}/api/betaling-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
       metadata: { bestelling_id: bestelling.data.id, product: product.code }
     });
 

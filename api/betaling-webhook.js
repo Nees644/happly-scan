@@ -10,30 +10,7 @@
 // fout aan onze kant zit.
 
 import { serviceClient, logFout } from "../teamkracht-auth.js";
-import { haalBetaling } from "../mollie.js";
-
-/* Wat er moet gebeuren zodra een betaling binnen is. Alleen dingen die uit de
-   bestelling volgen; de bestelling zelf is de bron. */
-async function verwerkBetaling(db, bestelling){
-  const code = bestelling.product_code;
-
-  // Een losse Teamfoto of hermeting wordt pas verbruikt als de kaart wordt
-  // gemaakt. Hier hoeft niets te gebeuren; het recht staat in de bestelling.
-  if (code === "TF" || code === "HM") return "recht op een kaart vastgelegd";
-
-  // De Lezer-module: alle hoofdstukken open. Dat leiden we af uit een betaalde
-  // bestelling, dus er is geen vlag om te zetten. Wel de rol, zodat iemand die
-  // alleen de module kocht ook echt binnenkomt.
-  if (code === "LEZ-1" || code === "LEZ-2"){
-    await db.from("teamkracht_gebruikers")
-      .update({ rol: "lezer" })
-      .eq("user_id", bestelling.gebruiker_id)
-      .eq("rol", "lezer");   // een coach of beheerder houdt zijn eigen rol
-    return "module opengezet";
-  }
-
-  return "geen actie";
-}
+import { verwerkMollieBetaling } from "../betaling-verwerken.js";
 
 export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).send("method"); return; }
@@ -55,55 +32,10 @@ export default async function handler(req, res){
     .insert({ mollie_id: mollieId }).select("id").single();
 
   try{
-    const betaling = await haalBetaling(mollieId);
-    const bestellingId = betaling?.metadata?.bestelling_id || null;
-
-    let q = db.from("bestellingen").select("*");
-    q = bestellingId ? q.eq("id", bestellingId) : q.eq("mollie_payment_id", mollieId);
-    const b = await q.single();
-    if (b.error || !b.data){
-      await db.from("mollie_meldingen")
-        .update({ verwerkt_op: new Date().toISOString(), uitkomst: "geen bestelling gevonden" })
-        .eq("id", melding.data?.id);
-      res.status(200).send("ok");
-      return;
-    }
-    const bestelling = b.data;
-
-    // Al verwerkt? Dan niets doen. Mollie bezorgt een melding gerust twee keer.
-    if (bestelling.status === "betaald" && betaling.status === "paid"){
-      await db.from("mollie_meldingen")
-        .update({ verwerkt_op: new Date().toISOString(), uitkomst: "al verwerkt" })
-        .eq("id", melding.data?.id);
-      res.status(200).send("ok");
-      return;
-    }
-
-    const nieuw = betaling.status === "paid"     ? "betaald"
-                : betaling.status === "expired"  ? "verlopen"
-                : betaling.status === "canceled" ? "mislukt"
-                : betaling.status === "failed"   ? "mislukt"
-                : null;
-
-    let uitkomst = `status ${betaling.status}`;
-    if (nieuw){
-      await db.from("bestellingen").update({
-        status: nieuw,
-        mollie_payment_id: mollieId,
-        betaald_op: nieuw === "betaald" ? new Date().toISOString() : null
-      }).eq("id", bestelling.id);
-
-      if (nieuw === "betaald"){
-        uitkomst = await verwerkBetaling(db, bestelling);
-      } else {
-        uitkomst = `bestelling op ${nieuw}`;
-      }
-    }
-
+    const { uitkomst } = await verwerkMollieBetaling(db, mollieId);
     await db.from("mollie_meldingen")
       .update({ verwerkt_op: new Date().toISOString(), uitkomst })
       .eq("id", melding.data?.id);
-
     res.status(200).send("ok");
   }catch(e){
     // Niet met een foutcode antwoorden: dan blijft Mollie het uren proberen
