@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Bedankt voor je bestelling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--lijn:#E2D8D2;--gedempt:#6B6472}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--papier);color:var(--inkt);
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;line-height:1.6}
+  .blad{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:38px 40px;max-width:520px;width:100%}
+  .kruimel{font-size:11.5px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:14px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:2rem;line-height:1.12;margin-bottom:14px}
+  p{font-weight:300;margin-bottom:14px}
+  p:last-child{margin-bottom:0}
+  .regel{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--lijn);
+         padding:11px 0;font-size:14.5px;font-weight:300}
+  .regel b{font-weight:600}
+  .knop{display:inline-block;margin-top:20px;background:var(--magenta);color:#fff;text-decoration:none;
+        font-weight:600;font-size:14px;padding:12px 22px;border-radius:999px}
+  .stil{font-size:13px;color:var(--gedempt)}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--lijn);border-top-color:var(--magenta);
+        border-radius:50%;animation:d .8s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes d{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="blad" id="blad">
+  <p class="kruimel">HAPPLY</p>
+  <h1 id="kop"><span class="spin"></span>We kijken of je betaling binnen is</h1>
+  <p id="tekst">Dit duurt meestal een paar tellen. Je hoeft deze pagina niet te verversen.</p>
+  <div id="details"></div>
+  <div id="verder"></div>
+</div>
+
+<script>
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const euro = c => (c / 100).toFixed(2).replace(".", ",");
+const id = new URLSearchParams(location.search).get("b");
+
+/* Mollie stuurt de klant vaak terug voordat de melding bij ons binnen is. Dus
+   niet één keer kijken en concluderen dat het misging, maar een halve minuut
+   volhouden en daarna eerlijk zeggen dat het nog loopt. */
+const WACHT = [1000, 1500, 2000, 3000, 4000, 5000, 6000, 8000];
+
+async function stand(){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(`/api/betaling-status?b=${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${session.access_token}` }
+  });
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+function toon(b, klaar){
+  el("details").innerHTML = `
+    <div class="regel"><span>${esc(b.product)}</span><b>${euro(b.bedrag_cent)} euro</b></div>
+    <div class="regel"><span>Bestelnummer</span><span class="stil">${esc(b.id.slice(0, 8))}</span></div>`;
+  if (b.status === "betaald"){
+    el("kop").textContent = "Bedankt, je betaling is binnen";
+    el("tekst").textContent = b.product_code === "TF" || b.product_code === "HM"
+      ? "Je kunt de kaart nu maken in het dashboard."
+      : "Alles staat voor je klaar.";
+    el("verder").innerHTML = '<a class="knop" href="/teamkracht">Naar het dashboard</a>';
+  } else if (b.status === "mislukt" || b.status === "verlopen"){
+    el("kop").textContent = "De betaling is niet afgerond";
+    el("tekst").textContent = "Er is niets afgeschreven. Je kunt het opnieuw proberen wanneer je wilt.";
+    el("verder").innerHTML = '<a class="knop" href="/teamkracht">Terug naar het dashboard</a>';
+  } else if (klaar){
+    el("kop").textContent = "Je betaling is onderweg";
+    el("tekst").textContent = "De bevestiging van de bank kan een paar minuten duren. Zodra hij binnen is staat alles klaar; je hoeft niets te doen.";
+    el("verder").innerHTML = '<a class="knop" href="/teamkracht">Naar het dashboard</a>';
+  }
+}
+
+async function start(){
+  if (!id){
+    el("kop").textContent = "Deze link is onvolledig";
+    el("tekst").textContent = "Ga terug naar het dashboard en probeer het opnieuw.";
+    el("verder").innerHTML = '<a class="knop" href="/teamkracht">Naar het dashboard</a>';
+    return;
+  }
+  for (let i = 0; i <= WACHT.length; i++){
+    try{
+      const b = await stand();
+      const klaar = i === WACHT.length;
+      if (b.status === "betaald" || b.status === "mislukt" || b.status === "verlopen" || klaar){
+        toon(b, klaar); return;
+      }
+      toon(b, false);
+    }catch(e){
+      el("kop").textContent = "We kunnen je bestelling niet ophalen";
+      el("tekst").textContent = e.message === "niet ingelogd"
+        ? "Log opnieuw in; daarna staat je bestelling klaar."
+        : e.message;
+      el("verder").innerHTML = '<a class="knop" href="/teamkracht">Naar het dashboard</a>';
+      return;
+    }
+    await new Promise(r => setTimeout(r, WACHT[i]));
+  }
+}
+start();
+</script>
+</body>
+</html>

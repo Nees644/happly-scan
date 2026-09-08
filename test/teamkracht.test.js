@@ -10,6 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
   bepaalProfiel, bepaalTeamlijn, bepaalBreuk, bepaalVerdeling,
@@ -416,4 +417,100 @@ test("criterium 3: er staat niets in de SVG dat naar een deelnemer wijst", async
   }
   // Wel het beeld zelf: drie kolommen, elf lijnen plus de teamlijn.
   assert.equal((svg.match(/<polyline/g) || []).length, 12);
+});
+
+/* ---------------------------------------------------------- betalen */
+
+import { bedragMetBtw, soortBetaling, magKopen, omschrijving, EENMALIG } from "../betalen.js";
+import { centenNaarBedrag } from "../mollie.js";
+
+/* De prijzen uit de migratie, zodat de controles op de echte bedragen draaien
+   en niet op getallen die ik hier overtyp. */
+function leesProducten(){
+  const sql = readFileSync(new URL("../migratie-certificering-2026-09-09.sql", import.meta.url), "utf8");
+  const start = sql.indexOf("insert into public.producten");
+  const eind  = sql.indexOf("on conflict (code) do nothing;", start);
+  return [...sql.slice(start, eind).matchAll(/^\('([A-Z0-9-]+)',\s*'([^']+)',\s*(\d+),/gm)]
+    .map(m => ({ code: m[1], naam: m[2], prijs_ex_btw: Number(m[3]), btw_promille: 210, actief: true, fase: "A" }));
+}
+
+test("de prijzen uit de migratie zijn de prijzen uit de briefing", () => {
+  const p = Object.fromEntries(leesProducten().map(x => [x.code, x.prijs_ex_btw]));
+  assert.equal(p["TF"], 9500);
+  assert.equal(p["HM"], 9500);
+  assert.equal(p["LEZ-1"], 14900);
+  assert.equal(p["LEZ-2"], 39500);
+  assert.equal(p["LIC-M"], 2900);
+  assert.equal(p["LIC-J"], 29000);
+  assert.equal(Object.keys(p).length, 18);
+});
+
+test("de klantlogica uit de briefing klopt op de echte prijzen", () => {
+  const p = Object.fromEntries(leesProducten().map(x => [x.code, x.prijs_ex_btw]));
+  // De middenoptie moet goedkoper zijn dan instap plus een losse jaarlicentie.
+  assert.ok(p["LEZ-2"] < p["LEZ-1"] + p["LIC-J"], "Lezer midden is niet goedkoper");
+  assert.ok(p["BEG-2"] < p["BEG-1"] + p["LIC-J"], "Begeleider midden is niet goedkoper");
+  assert.ok(p["OPL-2"] < p["OPL-1"] + 10 * p["CERT-AFD"], "Opleider midden is niet goedkoper");
+  // Bulk moet per plek goedkoper zijn dan de middenoptie.
+  assert.ok(p["LEZ-10"] / 10 < p["LEZ-2"], "Lezer bulk is niet goedkoper per plek");
+  assert.ok(p["BEG-8"] / 8 < p["BEG-2"], "Begeleider bulk is niet goedkoper per plek");
+  // En een bundel licenties goedkoper dan losse jaarlicenties.
+  assert.ok(p["LIC-ORG-10"] / 10 < p["LIC-J"], "Bundel van tien is niet goedkoper");
+  assert.ok(p["LIC-ORG-30"] / 30 < p["LIC-ORG-10"] / 10, "Bundel van dertig is niet goedkoper per plek");
+});
+
+test("btw wordt op hele centen afgerond", () => {
+  assert.deepEqual(bedragMetBtw({ prijs_ex_btw: 9500, btw_promille: 210 }), { ex: 9500, btw: 1995, totaal: 11495 });
+  assert.deepEqual(bedragMetBtw({ prijs_ex_btw: 2900, btw_promille: 210 }), { ex: 2900, btw: 609, totaal: 3509 });
+  // Een bedrag dat niet rond uitkomt: 149 euro plus 21 procent is 180,29.
+  assert.deepEqual(bedragMetBtw({ prijs_ex_btw: 14900, btw_promille: 210 }), { ex: 14900, btw: 3129, totaal: 18029 });
+  assert.throws(() => bedragMetBtw({ prijs_ex_btw: 95.5 }), /heel aantal centen/);
+});
+
+test("Mollie krijgt altijd twee decimalen als tekst", () => {
+  assert.equal(centenNaarBedrag(11495), "114.95");
+  assert.equal(centenNaarBedrag(3509), "35.09");
+  assert.equal(centenNaarBedrag(0), "0.00");
+  assert.throws(() => centenNaarBedrag(95.5), /heel aantal centen/);
+});
+
+test("alleen de eenmalige producten kunnen nu worden afgerekend", () => {
+  assert.deepEqual(EENMALIG, ["TF", "HM", "LEZ-1"]);
+  assert.equal(soortBetaling("TF"), "eenmalig");
+  assert.equal(soortBetaling("LIC-M"), "abonnement");
+  assert.equal(soortBetaling("LEZ-2"), "eenmalig_met_abonnement");
+  assert.equal(soortBetaling("BEG-1"), null);
+});
+
+test("een Teamfoto kan niet worden gekocht zonder leesdrempel of team", () => {
+  const tf = { code: "TF", naam: "Teamfoto", prijs_ex_btw: 9500, actief: true, fase: "A" };
+  const basis = { product: tf, gebruiker: { licentie_actief: false }, heeftStartbeeld: false };
+  assert.match(magKopen({ ...basis, teamId: null, heeftLeesdrempel: true }), /team/);
+  assert.match(magKopen({ ...basis, teamId: "x", heeftLeesdrempel: false }), /hoofdstuk 1 en 2/);
+  assert.equal(magKopen({ ...basis, teamId: "x", heeftLeesdrempel: true }), null);
+});
+
+test("met een licentie hoeft er niets te worden afgerekend", () => {
+  const tf = { code: "TF", naam: "Teamfoto", prijs_ex_btw: 9500, actief: true, fase: "A" };
+  assert.match(
+    magKopen({ product: tf, gebruiker: { licentie_actief: true }, teamId: "x", heeftLeesdrempel: true }),
+    /inbegrepen/);
+});
+
+test("een hermeting kan niet zonder startbeeld", () => {
+  const hm = { code: "HM", naam: "Hermeting", prijs_ex_btw: 9500, actief: true, fase: "A" };
+  const basis = { product: hm, gebruiker: {}, teamId: "x", heeftLeesdrempel: true };
+  assert.match(magKopen({ ...basis, heeftStartbeeld: false }), /eerst een Teamfoto/);
+  assert.equal(magKopen({ ...basis, heeftStartbeeld: true }), null);
+});
+
+test("wat later komt is nu niet te koop", () => {
+  const beg = { code: "BEG-1", naam: "Begeleider", prijs_ex_btw: 69500, actief: true, fase: "later" };
+  assert.match(magKopen({ product: beg, gebruiker: {} }), /nog niet beschikbaar/);
+});
+
+test("de omschrijving op het afschrift blijft kort en herkenbaar", () => {
+  const p = { code: "TF", naam: "Teamfoto, een team" };
+  assert.equal(omschrijving(p, "Team Noord"), "Happly Teamfoto, een team (Team Noord)");
+  assert.ok(omschrijving(p, "x".repeat(200)).length <= 100);
 });

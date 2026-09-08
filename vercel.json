@@ -8,6 +8,10 @@
     {
       "source": "/uitslag/:token",
       "destination": "/api/uitslag?t=:token"
+    },
+    {
+      "source": "/betaald",
+      "destination": "/betaald.html"
     }
   ],
   "functions": {
@@ -66,6 +70,15 @@
       "maxDuration": 10
     },
     "api/instellingen-check.js": {
+      "maxDuration": 10
+    },
+    "api/betaling-start.js": {
+      "maxDuration": 20
+    },
+    "api/betaling-webhook.js": {
+      "maxDuration": 20
+    },
+    "api/betaling-status.js": {
       "maxDuration": 10
     }
   },
