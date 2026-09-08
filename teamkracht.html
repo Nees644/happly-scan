@@ -192,7 +192,7 @@ function render(){
 
     const pil = genoeg
       ? `<span class="pil klaar">${start ? "hermeting mogelijk" : "kaart mogelijk"}</span>`
-      : `<span class="pil wacht">nog ${5 - nieuweMetingen} te gaan</span>`;
+      : `<span class="pil wacht">nog ${Math.max(0, 5 - nieuweMetingen)} van de 5</span>`;
 
     const knoppen = [];
     for (const b of beelden){
@@ -237,10 +237,10 @@ const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
    bij vijf deelnemers ontdekt dat het geld kost, heeft dan al de tijd van vijf
    collega's uitgegeven. */
 function prijsregel(t, soort){
+  const n = t.aantal_metingen || 0;
   if (t.recht?.mag){
-    return t.recht.reden === "licentie"
-      ? "Inbegrepen bij je licentie"
-      : "Afgerekend, klaar om te maken";
+    const basis = t.recht.reden === "licentie" ? "Inbegrepen bij je licentie" : "Afgerekend";
+    return n >= 5 ? `${basis}, klaar om te maken` : `${basis}, klaar zodra vijf mensen hebben ingevuld`;
   }
   const code = soort === "hermeting" ? "HM" : "TF";
   const p = PRIJZEN[code];
@@ -253,12 +253,22 @@ function prijsregel(t, soort){
    leesdrempel, of eerst afrekenen. Wat het kost staat op de knop, want een
    knop die je pas na het klikken vertelt dat het geld kost is een valstrik. */
 function knopVoor(t, genoeg, soort, knoptekst){
-  if (!genoeg) return `<button class="btn klein" disabled>${knoptekst}</button>`;
-  if (t.recht?.mag) return `<button class="btn klein" onclick="maakKaart('${t.id}','${esc(t.naam)}','${soort}')">${knoptekst}</button>`;
+  // Is er al recht op een kaart, dan hangt de knop aan het aantal deelnemers.
+  if (t.recht?.mag){
+    return genoeg
+      ? `<button class="btn klein" onclick="maakKaart('${t.id}','${esc(t.naam)}','${soort}')">${knoptekst}</button>`
+      : `<button class="btn klein" disabled>${knoptekst}</button>`;
+  }
 
   if (!IK.leesdrempel_gehaald){
     return `<a class="btn klein" href="/module" style="text-decoration:none">Eerst de leesdrempel</a>`;
   }
+
+  // Kopen kan wel meteen, ook voordat er iemand heeft ingevuld (besluit
+  // 09-09-2026). Het vijftal gaat over het maken van de kaart, niet over het
+  // recht erop. Wie eerst wil afrekenen en dan pas uitnodigen, hoort dat te
+  // kunnen; wachten tot er vijf mensen klaar zijn en dan pas een prijs zien is
+  // precies de val die we eruit wilden halen.
   const code = soort === "hermeting" ? "HM" : "TF";
   const p = PRIJZEN[code];
   const bedrag = p ? `${euro(p.ex)} euro` : "afrekenen";
@@ -292,7 +302,7 @@ function keuzeregel(t, soort){
   if (!p) return "";
   const deel = t.aantal_metingen
     ? ` De ${t.aantal_metingen} deelnemers hebben hun eigen uitslag al gekregen; die blijft van hen.`
-    : "";
+    : " Je kunt nu afrekenen en daarna uitnodigen, of andersom.";
   return `Dit team ${euro(p.ex)} euro, of alles inbegrepen vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.${deel}`;
 }
 
