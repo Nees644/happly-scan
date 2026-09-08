@@ -54,3 +54,42 @@ export function omschrijving(product, teamnaam){
   const kern = `Happly ${product.naam}`;
   return teamnaam ? `${kern} (${teamnaam})`.slice(0, 100) : kern.slice(0, 100);
 }
+
+/* Mag er een kaart worden gemaakt, en waarmee wordt hij betaald.
+
+   Drie wegen. Een actieve licentie dekt alles voor eigen teams. Anders moet er
+   een betaalde en nog niet verbruikte bestelling liggen voor dit team. En wie
+   geen van beide heeft, krijgt te horen wat het kost in plaats van een
+   foutmelding.
+
+   Geeft terug: {mag, reden, bestelling_id}. Het bestelling-id is wat er wordt
+   afgeboekt zodra de kaart er is. */
+export function rechtOpKaart({ gebruiker, bestellingen = [], teamId, soort = "start", vandaag = new Date() }){
+  const licentieGeldig = !!gebruiker?.licentie_actief &&
+    (!gebruiker.licentie_tot || new Date(gebruiker.licentie_tot) >= new Date(vandaag.toDateString()));
+  if (licentieGeldig) return { mag: true, reden: "licentie", bestelling_id: null };
+
+  const code = soort === "hermeting" ? "HM" : "TF";
+  const bruikbaar = bestellingen.find(b =>
+    b.product_code === code &&
+    b.status === "betaald" &&
+    !b.verbruikt_op &&
+    b.team_id === teamId &&
+    (!b.geldig_tot || new Date(b.geldig_tot) >= new Date(vandaag.toDateString()))
+  );
+  if (bruikbaar) return { mag: true, reden: "bestelling", bestelling_id: bruikbaar.id };
+
+  const verlopen = bestellingen.some(b =>
+    b.product_code === code && b.status === "betaald" && !b.verbruikt_op &&
+    b.team_id === teamId && b.geldig_tot && new Date(b.geldig_tot) < new Date(vandaag.toDateString()));
+
+  return {
+    mag: false,
+    reden: verlopen
+      ? "Je aankoop voor dit team is verlopen. Met een licentie is hij inbegrepen."
+      : soort === "hermeting"
+        ? "Voor een hermeting van dit team is een licentie nodig, of een losse hermeting."
+        : "Voor een Teamfoto van dit team is een licentie nodig, of een losse Teamfoto.",
+    bestelling_id: null
+  };
+}

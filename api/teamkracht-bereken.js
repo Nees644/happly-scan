@@ -9,6 +9,7 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
+import { rechtOpKaart } from "../betalen.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -29,6 +30,22 @@ export default async function handler(req, res){
   if (team.error || !team.data){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;
+  }
+
+  // Mag deze kaart gemaakt worden, en waarmee wordt hij betaald. Serverside en
+  // nergens anders; de knop in het dashboard is een gemak, geen slot.
+  const [gq, bq] = await Promise.all([
+    db.from("teamkracht_gebruikers").select("licentie_actief, licentie_tot").eq("user_id", gebruiker.user_id).single(),
+    db.from("bestellingen")
+      .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
+      .eq("gebruiker_id", gebruiker.user_id).eq("team_id", team_id)
+  ]);
+  const recht = rechtOpKaart({
+    gebruiker: gq.data, bestellingen: bq.data || [], teamId: team_id, soort
+  });
+  if (!recht.mag && gebruiker.rol !== "beheerder"){
+    res.status(402).json({ error: recht.reden, betalen: soort === "hermeting" ? "HM" : "TF" });
+    return;
   }
 
   const cfg = await db.from("teamkracht_config").select("*").eq("id", 1).single();
@@ -115,6 +132,14 @@ export default async function handler(req, res){
     ins = await db.from("teamkracht_teambeeld").insert({ ...zonderTeksten, team_id }).select("id").single();
   }
   if (ins.error){ await logFout("teamkracht-bereken", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
+
+  // De bestelling is nu verbruikt. Pas na het opslaan van het beeld, zodat een
+  // mislukte berekening geen aankoop opsoupeert.
+  if (recht.bestelling_id){
+    await db.from("bestellingen")
+      .update({ verbruikt_op: new Date().toISOString() })
+      .eq("id", recht.bestelling_id);
+  }
 
   // Profielcode terug naar de eigen meting. Alleen de deelnemer zelf ziet hem,
   // via zijn resultaat_token; hij staat niet in het teambeeld en niet in de kaart.

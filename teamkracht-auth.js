@@ -23,7 +23,18 @@ export async function haalGebruiker(req){
 
   const rol = await db.from("teamkracht_gebruikers")
     .select("rol").eq("user_id", data.user.id).single();
-  if (rol.error || !rol.data) return null;
+
+  // Sinds registratie open staat (09-09-2026) krijgt iemand die voor het eerst
+  // inlogt vanzelf een rij, met de laagste rol. Lezer mag de gratis
+  // hoofdstukken lezen en een team aanmaken; alles wat geld kost of gegevens
+  // van anderen raakt, zit achter een eigen controle verderop.
+  if (rol.error || !rol.data){
+    const nieuw = await db.from("teamkracht_gebruikers").insert({
+      user_id: data.user.id, email: data.user.email, rol: "lezer", niveau: "geen"
+    }).select("rol").single();
+    if (nieuw.error) return null;
+    return { user_id: data.user.id, email: data.user.email, rol: nieuw.data.rol, nieuw: true };
+  }
 
   return { user_id: data.user.id, email: data.user.email, rol: rol.data.rol };
 }

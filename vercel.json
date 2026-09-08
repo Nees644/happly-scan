@@ -80,6 +80,9 @@
     },
     "api/betaling-status.js": {
       "maxDuration": 10
+    },
+    "api/module-voortgang.js": {
+      "maxDuration": 10
     }
   },
   "crons": [

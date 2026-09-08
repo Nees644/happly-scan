@@ -514,3 +514,60 @@ test("de omschrijving op het afschrift blijft kort en herkenbaar", () => {
   assert.equal(omschrijving(p, "Team Noord"), "Happly Teamfoto, een team (Team Noord)");
   assert.ok(omschrijving(p, "x".repeat(200)).length <= 100);
 });
+
+/* ------------------------------------------------------ module en recht */
+
+import { HOOFDSTUKKEN, LEESDREMPEL, isGratis } from "../module-inhoud.js";
+import { rechtOpKaart } from "../betalen.js";
+
+test("de module heeft zes hoofdstukken waarvan twee gratis", () => {
+  assert.equal(HOOFDSTUKKEN.length, 6);
+  assert.deepEqual(HOOFDSTUKKEN.map(h => h.nummer), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(LEESDREMPEL, [1, 2]);
+  assert.ok(isGratis(1) && isGratis(2));
+  assert.ok(!isGratis(3) && !isGratis(6));
+  for (const h of HOOFDSTUKKEN){
+    assert.ok(h.titel && h.lead && h.tekst.length, `hoofdstuk ${h.nummer} is niet compleet`);
+  }
+});
+
+test("een licentie dekt de kaart, een bestelling ook, anders niet", () => {
+  const team = "11111111-1111-1111-1111-111111111111";
+  const nu = new Date("2026-09-09");
+
+  const metLicentie = rechtOpKaart({
+    gebruiker: { licentie_actief: true, licentie_tot: "2027-01-01" }, teamId: team, vandaag: nu });
+  assert.deepEqual(metLicentie, { mag: true, reden: "licentie", bestelling_id: null });
+
+  const verlopenLicentie = rechtOpKaart({
+    gebruiker: { licentie_actief: true, licentie_tot: "2026-08-01" }, teamId: team, vandaag: nu });
+  assert.equal(verlopenLicentie.mag, false);
+
+  const bestelling = { id: "b1", product_code: "TF", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: "2027-09-09" };
+  const metBestelling = rechtOpKaart({ gebruiker: {}, bestellingen: [bestelling], teamId: team, vandaag: nu });
+  assert.deepEqual(metBestelling, { mag: true, reden: "bestelling", bestelling_id: "b1" });
+
+  // Al verbruikt, voor een ander team, of niet betaald: geen recht.
+  for (const kapot of [
+    { ...bestelling, verbruikt_op: "2026-09-01" },
+    { ...bestelling, team_id: "22222222-2222-2222-2222-222222222222" },
+    { ...bestelling, status: "open" }
+  ]){
+    assert.equal(rechtOpKaart({ gebruiker: {}, bestellingen: [kapot], teamId: team, vandaag: nu }).mag, false);
+  }
+});
+
+test("een verlopen aankoop krijgt een ander antwoord dan geen aankoop", () => {
+  const team = "11111111-1111-1111-1111-111111111111";
+  const nu = new Date("2026-09-09");
+  const verlopen = { id: "b1", product_code: "TF", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: "2026-01-01" };
+  assert.match(rechtOpKaart({ gebruiker: {}, bestellingen: [verlopen], teamId: team, vandaag: nu }).reden, /verlopen/);
+  assert.match(rechtOpKaart({ gebruiker: {}, bestellingen: [], teamId: team, vandaag: nu }).reden, /licentie nodig/);
+});
+
+test("een hermeting vraagt een hermeting, geen Teamfoto", () => {
+  const team = "11111111-1111-1111-1111-111111111111";
+  const tf = { id: "b1", product_code: "TF", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: null };
+  const uit = rechtOpKaart({ gebruiker: {}, bestellingen: [tf], teamId: team, soort: "hermeting" });
+  assert.equal(uit.mag, false);
+});
