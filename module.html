@@ -70,6 +70,7 @@
     <input class="inp" id="l-wachtwoord" type="password" placeholder="Wachtwoord" autocomplete="current-password">
     <button class="knop w" id="l-knop">Account maken</button>
     <p class="wissel" id="l-wissel"></p>
+    <p class="wissel" id="l-opnieuw" hidden><button id="l-opnieuwknop">Stuur een nieuwe link</button></p>
   </div>
 </div>
 
@@ -254,11 +255,60 @@ async function toonApp(){
   teken();
 }
 
+/* Een bevestigingslink die is verlopen of al gebruikt komt terug met de reden
+   in de adresbalk. Zonder uitleg staat daar alleen een engelse foutcode en weet
+   iemand niet wat hij moet doen. */
+function toonLinkfout(){
+  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const code = h.get("error_code") || h.get("error");
+  if (!code) return false;
+
+  const uitleg = /expired|otp_expired/.test(code)
+    ? "Deze link is verlopen of al eens gebruikt. Vul je e-mailadres in, dan sturen we een nieuwe."
+    : "Deze link werkte niet meer. Vul je e-mailadres in, dan sturen we een nieuwe.";
+
+  const fout = el("l-fout");
+  fout.style.color = "var(--gedempt)";
+  fout.textContent = uitleg;
+  fout.style.display = "block";
+  el("l-opnieuw").hidden = false;
+  aanmelden = false;
+  tekenLogin();
+  // De rommel uit de adresbalk halen; die hoort niemand te hoeven lezen.
+  history.replaceState(null, "", location.pathname);
+  return true;
+}
+
+async function stuurOpnieuw(){
+  const mail = el("l-mail").value.trim();
+  const fout = el("l-fout");
+  if (!mail){
+    fout.style.color = "var(--magenta)";
+    fout.textContent = "Vul eerst je e-mailadres in.";
+    fout.style.display = "block"; return;
+  }
+  const knop = el("l-opnieuwknop");
+  knop.disabled = true;
+  const { error } = await db.auth.resend({
+    type: "signup", email: mail,
+    options: { emailRedirectTo: `${location.origin}/module` }
+  });
+  knop.disabled = false;
+  fout.style.color = "var(--gedempt)";
+  fout.textContent = error
+    ? "Dat lukte niet. Klopt het adres, en heb je je hier al aangemeld?"
+    : "We hebben een nieuwe link gestuurd. Kijk in je mail.";
+  fout.style.display = "block";
+}
+
+el("l-opnieuwknop").addEventListener("click", stuurOpnieuw);
 el("l-knop").addEventListener("click", doeLogin);
 el("l-wachtwoord").addEventListener("keydown", e => { if (e.key === "Enter") doeLogin(); });
 tekenLogin();
 db.auth.getSession().then(({ data:{ session } }) => {
-  if (session) toonApp(); else el("login").style.display = "flex";
+  if (session){ toonApp(); return; }
+  el("login").style.display = "flex";
+  toonLinkfout();
 });
 </script>
 </body>
