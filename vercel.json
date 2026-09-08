@@ -64,6 +64,9 @@
     },
     "api/teamkracht-beheer.js": {
       "maxDuration": 10
+    },
+    "api/instellingen-check.js": {
+      "maxDuration": 10
     }
   },
   "crons": [
