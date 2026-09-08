@@ -8,7 +8,7 @@
 // PDF-generatie is geparkeerd (besluit 07-09-2026). De pagina draagt print-CSS
 // voor A4, A3 en A1, zodat afdrukken naar PDF via de browser gaat.
 
-import { vulPlaceholders, telwoord } from "./teamkracht-logica.js";
+import { vulPlaceholders, telwoord, VAARDIGHEDEN } from "./teamkracht-logica.js";
 
 /* Huisstijl, gelijk aan de Teamfoto en de site. */
 export const KLEUR = {
@@ -57,6 +57,14 @@ export const BREUKBLOK = {
     tekst: "Dit team ligt op alle drie de stappen onder het gemiddelde, zonder duidelijke breuk. De ontwikkelruimte begint waarschijnlijk bij zien: eerst waarnemen wat er speelt, daarna pas kiezen."
   }
 };
+
+/* Het logo staat in de kaart zelf en niet als verwijzing naar een bestand. De
+   poster wordt geopend als blob-URL en die heeft geen adres om /happly-logo.svg
+   tegen af te zetten; dan bleef er een leeg vlak staan. Zelfde tekening als
+   happly-logo.svg. */
+const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="49 73 719 269" role="img" aria-label="Happly"><g fill="#D6026F"><path d="M122.46,238.84c0-23.1,22.2-48.6,22.2-62.7,0-4.8-1.8-8.1-7.2-8.1-24.3,0-47.7,61.2-56.7,94.2h-31.2c17.7-51.9,43.2-126.9,64.5-188.4h30.6c-11.4,31.5-22.2,62.7-32.7,94.2,10.8-18.3,27-27.6,41.7-27.6s24,9.9,24.3,24.6c.6,22.2-23.7,52.2-23.7,65.1,0,3.9,2.4,6.3,6,6.3,12,0,30.3-23.7,45.6-54.3l13.2,14.4c-11.4,25.5-39.6,68.7-69.3,68.7-18,0-27.3-11.1-27.3-26.4Z"/><path d="M351.06,196.54c-11.4,25.5-39.6,68.7-68.4,68.7-14.4,0-22.5-9.9-24.3-20.1-6.6,10.5-17.4,20.1-34.2,20.1-20.7,0-33.9-17.1-33.9-43.5,0-40.2,27.9-81.3,61.8-81.3,12,0,23.7,7.5,28.2,15.6l4.2-12.6h30.6c-26.4,72-34.2,93-22.8,93s30.3-22.8,45.6-54.3l13.2,14.4ZM273.06,177.64c-3.9-5.7-10.5-9.9-18-9.9-19.8,0-33,27.9-33,51,0,9.6,4.2,17.7,13.8,17.7,13.2,0,25.2-19.2,37.2-58.8Z"/><path d="M282.66,338.74c22.5-64.8,44.7-130.8,66.9-195.3h30.6l-10.2,25.5c9.6-16.2,24.9-28.2,41.4-28.2s27,13.2,27,36.6c0,20.7-13.5,51.6-30.9,63.3,20.1-2.1,41.7-22.2,57-58.8l13.2,16.5c-26.4,60.6-59.7,67.2-94.8,67.2-15.3,0-30.3-3-41.4-10.8-7.8,22.2-16.5,51.3-26.4,84h-32.4ZM406.26,183.04c0-9.9-3.6-16.2-11.1-16.2-12-.3-29.4,18-47.1,66.3,4.2,4.5,11.4,7.5,19.8,7.5,19.8,0,38.4-34.2,38.4-57.6Z"/><path d="M410.15,338.74c22.5-64.8,44.7-130.8,66.9-195.3h30.6l-10.2,25.5c9.6-16.2,24.9-28.2,41.4-28.2s27,13.2,27,36.6c0,20.7-13.5,51.6-30.9,63.3,20.1-2.1,41.7-22.2,57-58.8l13.2,16.5c-26.4,60.6-59.7,67.2-94.8,67.2-15.3,0-30.3-3-41.4-10.8-7.8,22.2-16.5,51.3-26.4,84h-32.4ZM533.75,183.04c0-9.9-3.6-16.2-11.1-16.2-12-.3-29.4,18-47.1,66.3,4.2,4.5,11.4,7.5,19.8,7.5,19.8,0,38.4-34.2,38.4-57.6Z"/><path d="M672.05,196.54c-11.1,25.5-39.3,68.7-68.4,68.7s-33.3-23.4-16.8-75.6c9.6-29.4,26.4-74.4,41.4-115.8h31.8c-19.2,49.8-35.1,95.1-43.5,120.6-11.1,32.7-12.3,42-3.3,42,11.7,0,30.6-22.8,45.9-54.3l12.9,14.4Z"/><path d="M612.65,312.64c0-35.7,49.2-48.9,87.3-54l9-25.8c-6,8.7-17.7,15.3-29.4,15.3-42,0-32.4-48.3-9.3-104.7h31.5c-14.7,36-30.9,78.9-10.8,78.9,22.5,0,34.5-45.6,45.3-78.9h31.2c-15.9,45.9-28.8,85.2-44.7,131.4-14.7,42.6-40.5,66.9-72.6,66.9-24.9,0-37.5-13.5-37.5-29.1ZM692.75,281.14c-22.2,2.1-50.7,13.2-50.7,27.3,0,5.1,3.3,9,10.8,9,13.8,0,28.5-10.5,39.9-36.3Z"/></g></svg>`;
+
+export const VOETNOOT_DOEL = "Het doelbeeld is een afspraak van dit team, geen voorspelling. De gestippelde lijn ligt over het startbeeld; bij de hermeting komt het eindbeeld erover. Individuele scores zijn alleen zichtbaar voor de deelnemer zelf. Wat er geteld wordt is het bewijs: zonder telling is een interventie een voornemen.";
 
 export const VOETNOOT = "Waarschijnlijke dynamieken, afgeleid uit de verdeling van ketenprofielen. Hypotheses voor de nabespreking, geen diagnose. Een profiel beschrijft gedrag in deze context, niet de persoon. Individuele scores zijn alleen zichtbaar voor de deelnemer zelf; onder tien deelnemers toont deze kaart alleen de teamlijn en de verdeling. Bij de hermeting wordt het eindbeeld over dit startbeeld gelegd. Ook leverbaar als poster A3 en A1.";
 
@@ -156,6 +164,34 @@ function verschilZin(teambeeld){
        + `Doen ${teken(teambeeld.team_doen - teambeeld.norm_doen)} ten opzichte van het gemiddelde.`;
 }
 
+/* De verschuiving in gewone taal, met de looptijd erbij. */
+function doelZin(teambeeld, doel){
+  const delen = VAARDIGHEDEN.map(v => {
+    const p = Math.round(doel[v] - teambeeld[`team_${v}`]);
+    return `${v.charAt(0).toUpperCase() + v.slice(1)} van ${Math.round(teambeeld[`team_${v}`])} naar ${doel[v]}`;
+  });
+  const maanden = doel.horizon_maanden || 12;
+  const looptijd = maanden === 12 ? "een jaar" : maanden === 6 ? "een halfjaar" : `${maanden} maanden`;
+  return `${delen.join(", ")}. Dat is de afspraak voor de komende ${looptijd}.`;
+}
+
+/* Eén regel uit het interventieplan: wat het team doet, met eigenaar, ritme en
+   wat er geteld wordt. Zonder telling is het een voornemen. */
+function planHtml(regel){
+  const dl = [
+    regel.eigenaar ? ["Eigenaar", regel.eigenaar] : null,
+    regel.ritme ? ["Ritme", regel.ritme] : null,
+    regel.telling ? ["Tellen", regel.telling] : null
+  ].filter(Boolean);
+  return `<article class="dyn">
+    <p class="tag versterkt">${esc(regel.herkomst || "INTERVENTIE")}</p>
+    <h4>${esc(regel.titel || "")}</h4>
+    ${regel.tekst ? `<p>${esc(regel.tekst)}</p>` : ""}
+    ${dl.length ? `<dl class="plan">${dl.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
+    ${regel.gespreksvraag ? `<p class="planvraag">${esc(regel.gespreksvraag)}</p>` : ""}
+  </article>`;
+}
+
 /* Eén dynamiek: streep, tag, kop, en daaronder de tekst als doorlopend
    verhaal met de getelde kop als aanloop, precies zoals in het voorbeeld
    teamkrachtkaart_1_startbeeld.png. */
@@ -175,11 +211,12 @@ function dynamiekHtml(regel, teambeeld){
 
 /* De volledige kaart. teambeeld komt uit bouwTeambeeld, regels en profielen
    zijn de rijen uit teamkracht_regels en teamkracht_profielen. */
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null }){
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
-  const beeldnaam = BEELDNAAM[teambeeld.soort] || BEELDNAAM.start;
-  const moment = MOMENT[teambeeld.soort] || MOMENT.start;
+  const soort = doel ? "doel" : teambeeld.soort;
+  const beeldnaam = BEELDNAAM[soort] || BEELDNAAM.start;
+  const moment = MOMENT[soort] || MOMENT.start;
   const heeftLijnen = Array.isArray(teambeeld.lijnen) && teambeeld.lijnen.length > 0;
 
   const kruimel = ["TEAMFOTO", teamnaam ? `TEAM ${teamnaam.toUpperCase()}` : null,
@@ -187,7 +224,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
     .filter(Boolean).map(esc).join(" &middot; ");
 
   const inleiding = heeftLijnen
-    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het gemiddelde van alle metingen tot nu toe.`
+    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team${doel ? ", de gestippelde lijn is waar het heen wil" : ""}, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het gemiddelde van alle metingen tot nu toe.`
     : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen. Magenta is het gemiddelde van alle metingen tot nu toe.`;
 
   /* Bevroren teksten gaan voor: die horen bij dit beeld. Beelden van voor de
@@ -203,17 +240,41 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
 
   const verdelingBlok = `<div class="vak verdeling">${verdelingZin(teambeeld.verdeling, profielen, teambeeld.teksten?.profielen)}</div>`;
 
-  const rechts = poster
-    ? `<section class="breuk"><p class="tag-licht">DE BREUK IN DE KETEN</p><h2>${esc(breuk.kop)}</h2></section>
-       <section><h3>Profielverdeling</h3>${verdelingBlok}</section>`
-    : `<section class="breuk">
+  /* Het doelbeeld is dezelfde kaart met een andere rechterkolom: waar het team
+     heen wil in plaats van wat er speelt, en wat het gaat doen in plaats van de
+     drie dynamieken. De tekening is gelijk, met de doellijn erover. */
+  const doelBlok = doel ? `
+    <section class="breuk">
+      <p class="tag-licht">WAAR DIT TEAM HEEN WIL</p>
+      <h2>${esc(doel.titel || "Het doelbeeld")}</h2>
+      <p>${esc(doelZin(teambeeld, doel))}</p>
+      ${doel.melding ? `<p class="cijfers">${esc(doel.melding)}</p>` : ""}
+    </section>` : "";
+
+  const planBlok = doel ? `
+    <section class="dynamieken">
+      <h3>Wat dit team gaat doen</h3>
+      ${(plan || []).length
+        ? plan.map(planHtml).join("")
+        : `<p>Er is nog geen plan vastgelegd bij dit doelbeeld.</p>`}
+    </section>` : "";
+
+  const kernBlok = doel ? doelBlok : `<section class="breuk">
          <p class="tag-licht">DE BREUK IN DE KETEN</p>
          <h2>${esc(breuk.kop)}</h2>
          <p>${esc(breuk.tekst)}</p>
          <p class="cijfers">${esc(verschilZin(teambeeld))}</p>
-       </section>
+       </section>`;
+
+  const rechts = poster
+    ? (doel
+        ? `<section class="breuk"><p class="tag-licht">WAAR DIT TEAM HEEN WIL</p><h2>${esc(doel.titel || "Het doelbeeld")}</h2></section>
+           <section><h3>Profielverdeling</h3>${verdelingBlok}</section>`
+        : `<section class="breuk"><p class="tag-licht">DE BREUK IN DE KETEN</p><h2>${esc(breuk.kop)}</h2></section>
+           <section><h3>Profielverdeling</h3>${verdelingBlok}</section>`)
+    : `${kernBlok}
        <section><h3>Profielverdeling</h3>${verdelingBlok}</section>
-       <section class="dynamieken"><h3>Waarschijnlijke dynamieken</h3>${dynamieken}</section>`;
+       ${doel ? planBlok : `<section class="dynamieken"><h3>Waarschijnlijke dynamieken</h3>${dynamieken}</section>`}`;
 
   return `<!DOCTYPE html>
 <html lang="nl">
@@ -267,13 +328,16 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
   .dyn.heeft-grijze-streep{border-top-color:var(--lijn)}
   .dyn p{font-size:1.05em;line-height:1.45}
   .dyn strong{font-weight:700}
+  .plan{display:grid;grid-template-columns:auto 1fr;gap:.15em .8em;font-size:.95em;margin-top:.35em}
+  .plan dt{font-weight:600;color:var(--gedempt)}
+  .planvraag{font-style:italic;margin-top:.35em}
   .tag{font-size:.82em;font-weight:600;letter-spacing:.16em;margin-bottom:.25em}
   .tag.remt{color:var(--magenta)}
   .tag.versterkt,.tag.neutraal{color:var(--gedempt)}
   .voet{border-top:1px solid var(--lijn);margin-top:1em;padding-top:.6em;
     font-size:.82em;font-weight:300;line-height:1.45;color:var(--gedempt)}
   .logo{align-self:flex-end;margin-top:auto}
-  .logo img{width:9em;height:auto;display:block}
+  .logo svg{width:9em;height:auto;display:block}
   @page{size:${blad.breedte}mm ${blad.hoogte}mm;margin:0}
   @media print{body{background:none}.kaart{margin:0}}
 </style>
@@ -290,8 +354,8 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       <div class="rechts">${rechts}</div>
     </div>
     ${poster
-      ? `<div class="logo"><img src="/happly-logo.svg" alt="Happly"></div>`
-      : `<p class="voet">${esc(VOETNOOT)}</p>`}
+      ? `<div class="logo">${LOGO}</div>`
+      : `<p class="voet">${esc(doel ? VOETNOOT_DOEL : VOETNOOT)}</p>`}
   </div>
 </body>
 </html>`;

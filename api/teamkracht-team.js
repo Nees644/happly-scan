@@ -50,6 +50,21 @@ export default async function handler(req, res){
       (perTeam[b.team_id] = perTeam[b.team_id] || []).push(b);
     }
 
+    // De doelbeelden die bij die beelden horen, zodat het dashboard ze kan
+    // teruggeven; zonder dit verdween een vastgelegd doel uit het zicht.
+    const doelen = await db.from("teamkracht_doel")
+      .select("id, teambeeld_id, doel_zien, doel_sturen, doel_doen, horizon_maanden, created_at")
+      .in("teambeeld_id", (beelden.data || []).map(b => b.id))
+      .order("created_at", { ascending: true });
+    const beeldTeam = Object.fromEntries((beelden.data || []).map(b => [b.id, b.team_id]));
+    for (const d of doelen.data || []){
+      const teamId = beeldTeam[d.teambeeld_id];
+      if (!teamId) continue;
+      const lijst = perTeam[teamId] || [];
+      const beeld = lijst.find(b => b.id === d.teambeeld_id);
+      if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
+    }
+
     res.status(200).json({
       teams: (teams.data || []).map(t => ({
         ...t,

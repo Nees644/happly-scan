@@ -61,6 +61,10 @@
   .oordeel.ambitieus{border-left:4px solid #C9860B}
   .oordeel.onwaarschijnlijk{border-left:4px solid var(--magenta);background:#FDF4F8}
   .horizonrij{display:flex;align-items:center;gap:10px;margin:12px 0 16px;font-size:13.5px;font-weight:300;color:var(--gedempt)}
+  .acties{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .acties a{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:9px 16px;
+    border:1.5px solid var(--lijn);color:var(--inkt);text-decoration:none;background:#fff}
+  .acties a:hover{border-color:var(--inkt)}
   .horizonrij select{font:inherit;font-size:13.5px;padding:5px 8px;border:1px solid var(--lijn);border-radius:6px;background:#fff;color:var(--inkt)}
   .nodig{margin-top:40px;border-top:1px solid var(--lijn);padding-top:26px}
   .nodig h2{margin-bottom:6px}
@@ -116,6 +120,7 @@
         <button id="terug">Terug naar nu</button>
       </div>
       <p class="melding" id="melding"></p>
+      <div class="acties" id="afdrukken" hidden></div>
     </div>
   </div>
 
@@ -304,6 +309,7 @@ async function opslaan(){
     el("melding").textContent = r.ok
       ? `Doelbeeld vastgelegd${uit.plan_opgeslagen ? " met de interventies erbij" : ""}. Bij de hermeting komt het eindbeeld hierover te liggen.`
       : `Vastleggen mislukt: ${uit.error || r.status}`;
+    if (r.ok && uit.id) await toonAfdrukken(uit.id);
   }catch(e){
     el("melding").textContent = "Vastleggen mislukt: geen verbinding.";
   }finally{
@@ -381,6 +387,34 @@ function toonInterventies(){
       const merk = el("interventies").querySelector(`[data-eigen="${code}"]`);
       if (merk) merk.hidden = !gewijzigd(interventies.find(x => x.code === code));
     });
+  }
+}
+
+/* De kaartroute zit achter dezelfde authenticatie, en een gewone link stuurt
+   geen Authorization-header mee. Dus halen we de drie varianten hier op en
+   bieden ze aan als blob; afdrukken naar PDF werkt daar gewoon. */
+async function toonAfdrukken(doelId){
+  const varianten = [
+    ["Doelbeeld A4", "&formaat=a4"],
+    ["Poster A3", "&formaat=a3&poster=1"],
+    ["Poster A1", "&formaat=a1&poster=1"]
+  ];
+  const kop = await bearer();
+  const vak = el("afdrukken");
+  vak.hidden = false;
+  vak.innerHTML = '<span class="melding">Kaarten worden gemaakt...</span>';
+  try{
+    const documenten = await Promise.all(varianten.map(async ([, extra]) => {
+      const r = await fetch(`/api/teamkracht-kaart?doel_id=${doelId}${extra}`, { headers: kop });
+      if (!r.ok) throw new Error(`kaart ophalen mislukt (${r.status})`);
+      return r.text();
+    }));
+    vak.innerHTML = varianten.map(([label], i) => {
+      const url = URL.createObjectURL(new Blob([documenten[i]], { type: "text/html" }));
+      return `<a href="${url}" target="_blank" rel="noopener">${label}</a>`;
+    }).join("");
+  }catch(e){
+    vak.innerHTML = `<span class="melding">${e.message}</span>`;
   }
 }
 

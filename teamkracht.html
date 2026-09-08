@@ -164,12 +164,18 @@ function render(){
       ? `<span class="pil klaar">${start ? "hermeting mogelijk" : "kaart mogelijk"}</span>`
       : `<span class="pil wacht">nog ${5 - nieuweMetingen} te gaan</span>`;
 
-    const eerder = beelden.length
-      ? `<div class="eerder">${beelden.map(b => `
-          <button class="btn lijn klein" onclick="toonKaart('${b.id}','${esc(t.naam)}')">
-            ${b.soort === "start" ? "Startbeeld" : "Eindbeeld"} van ${new Date(b.created_at).toLocaleDateString("nl-NL")}, ${b.n} deelnemers
-          </button>`).join("")}</div>`
-      : "";
+    const knoppen = [];
+    for (const b of beelden){
+      knoppen.push(`<button class="btn lijn klein" onclick="toonKaart('${b.id}','${esc(t.naam)}')">
+        ${b.soort === "start" ? "Startbeeld" : "Eindbeeld"} van ${new Date(b.created_at).toLocaleDateString("nl-NL")}, ${b.n} deelnemers
+      </button>`);
+      for (const d of b.doelen || []){
+        knoppen.push(`<button class="btn lijn klein" onclick="toonDoel('${d.id}','${esc(t.naam)}')">
+          Doelbeeld van ${new Date(d.created_at).toLocaleDateString("nl-NL")}: ${d.doel_zien}, ${d.doel_sturen}, ${d.doel_doen}
+        </button>`);
+      }
+    }
+    const eerder = knoppen.length ? `<div class="eerder">${knoppen.join("")}</div>` : "";
 
     return `<div class="kaart">
       <div class="teamrij">
@@ -238,21 +244,29 @@ async function maakKaart(teamId, naam, soort){
    HTML hier op met de header en tonen hem lokaal: de iframe krijgt srcdoc, de
    knoppen krijgen een blob-URL. Afdrukken werkt daar gewoon, inclusief de
    print-CSS die het papierformaat zet. */
-async function haalKaart(id, extra = ""){
+async function haalKaart(vraag, extra = ""){
   const { data:{ session } } = await db.auth.getSession();
-  const r = await fetch(`/api/teamkracht-kaart?teambeeld_id=${id}${extra}`, {
+  const r = await fetch(`/api/teamkracht-kaart?${vraag}${extra}`, {
     headers: { Authorization: `Bearer ${session.access_token}` }
   });
   if (!r.ok) throw new Error(`kaart ophalen mislukt (${r.status})`);
   return r.text();
 }
 
+async function toonDoel(doelId, naam){
+  return toonBeeld(`doel_id=${doelId}`, `Doelbeeld ${naam}`, `/teamkracht-doel?teambeeld=`);
+}
+
 async function toonKaart(id, naam){
+  return toonBeeld(`teambeeld_id=${id}`, `Teamkrachtkaart ${naam}`, `/teamkracht-doel?teambeeld=${id}`);
+}
+
+async function toonBeeld(vraag, titel, doelLink){
   el("kaartvenster").innerHTML = `
-    <h2 style="margin-top:30px">Teamkrachtkaart ${esc(naam)}</h2>
+    <h2 style="margin-top:30px">${esc(titel)}</h2>
     <p class="sub">De kaart hieronder is de A4. Afdrukken naar PDF gaat via de browser; de print-CSS zet het papierformaat goed. De posters openen in een eigen tabblad.</p>
     <div class="acties" id="kaartknoppen"><span class="leeg">Kaart wordt opgehaald...</span></div>
-    <iframe id="kaartframe" title="Teamkrachtkaart"></iframe>`;
+    <iframe id="kaartframe" title="Kaart"></iframe>`;
   el("kaartvenster").scrollIntoView({ behavior:"smooth", block:"start" });
 
   try{
@@ -261,12 +275,12 @@ async function toonKaart(id, naam){
       ["Poster A3",     "&formaat=a3&poster=1"],
       ["Poster A1",     "&formaat=a1&poster=1"]
     ];
-    const documenten = await Promise.all(varianten.map(([, extra]) => haalKaart(id, extra)));
+    const documenten = await Promise.all(varianten.map(([, extra]) => haalKaart(vraag, extra)));
     el("kaartframe").srcdoc = documenten[0];
     el("kaartknoppen").innerHTML = varianten.map(([label], i) => {
       const url = URL.createObjectURL(new Blob([documenten[i]], { type: "text/html" }));
       return `<a class="btn lijn klein" href="${url}" target="_blank" rel="noopener">${label}</a>`;
-    }).join("") + `<a class="btn klein" href="/teamkracht-doel?teambeeld=${id}" target="_blank" rel="noopener">Doelbeeld bepalen</a>`;
+    }).join("") + (doelLink.endsWith("=") ? "" : `<a class="btn klein" href="${doelLink}" target="_blank" rel="noopener">Doelbeeld bepalen</a>`);
   }catch(e){
     el("kaartknoppen").innerHTML = `<span class="melding fout">${esc(e.message)}</span>`;
   }
