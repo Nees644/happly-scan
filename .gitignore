@@ -7,3 +7,4 @@ migratie-teamkracht-*.sql
 # Werkbestanden van scripts/bouw-voorbeeldkaart.js; de demopagina rekent zelf
 teamkracht-voorbeeld.html
 teamkracht-voorbeeld-poster-*.html
+.DS_Store

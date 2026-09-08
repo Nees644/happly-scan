@@ -76,7 +76,7 @@ is met opzet: wat een team heeft gezien, blijft wat het heeft gezien.
 
 ## Het gemiddelde
 
-Sinds 8 september staat er een blok Normdata in : de live
+Sinds 8 september staat er een blok Normdata in `/dashboard-index`: de live
 cijfers naast wat er is ingesteld, met het verschil en de marge erbij. Daar zie
 je in één oogopslag of het tijd is om te verversen. De cijfers hieronder leggen
 uit wat je dan doet.
@@ -133,7 +133,11 @@ een halfuur voor nemen.
 Elke echte fout in een Teamkracht-route landt in funnel_events. Gebruikersfouten
 niet, alleen de dingen die niet horen te gebeuren.
 
-
+```sql
+select created_at, bron from public.funnel_events
+where event = 'teamkracht_fout'
+order by created_at desc limit 50;
+```
 
 Staat er niets, dan is er niets misgegaan. Staat er wel iets, dan zie je welke
 route en welke melding, en dan hoor je het van mij te horen in plaats van van
