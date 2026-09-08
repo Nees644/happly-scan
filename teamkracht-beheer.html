@@ -90,11 +90,14 @@ textarea:focus,select:focus,input:focus{border-color:var(--pk)}
 <div id="app">
   <div class="hdr"><div class="wrap">
     <h1>Teamkracht &middot; beheer</h1>
-    <div><button onclick="toonInstellingen()">Instellingen</button><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
+    <div><button onclick="toonInstellingen()">Opnieuw controleren</button><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
   </div></div>
   <main class="wrap">
     <p class="let">Wijzigingen werken door bij de volgende berekening. Kaarten die al gemaakt zijn veranderen niet: die hebben hun teksten en het gemiddelde bevroren. Geen gedachtestreep en geen uitroepteken in de teksten; dat wordt bij het opslaan gecontroleerd. De toon is die van een gedragsclub: positief, makkelijk, vooruit. De regels staan in taalregels.md.</p>
-    <div id="instellingen" hidden></div>
+    <h2 style="margin-bottom:4px">Deze omgeving</h2>
+    <p class="uitleg">Welke sleutels er staan waar de software op draait. De waarden zelf worden nooit getoond.</p>
+    <div id="instellingen"></div>
+    <h2 style="margin-top:30px;margin-bottom:12px">Teksten en instellingen</h2>
     <div class="tabs" id="tabs"></div>
     <h2 id="t-naam"></h2>
     <p class="uitleg" id="t-uitleg"></p>
@@ -137,7 +140,6 @@ async function api(pad, opties = {}){
    opgehaald; een gewone link stuurt dat niet mee en levert een weigering op. */
 window.toonInstellingen = async function(){
   const vak = el("instellingen");
-  vak.hidden = false;
   vak.innerHTML = '<div class="env"><p class="melding">Ophalen...</p></div>';
   try{
     const uit = await api("/api/instellingen-check");
@@ -167,6 +169,7 @@ function toonApp(){
   el("tabs").innerHTML = Object.entries(SCHEMA)
     .map(([sleutel, def]) => `<button data-t="${sleutel}">${def.naam}</button>`).join("");
   el("tabs").addEventListener("click", e => { if (e.target.dataset.t) laad(e.target.dataset.t); });
+  toonInstellingen();
   laad(huidig);
 }
 
