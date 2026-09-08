@@ -32,6 +32,10 @@ body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-hei
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 .hdr .wrap{display:flex;justify-content:space-between;align-items:center}
 .hdr h1{font-family:"DM Serif Display",serif;font-size:19px;color:#fff;font-weight:400}
+.menu{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.menu a{font-size:12.5px;color:var(--lav);text-decoration:none}
+.menu a:hover{color:#fff}
+.menu a[aria-current]{color:#fff;font-weight:600}
 .hdr .uit{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit}
 main{padding:28px 0 70px}
 h2{font-family:"DM Serif Display",serif;font-size:22px;color:var(--dp);font-weight:400;margin-bottom:4px}
@@ -75,7 +79,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
 <div id="app">
   <div class="hdr"><div class="wrap">
     <h1>Teamkracht</h1>
-    <div><a href="/teamkracht-handleiding" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--lav);text-decoration:none;margin-right:16px">Handleiding</a><a href="/teamkracht-beheer" style="font-size:12.5px;color:var(--lav);text-decoration:none;margin-right:16px">Beheer</a><button class="uit" onclick="doLogout()">Uitloggen</button></div>
+    <nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a><a href="/teamkracht-beheer" id="beheerlink" hidden>Beheer</a><button class="uit" onclick="doLogout()">Uitloggen</button></nav>
   </div></div>
   <main class="wrap">
     <h2>Nieuw team</h2>
@@ -134,6 +138,8 @@ function doLogout(){ db.auth.signOut().then(() => location.reload()); }
 async function toonApp(){
   el("login-screen").style.display = "none";
   el("app").style.display = "block";
+  // De beheerpagina alleen tonen aan wie er iets te zoeken heeft.
+  document.querySelectorAll('.menu a[href="/teamkracht"]').forEach(a => a.setAttribute("aria-current", "page"));
   laadTeams();
 }
 
@@ -142,6 +148,8 @@ async function laadTeams(){
     const uit = await api("/api/teamkracht-team");
     TEAMS = uit.teams || [];
     IK = uit.gebruiker || {};
+    const bl = el("beheerlink");
+    if (bl && IK.rol === "beheerder") bl.hidden = false;
     PRIJZEN = uit.prijzen || {};
     render();
   }catch(e){

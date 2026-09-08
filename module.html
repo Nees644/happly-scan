@@ -59,7 +59,11 @@
   .koopvak .bedrag b{font-family:"DM Serif Display",serif;font-weight:400}
   .koopvak .bedrag span{font-size:13px;color:var(--gedempt)}
   footer{padding:36px 0 80px;font-size:13px;font-weight:300;color:var(--gedempt)}
-  .uit{background:none;border:none;color:var(--lav);font:inherit;font-size:12.5px;cursor:pointer}
+  .uit{background:none;border:none;color:var(--gedempt);font:inherit;font-size:12.5px;cursor:pointer}
+  .menu{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .menu a{font-size:12.5px;color:var(--gedempt);text-decoration:none}
+  .menu a:hover{color:var(--inkt)}
+  .menu a[href="/module"]{color:var(--inkt);font-weight:600}
   .kop2{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
 </style>
 </head>
@@ -79,7 +83,7 @@
 </div>
 
 <div id="app">
-  <div class="wrap kop2"><span class="kruimel" style="margin:0">TEAMKRACHT</span><button class="uit" onclick="uitloggen()">Uitloggen</button></div>
+  <div class="wrap kop2"><nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a></nav><button class="uit" onclick="uitloggen()">Uitloggen</button></div>
   <header class="top"><div class="wrap">
     <p class="kruimel">LEZER-MODULE</p>
     <h1>Voordat je een team meet</h1>

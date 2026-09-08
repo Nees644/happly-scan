@@ -6,6 +6,20 @@ Twee dingen zetten dat recht: de afzender via Resend, en deze teksten.
 
 Bijgewerkt 9 september 2026.
 
+## Stap 0, waar mensen uitkomen
+
+Onder **Authentication**, **URL Configuration**:
+
+| Veld | Waarde |
+|---|---|
+| Site URL | `https://scan.happly.nl/account` |
+| Redirect URLs | `https://scan.happly.nl/**` en `https://happly-scan-git-*-nees644s-projects.vercel.app/**` |
+
+De Site URL is waar Supabase iemand heen stuurt als er verder niets is
+meegegeven. Stond die op de voorpagina van de scan, dan kwam een coach uit op
+een pagina die voor deelnemers is gemaakt, zonder menu en zonder een spoor naar
+zijn eigen omgeving. `/account` kijkt wie je bent en wijst je de weg.
+
 ## Stap 1, de afzender
 
 Supabase verstuurt standaard via zijn eigen server. Zet hem op Resend, dat je al

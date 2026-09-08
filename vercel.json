@@ -12,6 +12,10 @@
     {
       "source": "/betaald",
       "destination": "/betaald.html"
+    },
+    {
+      "source": "/account",
+      "destination": "/account.html"
     }
   ],
   "functions": {
