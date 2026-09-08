@@ -251,13 +251,6 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${doel.melding ? `<p class="cijfers">${esc(doel.melding)}</p>` : ""}
     </section>` : "";
 
-  const planBlok = doel ? `
-    <section class="dynamieken">
-      <h3>Wat dit team gaat doen</h3>
-      ${(plan || []).length
-        ? plan.map(planHtml).join("")
-        : `<p>Er is nog geen plan vastgelegd bij dit doelbeeld.</p>`}
-    </section>` : "";
 
   const kernBlok = doel ? doelBlok : `<section class="breuk">
          <p class="tag-licht">DE BREUK IN DE KETEN</p>
@@ -265,6 +258,20 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
          <p>${esc(breuk.tekst)}</p>
          <p class="cijfers">${esc(verschilZin(teambeeld))}</p>
        </section>`;
+
+  /* Vier past er naast elkaar op een A4, meer niet. De doelbeeldpagina levert
+     er ook nooit meer: de breuk plus de drie meest voorkomende profielen. De
+     grens staat hier zodat de kaart niet stilletjes over de voetnoot heen
+     loopt als daar ooit iets aan verandert. */
+  const planItems = (plan || []).slice(0, 4);
+
+  const planRij = doel && !poster ? `
+    <section class="planrij">
+      <h3>Wat dit team gaat doen</h3>
+      <div class="planlijst">
+        ${planItems.length ? planItems.map(planHtml).join("") : `<p>Er is nog geen plan vastgelegd bij dit doelbeeld.</p>`}
+      </div>
+    </section>` : "";
 
   const rechts = poster
     ? (doel
@@ -274,7 +281,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
            <section><h3>Profielverdeling</h3>${verdelingBlok}</section>`)
     : `${kernBlok}
        <section><h3>Profielverdeling</h3>${verdelingBlok}</section>
-       ${doel ? planBlok : `<section class="dynamieken"><h3>Waarschijnlijke dynamieken</h3>${dynamieken}</section>`}`;
+       ${doel ? "" : `<section class="dynamieken"><h3>Waarschijnlijke dynamieken</h3>${dynamieken}</section>`}`;
 
   return `<!DOCTYPE html>
 <html lang="nl">
@@ -303,6 +310,22 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
   h1 .punt{color:var(--magenta)}
   .inleiding{font-size:1.1em;font-weight:300;line-height:1.5;max-width:52em;color:var(--gedempt)}
   .romp{flex:1;display:grid;grid-template-columns:52% 1fr;column-gap:2.4em;min-height:0}
+  /* Het doelbeeld heeft rechts minder tekst en onder de tekening ruimte over.
+     Het plan loopt daarom over de volle breedte, in kolommen naast elkaar; in
+     de rechterkolom eronder liep het over de voetnoot heen. */
+  .romp.doelbeeld{grid-template-columns:46% 1fr;grid-template-rows:minmax(0,auto) minmax(0,1fr);
+    grid-template-areas:"tekening rechts" "plan plan";row-gap:1em;min-height:0}
+  .romp.doelbeeld .tekening{grid-area:tekening;align-self:start}
+  .romp.doelbeeld .rechts{grid-area:rechts}
+  .planrij{grid-area:plan;min-height:0;display:flex;flex-direction:column}
+  .planrij h3{margin-bottom:.5em}
+  .planlijst{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:1em;align-items:start}
+  .planlijst .dyn{border-top:1.5px solid var(--magenta);padding-top:.45em}
+  .planlijst h4{font-size:1.5em;margin-bottom:.2em}
+  .planlijst .tag{font-size:.75em;margin-bottom:.2em}
+  .planlijst p{font-size:.95em;line-height:1.35;margin-bottom:.15em}
+  .planlijst .plan{font-size:.88em;gap:.1em .6em;margin-top:.3em}
+  .planlijst .planvraag{margin-top:.3em}
   .romp.poster{grid-template-columns:1fr;grid-template-rows:1fr auto;row-gap:1.6em}
   .romp.poster .tekening{align-self:stretch;display:flex;align-items:center;justify-content:center;min-height:0}
   .romp.poster .tekening svg{width:auto;height:100%;max-width:100%}
@@ -349,9 +372,10 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       <h1>Teamkracht <span class="punt">&middot;</span> ${beeldnaam}</h1>
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
     </header>
-    <div class="romp${poster ? " poster" : ""}">
+    <div class="romp${poster ? " poster" : ""}${doel && !poster ? " doelbeeld" : ""}">
       <div class="tekening">${tekenKaartSvg(teambeeld, { doel })}</div>
       <div class="rechts">${rechts}</div>
+      ${planRij}
     </div>
     ${poster
       ? `<div class="logo">${LOGO}</div>`
