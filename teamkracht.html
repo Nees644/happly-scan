@@ -54,6 +54,8 @@ h2{font-family:"DM Serif Display",serif;font-size:22px;color:var(--dp);font-weig
 label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
 .leeg{font-size:13.5px;color:var(--mut);font-weight:300}
 .eerder{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.prijsregel{color:var(--mut)}
+.keuze{font-size:12.5px;font-weight:300;color:var(--mut);margin-top:10px;line-height:1.5;max-width:70ch}
 iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;background:#fff;margin-top:14px}
 </style>
 </head>
@@ -85,6 +87,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
         <div><label for="n-coach">Coach</label><input class="inp" id="n-coach" placeholder="optioneel"></div>
         <button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button>
       </div>
+      <p class="melding" id="n-prijs"></p>
       <p class="melding" id="n-melding"></p>
     </div>
 
@@ -154,6 +157,16 @@ function render(){
       ? `${basis} Je licentie is actief${IK.licentie_tot ? ` tot ${new Date(IK.licentie_tot).toLocaleDateString("nl-NL")}` : ""}, dus kaarten en hermetingen zijn inbegrepen.`
       : `${basis} Zonder licentie reken je per kaart af.`;
   }
+  const np = el("n-prijs");
+  if (np){
+    const tf = PRIJZEN["TF"], lic = PRIJZEN["LIC-M"];
+    np.textContent = IK.licentie_actief
+      ? "De Teamfoto van dit team is inbegrepen bij je licentie."
+      : tf
+        ? `De Teamfoto van dit team kost ${euro(tf.ex)} euro, of is inbegrepen vanaf ${lic ? euro(lic.ex) : "29"} euro per maand. Je rekent pas af als de kaart gemaakt kan worden.`
+        : "";
+  }
+
   if (!TEAMS.length){
     el("teams").innerHTML = '<div class="kaart"><p class="leeg">Nog geen teams. Maak er hierboven een aan.</p></div>';
     return;
@@ -192,6 +205,7 @@ function render(){
           <h3>${esc(t.naam)}</h3>
           <div class="meta">${esc(t.organisatie || "")}${t.organisatie && t.coach_naam ? " &middot; " : ""}${esc(t.coach_naam || "")}</div>
           <div class="meta">${n} ${n === 1 ? "meting" : "metingen"}${start ? `, waarvan ${nieuweMetingen} na het startbeeld` : (n && n < 10 ? ", onder tien dus zonder individuele lijnen" : "")}</div>
+          <div class="meta prijsregel">${prijsregel(t, soort)}</div>
         </div>
         <div class="acties">
           ${pil}
@@ -204,11 +218,28 @@ function render(){
         <button class="btn lijn klein" onclick="kopieer('${basis}/scan?team=${esc(t.token)}', this)">Kopieer link</button>
       </div>
       <p class="melding" id="m-${t.id}"></p>
+      ${t.recht?.mag ? "" : `<p class="keuze">${keuzeregel(t, soort)}</p>`}
     </div>`;
   }).join("");
 }
 
 const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
+
+/* De prijs staat er vanaf het begin, niet pas als de knop verschijnt. Wie pas
+   bij vijf deelnemers ontdekt dat het geld kost, heeft dan al de tijd van vijf
+   collega's uitgegeven. */
+function prijsregel(t, soort){
+  if (t.recht?.mag){
+    return t.recht.reden === "licentie"
+      ? "Inbegrepen bij je licentie"
+      : "Afgerekend, klaar om te maken";
+  }
+  const code = soort === "hermeting" ? "HM" : "TF";
+  const p = PRIJZEN[code];
+  if (!p) return "";
+  const wat = soort === "hermeting" ? "Hermeting" : "Teamfoto";
+  return `${wat} ${euro(p.ex)} euro, nog niet afgerekend`;
+}
 
 /* Welke knop hoort bij dit team. Drie mogelijkheden: maken mag, eerst de
    leesdrempel, of eerst afrekenen. Wat het kost staat op de knop, want een
@@ -240,6 +271,21 @@ async function koop(code, teamId, naam){
     melding.className = "melding fout";
     melding.textContent = e.message;
   }
+}
+
+/* Onder de koopknop: wat het alternatief is, en dat de deelnemers hoe dan ook
+   hun eigen uitslag hebben gehad. Dat laatste haalt de druk van het moment. */
+function keuzeregel(t, soort){
+  if (!IK.leesdrempel_gehaald){
+    return "Hoofdstuk 1 en 2 van de module zijn gratis en duren een kwartier.";
+  }
+  const code = soort === "hermeting" ? "HM" : "TF";
+  const p = PRIJZEN[code], lic = PRIJZEN["LIC-M"];
+  if (!p) return "";
+  const deel = t.aantal_metingen
+    ? ` De ${t.aantal_metingen} deelnemers hebben hun eigen uitslag al gekregen; die blijft van hen.`
+    : "";
+  return `Dit team ${euro(p.ex)} euro, of alles inbegrepen vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.${deel}`;
 }
 
 function kopieer(tekst, knop){

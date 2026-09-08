@@ -75,7 +75,7 @@ export default async function handler(req, res){
       db.from("bestellingen")
         .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
         .eq("gebruiker_id", gebruiker.user_id),
-      db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM"]),
+      db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM", "LIC-M"]),
       db.from("module_voortgang").select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2])
     ]);
 

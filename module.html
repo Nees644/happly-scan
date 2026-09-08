@@ -94,7 +94,7 @@ const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.c
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 let stand = { afgerond: [], module_gekocht: false, leesdrempel_gehaald: false };
-let prijs = null;
+let prijs = null, prijzen = {};
 let aanmelden = true;
 
 async function api(pad, opties = {}){
@@ -173,9 +173,13 @@ function teken(){
     </section>`;
   }).join("");
 
+  const tf = prijzen["TF"], lic = prijzen["LIC-M"];
+  const kosten = tf
+    ? ` Een Teamfoto kost ${euro(tf.ex)} euro per team, of is inbegrepen bij een licentie vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.`
+    : "";
   el("voet").innerHTML = stand.leesdrempel_gehaald
-    ? 'Je hebt de leesdrempel gehaald. Je kunt nu een Teamfoto aanvragen voor een team dat je zelf aanmaakt. <a href="/teamkracht" style="color:var(--magenta)">Naar het dashboard</a>.'
-    : "Rond hoofdstuk 1 en 2 af om een Teamfoto te kunnen aanvragen.";
+    ? `Je hebt de leesdrempel gehaald. Je kunt nu een Teamfoto aanvragen voor een team dat je zelf aanmaakt.${kosten} <a href="/teamkracht" style="color:var(--magenta)">Naar het dashboard</a>.`
+    : `Rond hoofdstuk 1 en 2 af om een Teamfoto te kunnen aanvragen.${kosten}`;
 
   tekenKoop();
 }
@@ -234,9 +238,10 @@ async function toonApp(){
   el("app").style.display = "block";
   try{ stand = await api("/api/module-voortgang"); }catch(e){ /* eerste keer: leeg */ }
   try{
-    const p = await api("/api/prijslijst?code=LEZ-1");
-    prijs = p.product || null;
-  }catch(e){ /* zonder prijs geen koopblok, en dat is beter dan een verkeerd bedrag */ }
+    const p = await api("/api/prijslijst");
+    prijzen = Object.fromEntries((p.producten || []).map(x => [x.code, x]));
+    prijs = prijzen["LEZ-1"] || null;
+  }catch(e){ /* zonder prijs geen bedragen, en dat is beter dan een verkeerd bedrag */ }
   teken();
 }
 
