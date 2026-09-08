@@ -83,6 +83,9 @@
     },
     "api/module-voortgang.js": {
       "maxDuration": 10
+    },
+    "api/prijslijst.js": {
+      "maxDuration": 10
     }
   },
   "crons": [

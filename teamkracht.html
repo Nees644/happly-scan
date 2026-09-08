@@ -89,7 +89,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
     </div>
 
     <h2 style="margin-top:30px">Teams</h2>
-    <p class="sub">Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.</p>
+    <p class="sub" id="licentieregel">Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.</p>
     <div id="teams"><p class="leeg">Laden...</p></div>
 
     <div id="kaartvenster"></div>
@@ -99,7 +99,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
 <script>
 const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
 
-let TEAMS = [];
+let TEAMS = [], IK = {}, PRIJZEN = {};
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
@@ -138,6 +138,8 @@ async function laadTeams(){
   try{
     const uit = await api("/api/teamkracht-team");
     TEAMS = uit.teams || [];
+    IK = uit.gebruiker || {};
+    PRIJZEN = uit.prijzen || {};
     render();
   }catch(e){
     el("teams").innerHTML = `<div class="kaart"><p class="melding fout">Teams laden mislukt: ${esc(e.message)}. Staat je account in teamkracht_gebruikers?</p></div>`;
@@ -145,6 +147,13 @@ async function laadTeams(){
 }
 
 function render(){
+  const lr = el("licentieregel");
+  if (lr){
+    const basis = "Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.";
+    lr.textContent = IK.licentie_actief
+      ? `${basis} Je licentie is actief${IK.licentie_tot ? ` tot ${new Date(IK.licentie_tot).toLocaleDateString("nl-NL")}` : ""}, dus kaarten en hermetingen zijn inbegrepen.`
+      : `${basis} Zonder licentie reken je per kaart af.`;
+  }
   if (!TEAMS.length){
     el("teams").innerHTML = '<div class="kaart"><p class="leeg">Nog geen teams. Maak er hierboven een aan.</p></div>';
     return;
@@ -186,7 +195,7 @@ function render(){
         </div>
         <div class="acties">
           ${pil}
-          <button class="btn klein" ${genoeg ? "" : "disabled"} onclick="maakKaart('${t.id}','${esc(t.naam)}','${soort}')">${knoptekst}</button>
+          ${knopVoor(t, genoeg, soort, knoptekst)}
         </div>
       </div>
       ${eerder}
@@ -197,6 +206,40 @@ function render(){
       <p class="melding" id="m-${t.id}"></p>
     </div>`;
   }).join("");
+}
+
+const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
+
+/* Welke knop hoort bij dit team. Drie mogelijkheden: maken mag, eerst de
+   leesdrempel, of eerst afrekenen. Wat het kost staat op de knop, want een
+   knop die je pas na het klikken vertelt dat het geld kost is een valstrik. */
+function knopVoor(t, genoeg, soort, knoptekst){
+  if (!genoeg) return `<button class="btn klein" disabled>${knoptekst}</button>`;
+  if (t.recht?.mag) return `<button class="btn klein" onclick="maakKaart('${t.id}','${esc(t.naam)}','${soort}')">${knoptekst}</button>`;
+
+  if (!IK.leesdrempel_gehaald){
+    return `<a class="btn klein" href="/module" style="text-decoration:none">Eerst de leesdrempel</a>`;
+  }
+  const code = soort === "hermeting" ? "HM" : "TF";
+  const p = PRIJZEN[code];
+  const bedrag = p ? `${euro(p.ex)} euro` : "afrekenen";
+  return `<button class="btn klein" onclick="koop('${code}','${t.id}','${esc(t.naam)}')">${soort === "hermeting" ? "Hermeting" : "Teamfoto"} kopen, ${bedrag}</button>`;
+}
+
+/* Naar de betaalpagina van Mollie. De bestelling wordt aan onze kant vastgelegd
+   voordat er iets bij Mollie gebeurt; zie /api/betaling-start. */
+async function koop(code, teamId, naam){
+  const melding = el(`m-${teamId}`); melding.className = "melding";
+  melding.textContent = "Betaling voorbereiden...";
+  try{
+    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ product_code: code, team_id: teamId })});
+    if (!uit.betaalpagina) throw new Error("geen betaalpagina ontvangen");
+    melding.textContent = "Je gaat door naar de betaalpagina...";
+    location.href = uit.betaalpagina;
+  }catch(e){
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
 }
 
 function kopieer(tekst, knop){

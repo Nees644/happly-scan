@@ -48,6 +48,12 @@
   .klaar{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#14603D}
   .melding{font-size:13px;color:var(--gedempt);margin-top:10px;min-height:1.2em}
   .melding.fout{color:var(--magenta)}
+  .koopvak{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:26px 28px;margin-top:30px}
+  .koopvak h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.6rem;margin-bottom:8px}
+  .koopvak p{font-weight:300;margin-bottom:14px}
+  .koopvak .bedrag{font-size:1.3rem;font-weight:300;margin-bottom:18px}
+  .koopvak .bedrag b{font-family:"DM Serif Display",serif;font-weight:400}
+  .koopvak .bedrag span{font-size:13px;color:var(--gedempt)}
   footer{padding:36px 0 80px;font-size:13px;font-weight:300;color:var(--gedempt)}
   .uit{background:none;border:none;color:var(--lav);font:inherit;font-size:12.5px;cursor:pointer}
   .kop2{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
@@ -76,6 +82,7 @@
     <div class="balk"><div class="spoor"><div class="vul" id="vul"></div></div><span class="tel" id="tel"></span></div>
   </div></header>
   <main class="wrap" id="hoofdstukken"></main>
+  <div class="wrap" id="koop"></div>
   <footer><div class="wrap"><p id="voet"></p></div></footer>
 </div>
 
@@ -87,6 +94,7 @@ const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.c
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 let stand = { afgerond: [], module_gekocht: false, leesdrempel_gehaald: false };
+let prijs = null;
 let aanmelden = true;
 
 async function api(pad, opties = {}){
@@ -165,9 +173,47 @@ function teken(){
     </section>`;
   }).join("");
 
-  el("voet").textContent = stand.leesdrempel_gehaald
-    ? "Je hebt de leesdrempel gehaald. Je kunt nu een Teamfoto aanvragen voor een team dat je zelf aanmaakt."
+  el("voet").innerHTML = stand.leesdrempel_gehaald
+    ? 'Je hebt de leesdrempel gehaald. Je kunt nu een Teamfoto aanvragen voor een team dat je zelf aanmaakt. <a href="/teamkracht" style="color:var(--magenta)">Naar het dashboard</a>.'
     : "Rond hoofdstuk 1 en 2 af om een Teamfoto te kunnen aanvragen.";
+
+  tekenKoop();
+}
+
+const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
+
+/* Het koopblok. Verschijnt zodra de gratis hoofdstukken gelezen zijn, want
+   daarvoor is het een aanbieding die nergens op slaat. Verdwijnt zodra er is
+   betaald. Het bedrag staat er exclusief btw met het totaal erbij, zodat de
+   zzp'er die de btw niet terugkrijgt niet bij de afrekening schrikt. */
+function tekenKoop(){
+  const vak = el("koop");
+  if (stand.module_gekocht || !stand.leesdrempel_gehaald || !prijs){ vak.innerHTML = ""; return; }
+  vak.innerHTML = `<div class="koopvak">
+    <h2>De hele module</h2>
+    <p>Vier hoofdstukken erbij, de toets, en bij een voldoende het certificaat, de badge en je vermelding in het register.</p>
+    <p class="bedrag"><b>${euro(prijs.ex)} euro</b> <span>excl. btw, ${euro(prijs.totaal)} inclusief</span></p>
+    <button class="knop" id="koopknop">De Lezer-module kopen</button>
+    <p class="melding" id="koopmelding"></p>
+  </div>`;
+  el("koopknop").addEventListener("click", koop);
+}
+
+async function koop(){
+  const knop = el("koopknop"), melding = el("koopmelding");
+  knop.disabled = true;
+  melding.className = "melding";
+  melding.textContent = "Betaling voorbereiden...";
+  try{
+    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ product_code: "LEZ-1" })});
+    if (!uit.betaalpagina) throw new Error("geen betaalpagina ontvangen");
+    melding.textContent = "Je gaat door naar de betaalpagina...";
+    location.href = uit.betaalpagina;
+  }catch(e){
+    knop.disabled = false;
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
 }
 
 el("hoofdstukken").addEventListener("click", async e => {
@@ -187,6 +233,10 @@ async function toonApp(){
   el("login").style.display = "none";
   el("app").style.display = "block";
   try{ stand = await api("/api/module-voortgang"); }catch(e){ /* eerste keer: leeg */ }
+  try{
+    const p = await api("/api/prijslijst?code=LEZ-1");
+    prijs = p.product || null;
+  }catch(e){ /* zonder prijs geen koopblok, en dat is beter dan een verkeerd bedrag */ }
   teken();
 }
 

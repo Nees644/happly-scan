@@ -7,6 +7,7 @@
 // POST maakt een team met een uniek token van zes tekens.
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
+import { rechtOpKaart, bedragMetBtw } from "../betalen.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -65,12 +66,42 @@ export default async function handler(req, res){
       if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
     }
 
+    // Wat de coach mag en wat het kost. Vooraf meesturen in plaats van pas bij
+    // het klikken: iemand hoort te weten wat een knop gaat kosten voordat hij
+    // erop drukt.
+    const [gq, bq, pq, vq] = await Promise.all([
+      db.from("teamkracht_gebruikers")
+        .select("licentie_actief, licentie_tot, niveau").eq("user_id", gebruiker.user_id).single(),
+      db.from("bestellingen")
+        .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
+        .eq("gebruiker_id", gebruiker.user_id),
+      db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM"]),
+      db.from("module_voortgang").select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2])
+    ]);
+
+    const bestellingen = bq.data || [];
+    const prijzen = Object.fromEntries((pq.data || []).map(p => [p.code, { ...p, ...bedragMetBtw(p) }]));
+    const leesdrempel = (vq.data || []).length >= 2;
+
     res.status(200).json({
-      teams: (teams.data || []).map(t => ({
-        ...t,
-        aantal_metingen: telling[t.id] || 0,
-        beelden: perTeam[t.id] || []
-      }))
+      gebruiker: {
+        rol: gebruiker.rol,
+        licentie_actief: !!gq.data?.licentie_actief,
+        licentie_tot: gq.data?.licentie_tot || null,
+        leesdrempel_gehaald: leesdrempel
+      },
+      prijzen,
+      teams: (teams.data || []).map(t => {
+        const beelden = perTeam[t.id] || [];
+        const soort = beelden.some(b => b.soort === "start") ? "hermeting" : "start";
+        return {
+          ...t,
+          aantal_metingen: telling[t.id] || 0,
+          beelden,
+          volgende_soort: soort,
+          recht: rechtOpKaart({ gebruiker: gq.data, bestellingen, teamId: t.id, soort })
+        };
+      })
     });
     return;
   }
