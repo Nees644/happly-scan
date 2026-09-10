@@ -44,7 +44,10 @@ const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.c
 
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const euro = c => (c / 100).toFixed(2).replace(".", ",");
+const euro = c => {
+  const [heel, deel] = (c / 100).toFixed(2).split(".");
+  return `${heel.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${deel}`;
+};
 const id = new URLSearchParams(location.search).get("b");
 
 /* Mollie stuurt de klant vaak terug voordat de melding bij ons binnen is. Dus
@@ -69,9 +72,12 @@ function toon(b, klaar){
     <div class="regel"><span>Bestelnummer</span><span class="stil">${esc(b.id.slice(0, 8))}</span></div>`;
   if (b.status === "betaald"){
     el("kop").textContent = "Bedankt, je betaling is binnen";
-    el("tekst").textContent = b.product_code === "TF" || b.product_code === "HM"
-      ? "Je kunt de kaart nu maken in het dashboard."
-      : "Alles staat voor je klaar.";
+    const code = String(b.product_code || "");
+    el("tekst").textContent = code === "TF" || code.startsWith("PAK")
+      ? "Je kunt de Teamfoto nu maken in het dashboard. De hermeting van dit team zit erbij in en staat een half jaar voor je klaar."
+      : code === "HM" || code.startsWith("HM-")
+        ? "Je kunt de hermeting nu maken in het dashboard."
+        : "Alles staat voor je klaar.";
     el("verder").innerHTML = '<a class="knop" href="/teamkracht">Naar het dashboard</a>';
   } else if (b.status === "mislukt" || b.status === "verlopen"){
     el("kop").textContent = "De betaling is niet afgerond";

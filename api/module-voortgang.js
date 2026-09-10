@@ -2,20 +2,21 @@
 // De voortgang door de Lezer-module. GET geeft terug wat iemand mag lezen en
 // wat hij heeft afgerond; POST markeert een hoofdstuk als gelezen.
 //
-// Toegang tot hoofdstuk 3 tot en met 6 wordt afgeleid uit een betaalde
-// bestelling, niet uit een vlag. Zo is er geen tweede waarheid die uit de pas
-// kan lopen met wat er is betaald.
+// Toegang tot hoofdstuk 3 tot en met 6 staat in lezer_module_toegang op de
+// gebruiker. Dat was eerder een afleiding uit een betaalde bestelling, maar er
+// zijn sinds 10-09-2026 drie wegen naar hetzelfde recht (LEZ-1, LEZ-10, en het
+// beheerderschap van een organisatie) en dan hoort er een veld te zijn.
+//
+// Toegang is niet hetzelfde als een certificaat. niveau = 'lezer' komt pas na
+// een geslaagde toets en wordt hier nergens gezet.
 
 import { eisGebruiker, serviceClient } from "../teamkracht-auth.js";
 import { isGratis } from "../module-inhoud.js";
 
-const MODULE_PRODUCTEN = ["LEZ-1", "LEZ-2"];
-
 async function heeftModule(db, userId){
-  const q = await db.from("bestellingen")
-    .select("id").eq("gebruiker_id", userId).eq("status", "betaald")
-    .in("product_code", MODULE_PRODUCTEN).limit(1);
-  return !q.error && (q.data || []).length > 0;
+  const q = await db.from("teamkracht_gebruikers")
+    .select("lezer_module_toegang").eq("user_id", userId).maybeSingle();
+  return !!q.data?.lezer_module_toegang;
 }
 
 export default async function handler(req, res){
@@ -31,7 +32,7 @@ export default async function handler(req, res){
     const afgerond = (v.data || []).map(r => r.hoofdstuk);
     res.status(200).json({
       afgerond,
-      module_gekocht: gekocht,
+      module_toegang: gekocht,
       leesdrempel_gehaald: [1, 2].every(h => afgerond.includes(h))
     });
     return;

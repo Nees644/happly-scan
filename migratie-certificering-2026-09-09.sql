@@ -145,9 +145,9 @@ create index if not exists certificaten_gebruiker_idx
 -- frontend staat. Bedragen in centen exclusief btw; de btw wordt bij het
 -- afrekenen opgeteld, dus die staat er als percentage bij en niet als bedrag.
 --
--- Mollie kent geen productcatalogus zoals Stripe. Er is dus geen price-id om
--- mee te synchroniseren: deze tabel is de catalogus. Dat scheelt een
--- koppeling die uit de pas kan lopen.
+-- Mollie kent geen productcatalogus. Er is dus geen extern price-id om mee te
+-- synchroniseren: deze tabel is de catalogus. Dat scheelt een koppeling die uit
+-- de pas kan lopen.
 --
 -- Prijswijziging: nieuwe rij met een nieuwe versie, oude rij op actief = false.
 -- Lopende abonnementen houden hun bedrag, want een Mollie-abonnement heeft zijn
@@ -188,10 +188,9 @@ insert into public.producten (code, naam, prijs_ex_btw, interval, soort, fase, b
 ('TF',         'Teamfoto, een team',                    9500, 'eenmalig', 'meting',        'A',        'De Teamkrachtkaart van een team',      'Hoofdstuk 1 en 2 van de Lezer-module afgerond'),
 ('HM',         'Hermeting, een team',                   9500, 'eenmalig', 'meting',        'A',        'Het eindbeeld over het startbeeld',    'Eerder een Teamfoto voor dit team'),
 ('LEZ-1',      'Lezer, instap',                        14900, 'eenmalig', 'certificering', 'A',        'Module, toets, certificaat, badge, register', null),
-('LEZ-2',      'Lezer, met licentie',                  39500, 'eenmalig', 'certificering', 'A',        'Lezer instap plus een jaar persoonlijke licentie', null),
 ('LIC-M',      'Persoonlijke licentie, maand',           2900, 'maand',    'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
 ('LIC-J',      'Persoonlijke licentie, jaar',           29000, 'jaar',     'licentie',      'A',        'Onbeperkt Teamfotos en hermetingen voor eigen teams', 'Geldig certificaat'),
-('LEZ-10',     'Lezer, organisatie tien plekken',      295000, 'eenmalig', 'certificering', 'later',    'Tien maal Lezer met licentie plus organisatiedashboard', null),
+('LEZ-10',     'Lezer, tien plekken',                  295000, 'eenmalig', 'certificering', 'later',    'Tien maal toegang tot de module plus organisatiedashboard', null),
 ('BEG-1',      'Begeleider, instap',                    69500, 'eenmalig', 'certificering', 'later',    'Opleidingsdag, drie intervisies, certificaat, badge, register', 'Geldig Lezer-certificaat'),
 ('BEG-2',      'Begeleider, met licentie',              89500, 'eenmalig', 'certificering', 'later',    'Begeleider instap plus een jaar licentie, naam en logo op de kaart', 'Geldig Lezer-certificaat'),
 ('BEG-8',      'Begeleider, in-company acht plekken',  495000, 'eenmalig', 'certificering', 'later',    'Acht maal Begeleider met licentie', null),
@@ -441,7 +440,7 @@ create policy "meldingen alleen beheerder" on public.mollie_meldingen
 --
 -- 1. OPGELOST met de tarievenbriefing van 09-09-2026: de prijzen staan in blok
 --    G, in centen exclusief btw. Wat er nog niet staat is wat er gebeurt als
---    de twaalf maanden van LEZ-2 aflopen; zie de aantekening bij dat blok.
+--    de twaalf maanden van een bundel aflopen; zie de aantekening bij dat blok.
 --
 -- 2. OPGELOST: een losse Teamfoto vervalt na een jaar als hij niet is
 --    gebruikt (geldig_tot). De kaart die ermee is gemaakt vervalt nooit en

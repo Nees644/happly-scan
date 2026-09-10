@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Organisatie &middot; dashboard</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--dp:#1A0B2E;--pk:#D6026F;--rt:#FBEFF5;--wt:#fff;--tx:#1C1C1C;--bd:#E7DCEC;--mut:#6A5A78;--lav:#B9AECB}
+body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-height:100vh}
+.login-screen{position:fixed;inset:0;background:var(--dp);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:var(--wt);border-radius:12px;padding:40px 36px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-box h1{font-family:"DM Serif Display",serif;font-size:24px;color:var(--dp);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--mut);margin-bottom:22px;line-height:1.5}
+.login-err{color:var(--pk);font-size:12.5px;margin-bottom:12px;display:none;line-height:1.4}
+.inp{width:100%;padding:12px 15px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13.5px;margin-bottom:12px;outline:none}
+.inp:focus{border-color:var(--pk)}
+select.inp{background:var(--wt)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--pk);color:#fff;font-family:inherit;font-size:13.5px;font-weight:500;padding:12px 24px;border:none;border-radius:7px;cursor:pointer}
+.btn:hover{background:#b80260}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.w{width:100%}
+.btn.lijn{background:transparent;color:var(--dp);border:1.5px solid var(--bd)}
+.btn.lijn:hover{background:var(--wt);border-color:var(--dp)}
+.btn.klein{padding:8px 14px;font-size:12.5px}
+#app{display:none}
+.hdr{background:var(--dp);padding:18px 0}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.hdr .wrap{display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-family:"DM Serif Display",serif;font-size:19px;color:#fff;font-weight:400}
+.menu{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.menu a{font-size:12.5px;color:var(--lav);text-decoration:none}
+.menu a:hover{color:#fff}
+.menu a[aria-current]{color:#fff;font-weight:600}
+.hdr .uit{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit}
+main{padding:28px 0 70px}
+h2{font-family:"DM Serif Display",serif;font-size:22px;color:var(--dp);font-weight:400;margin-bottom:4px}
+.sub{font-size:13px;color:var(--mut);margin-bottom:18px;line-height:1.5;max-width:70ch}
+.kaart{background:var(--wt);border:1px solid var(--bd);border-radius:10px;padding:20px 22px;margin-bottom:16px}
+.teamrij{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.teamrij h3{font-family:"DM Serif Display",serif;font-size:19px;color:var(--dp);font-weight:400}
+.meta{font-size:12.5px;color:var(--mut);margin-top:3px}
+.acties{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pil{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:99px}
+.pil.klaar{background:#E6F4EC;color:#14603D}
+.pil.wacht{background:#FBF0DC;color:#8A5B06}
+.pil.stil{background:#F1ECF5;color:var(--mut)}
+.melding{font-size:12.5px;color:var(--mut);margin-top:10px;min-height:1.2em}
+.melding.fout{color:var(--pk)}
+.nieuw{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end}
+.nieuw .inp{margin-bottom:0}
+label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.leeg{font-size:13.5px;color:var(--mut);font-weight:300}
+.strook{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:18px}
+.strook div span{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.strook div b{font-family:"DM Serif Display",serif;font-size:24px;color:var(--dp);font-weight:400}
+.rij{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.rij:last-child{border-bottom:none}
+.rij .naam{font-size:14px;color:var(--dp)}
+.beelden{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.beeld{font-size:11.5px;color:var(--mut);background:#F7F3F0;border:1px solid var(--bd);border-radius:6px;padding:4px 9px}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen" style="display:none">
+  <div class="login-box">
+    <h1>Organisatie</h1>
+    <p>Log in met je Happly-dashboardaccount.</p>
+    <div class="login-err" id="login-err"></div>
+    <input class="inp" id="login-email" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input class="inp" id="login-pass" type="password" placeholder="Wachtwoord" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn w" id="login-btn" onclick="doLogin()">Inloggen</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="hdr"><div class="wrap">
+    <h1>Teamkracht</h1>
+    <nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/organisatie">Organisatie</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a><button class="uit" onclick="doLogout()">Uitloggen</button></nav>
+  </div></div>
+  <main class="wrap">
+    <div id="inhoud"><p class="leeg">Laden...</p></div>
+  </main>
+</div>
+
+<script>
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+let DATA = null;
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const datum = d => new Date(d).toLocaleDateString("nl-NL");
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, {
+    ...opties,
+    headers: { "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{}) }
+  });
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+async function doLogin(){
+  const email = el("login-email").value.trim(), pass = el("login-pass").value;
+  const err = el("login-err"); err.style.display = "none";
+  el("login-btn").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  el("login-btn").disabled = false;
+  if (error){ err.textContent = "Inloggen mislukt. Controleer je gegevens."; err.style.display = "block"; return; }
+  toonApp();
+}
+function doLogout(){ db.auth.signOut().then(() => location.reload()); }
+
+async function toonApp(){
+  el("login-screen").style.display = "none";
+  el("app").style.display = "block";
+  document.querySelectorAll('.menu a[href="/organisatie"]').forEach(a => a.setAttribute("aria-current", "page"));
+  laden();
+}
+
+async function laden(){
+  try{
+    DATA = await api("/api/organisatie");
+    render();
+  }catch(e){
+    el("inhoud").innerHTML = `<div class="kaart">
+      <h2>Nog geen organisatie</h2>
+      <p class="sub">${esc(e.message)}</p>
+      <a class="btn" href="/teamkracht" style="text-decoration:none">Naar je teams</a>
+    </div>`;
+  }
+}
+
+const STAFFEL = { klein: "Klein", midden: "Midden", groot: "Groot" };
+
+function render(){
+  const o = DATA.organisatie, s = DATA.seats, beheerder = DATA.ik.beheerder;
+  const seatsTekst = o.seats_max === null ? "onbeperkt" : `${s.bezet} van ${o.seats_max}`;
+
+  el("inhoud").innerHTML = `
+    <h2>${esc(o.naam)}</h2>
+    <p class="sub">Organisatie ${esc(STAFFEL[o.staffel] || o.staffel)}. Elk team ziet zijn eigen beeld, tegen het gemiddelde van alle metingen en tegen zijn eigen vorige meting. Teams staan hier niet naast elkaar op score, en dat blijft zo.</p>
+
+    <div class="kaart">
+      <div class="strook">
+        <div><span>Teams</span><b>${DATA.teams.length}</b></div>
+        <div><span>Seats</span><b>${esc(seatsTekst)}</b></div>
+        <div><span>Loopt tot</span><b>${datum(o.abonnement_tot)}</b></div>
+      </div>
+      <p class="melding">${verlengregel(o)}</p>
+    </div>
+
+    <h2 style="margin-top:30px">Wie meedoen</h2>
+    <p class="sub">Iedereen met een seat maakt zijn eigen teams en rekent af tegen het tarief van deze organisatie. De teams blijven van hun coach.</p>
+    <div class="kaart">
+      ${ledenHtml()}
+      ${beheerder ? seatFormulier(s) : ""}
+      <p class="melding" id="seat-melding"></p>
+    </div>
+
+    <h2 style="margin-top:30px">Teams</h2>
+    <p class="sub">Wat er loopt, en hoe ver het is. Voor het beeld zelf ga je naar het team.</p>
+    <div>${DATA.teams.length ? DATA.teams.map(teamKaart).join("") : '<div class="kaart"><p class="leeg">Nog geen teams. Wie een seat heeft, maakt ze aan bij Teams.</p></div>'}</div>`;
+}
+
+function verlengregel(o){
+  const dagen = Math.round((new Date(o.abonnement_tot) - new Date()) / 864e5);
+  if (dagen > 60) return `Je abonnement loopt door tot ${datum(o.abonnement_tot)}.`;
+  if (dagen >= 0) return `Je abonnement loopt nog ${dagen} ${dagen === 1 ? "dag" : "dagen"}. Verlengen kan vanaf je account.`;
+  return "Je abonnement is afgelopen. Zolang het stilstaat gelden de tarieven zonder abonnement.";
+}
+
+function ledenHtml(){
+  const rijen = DATA.leden.map(l => `
+    <div class="rij">
+      <div>
+        <div class="naam">${esc(l.naam || l.email || "Zonder naam")}</div>
+        <div class="meta">${esc(l.email || "")}${l.rol === "beheerder" ? " &middot; beheerder" : ""}</div>
+      </div>
+      <div class="acties">
+        ${l.niveau && l.niveau !== "geen" ? `<span class="pil stil">${esc(l.niveau)}</span>` : ""}
+        ${DATA.ik.beheerder && l.rol !== "beheerder"
+          ? `<button class="btn lijn klein" onclick="haalWeg('user_id=${esc(l.user_id)}','${esc(l.naam || l.email)}')">Seat vrijmaken</button>` : ""}
+      </div>
+    </div>`).join("");
+
+  const open = DATA.uitnodigingen.map(u => `
+    <div class="rij">
+      <div>
+        <div class="naam">${esc(u.email)}</div>
+        <div class="meta">Uitgenodigd op ${datum(u.created_at)}, gaat in bij de eerste inlog</div>
+      </div>
+      <div class="acties">
+        <span class="pil wacht">wacht</span>
+        ${DATA.ik.beheerder
+          ? `<button class="btn lijn klein" onclick="haalWeg('uitnodiging_id=${esc(u.id)}','${esc(u.email)}')">Intrekken</button>` : ""}
+      </div>
+    </div>`).join("");
+
+  return (rijen + open) || '<p class="leeg">Nog niemand toegevoegd.</p>';
+}
+
+function seatFormulier(s){
+  if (s.over === 0){
+    return `<p class="melding">Alle seats zijn bezet. Maak er een vrij, of stap over naar een grotere staffel.</p>`;
+  }
+  const over = s.over === null ? "" : ` Er ${s.over === 1 ? "is nog 1 seat" : `zijn nog ${s.over} seats`} vrij.`;
+  return `
+    <div class="nieuw" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bd)">
+      <div><label for="s-email">E-mailadres</label><input class="inp" id="s-email" type="email" placeholder="collega@organisatie.nl" onkeydown="if(event.key==='Enter')voegToe()"></div>
+      <div><label for="s-rol">Rol</label><select class="inp" id="s-rol"><option value="gebruiker">Gebruiker</option><option value="beheerder">Beheerder</option></select></div>
+      <button class="btn" id="s-btn" onclick="voegToe()">Seat toewijzen</button>
+    </div>
+    <p class="meta" style="margin-top:8px">Heeft deze persoon nog geen account, dan gaat de seat in zodra hij voor het eerst inlogt.${over}</p>`;
+}
+
+function teamKaart(t){
+  const start = t.beelden.find(b => b.soort === "start");
+  const eind = t.beelden.find(b => b.soort === "hermeting");
+  const pil = eind
+    ? '<span class="pil klaar">hermeting gedaan</span>'
+    : start
+      ? '<span class="pil klaar">startbeeld gemaakt</span>'
+      : `<span class="pil wacht">${t.aantal_metingen} van de 5</span>`;
+
+  // Alleen soort, aantal en datum. Geen score en geen breuk: teams van dezelfde
+  // organisatie horen hier niet vergelijkbaar te zijn.
+  const beelden = t.beelden.map(b =>
+    `<span class="beeld">${b.soort === "start" ? "Startbeeld" : "Eindbeeld"} ${datum(b.created_at)}, ${b.n} deelnemers</span>`).join("");
+
+  const tegoed = t.hermeting_tegoed > 0 && t.hermeting_tot
+    ? `<div class="meta">Hermeting uit het pakket staat klaar tot ${datum(t.hermeting_tot)}</div>` : "";
+
+  return `<div class="kaart">
+    <div class="teamrij">
+      <div>
+        <h3>${esc(t.naam)}</h3>
+        <div class="meta">${esc(t.coach || "zonder coach")} &middot; ${t.aantal_metingen} ${t.aantal_metingen === 1 ? "meting" : "metingen"}</div>
+        ${tegoed}
+      </div>
+      <div class="acties">${pil}</div>
+    </div>
+    ${beelden ? `<div class="beelden">${beelden}</div>` : ""}
+  </div>`;
+}
+
+async function voegToe(){
+  const email = el("s-email").value.trim();
+  const rol = el("s-rol").value;
+  const melding = el("seat-melding"); melding.className = "melding";
+  if (!email){ melding.className = "melding fout"; melding.textContent = "Vul een e-mailadres in."; return; }
+  el("s-btn").disabled = true;
+  try{
+    const uit = await api("/api/organisatie", { method:"POST", body: JSON.stringify({ email, rol }) });
+    melding.textContent = uit.melding;
+    el("s-email").value = "";
+    await laden();
+  }catch(e){
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
+  el("s-btn").disabled = false;
+}
+
+async function haalWeg(query, wie){
+  if (!confirm(`Seat van ${wie} vrijmaken? Zijn teams blijven van hem en verdwijnen uit dit overzicht.`)) return;
+  try{
+    await api(`/api/organisatie?${query}`, { method:"DELETE" });
+    await laden();
+  }catch(e){
+    const melding = el("seat-melding");
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
+}
+
+db.auth.getSession().then(({ data:{ session } }) => {
+  if (session) toonApp();
+  else el("login-screen").style.display = "flex";
+});
+</script>
+</body>
+</html>

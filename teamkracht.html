@@ -79,7 +79,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
 <div id="app">
   <div class="hdr"><div class="wrap">
     <h1>Teamkracht</h1>
-    <nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a><a href="/teamkracht-beheer" id="beheerlink" hidden>Beheer</a><button class="uit" onclick="doLogout()">Uitloggen</button></nav>
+    <nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/organisatie" id="orglink" hidden>Organisatie</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a><a href="/teamkracht-beheer" id="beheerlink" hidden>Beheer</a><button class="uit" onclick="doLogout()">Uitloggen</button></nav>
   </div></div>
   <main class="wrap">
     <h2>Nieuw team</h2>
@@ -99,6 +99,8 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
     <p class="sub" id="licentieregel">Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.</p>
     <div id="teams"><p class="leeg">Laden...</p></div>
 
+    <div id="aanbod"></div>
+
     <div id="kaartvenster"></div>
   </main>
 </div>
@@ -106,7 +108,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
 <script>
 const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
 
-let TEAMS = [], IK = {}, PRIJZEN = {};
+let TEAMS = [], IK = {}, PRIJZEN = {}, STAFFELS = [];
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
@@ -150,7 +152,10 @@ async function laadTeams(){
     IK = uit.gebruiker || {};
     const bl = el("beheerlink");
     if (bl && IK.rol === "beheerder") bl.hidden = false;
+    const ol = el("orglink");
+    if (ol && IK.organisatiedashboard) ol.hidden = false;
     PRIJZEN = uit.prijzen || {};
+    STAFFELS = uit.staffels || [];
     render();
   }catch(e){
     el("teams").innerHTML = `<div class="kaart"><p class="melding fout">Teams laden mislukt: ${esc(e.message)}. Probeer de pagina te verversen; blijft het misgaan, laat het dan weten.</p></div>`;
@@ -161,19 +166,10 @@ function render(){
   const lr = el("licentieregel");
   if (lr){
     const basis = "Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.";
-    lr.textContent = IK.licentie_actief
-      ? `${basis} Je licentie is actief${IK.licentie_tot ? ` tot ${new Date(IK.licentie_tot).toLocaleDateString("nl-NL")}` : ""}, dus kaarten en hermetingen zijn inbegrepen.`
-      : `${basis} Zonder licentie reken je per kaart af.`;
+    lr.textContent = `${basis} ${lijnregel()}`;
   }
   const np = el("n-prijs");
-  if (np){
-    const tf = PRIJZEN["TF"], lic = PRIJZEN["LIC-M"];
-    np.textContent = IK.licentie_actief
-      ? "De Teamfoto van dit team is inbegrepen bij je licentie."
-      : tf
-        ? `De Teamfoto van dit team kost ${euro(tf.ex)} euro, of is inbegrepen vanaf ${lic ? euro(lic.ex) : "29"} euro per maand. Je rekent pas af als de kaart gemaakt kan worden.`
-        : "";
-  }
+  if (np) np.textContent = pakketregel();
 
   if (!TEAMS.length){
     el("teams").innerHTML = '<div class="kaart"><p class="leeg">Nog geen teams. Maak er hierboven een aan.</p></div>';
@@ -229,28 +225,121 @@ function render(){
       ${t.recht?.mag ? "" : `<p class="keuze">${keuzeregel(t, soort)}</p>`}
     </div>`;
   }).join("");
+
+  tekenAanbod();
 }
 
-const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
+/* Wie zonder abonnement werkt, ziet wat een abonnement scheelt zodra hij een
+   tweede team heeft. Niet eerder: bij één team is het geen aanbod maar ruis.
+   De bedragen komen van de server, ook hier. */
+function tekenAanbod(){
+  const vak = el("aanbod");
+  if (!vak) return;
+  if (IK.lijn !== "los" || !STAFFELS.length || TEAMS.length < 2){ vak.innerHTML = ""; return; }
+
+  const pak = PRIJZEN.PAK;
+  const kaarten = STAFFELS.map(s => {
+    const seats = s.seats_max === null ? "onbeperkt seats" : `${s.seats_max} ${s.seats_max === 1 ? "seat" : "seats"}`;
+    const winst = pak && s.pakket !== null
+      ? `Een pakket kost dan ${euro(s.pakket)} euro in plaats van ${euro(pak.ex)}.`
+      : "";
+    return `<div class="kaart">
+      <div class="teamrij">
+        <div>
+          <h3>${esc(s.naam)}</h3>
+          <div class="meta">${euro(s.ex)} euro per jaar &middot; ${esc(seats)}</div>
+          <div class="meta">${esc(winst)}</div>
+        </div>
+        <div class="acties">
+          <button class="btn klein" onclick="koopAbonnement('${esc(s.code)}', this)">Nemen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  vak.innerHTML = `
+    <h2 style="margin-top:30px">Meer teams, lagere prijs</h2>
+    <p class="sub">Met een abonnement meet je zoveel teams als je wilt tegen een vast tarief per pakket, en zie je ze bij elkaar in een organisatiedashboard. Elk team blijft zijn eigen beeld houden; teams komen daar niet naast elkaar op score te staan.</p>
+    ${kaarten}
+    <p class="melding" id="aanbod-melding"></p>`;
+}
+
+/* Een abonnement gaat langs dezelfde route als een pakket. De eerste betaling
+   is meteen de machtiging; het jaar erna incasseert Mollie vanzelf. */
+async function koopAbonnement(code, knop){
+  const melding = el("aanbod-melding"); melding.className = "melding";
+  melding.textContent = "Even geduld...";
+  knop.disabled = true;
+  try{
+    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ product_code: code })});
+    if (!uit.betaalpagina) throw new Error("geen betaalpagina ontvangen");
+    melding.textContent = "Je gaat door naar de betaalpagina...";
+    location.href = uit.betaalpagina;
+  }catch(e){
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+    knop.disabled = false;
+  }
+}
+
+/* Bedragen lopen sinds de tarieven van v3 tot in de duizenden, dus een
+   scheidingsteken erbij: 1.990 leest als een bedrag, 1990 als een jaartal. */
+const euro = c => {
+  const [heel, deel] = (c / 100).toFixed(2).split(".");
+  const met = heel.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return deel === "00" ? met : `${met},${deel}`;
+};
+
+/* Welke lijn geldt hier, in één zin. De reden komt van de server; de frontend
+   rekent geen staffel uit, want dan kan de knop een ander bedrag tonen dan er
+   wordt afgeschreven. */
+function lijnregel(){
+  const pak = PRIJZEN.PAK;
+  if (IK.prijsniveau === "beta") return "Je doet mee als bètadeelnemer, dus pakketten en hermetingen kosten je niets.";
+  if (IK.prijsniveau === "bur") return `Je bureaubundel heeft nog ${IK.tegoed_over} ${IK.tegoed_over === 1 ? "pakket" : "pakketten"} over.`;
+  if (!pak) return "";
+  if (IK.lijn === "los") return `Een pakket kost ${euro(pak.ex)} euro per team. Met een abonnement zakt dat naar 195 euro of minder.`;
+  return `${IK.reden}: een pakket kost je ${euro(pak.ex)} euro per team${zonder()}.`;
+}
+
+/* Wat het zonder abonnement zou kosten. Sectie 1 van de tarievenbriefing vraagt
+   erom en het is eerlijk: het laat zien wat de lijn oplevert. */
+function zonder(){
+  const z = PRIJZEN.zonder_abonnement;
+  return z && IK.lijn !== "los" ? `, zonder abonnement ${euro(z.ex)} euro` : "";
+}
+
+function pakketregel(){
+  const pak = PRIJZEN.PAK;
+  if (!pak) return "";
+  if (IK.prijsniveau === "beta") return "Als bètadeelnemer reken je niets af.";
+  if (IK.prijsniveau === "bur") return "Dit pakket komt uit je bundeltegoed.";
+  return `Het pakket van dit team kost ${euro(pak.ex)} euro${zonder()}. Daar zit de hermeting binnen zes maanden bij in. Je rekent pas af als de kaart gemaakt kan worden.`;
+}
 
 /* De prijs staat er vanaf het begin, niet pas als de knop verschijnt. Wie pas
    bij vijf deelnemers ontdekt dat het geld kost, heeft dan al de tijd van vijf
    collega's uitgegeven. */
+const REDEN = {
+  beta: "Inbegrepen als bètadeelnemer",
+  tegoed: "De hermeting zit in het pakket",
+  bestelling: "Afgerekend"
+};
+
 function prijsregel(t, soort){
   const n = t.aantal_metingen || 0;
   if (t.recht?.mag){
-    const basis = t.recht.reden === "licentie" ? "Inbegrepen bij je licentie" : "Afgerekend";
+    const basis = REDEN[t.recht.reden] || "Afgerekend";
     return n >= 5 ? `${basis}, klaar om te maken` : `${basis}, klaar zodra vijf mensen hebben ingevuld`;
   }
-  const code = soort === "hermeting" ? "HM" : "TF";
-  const p = PRIJZEN[code];
+  const p = PRIJZEN[soort === "hermeting" ? "HM" : "PAK"];
   if (!p) return "";
-  const wat = soort === "hermeting" ? "Hermeting" : "Teamfoto";
+  const wat = soort === "hermeting" ? "Extra hermeting" : "Pakket";
   return `${wat} ${euro(p.ex)} euro, nog niet afgerekend`;
 }
 
-/* Welke knop hoort bij dit team. Drie mogelijkheden: maken mag, eerst de
-   leesdrempel, of eerst afrekenen. Wat het kost staat op de knop, want een
+/* Welke knop hoort bij dit team. Twee mogelijkheden: maken mag,
+   of eerst afrekenen. Wat het kost staat op de knop, want een
    knop die je pas na het klikken vertelt dat het geld kost is een valstrik. */
 function knopVoor(t, genoeg, soort, knoptekst){
   // Is er al recht op een kaart, dan hangt de knop aan het aantal deelnemers.
@@ -260,28 +349,30 @@ function knopVoor(t, genoeg, soort, knoptekst){
       : `<button class="btn klein" disabled>${knoptekst}</button>`;
   }
 
-  if (!IK.leesdrempel_gehaald){
-    return `<a class="btn klein" href="/module" style="text-decoration:none">Eerst de leesdrempel</a>`;
-  }
-
-  // Kopen kan wel meteen, ook voordat er iemand heeft ingevuld (besluit
+  // Kopen kan meteen, ook voordat er iemand heeft ingevuld (besluit
   // 09-09-2026). Het vijftal gaat over het maken van de kaart, niet over het
-  // recht erop. Wie eerst wil afrekenen en dan pas uitnodigen, hoort dat te
-  // kunnen; wachten tot er vijf mensen klaar zijn en dan pas een prijs zien is
-  // precies de val die we eruit wilden halen.
-  const code = soort === "hermeting" ? "HM" : "TF";
-  const p = PRIJZEN[code];
-  const bedrag = p ? `${euro(p.ex)} euro` : "afrekenen";
-  return `<button class="btn klein" onclick="koop('${code}','${t.id}','${esc(t.naam)}')">${soort === "hermeting" ? "Hermeting" : "Teamfoto"} kopen, ${bedrag}</button>`;
+  // recht erop. Er zit geen leesdrempel meer voor: de module wordt na aankoop
+  // aanbevolen en niet vereist (tarievenbriefing v3, sectie 1).
+  const groep = soort === "hermeting" ? "HM" : "PAK";
+  const p = PRIJZEN[groep];
+  const bedrag = p ? (p.ex === 0 ? "uit je tegoed" : `${euro(p.ex)} euro`) : "afrekenen";
+  const wat = soort === "hermeting" ? "Hermeting" : "Pakket";
+  return `<button class="btn klein" onclick="koop('${groep}','${t.id}','${esc(t.naam)}')">${wat}, ${bedrag}</button>`;
 }
 
 /* Naar de betaalpagina van Mollie. De bestelling wordt aan onze kant vastgelegd
    voordat er iets bij Mollie gebeurt; zie /api/betaling-start. */
-async function koop(code, teamId, naam){
+async function koop(groep, teamId, naam){
   const melding = el(`m-${teamId}`); melding.className = "melding";
-  melding.textContent = "Betaling voorbereiden...";
+  melding.textContent = "Even geduld...";
   try{
-    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ product_code: code, team_id: teamId })});
+    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ groep, team_id: teamId })});
+    // Een pakket uit het bundeltegoed kost niets en gaat niet langs de kassa.
+    if (uit.bedrag_cent === 0){
+      melding.textContent = "Het pakket staat klaar voor dit team.";
+      laadTeams();
+      return;
+    }
     if (!uit.betaalpagina) throw new Error("geen betaalpagina ontvangen");
     melding.textContent = "Je gaat door naar de betaalpagina...";
     location.href = uit.betaalpagina;
@@ -294,16 +385,15 @@ async function koop(code, teamId, naam){
 /* Onder de koopknop: wat het alternatief is, en dat de deelnemers hoe dan ook
    hun eigen uitslag hebben gehad. Dat laatste haalt de druk van het moment. */
 function keuzeregel(t, soort){
-  if (!IK.leesdrempel_gehaald){
-    return "Hoofdstuk 1 en 2 van de module zijn gratis en duren een kwartier.";
-  }
-  const code = soort === "hermeting" ? "HM" : "TF";
-  const p = PRIJZEN[code], lic = PRIJZEN["LIC-M"];
+  const p = PRIJZEN[soort === "hermeting" ? "HM" : "PAK"];
   if (!p) return "";
   const deel = t.aantal_metingen
     ? ` De ${t.aantal_metingen} deelnemers hebben hun eigen uitslag al gekregen; die blijft van hen.`
     : " Je kunt nu afrekenen en daarna uitnodigen, of andersom.";
-  return `Dit team ${euro(p.ex)} euro, of alles inbegrepen vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.${deel}`;
+  const wat = soort === "hermeting"
+    ? `Een extra hermeting voor dit team kost ${euro(p.ex)} euro.`
+    : `Het pakket voor dit team kost ${euro(p.ex)} euro, met de hermeting binnen zes maanden erbij${zonder()}.`;
+  return `${wat}${deel}`;
 }
 
 function kopieer(tekst, knop){

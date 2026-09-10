@@ -4,10 +4,13 @@
 // volgorde is met opzet: een betaling zonder bestelling is een bedrag zonder
 // verhaal, en dat is achteraf niet meer uit te zoeken.
 //
-// Fase A: alleen de eenmalige producten. Abonnementen komen hierna.
+// De client vraagt om een groep (PAK of HM), niet om een productcode. Welke rij
+// daarbij hoort volgt uit de lijn van de koper en wordt hier bepaald. Zou de
+// client de code mogen kiezen, dan koos hij de goedkoopste.
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
-import { bedragMetBtw, soortBetaling, magKopen, omschrijving } from "../betalen.js";
+import { bedragMetBtw, soortBetaling, magKopen, omschrijving, prijsVoor } from "../betalen.js";
+import { haalKoper, haalProducten, zetHermetingTegoed, haalOfMaakMollieKlant } from "../koper-db.js";
 import { maakBetaling } from "../mollie.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -18,54 +21,59 @@ function basisUrl(req){
 
 export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }
-  const gebruiker = await eisGebruiker(req, res);
+  // Kopen mag vanaf de laagste rol. De leesdrempel is vervallen, dus de rol is
+  // hier geen slot meer; wat iemand mag kopen volgt uit zijn lijn.
+  const gebruiker = await eisGebruiker(req, res, ["lezer", "coach", "beheerder"]);
   if (!gebruiker) return;
 
   const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-  const code = String(body.product_code || "");
+  const groep = body.groep ? String(body.groep).toUpperCase() : null;
+  const code = body.product_code ? String(body.product_code) : null;
   const teamId = body.team_id ? String(body.team_id) : null;
+  if (!groep && !code){ res.status(400).json({ error: "geef groep of product_code" }); return; }
   if (teamId && !UUID.test(teamId)){ res.status(400).json({ error: "ongeldig team_id" }); return; }
 
   const db = serviceClient();
+  const wie = await haalKoper(db, gebruiker.user_id);
 
-  const [p, g] = await Promise.all([
-    db.from("producten").select("*").eq("code", code).single(),
-    db.from("teamkracht_gebruikers").select("*").eq("user_id", gebruiker.user_id).single()
-  ]);
-  if (p.error || !p.data){ res.status(404).json({ error: "onbekend product" }); return; }
-  const product = p.data;
-
-  // De leesdrempel: hoofdstuk 1 en 2 van de module afgerond.
-  let heeftLeesdrempel = false, heeftStartbeeld = false, teamnaam = null;
-  if (product.code === "TF" || product.code === "HM"){
-    const v = await db.from("module_voortgang")
-      .select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2]);
-    heeftLeesdrempel = (v.data || []).length >= 2;
-
-    if (teamId){
-      const t = await db.from("teamkracht_teams").select("naam, coach_user_id").eq("id", teamId).single();
-      if (t.error || !t.data){ res.status(404).json({ error: "onbekend team" }); return; }
-      if (gebruiker.rol !== "beheerder" && t.data.coach_user_id !== gebruiker.user_id){
-        res.status(403).json({ error: "dit team is niet van jou" }); return;
-      }
-      teamnaam = t.data.naam;
-      const b = await db.from("teamkracht_teambeeld")
-        .select("id").eq("team_id", teamId).eq("soort", "start").limit(1);
-      heeftStartbeeld = (b.data || []).length > 0;
-    }
+  // Bij een groep bepaalt de lijn de rij. Bij een losse code (een abonnement,
+  // een certificering) is er maar één rij en mag hij worden opgegeven.
+  let product = null;
+  if (groep){
+    const producten = await haalProducten(db, [groep]);
+    product = prijsVoor(producten, groep, wie.prijsniveau);
+    if (!product){ res.status(404).json({ error: "voor jouw abonnement is hier geen tarief" }); return; }
+  }else{
+    const p = await db.from("producten").select("*").eq("code", code).maybeSingle();
+    if (!p.data){ res.status(404).json({ error: "onbekend product" }); return; }
+    product = p.data;
   }
 
-  const bezwaar = magKopen({
-    product, gebruiker: g.data, teamId, heeftLeesdrempel, heeftStartbeeld
-  });
+  // Wat het team meebrengt: is er al een startbeeld, en ligt er nog een
+  // hermeting in het pakket.
+  let team = null, heeftStartbeeld = false, teamnaam = null;
+  if (teamId){
+    const t = await db.from("teamkracht_teams")
+      .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot").eq("id", teamId).maybeSingle();
+    if (!t.data){ res.status(404).json({ error: "onbekend team" }); return; }
+    if (wie.rol !== "beheerder" && t.data.coach_user_id !== gebruiker.user_id){
+      res.status(403).json({ error: "dit team is niet van jou" }); return;
+    }
+    team = t.data;
+    teamnaam = t.data.naam;
+    const b = await db.from("teamkracht_teambeeld")
+      .select("id").eq("team_id", teamId).eq("soort", "start").limit(1);
+    heeftStartbeeld = (b.data || []).length > 0;
+  }
+
+  const bezwaar = magKopen({ product, wie, teamId, team, heeftStartbeeld });
   if (bezwaar){ res.status(400).json({ error: bezwaar }); return; }
 
-  if (soortBetaling(product.code) !== "eenmalig"){
-    res.status(400).json({ error: "Abonnementen kunnen nog niet online worden afgerekend." });
-    return;
-  }
+  const soort = soortBetaling(product);
+  if (!soort){ res.status(400).json({ error: "Dit product kan nog niet online worden afgerekend." }); return; }
 
   const bedrag = bedragMetBtw(product);
+  const isMeting = product.groep === "PAK" || product.groep === "HM";
 
   // Eerst de bestelling, dan pas de betaling.
   const bestelling = await db.from("bestellingen").insert({
@@ -75,13 +83,33 @@ export default async function handler(req, res){
     btw_cent: bedrag.btw,
     status: "open",
     team_id: teamId,
-    geldig_tot: product.code === "TF" || product.code === "HM"
+    geldig_tot: isMeting
       ? new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10)
       : null
   }).select("id").single();
   if (bestelling.error){
     await logFout("betaling-start", "bestelling opslaan mislukt");
     res.status(500).json({ error: "bestelling opslaan mislukt" }); return;
+  }
+
+  // Een pakket uit het bundeltegoed kost niets en gaat niet langs Mollie. De
+  // bestelling blijft wel bestaan, want anders is achteraf niet te zien welk
+  // team er een pakket uit de bundel heeft gehad.
+  if (bedrag.totaal === 0){
+    await db.from("bestellingen")
+      .update({ status: "betaald", betaald_op: new Date().toISOString() })
+      .eq("id", bestelling.data.id);
+    if (product.groep === "PAK" && teamId) await zetHermetingTegoed(db, teamId, bestelling.data.id);
+    if (product.prijsniveau === "bur" && wie.bureau){
+      // Via een functie en niet via lezen-optellen-schrijven: twee aankopen
+      // tegelijk zouden anders één pakket van het tegoed afhalen.
+      const af = await db.rpc("verbruik_bureau_tegoed", { p_bureau_id: wie.bureau.id });
+      if (af.error || af.data === null){
+        await logFout("betaling-start", "bundeltegoed afboeken mislukt");
+      }
+    }
+    res.status(200).json({ bestelling_id: bestelling.data.id, betaalpagina: null, bedrag_cent: 0 });
+    return;
   }
 
   const basis = basisUrl(req);
@@ -94,12 +122,21 @@ export default async function handler(req, res){
     ? `&x-vercel-protection-bypass=${encodeURIComponent(process.env.VERCEL_AUTOMATION_BYPASS_SECRET)}`
     : "";
   try{
+    // Loopt er een abonnement uit voort, dan is deze eerste betaling meteen de
+    // machtiging. Zonder sequenceType first is er later geen mandaat om op te
+    // incasseren, en dan staat de verlenging stil zonder dat iemand het merkt.
+    const metAbonnement = soort !== "eenmalig";
+    const customerId = metAbonnement
+      ? await haalOfMaakMollieKlant(db, { userId: gebruiker.user_id, email: gebruiker.email })
+      : null;
+
     const betaling = await maakBetaling({
       centen: bedrag.totaal,
       omschrijving: omschrijving(product, teamnaam),
       redirectUrl: `${basis}/betaald?b=${bestelling.data.id}`,
       webhookUrl: `${basis}/api/betaling-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
-      metadata: { bestelling_id: bestelling.data.id, product: product.code }
+      metadata: { bestelling_id: bestelling.data.id, product: product.code },
+      ...(customerId ? { customerId, sequenceType: "first" } : {})
     });
 
     await db.from("bestellingen")

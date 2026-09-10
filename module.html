@@ -87,7 +87,7 @@
   <header class="top"><div class="wrap">
     <p class="kruimel">LEZER-MODULE</p>
     <h1>Voordat je een team meet</h1>
-    <p class="intro">Zes hoofdstukken over wat het instrument meet, waar de grenzen liggen en hoe je een Teamfoto in een sessie gebruikt. De eerste twee zijn gratis en samen de leesdrempel: die heb je nodig voor je eerste Teamfoto.</p>
+    <p class="intro">Zes hoofdstukken over wat het instrument meet, waar de grenzen liggen en hoe je een Teamfoto in een sessie gebruikt. De eerste twee zijn gratis en geven je genoeg om een Teamfoto goed te bespreken.</p>
     <div class="balk"><div class="spoor"><div class="vul" id="vul"></div></div><span class="tel" id="tel"></span></div>
   </div></header>
   <main class="wrap" id="hoofdstukken"></main>
@@ -102,7 +102,7 @@ const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.c
 
 const el = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-let stand = { afgerond: [], module_gekocht: false, leesdrempel_gehaald: false };
+let stand = { afgerond: [], module_toegang: false, leesdrempel_gehaald: false };
 let prijs = null, prijzen = {};
 let aanmelden = true;
 
@@ -176,7 +176,7 @@ function teken(){
   el("tel").textContent = `${klaar} van de ${totaal} gelezen`;
 
   el("hoofdstukken").innerHTML = HOOFDSTUKKEN.map(h => {
-    const open = isGratis(h.nummer) || stand.module_gekocht;
+    const open = isGratis(h.nummer) || stand.module_toegang;
     const gedaan = stand.afgerond.includes(h.nummer);
     return `<section class="hs${open ? "" : " dicht"}">
       <p class="nr">HOOFDSTUK ${h.nummer}${isGratis(h.nummer) ? " &middot; GRATIS" : ""}</p>
@@ -187,26 +187,34 @@ function teken(){
           (gedaan
             ? '<p class="klaar">Gelezen</p>'
             : `<button class="knop lijn" data-h="${h.nummer}">Ik heb dit gelezen</button>`)
-        : `<div class="slot">Dit hoofdstuk hoort bij de <b>Lezer-module</b>. Die opent alle zes de hoofdstukken en leidt naar de toets, het certificaat en het register.</div>`}
+        : `<div class="slot">Dit hoofdstuk hoort bij de <b>Lezer-module</b>. Die opent alle zes de hoofdstukken en leidt naar de toets, het certificaat en het register. Beheer je een organisatie met een abonnement, dan zit hij er al bij.</div>`}
     </section>`;
   }).join("");
 
-  const tf = prijzen["TF"], lic = prijzen["LIC-M"];
-  const kosten = tf
-    ? ` Een Teamfoto kost ${euro(tf.ex)} euro per team, of is inbegrepen bij een licentie vanaf ${lic ? euro(lic.ex) : "29"} euro per maand.`
+  // Het pakket staat er als los tarief bij. Wie is ingelogd ziet op het
+  // dashboard zijn eigen tarief; hier is nog niet bekend welke lijn geldt.
+  const pak = prijzen["PAK-LOS"];
+  const kosten = pak
+    ? ` Een pakket kost ${euro(pak.ex)} euro per team, met de hermeting binnen zes maanden erbij. Met een abonnement zakt dat naar 195 euro of minder.`
     : "";
   el("voet").innerHTML = stand.leesdrempel_gehaald
     ? `<div class="klaarvak">
          <h2>Je kunt aan de slag</h2>
-         <p>De leesdrempel is gehaald. Maak een team aan, deel de link, en vanaf vijf deelnemers kun je de Teamkrachtkaart maken.${kosten}</p>
+         <p>Je hebt de eerste twee hoofdstukken gelezen. Maak een team aan, deel de link, en vanaf vijf deelnemers kun je de Teamkrachtkaart maken.${kosten}</p>
          <a class="knop" href="/teamkracht">Naar het dashboard</a>
        </div>`
-    : `Rond hoofdstuk 1 en 2 af om een Teamfoto te kunnen aanvragen.${kosten}`;
+    : `De eerste twee hoofdstukken duren een kwartier en maken de sessie makkelijker. Je kunt ook meteen beginnen.${kosten}`;
 
   tekenKoop();
 }
 
-const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
+/* Bedragen lopen sinds de tarieven van v3 tot in de duizenden, dus een
+   scheidingsteken erbij: 1.990 leest als een bedrag, 1990 als een jaartal. */
+const euro = c => {
+  const [heel, deel] = (c / 100).toFixed(2).split(".");
+  const met = heel.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return deel === "00" ? met : `${met},${deel}`;
+};
 
 /* Het koopblok. Verschijnt zodra de gratis hoofdstukken gelezen zijn, want
    daarvoor is het een aanbieding die nergens op slaat. Verdwijnt zodra er is
@@ -214,7 +222,7 @@ const euro = c => (c / 100).toFixed(2).replace(".", ",").replace(",00", "");
    zzp'er die de btw niet terugkrijgt niet bij de afrekening schrikt. */
 function tekenKoop(){
   const vak = el("koop");
-  if (stand.module_gekocht || !stand.leesdrempel_gehaald || !prijs){ vak.innerHTML = ""; return; }
+  if (stand.module_toegang || !stand.leesdrempel_gehaald || !prijs){ vak.innerHTML = ""; return; }
   vak.innerHTML = `<div class="koopvak">
     <h2>De hele module</h2>
     <p>Vier hoofdstukken erbij, de toets, en bij een voldoende het certificaat, de badge en je vermelding in het register.</p>

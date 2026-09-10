@@ -33,10 +33,41 @@ export async function haalGebruiker(req){
       user_id: data.user.id, email: data.user.email, rol: "lezer", niveau: "geen"
     }).select("rol").single();
     if (nieuw.error) return null;
+    // Stond er een seat op dit adres te wachten, dan gaat hij nu in. Dit is het
+    // enige moment waarop dat kan: de beheerder nodigde uit op e-mailadres,
+    // want er was toen nog geen account om aan te koppelen.
+    await losSeatIn(db, data.user.id, data.user.email);
     return { user_id: data.user.id, email: data.user.email, rol: nieuw.data.rol, nieuw: true };
   }
 
   return { user_id: data.user.id, email: data.user.email, rol: rol.data.rol };
+}
+
+/* Een openstaande uitnodiging voor dit adres inlossen. Stil bij een fout: een
+   nieuwe gebruiker hoort binnen te komen, ook als zijn seat niet doorgaat. De
+   beheerder ziet de uitnodiging dan nog openstaan en kan het opnieuw doen. */
+async function losSeatIn(db, userId, email){
+  try{
+    if (!email) return;
+    const u = await db.from("seat_uitnodigingen")
+      .select("id, soort, organisatie_id, bureau_id, rol")
+      .ilike("email", email).is("gebruikt_op", null).is("ingetrokken_op", null)
+      .maybeSingle();
+    if (!u.data) return;
+
+    const tabel = u.data.soort === "bureau" ? "bureau_leden" : "organisatie_leden";
+    const sleutel = u.data.soort === "bureau"
+      ? { bureau_id: u.data.bureau_id }
+      : { organisatie_id: u.data.organisatie_id };
+
+    const ins = await db.from(tabel).insert({ ...sleutel, user_id: userId, rol: u.data.rol });
+    if (ins.error) return;
+
+    await db.from("teamkracht_gebruikers")
+      .update({ lijn: u.data.soort }).eq("user_id", userId);
+    await db.from("seat_uitnodigingen")
+      .update({ gebruikt_op: new Date().toISOString() }).eq("id", u.data.id);
+  }catch(e){ /* stil */ }
 }
 
 /* Vangnet voor een route: geeft de gebruiker terug of sluit het verzoek af. */

@@ -70,15 +70,17 @@ async function start(){
     teams = (t?.teams || []).length;
   }catch(e){ /* dan tonen we gewoon beide wegen */ }
 
-  const drempel = !!stand?.leesdrempel_gehaald;
+  // De module is sinds de tarieven van v3 geen drempel meer maar een
+  // aanbeveling, dus de weg naar de teams staat altijd open en staat voorop.
+  const gelezen = !!stand?.leesdrempel_gehaald;
   el("kop").textContent = "Welkom terug";
-  el("tekst").textContent = drempel
-    ? (teams ? "Je teams staan klaar." : "Je kunt een team aanmaken en de link delen.")
-    : "Begin bij de module: hoofdstuk 1 en 2 zijn gratis en heb je nodig voor je eerste Teamfoto.";
+  el("tekst").textContent = teams
+    ? "Je teams staan klaar."
+    : "Je kunt meteen een team aanmaken en de link delen.";
 
   el("keuzes").innerHTML = [
-    keuze("/teamkracht", "Teams en Teamkrachtkaarten", teams ? `${teams} ${teams === 1 ? "team" : "teams"}` : "Een team aanmaken en de scanlink delen", drempel),
-    keuze("/module", "De Lezer-module", drempel ? "Terug naar de hoofdstukken" : "Hoofdstuk 1 en 2 zijn gratis", !drempel),
+    keuze("/teamkracht", "Teams en Teamkrachtkaarten", teams ? `${teams} ${teams === 1 ? "team" : "teams"}` : "Een team aanmaken en de scanlink delen", true),
+    keuze("/module", "De Lezer-module", gelezen ? "Terug naar de hoofdstukken" : "Hoofdstuk 1 en 2 zijn gratis en duren een kwartier", false),
     keuze("/teamkracht-handleiding", "Werkinstructie", "Hoe je de kaart in een sessie gebruikt", false)
   ].join("");
 

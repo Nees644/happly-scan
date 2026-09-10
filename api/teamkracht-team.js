@@ -7,7 +7,12 @@
 // POST maakt een team met een uniek token van zes tekens.
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
-import { rechtOpKaart, bedragMetBtw } from "../betalen.js";
+import { rechtOpKaart, prijskaart, prijsVoor, bedragMetBtw } from "../betalen.js";
+
+/* Welke pakketprijs bij welke staffel hoort, zodat het aanbod het bedrag kan
+   noemen waar het om draait: wat een pakket dan gaat kosten. */
+const NIVEAU_BIJ_STAFFEL = { "ORG-1": "org1", "ORG-2": "org2", "ORG-3": "org3" };
+import { haalKoper, haalProducten } from "../koper-db.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -25,7 +30,7 @@ export default async function handler(req, res){
 
   if (req.method === "GET"){
     let q = db.from("teamkracht_teams")
-      .select("id, created_at, naam, organisatie, coach_naam, token, actief")
+      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot")
       .order("created_at", { ascending: false });
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
@@ -39,19 +44,23 @@ export default async function handler(req, res){
     //
     // Dit hele blok is bijzaak: gaat er hier iets mis, dan hoort de coach nog
     // steeds zijn teams te zien. Vandaar de vangnetten en de lege standen.
-    let ik = { rol: gebruiker.rol, licentie_actief: false, licentie_tot: null, leesdrempel_gehaald: false };
-    let prijzen = {}, bestellingen = [], gq = { data: null };
+    // Wie deze coach is en wat het hem kost. Vooraf meesturen in plaats van pas
+    // bij het klikken: iemand hoort te weten wat een knop gaat kosten voordat
+    // hij erop drukt.
+    //
+    // Dit hele blok is bijzaak: gaat er hier iets mis, dan hoort de coach nog
+    // steeds zijn teams te zien. Vandaar de vangnetten en de lege standen.
+    let wie = { lijn: "los", prijsniveau: "los", reden: "Zonder abonnement" };
+    let prijzen = {}, bestellingen = [], staffels = [];
     let telling = {}, perTeam = {};
 
     try{
       const werk = [
-        db.from("teamkracht_gebruikers")
-          .select("licentie_actief, licentie_tot, niveau").eq("user_id", gebruiker.user_id).maybeSingle(),
+        haalKoper(db, gebruiker.user_id),
+        haalProducten(db, ["PAK", "HM", "ORG"]),
         db.from("bestellingen")
           .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
-          .eq("gebruiker_id", gebruiker.user_id),
-        db.from("producten").select("code, naam, prijs_ex_btw, btw_promille").in("code", ["TF", "HM", "LIC-M"]),
-        db.from("module_voortgang").select("hoofdstuk").eq("gebruiker_id", gebruiker.user_id).in("hoofdstuk", [1, 2])
+          .eq("gebruiker_id", gebruiker.user_id)
       ];
 
       // Alleen navragen als er teams zijn. Een in-filter met een lege lijst is
@@ -66,17 +75,19 @@ export default async function handler(req, res){
         );
       }
 
-      const uit = await Promise.all(werk);
-      const [g, b, p, v, m, bl] = uit;
-      gq = g;
+      const [k, producten, b, m, bl] = await Promise.all(werk);
+      wie = k;
       bestellingen = b.data || [];
-      prijzen = Object.fromEntries((p.data || []).map(x => [x.code, { ...x, ...bedragMetBtw(x) }]));
-      ik = {
-        rol: gebruiker.rol,
-        licentie_actief: !!g.data?.licentie_actief,
-        licentie_tot: g.data?.licentie_tot || null,
-        leesdrempel_gehaald: (v.data || []).length >= 2
-      };
+      prijzen = prijskaart({ producten, wie });
+
+      // De drie staffels erbij, zodat wie nog zonder abonnement werkt kan zien
+      // wat het scheelt. Alleen de prijs en de seats; wat erin zit staat in de
+      // tekst op het scherm.
+      staffels = producten
+        .filter(p => p.groep === "ORG")
+        .sort((a, b2) => a.prijs_ex_btw - b2.prijs_ex_btw)
+        .map(p => ({ code: p.code, naam: p.naam, seats_max: p.seats_max, ...bedragMetBtw(p),
+                     pakket: (prijsVoor(producten, "PAK", NIVEAU_BIJ_STAFFEL[p.code]) || {}).prijs_ex_btw ?? null }));
 
       for (const r of m?.data || []){
         telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
@@ -103,8 +114,20 @@ export default async function handler(req, res){
     }
 
     res.status(200).json({
-      gebruiker: ik,
+      gebruiker: {
+        rol: gebruiker.rol,
+        lijn: wie.lijn,
+        prijsniveau: wie.prijsniveau,
+        reden: wie.reden,
+        register: wie.register || null,
+        leadknop: !!wie.leadknop,
+        doelbeeld: !!wie.doelbeeld,
+        organisatiedashboard: !!wie.organisatiedashboard,
+        bureaudashboard: !!wie.bureaudashboard,
+        tegoed_over: wie.tegoed_over ?? null
+      },
       prijzen,
+      staffels,
       teams: rijen.map(t => {
         const beelden = perTeam[t.id] || [];
         const soort = beelden.some(x => x.soort === "start") ? "hermeting" : "start";
@@ -113,7 +136,7 @@ export default async function handler(req, res){
           aantal_metingen: telling[t.id] || 0,
           beelden,
           volgende_soort: soort,
-          recht: rechtOpKaart({ gebruiker: gq.data, bestellingen, teamId: t.id, soort })
+          recht: rechtOpKaart({ wie, team: t, bestellingen, teamId: t.id, soort })
         };
       })
     });

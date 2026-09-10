@@ -90,6 +90,12 @@
     },
     "api/prijslijst.js": {
       "maxDuration": 10
+    },
+    "api/prijs.js": {
+      "maxDuration": 10
+    },
+    "api/organisatie.js": {
+      "maxDuration": 20
     }
   },
   "crons": [
