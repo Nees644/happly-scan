@@ -633,10 +633,10 @@ function leesPrijzen(){
   return uit;
 }
 
-/* De codes die volgens blok Z van de migratie op actief = false gaan. */
+/* De codes die volgens de omschakeling op actief = false gaan. Die staat in een
+   eigen bestand, want hij hoort pas te draaien als de nieuwe code live is. */
 function leesVervallen(){
-  const nieuw = readFileSync(new URL("../migratie-tarieven-2026-09-09.sql", import.meta.url), "utf8");
-  const blok = nieuw.slice(nieuw.indexOf("BLOK Z"));
+  const blok = readFileSync(new URL("../migratie-tarieven-2026-09-09-blok-z.sql", import.meta.url), "utf8");
   return new Set([...blok.matchAll(/where code in \(([^)]+)\)/g)]
     .flatMap(m => [...m[1].matchAll(/'([A-Z0-9-]+)'/g)].map(x => x[1])));
 }

@@ -12,13 +12,12 @@
 -- Herhaalbaar: create if not exists, on conflict do update, en elke policy
 -- wordt eerst gedropt. Draaien in de SQL-editor van uqulkznqcqpbagbvtqdr.
 --
--- LET OP, in twee delen.
---   BLOK A tot en met H voegt toe en verandert niets aan wat nu verkocht wordt.
---   Dat kan vandaag draaien.
---   BLOK Z zet de oude productcodes uit. Zodra dat blok draait kan niemand meer
---   een TF of HM kopen, en de knoppen in teamkracht.html vragen nog om die
---   codes. Blok Z hoort dus pas te draaien op het moment dat de nieuwe
---   PAK-codes in de code staan, niet eerder.
+-- DIT BESTAND VOEGT ALLEEN TOE. Het verandert niets aan wat er vandaag wordt
+-- verkocht, dus het kan draaien terwijl de huidige site gewoon doorloopt.
+--
+-- De omschakeling staat apart in migratie-tarieven-2026-09-09-blok-z.sql. Dat
+-- bestand zet de oude codes uit en hoort pas te draaien als de nieuwe code live
+-- staat, niet eerder.
 -- ===========================================================================
 
 
@@ -468,29 +467,6 @@ revoke all on function public.verbruik_bureau_tegoed(uuid) from public, anon, au
 
 
 -- ===========================================================================
--- BLOK Z · de omschakeling
---
--- Draaien op het moment dat de nieuwe codes in de code staan, niet eerder.
--- Zolang dit blok niet is gedraaid werkt de winkel van vandaag gewoon door.
--- ===========================================================================
-
--- TF en HM uit v1 vervallen; het pakket komt ervoor in de plaats. Niet
--- verwijderen: bestellingen wijzen ernaar en een factuur van vorige week hoort
--- te blijven kloppen.
-update public.producten set actief = false, updated_at = now()
-  where code in ('TF','HM','BEG-2','BEG-8','LIC-ORG-10','LIC-ORG-30','LIC-ORG-X');
-
--- LIC-M en LIC-J, de persoonlijke licentie van 29 en 290 euro uit v1. Ze staan
--- niet in het rijtje dat vervalt maar ze moeten wel weg: ze beloven onbeperkt
--- gratis metingen, terwijl een Professional in v3 145 euro per pakket betaalt.
--- Bevestigd op 10 september 2026: er is er geen een verkocht, dus er is geen
--- klant die er recht aan ontleent. De lijn Professional (PRO-M, PRO-J) komt
--- ervoor in de plaats.
-update public.producten set actief = false, updated_at = now()
-  where code in ('LIC-M','LIC-J');
-
-
--- ===========================================================================
 -- Wat hier is aangenomen, en waarom
 --
 -- 1. Prijsniveau 'bur' staat niet in het rijtje van sectie 1 (los, org1, org2,
@@ -508,3 +484,8 @@ update public.producten set actief = false, updated_at = now()
 --    meetregel en die hoort in teamkracht_config.min_deelnemers_kaart, waar hij
 --    op vijf staat. Sectie 0 van de briefing noemt acht; zie het rapport.
 -- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- KLAAR. Draai hierna migratie-tarieven-2026-09-09-blok-z.sql, maar pas als de
+-- nieuwe code live staat: dat bestand zet TF, HM, LIC-M en LIC-J uit, en de
+-- site van vandaag vraagt nog om TF en HM.

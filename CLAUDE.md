@@ -61,9 +61,13 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
 - Teamkracht fase 1 is live sinds 8 september 2026.
 - De tarieven v3 met vier koperslijnen (los, organisatie, professional, bureau)
   zijn gebouwd, inclusief het organisatiedashboard met seatbeheer.
-- **De migraties zijn nog niet gedraaid.** `migratie-certificering-2026-09-09.sql`
-  en `migratie-tarieven-2026-09-09.sql` liggen klaar in de repo. Tot ze draaien
-  kent de database de nieuwe codes en kolommen niet.
+- **De migraties zijn nog niet gedraaid.** Drie bestanden, in deze volgorde:
+  1. `migratie-certificering-2026-09-09.sql`
+  2. `migratie-tarieven-2026-09-09.sql` (voegt alleen toe, kan altijd)
+  3. `migratie-tarieven-2026-09-09-blok-z.sql` (zet de oude codes uit, pas als de
+     nieuwe code live staat, want de huidige site vraagt nog om TF en HM)
+
+  Tot ze draaien kent de database de nieuwe codes en kolommen niet.
 
 ## Werkregels
 
