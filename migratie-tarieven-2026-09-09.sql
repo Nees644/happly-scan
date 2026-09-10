@@ -216,20 +216,8 @@ alter table public.teamkracht_gebruikers add constraint teamkracht_gebruikers_li
 -- hoofdstuk 4 zit hoort niet buiten te staan omdat de beheerder een factuur
 -- vergat; het certificaat is waar het abonnement over gaat, niet het lezen.
 
--- Wie de module al heeft gekocht houdt zijn toegang. Herhaalbaar, en overbodig
--- zodra er geen bestellingen van voor deze migratie meer bijkomen.
-update public.teamkracht_gebruikers g set lezer_module_toegang = true
- where lezer_module_toegang = false
-   and exists (select 1 from public.bestellingen b
-                where b.gebruiker_id = g.user_id
-                  and b.status = 'betaald'
-                  and b.product_code in ('LEZ-1','LEZ-2','LEZ-10'));
-
--- En wie nu al beheerder is van een organisatie.
-update public.teamkracht_gebruikers g set lezer_module_toegang = true
- where lezer_module_toegang = false
-   and exists (select 1 from public.organisatie_leden l
-                where l.user_id = g.user_id and l.rol = 'beheerder');
+-- Het bijwerken van bestaande gebruikers staat in blok G3, onderaan: die query
+-- kijkt in organisatie_leden en die tabel wordt pas in blok F aangemaakt.
 
 
 -- ---------------------------------------------------------------------------
@@ -396,6 +384,28 @@ where actief = true and fase in ('bestaand','A');
 
 revoke all on public.prijslijst from public;
 grant select on public.prijslijst to anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- BLOK G3 · bestaande gebruikers bijwerken
+--
+-- Hoort inhoudelijk bij blok D2 maar staat hier, omdat de tweede query in
+-- organisatie_leden kijkt en die tabel in blok F wordt aangemaakt.
+
+-- Wie de module al heeft gekocht houdt zijn toegang. Herhaalbaar, en overbodig
+-- zodra er geen bestellingen van voor deze migratie meer bijkomen.
+update public.teamkracht_gebruikers g set lezer_module_toegang = true
+ where lezer_module_toegang = false
+   and exists (select 1 from public.bestellingen b
+                where b.gebruiker_id = g.user_id
+                  and b.status = 'betaald'
+                  and b.product_code in ('LEZ-1','LEZ-2','LEZ-10'));
+
+-- En wie nu al beheerder is van een organisatie.
+update public.teamkracht_gebruikers g set lezer_module_toegang = true
+ where lezer_module_toegang = false
+   and exists (select 1 from public.organisatie_leden l
+                where l.user_id = g.user_id and l.rol = 'beheerder');
 
 
 -- ---------------------------------------------------------------------------

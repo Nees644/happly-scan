@@ -1126,3 +1126,42 @@ test("de teamkaart in het scherm leest alleen velden die geen score zijn", () =>
     assert.ok(MAG.has(veld), `de teamkaart leest ${veld}, en dat staat niet op de lijst`);
   }
 });
+
+/* --------------------------------------------------- volgorde in de migraties */
+
+/* Een migratie draait van boven naar beneden in één transactie. Wordt er ergens
+   een tabel bevraagd die verderop pas wordt aangemaakt, dan valt het hele blok
+   om op een foutmelding die niets zegt over de oorzaak.
+
+   Dat gebeurde op 10 september 2026: een blok dat in organisatie_leden keek
+   stond twee blokken boven de plek waar die tabel ontstaat. Deze test kijkt per
+   bestand of alles bestaat op het moment dat het wordt gebruikt. */
+for (const bestand of [
+  "migratie-certificering-2026-09-09.sql",
+  "migratie-tarieven-2026-09-09.sql",
+  "migratie-tarieven-2026-09-09-blok-z.sql"
+]){
+  test(`${bestand} gebruikt niets voordat het bestaat`, () => {
+    const regels = readFileSync(new URL(`../${bestand}`, import.meta.url), "utf8").split("\n");
+
+    // Waar iets in dít bestand wordt aangemaakt. Wat er niet in staat komt uit
+    // een eerdere migratie en is hier dus geen zorg.
+    const gemaakt = new Map();
+    regels.forEach((r, i) => {
+      const m = r.match(/create table if not exists public\.(\w+)/)
+             || r.match(/create or replace (?:view|function) public\.(\w+)/);
+      if (m && !gemaakt.has(m[1])) gemaakt.set(m[1], i + 1);
+    });
+
+    const gebruik = /(?:from|join|references|update|on|insert into) public\.(\w+)\b/g;
+    regels.forEach((r, i) => {
+      if (r.trim().startsWith("--")) return;
+      for (const [, naam] of r.matchAll(gebruik)){
+        const maak = gemaakt.get(naam);
+        if (maak && i + 1 < maak){
+          assert.fail(`regel ${i + 1} gebruikt ${naam}, maar die wordt pas op regel ${maak} aangemaakt`);
+        }
+      }
+    });
+  });
+}
