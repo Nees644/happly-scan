@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Je account &middot; Happly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--lijn:#E2D8D2;--gedempt:#6B6472}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--papier);color:var(--inkt);
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;line-height:1.65}
+  .blad{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:36px 38px;max-width:480px;width:100%}
+  .kruimel{font-size:11.5px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:12px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.9rem;line-height:1.15;margin-bottom:12px}
+  p{font-weight:300;margin-bottom:18px}
+  .keuzes{display:flex;flex-direction:column;gap:10px}
+  a.knop{display:block;text-decoration:none;border:1.5px solid var(--lijn);border-radius:10px;padding:14px 18px;color:var(--inkt)}
+  a.knop:hover{border-color:var(--inkt)}
+  a.knop b{display:block;font-weight:600;font-size:15px}
+  a.knop span{font-size:13px;font-weight:300;color:var(--gedempt)}
+  a.knop.nu{border-color:var(--magenta);background:#FBEFF5}
+  .uit{margin-top:20px;font-size:13px;color:var(--gedempt)}
+  .uit button{background:none;border:none;color:var(--magenta);font:inherit;cursor:pointer;padding:0;font-weight:600}
+</style>
+</head>
+<body>
+<div class="blad">
+  <p class="kruimel">HAPPLY</p>
+  <h1 id="kop">Even kijken waar je moet zijn</h1>
+  <p id="tekst">Een moment.</p>
+  <div class="keuzes" id="keuzes"></div>
+  <p class="uit" id="uit"></p>
+</div>
+
+<script>
+/* De voordeur voor wie is ingelogd. Zonder deze pagina komt iemand die op een
+   mailtje klikt uit op de voorpagina van de scan, en die is voor deelnemers en
+   niet voor coaches. Hier wordt gekeken hoe ver iemand is en waar de volgende
+   stap staat. */
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+
+function keuze(href, titel, uitleg, nu){
+  return `<a class="knop${nu ? " nu" : ""}" href="${href}"><b>${titel}</b><span>${uitleg}</span></a>`;
+}
+
+async function start(){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session){
+    el("kop").textContent = "Je bent niet ingelogd";
+    el("tekst").textContent = "Meld je aan of log in om verder te gaan.";
+    el("keuzes").innerHTML = keuze("/module", "Naar de Lezer-module", "Aanmelden of inloggen, en de eerste twee hoofdstukken lezen", true);
+    return;
+  }
+
+  let stand = null, teams = 0;
+  try{
+    const kop = { Authorization: `Bearer ${session.access_token}` };
+    const [m, t] = await Promise.all([
+      fetch("/api/module-voortgang", { headers: kop }).then(r => r.ok ? r.json() : null),
+      fetch("/api/teamkracht-team", { headers: kop }).then(r => r.ok ? r.json() : null)
+    ]);
+    stand = m;
+    teams = (t?.teams || []).length;
+  }catch(e){ /* dan tonen we gewoon beide wegen */ }
+
+  // De module is sinds de tarieven van v3 geen drempel meer maar een
+  // aanbeveling, dus de weg naar de teams staat altijd open en staat voorop.
+  const gelezen = !!stand?.leesdrempel_gehaald;
+  el("kop").textContent = "Welkom terug";
+  el("tekst").textContent = teams
+    ? "Je teams staan klaar."
+    : "Je kunt meteen een team aanmaken en de link delen.";
+
+  el("keuzes").innerHTML = [
+    keuze("/teamkracht", "Teams en Teamkrachtkaarten", teams ? `${teams} ${teams === 1 ? "team" : "teams"}` : "Een team aanmaken en de scanlink delen", true),
+    keuze("/module", "De Lezer-module", gelezen ? "Terug naar de hoofdstukken" : "Hoofdstuk 1 en 2 zijn gratis en duren een kwartier", false),
+    keuze("/teamkracht-handleiding", "Werkinstructie", "Hoe je de kaart in een sessie gebruikt", false)
+  ].join("");
+
+  el("uit").innerHTML = `Ingelogd als ${session.user.email}. <button id="u">Uitloggen</button>`;
+  el("u").onclick = () => db.auth.signOut().then(() => location.reload());
+}
+start();
+</script>
+</body>
+</html>

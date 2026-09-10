@@ -7,6 +7,12 @@
 // POST maakt een team met een uniek token van zes tekens.
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
+import { rechtOpKaart, prijskaart, prijsVoor, bedragMetBtw } from "../betalen.js";
+
+/* Welke pakketprijs bij welke staffel hoort, zodat het aanbod het bedrag kan
+   noemen waar het om draait: wat een pakket dan gaat kosten. */
+const NIVEAU_BIJ_STAFFEL = { "ORG-1": "org1", "ORG-2": "org2", "ORG-3": "org3" };
+import { haalKoper, haalProducten } from "../koper-db.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -24,53 +30,115 @@ export default async function handler(req, res){
 
   if (req.method === "GET"){
     let q = db.from("teamkracht_teams")
-      .select("id, created_at, naam, organisatie, coach_naam, token, actief")
+      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot")
       .order("created_at", { ascending: false });
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
     if (teams.error){ await logFout("teamkracht-team", "ophalen mislukt"); res.status(500).json({ error: "ophalen mislukt" }); return; }
+    const rijen = teams.data || [];
+    const ids = rijen.map(t => t.id);
 
-    // Aantal metingen per team. Geen scores, geen namen: alleen een telling.
-    const metingen = await db.from("index_scan_results")
-      .select("teamkracht_team_id")
-      .in("teamkracht_team_id", (teams.data || []).map(t => t.id));
-    const telling = {};
-    for (const r of metingen.data || []){
-      telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
-    }
+    // Wat de coach mag en wat het kost. Vooraf meesturen in plaats van pas bij
+    // het klikken: iemand hoort te weten wat een knop gaat kosten voordat hij
+    // erop drukt.
+    //
+    // Dit hele blok is bijzaak: gaat er hier iets mis, dan hoort de coach nog
+    // steeds zijn teams te zien. Vandaar de vangnetten en de lege standen.
+    // Wie deze coach is en wat het hem kost. Vooraf meesturen in plaats van pas
+    // bij het klikken: iemand hoort te weten wat een knop gaat kosten voordat
+    // hij erop drukt.
+    //
+    // Dit hele blok is bijzaak: gaat er hier iets mis, dan hoort de coach nog
+    // steeds zijn teams te zien. Vandaar de vangnetten en de lege standen.
+    let wie = { lijn: "los", prijsniveau: "los", reden: "Zonder abonnement" };
+    let prijzen = {}, bestellingen = [], staffels = [];
+    let telling = {}, perTeam = {};
 
-    // De beelden die al zijn berekend, zodat het dashboard weet of het
-    // startbeeld er is en of er dus een hermeting bij kan.
-    const beelden = await db.from("teamkracht_teambeeld")
-      .select("id, team_id, soort, n, breuk, created_at")
-      .in("team_id", (teams.data || []).map(t => t.id))
-      .order("created_at", { ascending: true });
-    const perTeam = {};
-    for (const b of beelden.data || []){
-      (perTeam[b.team_id] = perTeam[b.team_id] || []).push(b);
-    }
+    try{
+      const werk = [
+        haalKoper(db, gebruiker.user_id),
+        haalProducten(db, ["PAK", "HM", "ORG"]),
+        db.from("bestellingen")
+          .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
+          .eq("gebruiker_id", gebruiker.user_id)
+      ];
 
-    // De doelbeelden die bij die beelden horen, zodat het dashboard ze kan
-    // teruggeven; zonder dit verdween een vastgelegd doel uit het zicht.
-    const doelen = await db.from("teamkracht_doel")
-      .select("id, teambeeld_id, doel_zien, doel_sturen, doel_doen, horizon_maanden, created_at")
-      .in("teambeeld_id", (beelden.data || []).map(b => b.id))
-      .order("created_at", { ascending: true });
-    const beeldTeam = Object.fromEntries((beelden.data || []).map(b => [b.id, b.team_id]));
-    for (const d of doelen.data || []){
-      const teamId = beeldTeam[d.teambeeld_id];
-      if (!teamId) continue;
-      const lijst = perTeam[teamId] || [];
-      const beeld = lijst.find(b => b.id === d.teambeeld_id);
-      if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
+      // Alleen navragen als er teams zijn. Een in-filter met een lege lijst is
+      // geen filter maar een vraag zonder antwoord, en daar liep de route op
+      // vast bij iemand die nog geen team had.
+      if (ids.length){
+        werk.push(
+          db.from("index_scan_results").select("teamkracht_team_id").in("teamkracht_team_id", ids),
+          db.from("teamkracht_teambeeld")
+            .select("id, team_id, soort, n, breuk, created_at").in("team_id", ids)
+            .order("created_at", { ascending: true })
+        );
+      }
+
+      const [k, producten, b, m, bl] = await Promise.all(werk);
+      wie = k;
+      bestellingen = b.data || [];
+      prijzen = prijskaart({ producten, wie });
+
+      // De drie staffels erbij, zodat wie nog zonder abonnement werkt kan zien
+      // wat het scheelt. Alleen de prijs en de seats; wat erin zit staat in de
+      // tekst op het scherm.
+      staffels = producten
+        .filter(p => p.groep === "ORG")
+        .sort((a, b2) => a.prijs_ex_btw - b2.prijs_ex_btw)
+        .map(p => ({ code: p.code, naam: p.naam, seats_max: p.seats_max, ...bedragMetBtw(p),
+                     pakket: (prijsVoor(producten, "PAK", NIVEAU_BIJ_STAFFEL[p.code]) || {}).prijs_ex_btw ?? null }));
+
+      for (const r of m?.data || []){
+        telling[r.teamkracht_team_id] = (telling[r.teamkracht_team_id] || 0) + 1;
+      }
+      for (const beeld of bl?.data || []){
+        (perTeam[beeld.team_id] = perTeam[beeld.team_id] || []).push(beeld);
+      }
+
+      // De doelbeelden die bij die beelden horen, zodat een vastgelegd doel
+      // niet uit het zicht verdwijnt.
+      const beeldIds = (bl?.data || []).map(x => x.id);
+      if (beeldIds.length){
+        const doelen = await db.from("teamkracht_doel")
+          .select("id, teambeeld_id, doel_zien, doel_sturen, doel_doen, horizon_maanden, created_at")
+          .in("teambeeld_id", beeldIds).order("created_at", { ascending: true });
+        const beeldTeam = Object.fromEntries((bl.data || []).map(x => [x.id, x.team_id]));
+        for (const d of doelen.data || []){
+          const beeld = (perTeam[beeldTeam[d.teambeeld_id]] || []).find(x => x.id === d.teambeeld_id);
+          if (beeld) (beeld.doelen = beeld.doelen || []).push(d);
+        }
+      }
+    }catch(e){
+      await logFout("teamkracht-team", `aanvullen mislukt: ${String(e.message).slice(0, 120)}`);
     }
 
     res.status(200).json({
-      teams: (teams.data || []).map(t => ({
-        ...t,
-        aantal_metingen: telling[t.id] || 0,
-        beelden: perTeam[t.id] || []
-      }))
+      gebruiker: {
+        rol: gebruiker.rol,
+        lijn: wie.lijn,
+        prijsniveau: wie.prijsniveau,
+        reden: wie.reden,
+        register: wie.register || null,
+        leadknop: !!wie.leadknop,
+        doelbeeld: !!wie.doelbeeld,
+        organisatiedashboard: !!wie.organisatiedashboard,
+        bureaudashboard: !!wie.bureaudashboard,
+        tegoed_over: wie.tegoed_over ?? null
+      },
+      prijzen,
+      staffels,
+      teams: rijen.map(t => {
+        const beelden = perTeam[t.id] || [];
+        const soort = beelden.some(x => x.soort === "start") ? "hermeting" : "start";
+        return {
+          ...t,
+          aantal_metingen: telling[t.id] || 0,
+          beelden,
+          volgende_soort: soort,
+          recht: rechtOpKaart({ wie, team: t, bestellingen, teamId: t.id, soort })
+        };
+      })
     });
     return;
   }

@@ -29,7 +29,9 @@ body{font-family:"DM Sans",sans-serif;background:#F4EFF6;color:var(--tx);min-hei
 .wrap{max-width:920px;margin:0 auto;padding:0 24px}
 .hdr .wrap{display:flex;justify-content:space-between;align-items:center}
 .hdr h1{font-family:"DM Serif Display",serif;font-size:19px;color:#fff;font-weight:400}
-.hdr a,.hdr button{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit;text-decoration:none;margin-left:16px}
+.hdr a,.hdr button{font-size:12.5px;color:var(--lav);cursor:pointer;background:none;border:none;font-family:inherit;text-decoration:none}
+.menu{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.menu a:hover,.menu button:hover{color:#fff}
 main{padding:26px 0 80px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .tabs button{font:inherit;font-size:13px;font-weight:600;padding:8px 15px;border-radius:999px;border:1.5px solid var(--bd);background:var(--wt);color:var(--dp);cursor:pointer}
@@ -90,7 +92,7 @@ textarea:focus,select:focus,input:focus{border-color:var(--pk)}
 <div id="app">
   <div class="hdr"><div class="wrap">
     <h1>Teamkracht &middot; beheer</h1>
-    <div><button onclick="toonInstellingen()">Opnieuw controleren</button><a href="/teamkracht">Naar het dashboard</a><button onclick="doLogout()">Uitloggen</button></div>
+    <nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a><button onclick="toonInstellingen()">Opnieuw controleren</button><button onclick="doLogout()">Uitloggen</button></nav>
   </div></div>
   <main class="wrap">
     <p class="let">Wijzigingen werken door bij de volgende berekening. Kaarten die al gemaakt zijn veranderen niet: die hebben hun teksten en het gemiddelde bevroren. Geen gedachtestreep en geen uitroepteken in de teksten; dat wordt bij het opslaan gecontroleerd. De toon is die van een gedragsclub: positief, makkelijk, vooruit. De regels staan in taalregels.md.</p>

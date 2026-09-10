@@ -9,6 +9,8 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
+import { rechtOpKaart } from "../betalen.js";
+import { haalKoper } from "../koper-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -25,10 +27,26 @@ export default async function handler(req, res){
   const db = serviceClient();
 
   const team = await db.from("teamkracht_teams")
-    .select("id, naam, coach_user_id").eq("id", team_id).single();
+    .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot").eq("id", team_id).single();
   if (team.error || !team.data){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;
+  }
+
+  // Mag deze kaart gemaakt worden, en waarmee wordt hij betaald. Serverside en
+  // nergens anders; de knop in het dashboard is een gemak, geen slot.
+  const [wie, bq] = await Promise.all([
+    haalKoper(db, gebruiker.user_id),
+    db.from("bestellingen")
+      .select("id, product_code, status, verbruikt_op, team_id, geldig_tot")
+      .eq("gebruiker_id", gebruiker.user_id).eq("team_id", team_id)
+  ]);
+  const recht = rechtOpKaart({
+    wie, team: team.data, bestellingen: bq.data || [], teamId: team_id, soort
+  });
+  if (!recht.mag && gebruiker.rol !== "beheerder"){
+    res.status(402).json({ error: recht.reden, betalen: soort === "hermeting" ? "HM" : "PAK" });
+    return;
   }
 
   const cfg = await db.from("teamkracht_config").select("*").eq("id", 1).single();
@@ -115,6 +133,22 @@ export default async function handler(req, res){
     ins = await db.from("teamkracht_teambeeld").insert({ ...zonderTeksten, team_id }).select("id").single();
   }
   if (ins.error){ await logFout("teamkracht-bereken", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
+
+  // De bestelling is nu verbruikt. Pas na het opslaan van het beeld, zodat een
+  // mislukte berekening geen aankoop opsoupeert.
+  if (recht.bestelling_id){
+    await db.from("bestellingen")
+      .update({ verbruikt_op: new Date().toISOString() })
+      .eq("id", recht.bestelling_id);
+  }
+
+  // Kwam de hermeting uit het pakket, dan gaat het tegoed er nu af. De datum
+  // blijft staan: die vertelt achteraf waar het tegoed bij hoorde.
+  if (recht.tegoed){
+    await db.from("teamkracht_teams")
+      .update({ hermeting_tegoed: 0 })
+      .eq("id", team_id).gt("hermeting_tegoed", 0);
+  }
 
   // Profielcode terug naar de eigen meting. Alleen de deelnemer zelf ziet hem,
   // via zijn resultaat_token; hij staat niet in het teambeeld en niet in de kaart.

@@ -8,6 +8,14 @@
     {
       "source": "/uitslag/:token",
       "destination": "/api/uitslag?t=:token"
+    },
+    {
+      "source": "/betaald",
+      "destination": "/betaald.html"
+    },
+    {
+      "source": "/account",
+      "destination": "/account.html"
     }
   ],
   "functions": {
@@ -45,7 +53,7 @@
       "maxDuration": 20
     },
     "api/teamkracht-team.js": {
-      "maxDuration": 10
+      "maxDuration": 20
     },
     "api/teamkracht-doel.js": {
       "maxDuration": 15
@@ -67,6 +75,27 @@
     },
     "api/instellingen-check.js": {
       "maxDuration": 10
+    },
+    "api/betaling-start.js": {
+      "maxDuration": 20
+    },
+    "api/betaling-webhook.js": {
+      "maxDuration": 20
+    },
+    "api/betaling-status.js": {
+      "maxDuration": 10
+    },
+    "api/module-voortgang.js": {
+      "maxDuration": 10
+    },
+    "api/prijslijst.js": {
+      "maxDuration": 10
+    },
+    "api/prijs.js": {
+      "maxDuration": 10
+    },
+    "api/organisatie.js": {
+      "maxDuration": 20
     }
   },
   "crons": [

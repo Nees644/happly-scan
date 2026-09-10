@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Lezer-module &middot; Teamkracht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{--inkt:#1A0B2E;--magenta:#D6026F;--papier:#F7F3F0;--rt:#FBEFF5;--lijn:#E2D8D2;--gedempt:#6B6472;--lav:#B9AECB}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",system-ui,sans-serif;background:var(--papier);color:var(--inkt);line-height:1.65}
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+  .login{position:fixed;inset:0;background:var(--inkt);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+  .loginbox{background:#fff;border-radius:12px;padding:36px 34px;width:100%;max-width:360px}
+  .loginbox h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.6rem;margin-bottom:6px}
+  .loginbox p{font-size:13.5px;color:var(--gedempt);margin-bottom:18px;font-weight:300}
+  .inp{width:100%;padding:12px 14px;border:1.5px solid var(--lijn);border-radius:8px;font-family:inherit;font-size:14px;margin-bottom:10px;outline:none}
+  .inp:focus{border-color:var(--magenta)}
+  .knop{font:inherit;font-size:14px;font-weight:600;border:none;border-radius:999px;padding:12px 22px;
+        background:var(--magenta);color:#fff;cursor:pointer}
+  .knop:disabled{opacity:.45;cursor:not-allowed}
+  .knop.lijn{background:transparent;color:var(--inkt);border:1.5px solid var(--lijn)}
+  .knop.w{width:100%}
+  .wissel{font-size:13px;color:var(--gedempt);margin-top:14px;text-align:center}
+  .wissel button{background:none;border:none;color:var(--magenta);font:inherit;font-weight:600;cursor:pointer;padding:0}
+  .fout{color:var(--magenta);font-size:13px;margin-bottom:10px;font-weight:300}
+  #app{display:none}
+  header.top{padding:56px 0 30px;border-bottom:1px solid var(--lijn)}
+  .kruimel{font-size:11.5px;font-weight:600;letter-spacing:.22em;color:var(--magenta);margin-bottom:12px}
+  h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:2.6rem;line-height:1.1;margin-bottom:12px}
+  .intro{font-weight:300;color:var(--gedempt)}
+  .balk{display:flex;align-items:center;gap:12px;margin-top:22px}
+  .balk .spoor{flex:1;height:6px;border-radius:3px;background:var(--lijn);overflow:hidden}
+  .balk .vul{height:100%;background:var(--magenta);width:0;transition:width .3s}
+  .balk .tel{font-size:12.5px;color:var(--gedempt);white-space:nowrap}
+  .hs{padding:30px 0;border-bottom:1px solid var(--lijn)}
+  .hs .nr{font-size:11.5px;font-weight:600;letter-spacing:.18em;color:var(--magenta);margin-bottom:8px}
+  .hs h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.7rem;line-height:1.2;margin-bottom:6px}
+  .hs .lead{font-weight:300;color:var(--gedempt);margin-bottom:14px}
+  .hs p{font-weight:300;margin-bottom:12px}
+  .hs.dicht h2,.hs.dicht .lead{opacity:.55}
+  .slot{background:var(--rt);border:1px solid #F3D6E5;border-radius:10px;padding:16px 18px;font-size:14px;font-weight:300}
+  .slot b{font-weight:600}
+  .klaar{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#14603D}
+  .melding{font-size:13px;color:var(--gedempt);margin-top:10px;min-height:1.2em}
+  .melding.fout{color:var(--magenta)}
+  .klaarvak{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:24px 26px;margin-bottom:8px}
+  .klaarvak h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.5rem;margin-bottom:8px;color:var(--inkt)}
+  .klaarvak p{font-weight:300;margin-bottom:16px;color:var(--inkt)}
+  .klaarvak .knop{display:inline-block;text-decoration:none}
+  .koopvak{background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:26px 28px;margin-top:30px}
+  .koopvak h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.6rem;margin-bottom:8px}
+  .koopvak p{font-weight:300;margin-bottom:14px}
+  .koopvak .bedrag{font-size:1.3rem;font-weight:300;margin-bottom:18px}
+  .koopvak .bedrag b{font-family:"DM Serif Display",serif;font-weight:400}
+  .koopvak .bedrag span{font-size:13px;color:var(--gedempt)}
+  footer{padding:36px 0 80px;font-size:13px;font-weight:300;color:var(--gedempt)}
+  .uit{background:none;border:none;color:var(--gedempt);font:inherit;font-size:12.5px;cursor:pointer}
+  .menu{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .menu a{font-size:12.5px;color:var(--gedempt);text-decoration:none}
+  .menu a:hover{color:var(--inkt)}
+  .menu a[href="/module"]{color:var(--inkt);font-weight:600}
+  .kop2{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+</style>
+</head>
+<body>
+
+<div class="login" id="login" style="display:none">
+  <div class="loginbox">
+    <h1 id="l-kop">Aanmelden</h1>
+    <p id="l-sub">Maak een account om de module te lezen. De eerste twee hoofdstukken zijn gratis.</p>
+    <div class="fout" id="l-fout" style="display:none"></div>
+    <input class="inp" id="l-mail" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input class="inp" id="l-wachtwoord" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+    <button class="knop w" id="l-knop">Account maken</button>
+    <p class="wissel" id="l-wissel"></p>
+    <p class="wissel" id="l-opnieuw" hidden><button id="l-opnieuwknop">Stuur een nieuwe link</button></p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="wrap kop2"><nav class="menu"><a href="/account">Account</a><a href="/module">Module</a><a href="/teamkracht">Teams</a><a href="/teamkracht-handleiding" target="_blank" rel="noopener">Handleiding</a></nav><button class="uit" onclick="uitloggen()">Uitloggen</button></div>
+  <header class="top"><div class="wrap">
+    <p class="kruimel">LEZER-MODULE</p>
+    <h1>Voordat je een team meet</h1>
+    <p class="intro">Zes hoofdstukken over wat het instrument meet, waar de grenzen liggen en hoe je een Teamfoto in een sessie gebruikt. De eerste twee zijn gratis en geven je genoeg om een Teamfoto goed te bespreken.</p>
+    <div class="balk"><div class="spoor"><div class="vul" id="vul"></div></div><span class="tel" id="tel"></span></div>
+  </div></header>
+  <main class="wrap" id="hoofdstukken"></main>
+  <div class="wrap" id="koop"></div>
+  <footer><div class="wrap"><p id="voet"></p></div></footer>
+</div>
+
+<script type="module">
+import { HOOFDSTUKKEN, isGratis } from "./module-inhoud.js";
+
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let stand = { afgerond: [], module_toegang: false, leesdrempel_gehaald: false };
+let prijs = null, prijzen = {};
+let aanmelden = true;
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, { ...opties, headers: {
+    "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{})
+  }});
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+/* Aanmelden en inloggen op dezelfde plek; de meeste mensen weten niet meer of
+   ze hier al eens waren. */
+function tekenLogin(){
+  el("l-kop").textContent = aanmelden ? "Aanmelden" : "Inloggen";
+  el("l-sub").textContent = aanmelden
+    ? "Maak een account om de module te lezen. De eerste twee hoofdstukken zijn gratis."
+    : "Welkom terug.";
+  el("l-knop").textContent = aanmelden ? "Account maken" : "Inloggen";
+  el("l-wachtwoord").autocomplete = aanmelden ? "new-password" : "current-password";
+  el("l-wissel").innerHTML = aanmelden
+    ? 'Heb je al een account? <button id="w">Inloggen</button>'
+    : 'Nog geen account? <button id="w">Aanmelden</button>';
+  el("w").onclick = () => { aanmelden = !aanmelden; el("l-fout").style.display = "none"; tekenLogin(); };
+}
+
+async function doeLogin(){
+  const mail = el("l-mail").value.trim(), ww = el("l-wachtwoord").value;
+  const fout = el("l-fout"); fout.style.display = "none";
+  if (!mail || ww.length < 8){
+    fout.textContent = "Vul een e-mailadres in en een wachtwoord van minstens acht tekens.";
+    fout.style.display = "block"; return;
+  }
+  el("l-knop").disabled = true;
+  const { error } = aanmelden
+    ? await db.auth.signUp({
+        email: mail,
+        password: ww,
+        // Waar de bevestigingsmail naartoe stuurt. Zonder dit gebruikt Supabase
+        // zijn eigen Site URL, en die staat standaard op localhost. Met het
+        // eigen adres werkt het zowel op productie als op een preview, mits het
+        // adres in Supabase op de lijst met toegestane adressen staat.
+        options: { emailRedirectTo: `${location.origin}${location.pathname}` }
+      })
+    : await db.auth.signInWithPassword({ email: mail, password: ww });
+  el("l-knop").disabled = false;
+  if (error){
+    fout.textContent = aanmelden
+      ? "Aanmelden lukte niet. Bestaat dit adres al, probeer dan in te loggen."
+      : "Inloggen lukte niet. Controleer je gegevens.";
+    fout.style.display = "block"; return;
+  }
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session){
+    fout.style.color = "var(--gedempt)";
+    fout.textContent = "Je account is aangemaakt. We hebben je een mail gestuurd; klik op de link daarin en je komt hier terug.";
+    fout.style.display = "block"; return;
+  }
+  toonApp();
+}
+
+window.uitloggen = () => db.auth.signOut().then(() => location.reload());
+
+function teken(){
+  const totaal = HOOFDSTUKKEN.length;
+  const klaar = stand.afgerond.length;
+  el("vul").style.width = `${Math.round(klaar / totaal * 100)}%`;
+  el("tel").textContent = `${klaar} van de ${totaal} gelezen`;
+
+  el("hoofdstukken").innerHTML = HOOFDSTUKKEN.map(h => {
+    const open = isGratis(h.nummer) || stand.module_toegang;
+    const gedaan = stand.afgerond.includes(h.nummer);
+    return `<section class="hs${open ? "" : " dicht"}">
+      <p class="nr">HOOFDSTUK ${h.nummer}${isGratis(h.nummer) ? " &middot; GRATIS" : ""}</p>
+      <h2>${esc(h.titel)}</h2>
+      <p class="lead">${esc(h.lead)}</p>
+      ${open
+        ? h.tekst.map(t => `<p>${esc(t)}</p>`).join("") +
+          (gedaan
+            ? '<p class="klaar">Gelezen</p>'
+            : `<button class="knop lijn" data-h="${h.nummer}">Ik heb dit gelezen</button>`)
+        : `<div class="slot">Dit hoofdstuk hoort bij de <b>Lezer-module</b>. Die opent alle zes de hoofdstukken en leidt naar de toets, het certificaat en het register. Beheer je een organisatie met een abonnement, dan zit hij er al bij.</div>`}
+    </section>`;
+  }).join("");
+
+  // Het pakket staat er als los tarief bij. Wie is ingelogd ziet op het
+  // dashboard zijn eigen tarief; hier is nog niet bekend welke lijn geldt.
+  const pak = prijzen["PAK-LOS"];
+  const kosten = pak
+    ? ` Een pakket kost ${euro(pak.ex)} euro per team, met de hermeting binnen zes maanden erbij. Met een abonnement zakt dat naar 195 euro of minder.`
+    : "";
+  el("voet").innerHTML = stand.leesdrempel_gehaald
+    ? `<div class="klaarvak">
+         <h2>Je kunt aan de slag</h2>
+         <p>Je hebt de eerste twee hoofdstukken gelezen. Maak een team aan, deel de link, en vanaf vijf deelnemers kun je de Teamkrachtkaart maken.${kosten}</p>
+         <a class="knop" href="/teamkracht">Naar het dashboard</a>
+       </div>`
+    : `De eerste twee hoofdstukken duren een kwartier en maken de sessie makkelijker. Je kunt ook meteen beginnen.${kosten}`;
+
+  tekenKoop();
+}
+
+/* Bedragen lopen sinds de tarieven van v3 tot in de duizenden, dus een
+   scheidingsteken erbij: 1.990 leest als een bedrag, 1990 als een jaartal. */
+const euro = c => {
+  const [heel, deel] = (c / 100).toFixed(2).split(".");
+  const met = heel.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return deel === "00" ? met : `${met},${deel}`;
+};
+
+/* Het koopblok. Verschijnt zodra de gratis hoofdstukken gelezen zijn, want
+   daarvoor is het een aanbieding die nergens op slaat. Verdwijnt zodra er is
+   betaald. Het bedrag staat er exclusief btw met het totaal erbij, zodat de
+   zzp'er die de btw niet terugkrijgt niet bij de afrekening schrikt. */
+function tekenKoop(){
+  const vak = el("koop");
+  if (stand.module_toegang || !stand.leesdrempel_gehaald || !prijs){ vak.innerHTML = ""; return; }
+  vak.innerHTML = `<div class="koopvak">
+    <h2>De hele module</h2>
+    <p>Vier hoofdstukken erbij, de toets, en bij een voldoende het certificaat, de badge en je vermelding in het register.</p>
+    <p class="bedrag"><b>${euro(prijs.ex)} euro</b> <span>excl. btw, ${euro(prijs.totaal)} inclusief</span></p>
+    <button class="knop" id="koopknop">De Lezer-module kopen</button>
+    <p class="melding" id="koopmelding"></p>
+  </div>`;
+  el("koopknop").addEventListener("click", koop);
+}
+
+async function koop(){
+  const knop = el("koopknop"), melding = el("koopmelding");
+  knop.disabled = true;
+  melding.className = "melding";
+  melding.textContent = "Betaling voorbereiden...";
+  try{
+    const uit = await api("/api/betaling-start", { method:"POST", body: JSON.stringify({ product_code: "LEZ-1" })});
+    if (!uit.betaalpagina) throw new Error("geen betaalpagina ontvangen");
+    melding.textContent = "Je gaat door naar de betaalpagina...";
+    location.href = uit.betaalpagina;
+  }catch(e){
+    knop.disabled = false;
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
+}
+
+el("hoofdstukken").addEventListener("click", async e => {
+  const h = e.target.dataset?.h;
+  if (!h) return;
+  e.target.disabled = true;
+  try{
+    stand = { ...stand, ...(await api("/api/module-voortgang", { method:"POST", body: JSON.stringify({ hoofdstuk: Number(h) }) })) };
+    teken();
+  }catch(err){
+    e.target.disabled = false;
+    e.target.insertAdjacentHTML("afterend", `<p class="melding fout">${esc(err.message)}</p>`);
+  }
+});
+
+async function toonApp(){
+  el("login").style.display = "none";
+  el("app").style.display = "block";
+  try{ stand = await api("/api/module-voortgang"); }catch(e){ /* eerste keer: leeg */ }
+  try{
+    const p = await api("/api/prijslijst");
+    prijzen = Object.fromEntries((p.producten || []).map(x => [x.code, x]));
+    prijs = prijzen["LEZ-1"] || null;
+  }catch(e){ /* zonder prijs geen bedragen, en dat is beter dan een verkeerd bedrag */ }
+  teken();
+}
+
+/* Een bevestigingslink die is verlopen of al gebruikt komt terug met de reden
+   in de adresbalk. Zonder uitleg staat daar alleen een engelse foutcode en weet
+   iemand niet wat hij moet doen. */
+function toonLinkfout(){
+  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const code = h.get("error_code") || h.get("error");
+  if (!code) return false;
+
+  const uitleg = /expired|otp_expired/.test(code)
+    ? "Deze link is verlopen of al eens gebruikt. Vul je e-mailadres in, dan sturen we een nieuwe."
+    : "Deze link werkte niet meer. Vul je e-mailadres in, dan sturen we een nieuwe.";
+
+  const fout = el("l-fout");
+  fout.style.color = "var(--gedempt)";
+  fout.textContent = uitleg;
+  fout.style.display = "block";
+  el("l-opnieuw").hidden = false;
+  aanmelden = false;
+  tekenLogin();
+  // De rommel uit de adresbalk halen; die hoort niemand te hoeven lezen.
+  history.replaceState(null, "", location.pathname);
+  return true;
+}
+
+async function stuurOpnieuw(){
+  const mail = el("l-mail").value.trim();
+  const fout = el("l-fout");
+  if (!mail){
+    fout.style.color = "var(--magenta)";
+    fout.textContent = "Vul eerst je e-mailadres in.";
+    fout.style.display = "block"; return;
+  }
+  const knop = el("l-opnieuwknop");
+  knop.disabled = true;
+  const { error } = await db.auth.resend({
+    type: "signup", email: mail,
+    options: { emailRedirectTo: `${location.origin}${location.pathname}` }
+  });
+  knop.disabled = false;
+  fout.style.color = "var(--gedempt)";
+  fout.textContent = error
+    ? "Dat lukte niet. Klopt het adres, en heb je je hier al aangemeld?"
+    : "We hebben een nieuwe link gestuurd. Kijk in je mail.";
+  fout.style.display = "block";
+}
+
+el("l-opnieuwknop").addEventListener("click", stuurOpnieuw);
+el("l-knop").addEventListener("click", doeLogin);
+el("l-wachtwoord").addEventListener("keydown", e => { if (e.key === "Enter") doeLogin(); });
+tekenLogin();
+db.auth.getSession().then(({ data:{ session } }) => {
+  if (session){ toonApp(); return; }
+  el("login").style.display = "flex";
+  toonLinkfout();
+});
+</script>
+</body>
+</html>
