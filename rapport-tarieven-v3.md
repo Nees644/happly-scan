@@ -2,7 +2,7 @@
 
 Antwoord op de vijf vragen uit `briefing_code_tarieven_v3.md`, 9 september 2026.
 
-Bijgewerkt 10 september 2026, na de bouw van de koperslijnen en de organisatielijn.
+Bijgewerkt 10 september 2026, na de bouw van de koperslijnen en de organisatielijn en na de prijsbesluiten van die dag.
 
 Geleverd:
 
@@ -19,20 +19,36 @@ Geleverd:
 Niets is naar Supabase gestuurd. De migratie moet nog draaien; tot die tijd
 kent de database de nieuwe codes niet.
 
-## Wat nog een besluit vraagt
+## Wat er is beslist
 
-**LEZ-2 is goedkoper dan ORG-1 alleen.** 395 tegen 490, terwijl LEZ-2 het
-Lezer-certificaat er nog bij geeft. Wie alleen Organisatie klein wil, koopt
-LEZ-2. Daarmee is 395 in de praktijk de prijs van ORG-1. Twee uitwegen: ORG-1
-naar 395 en LEZ-2 naar bijvoorbeeld 495, of LEZ-2 laten zoals hij is en
-accepteren dat hij de voordeur naar Organisatie wordt. Dat tweede is
-verdedigbaar, want het zet iedereen die binnenkomt eerst door de module. Er
-staat een test op met de naam "bekend gat" zodat hij zichtbaar blijft.
+**LEZ-2 is vervallen** (10 september 2026). Hij was met 395 goedkoper dan ORG-1
+alleen met 490, terwijl hij het Lezer-certificaat er nog bij gaf; wie alleen
+Organisatie klein wilde, kocht LEZ-2. In plaats van de prijs te repareren is het
+product weg: een Organisatie-abonnement geeft de beheerder nu zelf toegang tot
+de module en de toets, via `lezer_module_toegang`. De rij is nooit verkocht en is
+daarom verwijderd in plaats van op inactief gezet.
+
+**Pakket buiten het bureautegoed van 95 naar 125** (10 september 2026). Bij 95
+kostte veertig pakketten via BUR-1 plus bijkopen 4.865 tegen 4.900 voor BUR-2, en
+dan verdient de middelste staffel zichzelf niet terug. Met 125 is dat 5.615 en
+klopt de trap. De vier bureaucontroles staan nu als test in de suite.
+
+**LIC-M en LIC-J zijn uitgezet.** Ze beloofden onbeperkt gratis metingen voor 29
+euro per maand terwijl een Professional 145 per pakket betaalt. Er was niets van
+verkocht, dus er is geen klant die er recht aan ontleent.
 
 **De leesdrempel is eruit**, zoals sectie 1 voorschrijft. Hij zat in `magKopen()`,
 in `api/betaling-start.js` en in de knop op het dashboard. De module wordt nu
-aanbevolen en niet vereist. Dat wijkt af van acceptatiecriterium 1 van
-`briefing_code_certificering.md`; die briefing is op dit punt achterhaald.
+aanbevolen en niet vereist. Dat wijkt af van acceptatiecriterium 1 van de
+certificeringsbriefing; die is op dit punt bijgewerkt in `briefings/`.
+
+## Wat nog een besluit vraagt
+
+**LEZ-10 staat op fase `later`.** Hij blijft bestaan met tien maal
+module-toegang plus twaalf maanden ORG-2 voor 1.990, maar hij is niet te koop en
+de tien uitnodigingscodes zijn niet gebouwd. Bij aankoop krijgt nu alleen de
+koper toegang. Wil je hem verkopen, dan is dat één woord in de migratie plus het
+codemechanisme.
 
 ## Wat er is gebouwd
 
@@ -118,9 +134,9 @@ verandert de test mee of valt hij om.
 | 4 | PRO-J goedkoper dan twaalf maal PRO-M | klopt, 590 tegen 708 |
 | 5 | prijs per pakket daalt per staffel | klopt, 166 en 122,50 en 99 |
 | 5 | BUR-1 per pakket duurder dan PAK-pro | klopt, 166 tegen 145 |
-| 5 | BUR-2 per pakket goedkoper dan PAK-pro | klopt, 122,50 tegen 145 |
-| 6 | LEZ-2 goedkoper dan LEZ-1 plus ORG-1 | klopt, 395 tegen 639 |
-| 6 | LEZ-10 per plek goedkoper dan LEZ-2 | klopt, 199 tegen 395 |
+| 5 | PAK buiten tegoed goedkoper dan PAK-pro | klopt, 125 tegen 145 |
+| 6 | ORG-1 goedkoper dan ORG-1 plus LEZ-1 erbij | klopt, 490 tegen 639 |
+| 6 | LEZ-10 per plek goedkoper dan ORG-1 | klopt, 199 tegen 490 |
 | 6 | OPL-2 goedkoper dan OPL-1 plus tien credits | klopt, 3.250 tegen 3.950 |
 
 Twee kanttekeningen bij de cijfers. Bureau midden komt op 122,50 per pakket, niet
@@ -138,11 +154,10 @@ dan bij groot. Dat is te verdedigen zolang je het verhaal op seats en het
 dashboard voert en niet op de pakketprijs. Voer je het op de pakketprijs, dan
 klopt het niet.
 
-**Bureau midden verdient zichzelf niet terug op pakketten.** Veertig pakketten
-via BUR-1 plus bijkopen kost 4.865, de bundel BUR-2 kost 4.900. Midden koop je
-dus voor de zeven extra seats en het logo. BUR-3 doet het wel: honderd pakketten
-via klein kost 10.565 tegen 9.900. Als je wilt dat BUR-2 ook op prijs klopt, moet
-hij naar ongeveer 4.700 of moet het tegoed naar 45.
+**Bureau midden verdiende zichzelf niet terug op pakketten.** Bij 95 euro buiten
+tegoed kostte veertig pakketten via BUR-1 plus bijkopen 4.865 tegen 4.900 voor de
+bundel. Opgelost op 10 september door het pakket buiten tegoed op 125 te zetten:
+diezelfde veertig kosten nu 5.615.
 
 **De instap ligt hoger dan de tabel suggereert.** PRO-START van 1.250 vereist een
 geldig Lezer-certificaat, dus in de praktijk 1.399. Een BUR-1 met drie seats
