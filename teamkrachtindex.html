@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teamkracht Index · Happly</title>
+<meta name="description" content="De Teamkracht Index brengt in één beeld in kaart waar een team staat op zien, sturen en doen. Startbeeld, doelbeeld en eindbeeld: wat je traject oplevert, kun je nu laten zien.">
+<link rel="canonical" href="https://www.teamkrachtindex.nl/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Teamkracht Index · startbeeld, doelbeeld, eindbeeld">
+<meta property="og:description" content="De Teamkracht Index brengt in een beeld in kaart waar een team staat op zien, sturen en doen. Wat je traject oplevert, kun je nu laten zien.">
+<meta property="og:url" content="https://www.teamkrachtindex.nl/">
+<meta property="og:image" content="https://www.teamkrachtindex.nl/icon-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--paars);background:var(--room);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.1}
+h1{font-size:clamp(2.4rem,6vw,4.2rem);letter-spacing:-.01em}
+h2{font-size:clamp(1.8rem,3.6vw,2.6rem);margin-bottom:.6em}
+h3{font-size:1.35rem;margin-bottom:.3em}
+em{font-style:italic}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+.lees{max-width:640px}
+p+p{margin-top:1em}
+
+header{position:sticky;top:0;z-index:10;background:rgba(247,243,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--lijn)}
+nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+nav img{height:30px;display:block}
+nav ul{list-style:none;display:flex;gap:28px;font-size:15px;font-weight:600}
+nav ul a{text-decoration:none}
+nav ul a.actief{color:var(--magenta)}
+@media(max-width:640px){nav ul li.hide{display:none}}
+
+.eyebrow{display:inline-block;color:var(--magenta);font-weight:600;font-size:14px;letter-spacing:.02em;margin-bottom:18px;border:1.5px solid var(--magenta);padding:4px 12px;border-radius:999px}
+.hero{padding:88px 0 40px}
+.hero p.intro{font-size:1.25rem;margin-top:24px;max-width:600px}
+.hero p.zin{font-family:var(--serif);font-style:italic;font-size:1.3rem;margin-top:20px;color:var(--grijs)}
+
+.plaat{padding:24px 0 64px}
+.plaatkader{background:var(--wit);border-radius:20px;padding:28px;box-shadow:0 24px 60px -30px rgba(26,11,46,.35);position:relative}
+.plaatkader svg{width:100%;height:auto;display:block}
+.badge{position:absolute;top:20px;right:24px;background:var(--paars);color:#fff;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
+.onderschrift{font-size:14px;color:var(--grijs);margin-top:14px;text-align:center}
+
+section{padding:64px 0;border-top:1px solid var(--lijn)}
+.kolommen{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:36px}
+@media(max-width:760px){.kolommen{grid-template-columns:1fr;gap:28px}}
+.kolommen h3{margin-bottom:.4em}
+.kolommen p{color:var(--grijs);font-size:16px}
+.stap{font-family:var(--serif);font-size:2.2rem;color:var(--magenta);line-height:1;margin-bottom:10px}
+
+.lijst{list-style:none;margin-top:28px;max-width:720px}
+.lijst li{padding:18px 0;border-top:1px solid var(--lijn);display:grid;grid-template-columns:200px 1fr;gap:20px}
+.lijst li:last-child{border-bottom:1px solid var(--lijn)}
+.lijst li b{font-weight:600}
+.lijst li span{color:var(--grijs);font-size:16px}
+@media(max-width:600px){.lijst li{grid-template-columns:1fr;gap:4px}}
+
+.patronen{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.patronen span{background:var(--wit);border:1px solid var(--lijn);padding:8px 14px;border-radius:999px;font-size:15px;font-weight:600}
+
+.donker{background:var(--paars);color:#fff;border-top:0}
+.donker h2{color:#fff}
+.donker .kolommen p{color:rgba(255,255,255,.72)}
+.donker .stap{color:var(--magenta)}
+
+.afspraken{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px}
+@media(max-width:760px){.afspraken{grid-template-columns:1fr}}
+.afspraken p{color:var(--grijs);font-size:16px}
+
+.prijs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}
+@media(max-width:760px){.prijs{grid-template-columns:1fr}}
+.prijs > div{background:var(--wit);border-radius:16px;padding:28px;border:1px solid var(--lijn)}
+.prijs .bedrag{font-family:var(--serif);font-size:2rem;margin:6px 0 4px}
+.prijs small{color:var(--grijs);font-size:15px;display:block}
+.prijs ul{list-style:none;margin-top:14px;font-size:15px}
+.prijs ul li{padding:5px 0;border-top:1px solid var(--lijn)}
+.opbouw{margin-top:28px;background:#fff;border-left:4px solid var(--magenta);padding:18px 22px;border-radius:0 12px 12px 0;max-width:720px}
+
+.cta{padding:80px 0;text-align:center}
+.knop{display:inline-block;background:var(--magenta);color:#fff;text-decoration:none;font-weight:600;padding:16px 30px;border-radius:999px;font-size:17px;margin-top:26px;transition:transform .15s}
+.knop:hover{transform:translateY(-2px)}
+.knop:focus-visible{outline:3px solid var(--paars);outline-offset:3px}
+.cta p.sub{color:var(--grijs);margin-top:18px;font-size:15px}
+
+footer{padding:40px 0;border-top:1px solid var(--lijn);font-size:14px;color:var(--grijs)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+footer a{text-decoration:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.knop{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/" aria-label="Teamkracht Index"><img src="happly-logo.svg" alt="Happly"></a>
+      <ul>
+        <li class="hide"><a href="https://scan.happly.nl">Zelfkracht Index</a></li>
+        <li><a class="actief" href="/">Teamkracht Index</a></li>
+              </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Teamkracht Index beta</span>
+    <h1>Waar kan je het team <em>versterken?</em></h1>
+    <p class="intro">De Teamkracht Index laat in één beeld zien waar een team staat op zien, sturen en doen. Je ziet waar de keten sterk is, waar hij zakt en waar de volgende stap ligt. Zo krijgt je traject een startbeeld, een doelbeeld en een eindbeeld dat het resultaat zichtbaar maakt.</p>
+    <p class="zin">Zelfkracht is wat iemand zelf doet. Teamkracht is wat het team samen doet.</p>
+  </div>
+</div>
+
+<div class="plaat">
+  <div class="wrap">
+    <div class="plaatkader">
+      <span class="badge">Voorbeeld · beta</span>
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Teamkrachtkaart: startbeeld en doelbeeld van een team in één plaat"><rect width="800" height="560" fill="#FBF8F5" rx="18"/><line x1="120" x2="680" y1="355.0" y2="355.0" stroke="#E6DFE9" stroke-width="1"/><line x1="120" x2="680" y1="260.0" y2="260.0" stroke="#E6DFE9" stroke-width="1"/><line x1="120" x2="680" y1="165.0" y2="165.0" stroke="#E6DFE9" stroke-width="1"/><line x1="120" x2="680" y1="450.0" y2="450.0" stroke="#CFC5D3" stroke-width="1.5"/><text x="190" y="484" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="#1A0B2E">Zien</text><text x="400" y="484" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="#1A0B2E">Sturen</text><text x="610" y="484" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="#1A0B2E">Doen</text><text x="118" y="75.0" text-anchor="end" font-family="DM Sans, sans-serif" font-size="12" fill="#8C8195">100</text><text x="118" y="455.0" text-anchor="end" font-family="DM Sans, sans-serif" font-size="12" fill="#8C8195">0</text><polyline points="190,191.6 400,222.0 610,210.6" fill="none" stroke="#B9AECB" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"/><text x="626" y="233.6" font-family="DM Sans, sans-serif" font-size="12" fill="#8C8195">landelijk beeld</text><polyline points="190,203.0 400,286.6 610,260.0" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,165.0 400,237.2 610,248.6" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,142.2 400,275.2 610,282.8" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,199.2 400,336.0 610,351.2" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,130.8 400,260.0 610,256.2" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,237.2 400,313.2 610,282.8" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,191.6 400,267.6 610,260.0" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,233.4 400,366.4 610,336.0" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,237.2 400,374.0 610,381.6" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,127.0 400,222.0 610,165.0" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,165.0 400,301.8 610,206.8" fill="none" stroke="#1A0B2E" stroke-width="1.5" opacity=".12" stroke-linejoin="round"/><polyline points="190,184.0 400,294.2 610,275.2" fill="none" stroke="#7A6F86" stroke-width="5" stroke-linejoin="round"/><circle cx="190" cy="184.0" r="8" fill="#7A6F86" stroke="#fff" stroke-width="3"/><circle cx="400" cy="294.2" r="8" fill="#7A6F86" stroke="#fff" stroke-width="3"/><circle cx="610" cy="275.2" r="8" fill="#7A6F86" stroke="#fff" stroke-width="3"/><text x="174" y="189.0" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#7A6F86">start</text><polyline points="190,184.0 400,214.4 610,206.8" fill="none" stroke="#D6026F" stroke-width="5" stroke-linejoin="round" stroke-dasharray="8 8"/><circle cx="190" cy="184.0" r="8" fill="#D6026F" stroke="#fff" stroke-width="3"/><circle cx="400" cy="214.4" r="8" fill="#D6026F" stroke="#fff" stroke-width="3"/><circle cx="610" cy="206.8" r="8" fill="#D6026F" stroke="#fff" stroke-width="3"/><text x="628" y="211.8" text-anchor="start" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#D6026F">doel</text><text x="295.0" y="283.1" text-anchor="middle" font-family="DM Serif Display, serif" font-style="italic" font-size="16" fill="#7A6F86">hier zakt de keten</text><text x="470" y="162.4" text-anchor="middle" font-family="DM Serif Display, serif" font-style="italic" font-size="16" fill="#D6026F">doel: sturen en doen naar het landelijke beeld</text></svg>
+    </div>
+    <p class="onderschrift">Teamkrachtkaart van een fictief team van elf deelnemers: de grijze lijn is het startbeeld, de magenta stippellijn het doelbeeld, de dunne lijnen zijn de anonieme deelnemers.</p>
+  </div>
+</div>
+
+<section id="keten">
+  <div class="wrap">
+    <div class="lees">
+      <h2>Eén keten, drie schakels</h2>
+      <p>Elke deelnemer vult de Zelfkracht Index in. De teamlijn is de optelsom: wat het team samen doet op de drie schakels. Daar waar de lijn zakt, ligt het werk.</p>
+    </div>
+    <div class="kolommen">
+      <div><div class="stap">Zien</div><h3>Het team ziet wat er speelt</h3><p>Signalen oppikken, situaties duiden en benoemen wat er aan de hand is, ook als het schuurt.</p></div>
+      <div><div class="stap">Sturen</div><h3>Het team kiest en pakt op</h3><p>Van zien naar kiezen. Hier ontstaat eigenaarschap: iemand neemt het en het team staat erachter.</p></div>
+      <div><div class="stap">Doen</div><h3>Het team maakt het af</h3><p>Afspraken nakomen, doorzetten en bijsturen tot het klaar is.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="traject">
+  <div class="wrap">
+    <div class="lees">
+      <h2>Drie beelden, één traject</h2>
+      <p>Wat je traject oplevert, kun je nu laten zien. De eerste meting geeft richting, de hermeting geeft het bewijs.</p>
+    </div>
+    <div class="kolommen">
+      <div><h3>Startbeeld</h3><p>De eerste Teamfoto: de teamlijn, de plek waar de keten zakt, de verdeling van teampatronen en drie waarschijnlijke dynamieken met gespreksvragen. Dit opent je traject.</p></div>
+      <div><h3>Doelbeeld</h3><p>Samen met het team bepaal je waar de lijn naartoe gaat. Concreet, per schakel, in dezelfde plaat. Dit is waar je met het team aan werkt.</p></div>
+      <div><h3>Eindbeeld</h3><p>De hermeting legt start en eind over elkaar. Het team ziet wat het samen anders doet, en jij laat zien wat het traject heeft opgeleverd.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="teamfoto">
+  <div class="wrap">
+    <div class="lees">
+      <h2>Wat de Teamfoto laat zien</h2>
+      <p>Geen los getal, altijd het hele beeld. Zo kun je er direct het gesprek mee openen.</p>
+    </div>
+    <ul class="lijst">
+      <li><b>Teamlijn</b><span>Het team op zien, sturen en doen, naast het landelijke beeld.</span></li>
+      <li><b>De breuk</b><span>De schakel waar de keten zakt, en wat dat in de praktijk betekent.</span></li>
+      <li><b>Teampatronen</b><span>Hoe de acht patronen in dit team verdeeld zijn, zonder namen.</span></li>
+      <li><b>Drie dynamieken</b><span>De drie waarschijnlijkste dynamieken in dit team, elk met een interventie en gespreksvragen.</span></li>
+      <li><b>Hermeting</b><span>Dezelfde plaat na het traject, met start en eind over elkaar.</span></li>
+    </ul>
+    <div class="patronen" aria-label="De acht teampatronen">
+      <span>Trekker</span><span>Ziener</span><span>Beslisser</span><span>Meewerker</span><span>Aanpakker</span><span>Uitvoerder</span><span>Afbakener</span><span>Afwachter</span>
+    </div>
+  </div>
+</section>
+
+<section class="donker" id="afspraken">
+  <div class="wrap">
+    <div class="lees">
+      <h2>Zo blijft het veilig voor het team</h2>
+    </div>
+    <div class="afspraken">
+      <div><h3>Individuele uitslag blijft van de deelnemer</h3><p>Elke deelnemer ziet alleen de eigen Zelfkracht Index. In de Teamfoto staan de deelnemers anoniem als dunne lijnen. Jij en het team zien de teamlijn.</p></div>
+      <div><h3>Vergelijken met het landelijke beeld en met jezelf</h3><p>Een team wordt vergeleken met het landelijke beeld en met zijn eigen vorige meting. Nooit met andere teams binnen dezelfde organisatie.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="prijs">
+  <div class="wrap">
+    <div class="lees">
+      <h2>Voor coaches, adviseurs en bureaus</h2>
+      <p>Je betaalt per team, niet per deelnemer. In het pakket zit de Teamfoto plus de hermeting waarmee je laat zien wat er is verschoven.</p>
+    </div>
+    <div class="prijs">
+      <div>
+        <h3>Eén team</h3>
+        <div class="bedrag"><span data-prijs="PAK-LOS">€ 345</span> <small style="display:inline">per team</small></div>
+        <small>Teamfoto plus hermeting binnen zes maanden</small>
+        <ul><li>De Teamkrachtkaart op A4, A3 en A1</li><li>Doelbeeld en eindbeeld inbegrepen</li><li>Extra hermeting <span data-prijs="HM-LOS">€ 145</span></li></ul>
+      </div>
+      <div>
+        <h3>Meerdere teams</h3>
+        <div class="bedrag">vanaf <span data-prijs="ORG-1">€ 490</span> <small style="display:inline">per jaar</small></div>
+        <small>Organisatieabonnement, drie tot onbeperkt seats</small>
+        <ul><li>Een pakket kost dan <span data-prijs="PAK-ORG1">€ 195</span> of minder</li><li>Alle teams bij elkaar in één dashboard</li><li>De Lezer-module en de toets voor de beheerder</li></ul>
+      </div>
+    </div>
+    <div class="opbouw">
+      <b>Bedragen zijn exclusief btw.</b> Ze worden rechtstreeks opgehaald uit de prijslijst die de site zelf gebruikt, dus wat hier staat is wat je afrekent.
+    </div>
+  </div>
+</section>
+
+<div class="cta">
+  <div class="wrap">
+    <h2>Als eerste met een team aan de slag?</h2>
+    <p class="lees" style="margin:0 auto">Vertel kort met wat voor teams je werkt. Je krijgt het voorbeeldpakket met startbeeld, doelbeeld en eindbeeld, en we plannen je eerste Teamfoto in.</p>
+    <a class="knop" href="https://scan.happly.nl/teamkracht?src=tki">Aan de slag met je eerste team</a>
+    <p class="sub" style="margin-top:14px">Liever eerst overleggen? <a class="link" href="mailto:hallo@happly.nl?subject=Teamkracht%20Index">Stuur ons een bericht</a>.</p>
+    <p class="sub">De Teamkracht Index is beschikbaar. Je kunt vandaag een team aanmaken en de meetlink delen.</p>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Happly · Teamkracht Index en Zelfkracht Index zijn geregistreerde merken</span>
+    <span><a href="https://scan.happly.nl">Zelfkracht Index</a></span>
+  </div>
+</footer>
+
+
+<script>
+/* De bedragen komen uit dezelfde prijslijst die de app gebruikt, zodat een
+   prijswijziging in de tabel producten hier vanzelf doorkomt. De getallen in de
+   HTML zijn een terugval voor wie geen javascript heeft; het antwoord van de
+   server wint altijd.
+
+   Same-origin: dit domein en de app draaien op hetzelfde Vercel-project, dus
+   /api/prijslijst is gewoon bereikbaar en er komt geen CORS aan te pas. */
+(async function prijzen(){
+  const euro = c => {
+    const [heel, deel] = (c / 100).toFixed(2).split(".");
+    const met = heel.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return deel === "00" ? `€ ${met}` : `€ ${met},${deel}`;
+  };
+  try{
+    const r = await fetch("/api/prijslijst");
+    if (!r.ok) return;                       // terugval blijft staan
+    const { producten = [] } = await r.json();
+    const bij = Object.fromEntries(producten.map(p => [p.code, p.prijs_ex_btw]));
+    for (const el of document.querySelectorAll("[data-prijs]")){
+      const cent = bij[el.dataset.prijs];
+      if (Number.isInteger(cent)) el.textContent = euro(cent);
+    }
+  }catch(e){ /* stil: de terugval staat er al */ }
+})();
+</script>
+</body>
+</html>

@@ -2,6 +2,16 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?teamkrachtindex\\.nl"
+        }
+      ],
+      "destination": "/teamkrachtindex.html"
+    },
+    {
       "source": "/deel/:id",
       "destination": "/api/deel?d=:id"
     },
@@ -106,6 +116,30 @@
     {
       "path": "/api/dagtaken",
       "schedule": "30 6 * * 1-5"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-demo|teamkracht-doel|teamkracht-handleiding|teamkracht-voorbeeld|module|account|betaald|bedankt|organisatie|professionals)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?teamkrachtindex\\.nl"
+        }
+      ],
+      "destination": "https://scan.happly.nl/:pad",
+      "permanent": false
+    },
+    {
+      "source": "/:pad(uitslag|deel)/:rest*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?teamkrachtindex\\.nl"
+        }
+      ],
+      "destination": "https://scan.happly.nl/:pad/:rest*",
+      "permanent": false
     }
   ]
 }

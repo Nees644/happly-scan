@@ -10,7 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 import {
   bepaalProfiel, bepaalTeamlijn, bepaalBreuk, bepaalVerdeling,
@@ -1165,3 +1165,36 @@ for (const bestand of [
     });
   });
 }
+
+/* ------------------------------------------- de pagina op teamkrachtindex.nl */
+
+/* De bedragen op die pagina komen uit /api/prijslijst, maar er staat een
+   terugval in de HTML voor wie geen javascript heeft. Die terugval is het enige
+   bedrag in dit project dat is overgetypt, dus hij hoort gelijk te lopen met de
+   migratie. Zonder deze test staat er over een half jaar een oude prijs op de
+   site zonder dat iemand het merkt. */
+test("de terugvalprijzen op teamkrachtindex.nl kloppen met de migratie", () => {
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  const p = leesPrijzen();
+
+  const spans = [...pagina.matchAll(/data-prijs="([A-Z0-9-]+)">€\s*([\d.]+)</g)];
+  assert.ok(spans.length >= 4, "de prijsspans zijn niet meer te vinden");
+
+  for (const [, code, getoond] of spans){
+    const cent = p[code];
+    assert.ok(cent !== undefined, `${code} bestaat niet in de migratie`);
+    const verwacht = (cent / 100).toFixed(2).replace(/\.00$/, "").replace(".", ",");
+    const metPunt = verwacht.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    assert.equal(getoond, metPunt, `de pagina toont ${getoond} voor ${code}, de migratie zegt ${metPunt}`);
+  }
+});
+
+test("de pagina op teamkrachtindex.nl verwijst nergens naar een bestand dat er niet is", () => {
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  const hier = new URL("../", import.meta.url);
+
+  for (const [, adres] of pagina.matchAll(/(?:href|src)="([^"]+)"/g)){
+    if (/^(https?:|mailto:|#|\/$)/.test(adres)) continue;
+    assert.ok(existsSync(new URL(adres, hier)), `${adres} bestaat niet in de repo`);
+  }
+});
