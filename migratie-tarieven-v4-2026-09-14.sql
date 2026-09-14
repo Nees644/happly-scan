@@ -76,7 +76,13 @@ alter table public.teamkracht_teams
 alter table public.producten drop constraint if exists producten_prijsniveau_check;
 alter table public.producten add constraint producten_prijsniveau_check
   check (prijsniveau is null or prijsniveau in
-    ('los','pzl','org1','org2','org3','pro','bur1','bur2','bur3'));
+    -- De negen niveaus van v4.
+    ('los','pzl','org1','org2','org3','pro','bur1','bur2','bur3',
+    -- En de twee uit v3, want die rijen blijven staan. Ze gaan in blok Z op
+    -- actief = false, maar ze worden niet verwijderd: er kunnen bestellingen aan
+    -- hangen en een factuur van vorige maand hoort te blijven kloppen. Een
+    -- constraint die de historie verbiedt maakt de migratie onuitvoerbaar.
+    'bur','bur_extra'));
 
 -- Hoe dit product wordt betaald. Volgt uit de lijn en staat hier zodat het
 -- prijsendpoint het kan meesturen zonder het opnieuw af te leiden.
