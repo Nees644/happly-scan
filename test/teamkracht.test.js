@@ -1210,7 +1210,11 @@ test("de pagina op teamkrachtindex.nl verwijst nergens naar een bestand dat er n
 
   for (const [, adres] of pagina.matchAll(/(?:href|src)="([^"]+)"/g)){
     if (/^(https?:|mailto:|#|\/$)/.test(adres)) continue;
-    assert.ok(existsSync(new URL(adres, hier)), `${adres} bestaat niet in de repo`);
+    const pad = adres.replace(/^\//, "");
+    // cleanUrls staat aan, dus /teamkracht-voorbeeld wijst naar
+    // teamkracht-voorbeeld.html. Allebei goedkeuren.
+    const bestaat = existsSync(new URL(pad, hier)) || existsSync(new URL(`${pad}.html`, hier));
+    assert.ok(bestaat, `${adres} bestaat niet in de repo, ook niet als .html`);
   }
 });
 
