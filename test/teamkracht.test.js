@@ -1375,3 +1375,21 @@ test("de rewrite voor de voordeur staat niet meer in vercel.json", () => {
   assert.ok((v.redirects || []).some(r => (r.has || []).some(h => h.type === "host")),
             "de host-redirects zijn verdwenen");
 });
+
+test("het deelbeeld bestaat en heeft het formaat dat LinkedIn verwacht", () => {
+  const pad = new URL("../assets/og/og-teamkrachtindex.png", import.meta.url);
+  assert.ok(existsSync(pad), "het deelbeeld is niet gebouwd; draai scripts/bouw-deelbeeld.mjs");
+
+  // De afmetingen staan in de IHDR-chunk van een PNG, op byte 16 tot 24.
+  const kop = readFileSync(pad).subarray(0, 24);
+  assert.equal(kop.readUInt32BE(16), 1200);
+  assert.equal(kop.readUInt32BE(20), 630);
+
+  // En de pagina moet ernaar wijzen, met de maten erbij: zonder die twee regels
+  // moet LinkedIn de afbeelding eerst ophalen voordat hij hem kan tonen.
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  assert.match(pagina, /og:image" content="[^"]*og-teamkrachtindex\.png"/);
+  assert.match(pagina, /og:image:width" content="1200"/);
+  assert.match(pagina, /og:image:height" content="630"/);
+  assert.match(pagina, /twitter:card" content="summary_large_image"/);
+});
