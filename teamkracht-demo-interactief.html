@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probeer de Teamkracht Index &middot; Happly</title>
+<meta name="description" content="Schuif aan een team en zie wat de Teamkrachtkaart doet: waar de keten zakt, hoe de patronen verschuiven en welke dynamieken naar boven komen.">
+<link rel="canonical" href="https://www.teamkrachtindex.nl/teamkracht-demo-interactief">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--room);color:var(--paars);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.1}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+header{background:var(--wit);border-bottom:1px solid var(--lijn)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+header img{height:26px}
+header a{font-size:14px;text-decoration:none;color:var(--grijs)}
+header a:hover{color:var(--paars)}
+
+.kop{padding:48px 0 26px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--magenta);margin-bottom:14px}
+h1{font-size:clamp(2rem,4.4vw,3.1rem);margin-bottom:14px}
+.lees{max-width:62ch;color:var(--grijs);font-size:18px}
+
+.werkbank{display:grid;grid-template-columns:1fr 420px;gap:30px;align-items:start;padding-bottom:70px}
+@media (max-width:980px){.werkbank{grid-template-columns:1fr}}
+
+.paneel{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:26px}
+.paneel h2{font-size:20px;margin-bottom:4px}
+.paneel .sub{font-size:14px;color:var(--grijs);margin-bottom:20px}
+
+svg{width:100%;height:auto;display:block}
+
+.schuif{margin-bottom:22px}
+.schuif label{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:600;margin-bottom:8px}
+.schuif .waarde{font-family:var(--serif);font-size:24px;font-weight:400}
+.schuif .tov{font-size:13px;color:var(--grijs);font-weight:400;margin-left:8px}
+input[type=range]{width:100%;accent-color:var(--magenta);height:26px;cursor:pointer}
+
+.breuk{background:var(--paars);color:var(--wit);border-radius:12px;padding:22px;margin-bottom:20px}
+.breuk .tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#E870B8;margin-bottom:8px}
+.breuk h3{font-size:21px;color:var(--wit);margin-bottom:10px}
+.breuk p{font-size:14.5px;line-height:1.5;opacity:.92}
+.breuk .cijfers{margin-top:10px;font-size:13px;opacity:.75}
+
+.vak{border-top:1px solid var(--lijn);padding-top:18px;margin-top:18px}
+.vak h3{font-size:16px;margin-bottom:10px}
+.verdeling{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14.5px}
+.verdeling b{font-weight:600}
+.dyn{margin-bottom:16px}
+.dyn .tag{font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.dyn .tag.remt{color:var(--magenta)}
+.dyn .tag.versterkt,.dyn .tag.neutraal{color:var(--grijs)}
+.dyn b{display:block;font-size:15px;margin-bottom:3px}
+.dyn span{font-size:14px;color:var(--grijs);line-height:1.5}
+
+.knoppen{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.knop{display:inline-block;background:var(--magenta);color:#fff;text-decoration:none;font-weight:600;padding:13px 24px;border-radius:999px;font-size:15px;border:none;cursor:pointer;font-family:inherit}
+.knop.lijn{background:transparent;color:var(--paars);border:2px solid var(--lijn)}
+.knop.lijn:hover{border-color:var(--paars)}
+
+.voet{font-size:13.5px;color:var(--grijs);border-top:1px solid var(--lijn);padding:22px 0 60px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <a href="/"><img src="happly-logo.svg" alt="Happly"></a>
+  <a href="/">Terug naar Teamkracht Index</a>
+</div></header>
+
+<div class="wrap kop">
+  <div class="eyebrow">Probeer het zelf</div>
+  <h1>Schuif aan een team</h1>
+  <p class="lees">Dit is een echt team van elf mensen uit onze testverzameling. Verschuif wat het team ziet, kiest en doet, en kijk wat er met de kaart gebeurt: waar de keten zakt, hoe de patronen verschuiven en welke dynamieken naar boven komen. Er wordt niets opgeslagen.</p>
+</div>
+
+<div class="wrap werkbank">
+  <div class="paneel">
+    <h2>De keten van dit team</h2>
+    <p class="sub">De dikke lijn is het team, de dunne lijnen zijn de elf deelnemers. Magenta is het gemiddelde van alle metingen.</p>
+    <div id="tekening"></div>
+
+    <div class="vak">
+      <h3>Verschuif het team</h3>
+      <div class="schuif">
+        <label for="s-zien">Zien <span><span class="waarde" id="w-zien">0</span><span class="tov" id="t-zien"></span></span></label>
+        <input type="range" id="s-zien" min="-25" max="25" value="0" step="1">
+      </div>
+      <div class="schuif">
+        <label for="s-sturen">Sturen <span><span class="waarde" id="w-sturen">0</span><span class="tov" id="t-sturen"></span></span></label>
+        <input type="range" id="s-sturen" min="-25" max="25" value="0" step="1">
+      </div>
+      <div class="schuif">
+        <label for="s-doen">Doen <span><span class="waarde" id="w-doen">0</span><span class="tov" id="t-doen"></span></span></label>
+        <input type="range" id="s-doen" min="-25" max="25" value="0" step="1">
+      </div>
+      <div class="knoppen">
+        <button class="knop lijn" id="herstel">Terug naar het echte team</button>
+        <button class="knop lijn" id="voorbeeld1">Ziet veel, kiest weinig</button>
+        <button class="knop lijn" id="voorbeeld2">Doet veel, kijkt weinig</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="breuk">
+      <div class="tag">De breuk in de keten</div>
+      <h3 id="breuk-kop">&nbsp;</h3>
+      <p id="breuk-tekst">&nbsp;</p>
+      <p class="cijfers" id="breuk-cijfers">&nbsp;</p>
+    </div>
+
+    <div class="paneel">
+      <h3>Profielverdeling</h3>
+      <div class="verdeling" id="verdeling"></div>
+
+      <div class="vak">
+        <h3>Waarschijnlijke dynamieken</h3>
+        <div id="dynamieken"></div>
+      </div>
+
+      <div class="vak">
+        <div class="knoppen">
+          <a class="knop" href="https://scan.happly.nl/teamkracht?src=demo">Meet je eigen team</a>
+          <a class="knop lijn" href="/teamkracht-voorbeeld">Bekijk de hele kaart</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap voet">
+  Dit is een oefenbeeld met fictieve gegevens. Bij een echte meting vult elk teamlid zelf een korte vragenlijst in, blijft de persoonlijke uitslag van de deelnemer, en toont de kaart geen namen. Onder de tien deelnemers verdwijnen de individuele lijnen.
+</div>
+
+<script type="module">
+import { bouwTeambeeld } from "/teamkracht-logica.js";
+import { tekenKaartSvg, BREUKBLOK, RICHTING_LABEL } from "/teamkracht-kaart.js";
+import { VOORBEELD_DEELNEMERS, VOORBEELD_NORM, VOORBEELD_CONFIG,
+         VOORBEELD_REGELS, VOORBEELD_PROFIELEN } from "/teamkracht-voorbeeld-data.js";
+
+/* Alles gebeurt in de browser. Dezelfde functies die de echte kaart maken, met
+   dezelfde regels en profielen uit de seed; er is dus geen tweede waarheid die
+   uit de pas kan lopen met het product. Er gaat niets naar de server. */
+
+const el = (id) => document.getElementById(id);
+const VAARDIGHEDEN = ["zien", "sturen", "doen"];
+const esc = (t) => String(t ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/* De schuifjes verzetten de hele groep, niet één persoon. Zo blijft de spreiding
+   die dit team echt had staan en verandert alleen waar het als geheel staat. */
+function teamMet(verschil){
+  return VOORBEELD_DEELNEMERS.map(d => ({
+    zien:   klem(d.zien   + verschil.zien),
+    sturen: klem(d.sturen + verschil.sturen),
+    doen:   klem(d.doen   + verschil.doen)
+  }));
+}
+const klem = (x) => Math.max(0, Math.min(100, Math.round(x)));
+
+function teken(){
+  const verschil = Object.fromEntries(VAARDIGHEDEN.map(v => [v, Number(el(`s-${v}`).value)]));
+
+  const beeld = bouwTeambeeld({
+    deelnemers: teamMet(verschil),
+    norm: VOORBEELD_NORM,
+    config: VOORBEELD_CONFIG,
+    regels: VOORBEELD_REGELS,
+    profielen: VOORBEELD_PROFIELEN
+  });
+
+  el("tekening").innerHTML = tekenKaartSvg(beeld, {});
+
+  // Boven de schuifjes: waar het team nu staat, en hoeveel dat scheelt met het
+  // gemiddelde. Dat tweede getal is waar het gesprek over gaat.
+  for (const v of VAARDIGHEDEN){
+    const score = Math.round(beeld[`team_${v}`]);
+    const tov = score - Math.round(VOORBEELD_NORM[v]);
+    el(`w-${v}`).textContent = score;
+    el(`t-${v}`).textContent = tov === 0 ? "gelijk aan het gemiddelde"
+                                        : `${tov > 0 ? "+" : ""}${tov} ten opzichte van het gemiddelde`;
+  }
+
+  const breuk = BREUKBLOK[beeld.breuk] || BREUKBLOK.geen;
+  el("breuk-kop").textContent = breuk.kop;
+  el("breuk-tekst").textContent = breuk.tekst;
+  el("breuk-cijfers").textContent = VAARDIGHEDEN
+    .map(v => `${v[0].toUpperCase()}${v.slice(1)} ${teken_(beeld[`team_${v}`] - VOORBEELD_NORM[v])}`)
+    .join(", ") + " ten opzichte van het gemiddelde.";
+
+  el("verdeling").innerHTML = Object.entries(beeld.verdeling)
+    .filter(([, aantal]) => aantal > 0)
+    .sort((a, b) => (a[0] === "MMM") - (b[0] === "MMM") || b[1] - a[1])
+    .map(([code, aantal]) => {
+      const naam = beeld.teksten?.profielen?.[code]
+                || (VOORBEELD_PROFIELEN.find(p => p.code === code) || {}).naam || code;
+      const uit = code === "MMM" ? "middenband" : (aantal > 1 ? `${naam}s` : naam);
+      return `<span><b>${aantal}</b> ${esc(uit)}</span>`;
+    }).join("");
+
+  el("dynamieken").innerHTML = beeld.dynamieken.map(({ code }) => {
+    const r = beeld.teksten?.regels?.[code] || VOORBEELD_REGELS.find(x => x.code === code);
+    if (!r) return "";
+    // Dezelfde labels als op de kaart, uit dezelfde bron. Overtypen zou
+    // betekenen dat de demo iets anders zegt zodra die tekst verandert.
+    return `<div class="dyn">
+      <div class="tag ${esc(r.richting || "")}">${esc(RICHTING_LABEL[r.richting] || "")} &middot; ${esc(code)}</div>
+      <b>${esc(r.titel || "")}</b>
+      <span>${esc(r.dynamiek || "")}</span>
+    </div>`;
+  }).join("") || '<span class="sub">Geen dynamieken bij deze verdeling.</span>';
+}
+
+const teken_ = (x) => (x > 0 ? "+" : "") + Math.round(x);
+
+function zet(zien, sturen, doen){
+  el("s-zien").value = zien; el("s-sturen").value = sturen; el("s-doen").value = doen;
+  teken();
+}
+
+for (const v of VAARDIGHEDEN) el(`s-${v}`).addEventListener("input", teken);
+el("herstel").addEventListener("click", () => zet(0, 0, 0));
+// Twee standen die laten zien dat de kaart echt meebeweegt: een team dat veel
+// ziet maar niet kiest, en een team dat doorpakt zonder eerst te kijken.
+el("voorbeeld1").addEventListener("click", () => zet(12, -10, -8));
+el("voorbeeld2").addEventListener("click", () => zet(-12, 4, 14));
+
+teken();
+</script>
+</body>
+</html>

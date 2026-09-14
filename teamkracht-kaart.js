@@ -70,7 +70,7 @@ export const ZONDER_LANDELIJK = "Deze kaart toont het team tegen zijn eigen vori
 
 export const VOETNOOT = "Waarschijnlijke dynamieken, afgeleid uit de verdeling van ketenprofielen. Hypotheses voor de nabespreking, geen diagnose. Een profiel beschrijft gedrag in deze context, niet de persoon. Individuele scores zijn alleen zichtbaar voor de deelnemer zelf; onder tien deelnemers toont deze kaart alleen de teamlijn en de verdeling. Bij de hermeting wordt het eindbeeld over dit startbeeld gelegd. Ook leverbaar als poster A3 en A1.";
 
-const RICHTING_LABEL = {
+export const RICHTING_LABEL = {
   remt: "REMT DE TEAMKRACHT",
   versterkt: "VERSTERKT DE TEAMKRACHT",
   neutraal: "NEUTRAAL VOOR DE TEAMKRACHT"

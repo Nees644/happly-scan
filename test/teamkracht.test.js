@@ -1531,3 +1531,47 @@ test("de voorbeeldkaart toont profielnamen, geen codes", () => {
     assert.ok(kaart.includes(naam), `${naam} staat niet op de voorbeeldkaart`);
   }
 });
+
+/* ------------------------------------------------- de demo met de schuifjes */
+
+test("de demo rekent met dezelfde functies als de echte kaart", async () => {
+  const { bouwTeambeeld } = await import("../teamkracht-logica.js");
+  const d = await import("../teamkracht-voorbeeld-data.js");
+
+  const team = (verschil) => d.VOORBEELD_DEELNEMERS.map(p => ({
+    zien:   Math.max(0, Math.min(100, p.zien   + verschil.zien)),
+    sturen: Math.max(0, Math.min(100, p.sturen + verschil.sturen)),
+    doen:   Math.max(0, Math.min(100, p.doen   + verschil.doen))
+  }));
+  const beeld = (verschil) => bouwTeambeeld({
+    deelnemers: team(verschil), norm: d.VOORBEELD_NORM, config: d.VOORBEELD_CONFIG,
+    regels: d.VOORBEELD_REGELS, profielen: d.VOORBEELD_PROFIELEN });
+
+  // Onaangeraakt hoort de demo hetzelfde te geven als acceptatiecriterium 1.
+  const start = beeld({ zien: 0, sturen: 0, doen: 0 });
+  assert.equal(start.breuk, "zien_sturen");
+  assert.deepEqual(start.dynamieken.map(x => x.code), ["R1", "R11", "R12"]);
+  assert.equal(start.verdeling.HLL, 4);
+
+  // En schuiven moet echt iets doen, anders is het geen demo maar een plaatje.
+  const verschoven = beeld({ zien: -12, sturen: 4, doen: 14 });
+  assert.notEqual(verschoven.breuk, start.breuk, "de breuk beweegt niet mee");
+  assert.notDeepEqual(verschoven.verdeling, start.verdeling, "de verdeling beweegt niet mee");
+});
+
+test("de demo gebruikt de labels van de kaart en verzint ze niet zelf", async () => {
+  const { RICHTING_LABEL } = await import("../teamkracht-kaart.js");
+  assert.equal(RICHTING_LABEL.remt, "REMT DE TEAMKRACHT");
+
+  const demo = readFileSync(new URL("../teamkracht-demo-interactief.html", import.meta.url), "utf8");
+  assert.match(demo, /RICHTING_LABEL/, "de demo haalt de labels niet uit de kaart");
+  // De waarde heet "remt" en niet "remmend"; daar ging het de eerste keer mis.
+  assert.ok(!demo.includes('"remmend"'), "de demo kent de richting nog onder een naam die niet bestaat");
+});
+
+test("de demo slaat niets op en praat met geen server", () => {
+  const demo = readFileSync(new URL("../teamkracht-demo-interactief.html", import.meta.url), "utf8");
+  for (const woord of ["fetch(", "XMLHttpRequest", "localStorage", "supabase", "/api/"]){
+    assert.ok(!demo.includes(woord), `de demo gebruikt ${woord}, en dat hoort niet`);
+  }
+});
