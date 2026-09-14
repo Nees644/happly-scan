@@ -117,7 +117,7 @@
   ],
   "redirects": [
     {
-      "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-demo|teamkracht-doel|teamkracht-handleiding|teamkracht-voorbeeld|module|account|betaald|bedankt|organisatie|professionals)",
+      "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-doel|teamkracht-handleiding|module|account|betaald|bedankt|organisatie|professionals)",
       "has": [
         {
           "type": "host",
