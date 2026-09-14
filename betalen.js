@@ -5,7 +5,7 @@
 // Wie de koper is en wat hij mag staat in toegang.js. Hier staat wat het kost
 // en wanneer er recht is op een kaart.
 
-import { koper, groepVanCode } from "./toegang.js";
+import { koper, groepVanCode, betaaltAchteraf } from "./toegang.js";
 
 /* Btw erbij. Wij bewaren de prijs exclusief in hele centen en het percentage in
    promille, zodat 21 procent als 210 in de database staat en er nergens met
@@ -45,6 +45,7 @@ export function magKopen({ product, wie, teamId = null, team = null, heeftStartb
 
   const groep = product.groep || groepVanCode(product.code);
   if (!wie) return "We konden niet vaststellen welk tarief voor jou geldt.";
+  if (wie.afname_geblokkeerd) return "Er staat een openstaande factuur. Zodra die is voldaan kun je weer verder.";
 
   // De client mag geen prijs kiezen. Vraagt hij om een rij die niet bij zijn
   // lijn hoort, dan is dat geen vergissing om stilletjes recht te zetten.
@@ -58,10 +59,10 @@ export function magKopen({ product, wie, teamId = null, team = null, heeftStartb
       if (!heeftStartbeeld) return "Voor een hermeting is eerst een Teamfoto van dit team nodig.";
       if (tegoedGeldig(team)) return "De hermeting van dit team zit al in het pakket; je hoeft niets af te rekenen.";
     }
-    if (wie.prijsniveau === "beta") return "Als bètadeelnemer reken je niets af.";
-    if (groep === "PAK" && wie.prijsniveau === "bur"){
-      return "Dit pakket komt uit het bundeltegoed; je hoeft niets af te rekenen.";
-    }
+    if (wie.prijsniveau === "founder") return "Als founding partner reken je niets af.";
+    // Een licentiehouder rekent niet per stuk af: zijn afname komt op de
+    // maandfactuur. Dat is geen weigering maar een andere weg.
+    if (wie.betaalwijze === "achteraf") return "Dit komt op je maandfactuur; je hoeft nu niets af te rekenen.";
   }
 
   if (groep === "ORG" && wie.lijn === "organisatie") return "Je organisatie heeft al een abonnement.";
@@ -99,7 +100,7 @@ export function tegoedGeldig(team, vandaag = new Date()){
 export function rechtOpKaart({ wie, team = null, bestellingen = [], teamId, soort = "start", vandaag = new Date() }){
   const leeg = { bestelling_id: null, tegoed: false };
 
-  if (wie?.prijsniveau === "beta") return { mag: true, reden: "beta", ...leeg };
+  if (wie?.prijsniveau === "founder") return { mag: true, reden: "founder", ...leeg };
 
   if (soort === "hermeting" && tegoedGeldig(team, vandaag)){
     return { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true };
@@ -143,15 +144,14 @@ export function rechtOpKaart({ wie, team = null, bestellingen = [], teamId, soor
    welk pakket er is geleverd, ook als het nul kostte. */
 export function prijsVoor(producten, groep, niveau){
   const rijen = (producten || []).filter(p => p.groep === groep && p.actief !== false);
-  if (niveau === "beta"){
-    const basis = rijen.find(p => p.prijsniveau === "los") || rijen[0];
-    return basis ? { ...basis, prijs_ex_btw: 0, reden: "beta" } : null;
+
+  // Een founder koopt tegen nul. Dat is geen productrij maar een uitzondering op
+  // de prijs, zodat in de afname blijft staan welk pakket er is geleverd.
+  if (niveau === "founder"){
+    const basis = rijen.find(p => p.prijsniveau === "pro") || rijen.find(p => p.prijsniveau === "los");
+    return basis ? { ...basis, prijs_ex_btw: 0, reden: "founder" } : null;
   }
-  const rij = rijen.find(p => p.prijsniveau === niveau)
-    // Het tegoed gaat alleen over pakketten. Een hermeting kost een bureau
-    // hetzelfde bedrag of het tegoed nu vol is of op, dus er is één HM-rij voor
-    // bureaus en die geldt voor allebei de standen.
-    || (niveau === "bur_extra" ? rijen.find(p => p.prijsniveau === "bur") : null);
+  const rij = rijen.find(p => p.prijsniveau === niveau);
   return rij ? { ...rij, reden: niveau } : null;
 }
 
@@ -201,16 +201,22 @@ export function prijskaart({ producten, wie, team = null, vandaag = new Date() }
   for (const groep of ["PAK", "HM"]){
     const p = prijsVoor(producten, groep, wie.prijsniveau);
     if (!p) continue;
-    uit[groep] = { code: p.code, naam: p.naam, ...bedragMetBtw(p), reden: wie.reden, prijsniveau: wie.prijsniveau };
+    uit[groep] = { code: p.code, naam: p.naam, ...bedragMetBtw(p),
+                   reden: wie.reden, prijsniveau: wie.prijsniveau,
+                   betaalwijze: betaaltAchteraf(wie.prijsniveau) ? "achteraf" : "vooraf" };
   }
   if (uit.HM && tegoedGeldig(team, vandaag)){
     uit.HM.inbegrepen = true;
     uit.HM.reden = "Zit in het pakket, tot " + new Date(team.hermeting_tot).toLocaleDateString("nl-NL");
   }
-  // Wat het zonder abonnement zou kosten, zodat de winst van een lijn zichtbaar
-  // is. Sectie 1: de frontend toont daarbij "zonder abonnement 345 euro".
+  // De adviesprijs. Dit is wat een eindklant betaalt en wat een partner aan zijn
+  // klant rekent, dus het is tegelijk het anker voor de marge.
   const los = prijsVoor(producten, "PAK", "los");
-  if (los) uit.zonder_abonnement = bedragMetBtw(los);
+  if (los){
+    uit.adviesprijs = bedragMetBtw(los);
+    uit.zonder_abonnement = uit.adviesprijs;   // oude naam, tot de frontend om is
+    if (uit.PAK) uit.marge_per_team = los.prijs_ex_btw - uit.PAK.ex;
+  }
   return uit;
 }
 

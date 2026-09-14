@@ -13,8 +13,12 @@ const loopt = (tot, vandaag) =>
 
 const STAFFELNIVEAU = { klein: "org1", midden: "org2", groot: "org3" };
 
-export const LIJNEN = ["los", "organisatie", "professional", "bureau"];
-export const PRIJSNIVEAUS = ["beta", "bur", "bur_extra", "pro", "org1", "org2", "org3", "los"];
+export const LIJNEN = ["los", "partner_zonder_licentie", "organisatie", "professional", "bureau"];
+export const PRIJSNIVEAUS = ["founder", "bur1", "bur2", "bur3", "pro", "org1", "org2", "org3", "pzl", "los"];
+
+/* De staffel van een bureau bepaalt sinds v4 zijn inkoopprijs; er is geen
+   pakkettegoed meer, dus ook geen onderscheid tussen binnen en buiten tegoed. */
+const BUREAUNIVEAU = { klein: "bur1", midden: "bur2", groot: "bur3" };
 
 /* Uit een productcode volgt de groep. Staat hier en niet alleen in de database,
    omdat een bestelling van vorige week een oude code kan dragen en die hoort
@@ -42,66 +46,88 @@ export function groepVanCode(code){
    een Professional zonder certificaat Begeleider is geen Professional, en een
    bureauseat zonder certificaat koopt wel uit het tegoed maar staat niet in het
    register (sectie 5). */
-export function koper({ gebruiker = {}, organisatie = null, bureau = null, vandaag = new Date() } = {}){
+export function koper({ gebruiker = {}, organisatie = null, bureau = null, config = {}, vandaag = new Date() } = {}){
   const begeleider = gebruiker.niveau === "begeleider" || gebruiker.niveau === "opleider";
+  const gecertificeerd = begeleider || gebruiker.niveau === "lezer";
+
+  // Aanname, achter een vlag: zonder licentie geen landelijk beeld op de kaart.
+  // Staat in teamkracht_config zodat het om kan zonder nieuwe versie, want het
+  // is de enige plek waar de eindklant die het meest betaalt het minst krijgt.
+  const losKrijgtLandelijk = config.landelijk_beeld_zonder_licentie === true;
 
   const basis = {
     lijn: "los",
     prijsniveau: "los",
-    reden: "Zonder abonnement",
+    betaalwijze: "vooraf",
+    reden: "Zonder licentie",
     begeleider,
+    landelijk_beeld: losKrijgtLandelijk,
     register: begeleider ? "niet actief" : null,
     leadknop: false,
     naam_op_kaart: false,
     doelbeeld: false,
+    opfrisdag: false,
     organisatiedashboard: false,
     bureaudashboard: false,
     seats_max: null,
-    tegoed_over: null
+    afname_geblokkeerd: !!gebruiker.afname_geblokkeerd
   };
 
-  // Bèta, september en oktober 2026. Pakket en hermeting kosten niets, de lijn
-  // is professional zonder abonnement, en het certificaat is voorlopig.
-  if (gebruiker.beta && loopt(gebruiker.beta_tot, vandaag)){
+  // Foundergroep, september tot en met maart. Inkoop nul, dus de volledige
+  // adviesprijs is voor de founder. Het label blijft ook na de periode staan,
+  // maar het tarief niet.
+  if (gebruiker.founder && loopt(gebruiker.founder_tot, vandaag)){
     return { ...basis,
-      lijn: "professional", prijsniveau: "beta", reden: "Bètadeelnemer",
-      begeleider: true, register: "beta", leadknop: true,
-      naam_op_kaart: true, doelbeeld: true };
+      lijn: "professional", prijsniveau: "founder", betaalwijze: "achteraf",
+      reden: "Founding partner", begeleider: true,
+      landelijk_beeld: true, register: "founding partner", leadknop: true,
+      naam_op_kaart: true, doelbeeld: true, opfrisdag: true };
   }
 
-  // Bureau. Het tegoed bepaalt of het pakket uit de bundel komt of erboven.
+  // Bureau. Elke staffel heeft een eigen inkoopprijs; het pakkettegoed uit v3
+  // bestaat niet meer.
   if (bureau && bureau.actief !== false && loopt(bureau.abonnement_tot, vandaag)){
-    const over = Math.max(0, (bureau.pak_tegoed || 0) - (bureau.pak_verbruikt || 0));
     return { ...basis,
       lijn: "bureau",
-      prijsniveau: over > 0 ? "bur" : "bur_extra",
-      reden: over > 0 ? `Bureaubundel, ${over} pakketten over` : "Bureaubundel, tegoed verbruikt",
+      prijsniveau: BUREAUNIVEAU[bureau.staffel] || "bur1",
+      betaalwijze: "achteraf",
+      reden: `Bureau ${bureau.staffel}`,
+      landelijk_beeld: true,
       register: begeleider ? "actief" : null,
       leadknop: begeleider,
       naam_op_kaart: begeleider,
-      doelbeeld: true,
+      doelbeeld: true, opfrisdag: begeleider,
       bureaudashboard: true,
-      seats_max: bureau.seats_max ?? null,
-      tegoed_over: over };
+      seats_max: bureau.seats_max ?? null };
   }
 
-  // Professional. Zonder certificaat Begeleider is de licentie niet geldig, ook
-  // niet als er is betaald; dan valt hij terug op los en hoort de licentie te
-  // worden terugbetaald of het certificaat te worden gehaald.
+  // Professional. Zonder certificaat Begeleider geldt de licentie niet.
   if (gebruiker.licentie_actief && begeleider && loopt(gebruiker.licentie_tot, vandaag)){
     return { ...basis,
-      lijn: "professional", prijsniveau: "pro", reden: "Professional-licentie",
-      register: "actief", leadknop: true, naam_op_kaart: true, doelbeeld: true };
+      lijn: "professional", prijsniveau: "pro", betaalwijze: "achteraf",
+      reden: "Professional-licentie", landelijk_beeld: true,
+      register: "actief", leadknop: true, naam_op_kaart: true,
+      doelbeeld: true, opfrisdag: true };
   }
 
   // Organisatie.
   if (organisatie && organisatie.actief !== false && loopt(organisatie.abonnement_tot, vandaag)){
-    const niveau = STAFFELNIVEAU[organisatie.staffel] || "org1";
     return { ...basis,
-      lijn: "organisatie", prijsniveau: niveau,
+      lijn: "organisatie",
+      prijsniveau: STAFFELNIVEAU[organisatie.staffel] || "org1",
+      betaalwijze: "achteraf",
       reden: `Organisatie ${organisatie.staffel}`,
+      landelijk_beeld: true,
       doelbeeld: true, organisatiedashboard: true,
       seats_max: organisatie.seats_max ?? null };
+  }
+
+  // Wie een certificaat heeft maar geen licentie is partner zonder licentie: hij
+  // koopt vooraf tegen de partnerprijs en factureert zelf aan zijn klant.
+  if (gecertificeerd){
+    return { ...basis,
+      lijn: "partner_zonder_licentie", prijsniveau: "pzl",
+      reden: "Partner zonder licentie" };
   }
 
   return basis;
@@ -110,7 +136,8 @@ export function koper({ gebruiker = {}, organisatie = null, bureau = null, vanda
 /* Wat een lijn mag kopen. Een organisatie koopt geen tweede abonnement, en een
    bureau koopt zijn pakketten uit de bundel en niet als los product. */
 const KOOPBAAR = {
-  los:          ["PAK", "HM", "ORG", "LEZ", "BEG", "PRO"],
+  los:                     ["PAK", "HM", "ORG", "LEZ", "BEG", "PRO"],
+  partner_zonder_licentie: ["PAK", "HM", "ORG", "LEZ", "BEG", "PRO", "BUR"],
   organisatie:  ["PAK", "HM", "LEZ", "BEG"],
   professional: ["PAK", "HM", "LEZ", "BEG"],
   bureau:       ["PAK", "HM", "LEZ", "BEG"]
@@ -118,6 +145,12 @@ const KOOPBAAR = {
 
 export function magGroepKopen(lijn, groep){
   return (KOOPBAAR[lijn] || KOOPBAAR.los).includes(groep);
+}
+
+/* Betaalt deze lijn vooraf per pakket, of achteraf op de maandfactuur. Sectie 2
+   van v4: alleen wie een licentie heeft, krijgt achteraf een rekening. */
+export function betaaltAchteraf(prijsniveau){
+  return ["founder", "pro", "org1", "org2", "org3", "bur1", "bur2", "bur3"].includes(prijsniveau);
 }
 
 /* Het aantal seats dat nog vrij is. null betekent onbeperkt. */
