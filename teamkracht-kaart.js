@@ -66,6 +66,8 @@ const LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="49 73 719 269" ro
 
 export const VOETNOOT_DOEL = "Het doelbeeld is een afspraak van dit team, geen voorspelling. De gestippelde lijn ligt over het startbeeld; bij de hermeting komt het eindbeeld erover. Individuele scores zijn alleen zichtbaar voor de deelnemer zelf. Wat er geteld wordt is het bewijs: zonder telling is een interventie een voornemen.";
 
+export const ZONDER_LANDELIJK = "Deze kaart toont het team tegen zijn eigen vorige meting. Het landelijk beeld hoort bij een licentie.";
+
 export const VOETNOOT = "Waarschijnlijke dynamieken, afgeleid uit de verdeling van ketenprofielen. Hypotheses voor de nabespreking, geen diagnose. Een profiel beschrijft gedrag in deze context, niet de persoon. Individuele scores zijn alleen zichtbaar voor de deelnemer zelf; onder tien deelnemers toont deze kaart alleen de teamlijn en de verdeling. Bij de hermeting wordt het eindbeeld over dit startbeeld gelegd. Ook leverbaar als poster A3 en A1.";
 
 const RICHTING_LABEL = {
@@ -79,6 +81,9 @@ const RICHTING_LABEL = {
 export function tekenKaartSvg(teambeeld, opties = {}){
   const team = { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen };
   const norm = { zien: teambeeld.norm_zien, sturen: teambeeld.norm_sturen, doen: teambeeld.norm_doen };
+  // Zonder licentie geen landelijk beeld: dan staat het team alleen tegen
+  // zichzelf. Standaard staat het er wel, want elke kaart van voor v4 heeft het.
+  const landelijk = opties.landelijk_beeld !== false;
   const punt = bron => Object.entries(KOLOM).map(([v, x]) => [x, yVoorScore(bron[v])]);
   const d = [];
 
@@ -86,10 +91,14 @@ export function tekenKaartSvg(teambeeld, opties = {}){
   for (const [v, x] of Object.entries(KOLOM)){
     d.push(`<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BODEM}" stroke="${KLEUR.lijn}" stroke-width="2"/>`);
     d.push(`<text x="${x}" y="570" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="15" font-weight="600" letter-spacing="2" fill="${KLEUR.gedempt}">${v.toUpperCase()}</text>`);
-    const yn = yVoorScore(norm[v]);
-    d.push(`<line x1="${x - 60}" y1="${yn}" x2="${x + 60}" y2="${yn}" stroke="${KLEUR.magenta}" stroke-width="3" opacity=".8"/>`);
+    if (landelijk){
+      const yn = yVoorScore(norm[v]);
+      d.push(`<line x1="${x - 60}" y1="${yn}" x2="${x + 60}" y2="${yn}" stroke="${KLEUR.magenta}" stroke-width="3" opacity=".8"/>`);
+    }
   }
-  d.push(`<text x="${KOLOM.doen + 66}" y="${yVoorScore(norm.doen) + 4}" font-family="DM Sans, sans-serif" font-size="11" letter-spacing="1" fill="${KLEUR.magenta}">GEMIDDELDE</text>`);
+  if (landelijk){
+    d.push(`<text x="${KOLOM.doen + 66}" y="${yVoorScore(norm.doen) + 4}" font-family="DM Sans, sans-serif" font-size="11" letter-spacing="1" fill="${KLEUR.magenta}">GEMIDDELDE</text>`);
+  }
 
   // Individuele lijnen, alleen als er genoeg deelnemers zijn. Geen id, geen
   // titel, geen tooltip: er valt niets uit terug te leiden.
@@ -157,11 +166,18 @@ function verdelingZin(verdeling, profielen, bevroren){
     .join('<i class="punt">&middot;</i>');
 }
 
-function verschilZin(teambeeld){
+function verschilZin(teambeeld, landelijk = true){
   const teken = x => (x > 0 ? "+" : "") + Math.round(x);
-  return `Zien ${teken(teambeeld.team_zien - teambeeld.norm_zien)}, `
-       + `Sturen ${teken(teambeeld.team_sturen - teambeeld.norm_sturen)}, `
-       + `Doen ${teken(teambeeld.team_doen - teambeeld.norm_doen)} ten opzichte van het gemiddelde.`;
+  if (landelijk){
+    return `Zien ${teken(teambeeld.team_zien - teambeeld.norm_zien)}, `
+         + `Sturen ${teken(teambeeld.team_sturen - teambeeld.norm_sturen)}, `
+         + `Doen ${teken(teambeeld.team_doen - teambeeld.norm_doen)} ten opzichte van het gemiddelde.`;
+  }
+  // Zonder landelijk beeld staat er wat het team zelf scoorde. Geen verschil,
+  // want er is niets om het verschil mee te maken.
+  const r = x => Math.round(x);
+  return `Zien ${r(teambeeld.team_zien)}, Sturen ${r(teambeeld.team_sturen)}, `
+       + `Doen ${r(teambeeld.team_doen)}. Bij de hermeting zie je waar dit heen is bewogen.`;
 }
 
 /* De verschuiving in gewone taal, met de looptijd erbij. */
@@ -211,7 +227,7 @@ function dynamiekHtml(regel, teambeeld){
 
 /* De volledige kaart. teambeeld komt uit bouwTeambeeld, regels en profielen
    zijn de rijen uit teamkracht_regels en teamkracht_profielen. */
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null }){
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
   const soort = doel ? "doel" : teambeeld.soort;
@@ -223,9 +239,13 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
                    moment, "TEAMKRACHTKAART"]
     .filter(Boolean).map(esc).join(" &middot; ");
 
+  const slot = landelijk_beeld
+    ? " Magenta is het gemiddelde van alle metingen tot nu toe."
+    : " Dit team wordt vergeleken met zijn eigen vorige meting; het landelijk beeld hoort bij een licentie.";
+
   const inleiding = heeftLijnen
-    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team${doel ? ", de gestippelde lijn is waar het heen wil" : ""}, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien. Magenta is het gemiddelde van alle metingen tot nu toe.`
-    : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen. Magenta is het gemiddelde van alle metingen tot nu toe.`;
+    ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team${doel ? ", de gestippelde lijn is waar het heen wil" : ""}, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien.${slot}`
+    : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen.${slot}`;
 
   /* Bevroren teksten gaan voor: die horen bij dit beeld. Beelden van voor de
      migratie van 08-09-2026 hebben ze niet en vallen terug op de tabellen. */
@@ -256,7 +276,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
          <p class="tag-licht">DE BREUK IN DE KETEN</p>
          <h2>${esc(breuk.kop)}</h2>
          <p>${esc(breuk.tekst)}</p>
-         <p class="cijfers">${esc(verschilZin(teambeeld))}</p>
+         <p class="cijfers">${esc(verschilZin(teambeeld, landelijk_beeld))}</p>
        </section>`;
 
   /* Vier past er naast elkaar op een A4, meer niet. De doelbeeldpagina levert
@@ -373,13 +393,13 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
     </header>
     <div class="romp${poster ? " poster" : ""}${doel && !poster ? " doelbeeld" : ""}">
-      <div class="tekening">${tekenKaartSvg(teambeeld, { doel })}</div>
+      <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld })}</div>
       <div class="rechts">${rechts}</div>
       ${planRij}
     </div>
     ${poster
       ? `<div class="logo">${LOGO}</div>`
-      : `<p class="voet">${esc(doel ? VOETNOOT_DOEL : VOETNOOT)}</p>`}
+      : `<p class="voet">${landelijk_beeld ? "" : esc(ZONDER_LANDELIJK) + " "}${esc(doel ? VOETNOOT_DOEL : VOETNOOT)}</p>`}
   </div>
 </body>
 </html>`;

@@ -1291,3 +1291,49 @@ test("een creditnota is een tegenboeking met een eigen nummer", () => {
   assert.equal(c.regels[0].bedrag, -43500);
   assert.equal(c.soort, "creditnota");
 });
+
+/* ------------------------------------------- de kaart zonder landelijk beeld */
+
+import { tekenKaartSvg, bouwKaartHtml, ZONDER_LANDELIJK } from "../teamkracht-kaart.js";
+
+const BEELD = {
+  team_zien: 66, team_sturen: 51, team_doen: 49,
+  norm_zien: 74, norm_sturen: 69, norm_doen: 65,
+  n: 11, soort: "start", breuk: "zien_sturen",
+  verdeling: { ziener: 4, aanpakker: 2, middenband: 5 },
+  dynamieken: [{ code: "R1" }],
+  lijnen: [[84, 42, 34], [88, 44, 32]]
+};
+
+test("zonder landelijk beeld verdwijnt de magenta streep uit de tekening", () => {
+  const met = tekenKaartSvg(BEELD, {});
+  const zonder = tekenKaartSvg(BEELD, { landelijk_beeld: false });
+
+  assert.match(met, /GEMIDDELDE/, "de kaart met landelijk beeld hoort het label te tonen");
+  assert.ok(!zonder.includes("GEMIDDELDE"), "het label staat er nog zonder landelijk beeld");
+
+  // De streep van het gemiddelde is 120 breed en magenta; de teamlijn is dat
+  // niet. Tellen op de kleur alleen zou de doellijn meenemen.
+  const strepen = (s) => (s.match(/stroke-width="3" opacity="\.8"/g) || []).length;
+  assert.equal(strepen(met), 3, "er horen drie strepen te staan, een per kolom");
+  assert.equal(strepen(zonder), 0);
+
+  // De teamlijn blijft staan: het team ziet zichzelf nog steeds.
+  assert.match(zonder, /stroke-width="5"/);
+});
+
+test("zonder landelijk beeld staat er wat het team scoorde, geen verschil", () => {
+  const regels = [{ code: "R1", titel: "x", dynamiek: "y", interventie: "z", gespreksvraag: "q", richting: "remmend" }];
+  const profielen = [{ code: "ziener", naam: "Zieners" }];
+
+  const met = bouwKaartHtml({ teambeeld: BEELD, regels, profielen, teamnaam: "Noord" });
+  assert.match(met, /ten opzichte van het gemiddelde/);
+  assert.match(met, /Magenta is het gemiddelde/);
+
+  const zonder = bouwKaartHtml({ teambeeld: BEELD, regels, profielen, teamnaam: "Noord", landelijk_beeld: false });
+  assert.ok(!zonder.includes("ten opzichte van het gemiddelde"), "het verschil staat er nog");
+  assert.ok(!zonder.includes("Magenta is het gemiddelde"), "de inleiding noemt het gemiddelde nog");
+  assert.match(zonder, /Zien 66, Sturen 51, Doen 49/, "de eigen scores horen er wel te staan");
+  // Sectie 1 van v4 vraagt deze regel op de kaart.
+  assert.ok(zonder.includes(ZONDER_LANDELIJK.slice(0, 40)), "de regel over de licentie ontbreekt");
+});
