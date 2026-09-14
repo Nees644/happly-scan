@@ -16,7 +16,10 @@ const regels = leesRegels();
 const profielen = leesProfielen();
 const config = { middenband_sd: 0.25, min_deelnemers_lijnen: 10, norm_bron: "vast" };
 
-const teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels });
+// profielen moet mee: zonder die bibliotheek bevriest bouwTeambeeld de code
+// als naam, en dan staat er "4 HLLs" op de kaart in plaats van "4 Zieners".
+// De berekenroute geeft ze wel door; dit script vergat het.
+const teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels, profielen });
 
 const formaat = process.argv[2] || "a4";
 const poster = process.argv.includes("--poster");

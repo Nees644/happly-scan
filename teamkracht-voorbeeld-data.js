@@ -63,11 +63,11 @@ export const VOORBEELD_TEAMBEELD = {
       }
     },
     "profielen": {
-      "HLL": "HLL",
-      "LHH": "LHH",
-      "HHH": "HHH",
-      "LLL": "LLL",
-      "MMM": "MMM"
+      "HLL": "Ziener",
+      "LHH": "Aanpakker",
+      "HHH": "Trekker",
+      "LLL": "Afwachter",
+      "MMM": "Middenband"
     }
   },
   "lijnen": [

@@ -1513,3 +1513,21 @@ test("de voorbeeldkaart wordt ook echt gedeployd", () => {
     assert.ok(bekend, `${pad} zit niet in git, dus Vercel krijgt hem nooit`);
   }
 });
+
+test("de voorbeeldkaart toont profielnamen, geen codes", () => {
+  // bouwTeambeeld bevriest de profielnamen bij het beeld en valt terug op de
+  // code als de bibliotheek ontbreekt. Het voorbeeldscript gaf die niet mee, dus
+  // op de publieke demokaart stond "4 HLLs" in plaats van "4 Zieners". De
+  // berekenroute geeft ze wel door, dus echte kaarten waren goed.
+  const kaart = readFileSync(new URL("../teamkracht-voorbeeld.html", import.meta.url), "utf8");
+
+  for (const code of ["HLL", "LHH", "HHL", "HLH", "LLL", "LLH", "LHL", "HHH"]){
+    assert.ok(!new RegExp(`<b>\\\\d+</b> ${code}`).test(kaart),
+      `de kaart toont de code ${code} in plaats van een naam`);
+  }
+
+  // En de verdeling uit de briefing hoort er gewoon te staan.
+  for (const naam of ["Zieners", "Aanpakkers", "Afwachters", "Trekker", "middenband"]){
+    assert.ok(kaart.includes(naam), `${naam} staat niet op de voorbeeldkaart`);
+  }
+});
