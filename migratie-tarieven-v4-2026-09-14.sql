@@ -11,10 +11,12 @@
 -- eerst gedropt. Niets wordt verwijderd; oude productrijen gaan op actief =
 -- false zodat facturen van vorige week blijven kloppen.
 --
--- IN TWEE DELEN:
---   BLOK A tot en met J voegt toe en verandert niets aan wat nu verkocht wordt.
---   BLOK Z zet de oude productcodes uit en hoort pas te draaien als de nieuwe
---   code live staat.
+-- DIT BESTAND VOEGT ALLEEN TOE. Het verandert niets aan wat er vandaag wordt
+-- verkocht, dus het kan draaien terwijl de site gewoon doorloopt.
+--
+-- De omschakeling staat apart in migratie-tarieven-v4-2026-09-14-blok-z.sql.
+-- Dat bestand zet de oude codes uit en hoort pas te draaien als de nieuwe code
+-- live staat.
 -- ===========================================================================
 
 
@@ -362,31 +364,6 @@ where actief = true and fase in ('bestaand','A');
 revoke all on public.prijslijst from public;
 grant select on public.prijslijst to anon, authenticated;
 
-
--- ===========================================================================
--- BLOK Z · de omschakeling
--- Draaien zodra de nieuwe code live staat, niet eerder.
--- ===========================================================================
-
--- Alles wat v4 vervangt. Niet verwijderen: er hangen bestellingen aan.
-update public.producten set actief = false, updated_at = now()
- where code in (
-   -- de tegoedrijen uit v3, partners kopen niets meer vooraf
-   'PAK-BUR', 'PAK-BUR-EXTRA', 'HM-BUR',
-   -- v1 en v2, voor het geval een omgeving ze nog actief heeft
-   'TF', 'HM', 'LIC-M', 'LIC-J', 'BEG-2', 'BEG-8',
-   'LIC-ORG-10', 'LIC-ORG-30', 'LIC-ORG-X'
- );
-
--- Wie een certificaat heeft maar geen licentie, is vanaf nu partner zonder
--- licentie en betaalt 249 in plaats van 495.
-update public.teamkracht_gebruikers
-   set lijn = 'partner_zonder_licentie'
- where lijn = 'los'
-   and niveau in ('lezer','begeleider','opleider')
-   and licentie_actief = false;
-
-
 -- ===========================================================================
 -- Wat hier is aangenomen
 --
@@ -406,3 +383,7 @@ update public.teamkracht_gebruikers
 --    meetregel in teamkracht_config.min_deelnemers_kaart, waar vijf staat.
 --    v4 en het partnerpakket noemen acht; zie het rapport.
 -- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- KLAAR. Controleer met controle/staat-v4-erin.sql, en draai daarna
+-- migratie-tarieven-v4-2026-09-14-blok-z.sql zodra de nieuwe code live staat.

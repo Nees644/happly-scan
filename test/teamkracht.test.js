@@ -795,9 +795,11 @@ test("sectie 8: de founder houdt de hele adviesprijs", () => {
 /* --- wat vervalt --- */
 
 test("de oude productcodes gaan uit en niet weg", () => {
-  const v4 = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14.sql", import.meta.url), "utf8");
-  const blok = v4.slice(v4.indexOf("BLOK Z"));
+  // De omschakeling staat in een eigen bestand, want hij hoort pas te draaien
+  // als de nieuwe code live is.
+  const blok = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14-blok-z.sql", import.meta.url), "utf8");
   const weg = new Set([...blok.matchAll(/'([A-Z0-9-]+)'/g)].map(m => m[1]));
+  const v4 = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14.sql", import.meta.url), "utf8");
   // De tegoedrijen uit v3 vervallen: partners kopen niets meer vooraf.
   for (const code of ["PAK-BUR", "PAK-BUR-EXTRA", "HM-BUR", "TF", "HM", "LIC-M", "LIC-J"]){
     assert.ok(weg.has(code), `${code} wordt niet uitgezet`);
