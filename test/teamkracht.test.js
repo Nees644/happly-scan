@@ -1457,3 +1457,33 @@ test("een openstaande factuur zet de kaart op slot, ook voor een licentiehouder"
   assert.match(uit.reden, /openstaande factuur/);
   assert.equal(uit.afname, false);
 });
+
+test("de factuurrun draait dagelijks en beslist zelf of hij iets doet", () => {
+  const v = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const cron = (v.crons || []).find(c => c.path === "/api/factuurrun");
+  assert.ok(cron, "de factuurrun staat niet in de crons");
+  assert.match(cron.schedule, /^\d+ \d+ \* \* \*$/, "hij hoort elke dag te draaien, niet op een vaste datum");
+
+  // Een cron op de eerste van de maand zou in een weekend niets doen en de
+  // herpogingen nooit oppakken. De run kijkt zelf of vandaag zijn dag is.
+  const bron = readFileSync(new URL("../api/factuurrun.js", import.meta.url), "utf8");
+  assert.match(bron, /isEersteWerkdag/);
+  assert.match(bron, /doeHerpogingen/);
+
+  // Draaien mag alleen met het cron-geheim, als dat is ingesteld.
+  assert.match(bron, /CRON_SECRET/);
+});
+
+test("de factuurrun boekt af op de factuur, niet op de betaling", () => {
+  const bron = readFileSync(new URL("../api/factuurrun.js", import.meta.url), "utf8");
+  const maak = bron.slice(bron.indexOf("async function maakFactuur"), bron.indexOf("async function haalBetaler"));
+
+  // De vololgorde telt: eerst de factuur, dan de afnames op gefactureerd, dan
+  // pas de incasso. Een mislukte incasso is een inningsprobleem en mag niet
+  // betekenen dat dezelfde afname volgende maand opnieuw op een rekening komt.
+  const factuur = maak.indexOf('from("facturen").insert');
+  const afboeken = maak.indexOf('from("afnames")');
+  const incasso = maak.indexOf("incasseer(");
+  assert.ok(factuur > 0 && afboeken > factuur, "de afnames worden afgeboekt voordat de factuur bestaat");
+  assert.ok(incasso > afboeken, "er wordt geincasseerd voordat de afnames zijn afgeboekt");
+});

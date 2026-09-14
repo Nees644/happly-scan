@@ -96,6 +96,9 @@
     },
     "api/organisatie.js": {
       "maxDuration": 20
+    },
+    "api/factuurrun.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
@@ -106,6 +109,10 @@
     {
       "path": "/api/dagtaken",
       "schedule": "30 6 * * 1-5"
+    },
+    {
+      "path": "/api/factuurrun",
+      "schedule": "0 6 * * *"
     }
   ],
   "redirects": [

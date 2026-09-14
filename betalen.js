@@ -89,21 +89,39 @@ export function tegoedGeldig(team, vandaag = new Date()){
 
 /* Mag er een kaart worden gemaakt, en waarmee wordt hij betaald.
 
-   Vier wegen, in deze volgorde. Een bètadeelnemer betaalt niets. Een hermeting
-   komt uit het pakkettegoed van het team. Anders moet er een betaalde en nog
-   niet verbruikte bestelling liggen voor dit team. En wie geen van drieën heeft,
-   krijgt te horen wat het kost in plaats van een foutmelding.
+   Vijf wegen, in deze volgorde.
 
-   Geeft terug: {mag, reden, bestelling_id, tegoed}. Het bestelling-id is wat er
-   wordt afgeboekt zodra de kaart er is; tegoed zegt dat het team er een
-   hermeting voor inlevert. */
+   Een founder betaalt niets. Een hermeting komt uit het pakkettegoed van het
+   team. Wie een licentie heeft neemt af en krijgt de rekening aan het eind van
+   de maand. Wie vooraf betaalt moet een betaalde bestelling hebben liggen. En
+   wie geen van vieren heeft, krijgt te horen wat het kost.
+
+   Het tegoed gaat vóór de verrekening: een hermeting die al in het pakket zat
+   hoort niet nog een keer op de factuur te komen.
+
+   Geeft terug: {mag, reden, bestelling_id, tegoed, afname}. bestelling_id is wat
+   er wordt afgeboekt zodra de kaart er is, tegoed zegt dat het team er een
+   hermeting voor inlevert, en afname zegt dat dit op de maandfactuur komt. */
 export function rechtOpKaart({ wie, team = null, bestellingen = [], teamId, soort = "start", vandaag = new Date() }){
-  const leeg = { bestelling_id: null, tegoed: false };
+  const leeg = { bestelling_id: null, tegoed: false, afname: false };
+
+  // Een openstaande factuur zet nieuwe afnames op slot. Bestaande kaarten
+  // blijven zichtbaar; dit gaat alleen over wat er nog bij komt.
+  if (wie?.afname_geblokkeerd){
+    return { mag: false, ...leeg,
+      reden: "Er staat een openstaande factuur. Zodra die is voldaan kun je weer verder." };
+  }
 
   if (wie?.prijsniveau === "founder") return { mag: true, reden: "founder", ...leeg };
 
   if (soort === "hermeting" && tegoedGeldig(team, vandaag)){
-    return { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true };
+    return { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true, afname: false };
+  }
+
+  // Met een licentie hoeft er niets vooraf te liggen: de afname gaat op de
+  // maandfactuur. Dit is het verschil tussen een partner en een losse koper.
+  if (betaaltAchteraf(wie?.prijsniveau)){
+    return { mag: true, reden: "achteraf", bestelling_id: null, tegoed: false, afname: true };
   }
 
   const wil = soort === "hermeting" ? "HM" : "PAK";
@@ -114,7 +132,7 @@ export function rechtOpKaart({ wie, team = null, bestellingen = [], teamId, soor
     b.team_id === teamId &&
     (!b.geldig_tot || new Date(b.geldig_tot) >= new Date(vandaag.toDateString()))
   );
-  if (bruikbaar) return { mag: true, reden: "bestelling", bestelling_id: bruikbaar.id, tegoed: false };
+  if (bruikbaar) return { mag: true, reden: "bestelling", bestelling_id: bruikbaar.id, tegoed: false, afname: false };
 
   const verlopen = bestellingen.some(b =>
     (b.groep || groepVanCode(b.product_code)) === wil && b.status === "betaald" && !b.verbruikt_op &&

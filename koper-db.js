@@ -95,3 +95,32 @@ export async function haalOfMaakMollieKlant(db, { userId, email, naam }){
     .update({ mollie_customer_id: klant.id }).eq("user_id", userId);
   return klant.id;
 }
+
+/* Een afname vastleggen: een pakket of hermeting die een licentiehouder heeft
+   gebruikt en die aan het eind van de maand op zijn factuur komt.
+
+   De prijs wordt hier bevroren. Verandert een tarief volgende week, dan
+   verandert deze afname niet mee; dat is het verschil tussen een afname en een
+   verwijzing naar een prijslijst.
+
+   De rekening gaat naar het abonnement en niet naar de gebruiker: een seat van
+   een organisatie of bureau factureert niet zelf. */
+export async function legAfnameVast(db, { wie, teamId, groep, soort }){
+  const producten = await haalProducten(db, [groep]);
+  const { prijsVoor } = await import("./betalen.js");
+  const product = prijsVoor(producten, groep, wie.prijsniveau);
+  if (!product) return { ok: false, reden: `geen tarief voor ${groep} op ${wie.prijsniveau}` };
+
+  const rij = await db.from("afnames").insert({
+    gebruiker_id: wie.user_id,
+    organisatie_id: wie.organisatie?.id || null,
+    bureau_id: wie.bureau?.id || null,
+    team_id: teamId,
+    product_code: product.code,
+    prijs_ex_btw: product.prijs_ex_btw,
+    btw_promille: product.btw_promille ?? 210
+  }).select("id").single();
+
+  if (rij.error) return { ok: false, reden: rij.error.message };
+  return { ok: true, afname_id: rij.data.id, code: product.code, prijs: product.prijs_ex_btw };
+}

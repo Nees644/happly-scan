@@ -10,7 +10,7 @@
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { rechtOpKaart } from "../betalen.js";
-import { haalKoper } from "../koper-db.js";
+import { haalKoper, legAfnameVast } from "../koper-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -148,6 +148,22 @@ export default async function handler(req, res){
     await db.from("teamkracht_teams")
       .update({ hermeting_tegoed: 0 })
       .eq("id", team_id).gt("hermeting_tegoed", 0);
+  }
+
+  // Betaalt deze koper achteraf, dan komt de afname op zijn maandfactuur. Ook
+  // hier pas na het opslaan: een mislukte berekening hoort niet op een rekening
+  // te komen.
+  if (recht.afname){
+    const af = await legAfnameVast(db, {
+      wie, teamId: team_id, groep: soort === "hermeting" ? "HM" : "PAK", soort
+    });
+    if (!af.ok) await logFout("teamkracht-bereken", `afname vastleggen mislukt: ${af.reden}`);
+  }
+
+  // Een pakket zet meteen de hermeting klaar, net als bij een losse aankoop.
+  if (recht.afname && soort !== "hermeting"){
+    const { zetHermetingTegoed } = await import("../koper-db.js");
+    await zetHermetingTegoed(db, team_id, null);
   }
 
   // Profielcode terug naar de eigen meting. Alleen de deelnemer zelf ziet hem,
