@@ -2,16 +2,6 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "(www\\.)?teamkrachtindex\\.nl"
-        }
-      ],
-      "destination": "/teamkrachtindex.html"
-    },
-    {
       "source": "/deel/:id",
       "destination": "/api/deel?d=:id"
     },

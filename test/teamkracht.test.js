@@ -1339,3 +1339,38 @@ test("zonder landelijk beeld staat er wat het team scoorde, geen verschil", () =
   // Sectie 1 van v4 vraagt deze regel op de kaart.
   assert.ok(zonder.includes(ZONDER_LANDELIJK.slice(0, 40)), "de regel over de licentie ontbreekt");
 });
+
+/* ------------------------------------------------ welke voordeur bij welk domein */
+
+test("de middleware wisselt de voordeur alleen op teamkrachtindex.nl", async () => {
+  const { default: middleware, config } = await import("../middleware.js");
+
+  // Alleen de voordeur, zodat een fout hier nooit de hele site raakt.
+  assert.equal(config.matcher, "/");
+
+  const vraag = (host) => ({
+    headers: { get: (k) => (k.toLowerCase() === "host" ? host : null) },
+    url: `https://${host}/`
+  });
+
+  for (const host of ["teamkrachtindex.nl", "www.teamkrachtindex.nl", "WWW.TEAMKRACHTINDEX.NL"]){
+    const uit = middleware(vraag(host));
+    assert.ok(uit, `${host} hoort de Teamkracht-pagina te krijgen`);
+    assert.match(uit.headers.get("x-middleware-rewrite"), /\/teamkrachtindex\.html$/);
+  }
+
+  // Alles wat niet dat domein is, blijft ongemoeid.
+  for (const host of ["scan.happly.nl", "happly-scan.vercel.app", "teamkrachtindex.nl.kwaadaardig.nl", "localhost:3000"]){
+    assert.equal(middleware(vraag(host)), undefined, `${host} hoort niet te worden omgeleid`);
+  }
+});
+
+test("de rewrite voor de voordeur staat niet meer in vercel.json", () => {
+  // Hij werkte daar niet: Vercel zoekt eerst een bestand, vindt index.html en
+  // komt nooit bij de rewrite aan. De middleware doet dit nu.
+  const v = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  assert.ok(!(v.rewrites || []).some(r => r.source === "/"), "de dode rewrite staat er nog");
+  // De redirects moeten wel blijven: die gaan wel vóór het bestandssysteem.
+  assert.ok((v.redirects || []).some(r => (r.has || []).some(h => h.type === "host")),
+            "de host-redirects zijn verdwenen");
+});
