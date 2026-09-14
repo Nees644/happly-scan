@@ -107,8 +107,6 @@ bij hem weg. Een team hoort bij zijn coach en niet bij een abonnement.
 
 ## Wat er nog niet is gebouwd
 
-- De migraties draaien: eerst certificering, dan tarieven, en blok-z pas als de
-  nieuwe code live staat.
 - Het bureaudashboard. De regels staan in `toegang.js` en het tegoed wordt al
   goed afgeboekt; het scherm is er nog niet. Fase B.
 - De Professional-lijn afrekenen: PRO-M, PRO-J en PRO-START. De prijsbepaling

@@ -5,6 +5,7 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
+import { haalKoper } from "../koper-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FORMATEN = ["a4", "a3", "a1"];
@@ -53,9 +54,17 @@ export default async function handler(req, res){
     res.status(403).json({ error: "geen toegang" }); return;
   }
 
+  // Het landelijk beeld hangt aan de lijn van de coach van dit team, niet aan de
+  // kijker: de kaart hoort er hetzelfde uit te zien voor iedereen die hem opent.
+  let landelijk_beeld = true;
+  try{
+    const eigenaar = await haalKoper(db, team.data.coach_user_id || gebruiker.user_id);
+    landelijk_beeld = eigenaar.landelijk_beeld !== false;
+  }catch(e){ await logFout("teamkracht-kaart", `lijn niet bepaald: ${String(e.message).slice(0, 80)}`); }
+
   if (als === "svg"){
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
-    res.status(200).send(tekenKaartSvg(beeld.data, { doel }));
+    res.status(200).send(tekenKaartSvg(beeld.data, { doel, landelijk_beeld }));
     return;
   }
 
@@ -98,7 +107,8 @@ export default async function handler(req, res){
     formaat,
     poster,
     doel,
-    plan
+    plan,
+    landelijk_beeld
   });
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.status(200).send(html);

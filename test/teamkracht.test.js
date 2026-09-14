@@ -10,7 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 import {
   bepaalProfiel, bepaalTeamlijn, bepaalBreuk, bepaalVerdeling,
@@ -489,13 +489,22 @@ test("de client kan geen goedkoper tarief kiezen", () => {
   assert.match(magKopen({ product: goedkoop, wie: los, teamId: "x" }), /hoort niet bij je abonnement/);
 });
 
-test("een bèta en een bureau met tegoed rekenen niets af", () => {
-  const pak = (niveau) => ({ code: "PAK", naam: "Pakket", prijs_ex_btw: 0, groep: "PAK", prijsniveau: niveau, interval: "eenmalig", actief: true, fase: "A" });
-  const beta = koper({ gebruiker: { beta: true, beta_tot: "2099-01-01" } });
-  assert.match(magKopen({ product: pak("beta"), wie: beta, teamId: "x" }), /reken je niets af/);
+test("een founder rekent niets af, een licentiehouder krijgt een maandfactuur", () => {
+  const pak = (niveau, prijs) => ({ code: "PAK", naam: "Pakket", prijs_ex_btw: prijs, groep: "PAK", prijsniveau: niveau, interval: "eenmalig", actief: true, fase: "A" });
+  const founder = koper({ gebruiker: { founder: true, founder_tot: "2099-01-01" } });
+  assert.match(magKopen({ product: pak("founder", 0), wie: founder, teamId: "x" }), /founding partner/);
 
-  const bur = koper({ gebruiker: {}, bureau: { abonnement_tot: "2099-01-01", pak_tegoed: 15, pak_verbruikt: 0 } });
-  assert.match(magKopen({ product: pak("bur"), wie: bur, teamId: "x" }), /bundeltegoed/);
+  // Een organisatie betaalt achteraf, dus per stuk afrekenen hoort niet te
+  // kunnen: dat zou dubbel zijn met de maandfactuur.
+  const org = koper({ gebruiker: {}, organisatie: { staffel: "klein", abonnement_tot: "2099-01-01" } });
+  assert.match(magKopen({ product: pak("org1", 19500), wie: org, teamId: "x" }), /maandfactuur/);
+});
+
+test("een openstaande factuur zet nieuwe afnames op slot", () => {
+  const pak = { code: "PAK-ORG1", naam: "Pakket", prijs_ex_btw: 19500, groep: "PAK", prijsniveau: "org1", interval: "eenmalig", actief: true, fase: "A" };
+  const wie = koper({ gebruiker: { afname_geblokkeerd: true }, organisatie: { staffel: "klein", abonnement_tot: "2099-01-01" } });
+  assert.equal(wie.afname_geblokkeerd, true);
+  assert.match(magKopen({ product: pak, wie, teamId: "x" }), /openstaande factuur/);
 });
 
 test("een extra hermeting kan niet zonder startbeeld en niet met tegoed", () => {
@@ -542,23 +551,21 @@ test("de module heeft zes hoofdstukken waarvan twee gratis", () => {
 
 test("het pakket dekt de kaart, het tegoed de hermeting, anders niet", () => {
   const team = "11111111-1111-1111-1111-111111111111";
-  const nu = new Date("2026-09-09");
+  const nu = new Date("2026-09-14");
   const los = koper({ gebruiker: {}, vandaag: nu });
 
-  const pakket = { id: "b1", product_code: "PAK-LOS", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: "2027-09-09" };
+  const pakket = { id: "b1", product_code: "PAK-LOS", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: "2027-09-14" };
   const start = rechtOpKaart({ wie: los, bestellingen: [pakket], teamId: team, vandaag: nu });
   assert.deepEqual(start, { mag: true, reden: "bestelling", bestelling_id: "b1", tegoed: false });
 
-  // De hermeting komt uit het tegoed van het team, niet uit een tweede aankoop.
-  const metTegoed = { hermeting_tegoed: 1, hermeting_tot: "2027-03-09" };
+  const metTegoed = { hermeting_tegoed: 1, hermeting_tot: "2027-03-14" };
   const her = rechtOpKaart({ wie: los, team: metTegoed, bestellingen: [pakket], teamId: team, soort: "hermeting", vandaag: nu });
   assert.deepEqual(her, { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true });
 
-  // Een bèta betaalt nergens voor.
-  const beta = koper({ gebruiker: { beta: true, beta_tot: "2027-03-09" }, vandaag: nu });
-  assert.equal(rechtOpKaart({ wie: beta, teamId: team, vandaag: nu }).reden, "beta");
+  // Een founder betaalt nergens voor.
+  const founder = koper({ gebruiker: { founder: true, founder_tot: "2027-03-14" }, vandaag: nu });
+  assert.equal(rechtOpKaart({ wie: founder, teamId: team, vandaag: nu }).reden, "founder");
 
-  // Al verbruikt, voor een ander team, of niet betaald: geen recht.
   for (const kapot of [
     { ...pakket, verbruikt_op: "2026-09-01" },
     { ...pakket, team_id: "22222222-2222-2222-2222-222222222222" },
@@ -567,7 +574,6 @@ test("het pakket dekt de kaart, het tegoed de hermeting, anders niet", () => {
     assert.equal(rechtOpKaart({ wie: los, bestellingen: [kapot], teamId: team, vandaag: nu }).mag, false);
   }
 
-  // Een oude TF-bestelling van voor 09-09-2026 blijft werken.
   const oud = { ...pakket, id: "b0", product_code: "TF" };
   assert.equal(rechtOpKaart({ wie: los, bestellingen: [oud], teamId: team, vandaag: nu }).bestelling_id, "b0");
 });
@@ -615,6 +621,7 @@ import { prijsVoor } from "../betalen.js";
 function leesPrijzen(){
   const oud = readFileSync(new URL("../migratie-certificering-2026-09-09.sql", import.meta.url), "utf8");
   const nieuw = readFileSync(new URL("../migratie-tarieven-2026-09-09.sql", import.meta.url), "utf8");
+  const v4 = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14.sql", import.meta.url), "utf8");
   const uit = {};
 
   const start = oud.indexOf("insert into public.producten");
@@ -630,6 +637,10 @@ function leesPrijzen(){
   for (const m of nieuw.matchAll(/^\s{2}\('([A-Z0-9-]+)',\s*(\d+),\s*'/gm)){
     uit[m[1]] = Number(m[2]);
   }
+  // v4 wint van alles wat ervoor kwam.
+  for (const m of v4.matchAll(/^\('([A-Z0-9-]+)',\s*'([^']+)',\s*(\d+),/gm)){
+    uit[m[1]] = Number(m[3]);
+  }
   return uit;
 }
 
@@ -643,29 +654,40 @@ function leesVervallen(){
 
 test("het pakket en de hermeting staan er voor elke lijn in", () => {
   const p = leesPrijzen();
-  assert.equal(p["PAK-LOS"], 34500);
+  // De adviesprijs is voor iedereen gelijk: dit is wat de klant betaalt, of hij
+  // nu rechtstreeks koopt of via een partner.
+  assert.equal(p["PAK-LOS"], 49500);
+  assert.equal(p["PAK-PZL"], 24900);
   assert.equal(p["PAK-ORG1"], 19500);
   assert.equal(p["PAK-ORG2"], 17500);
   assert.equal(p["PAK-ORG3"], 14500);
   assert.equal(p["PAK-PRO"], 14500);
-  assert.equal(p["PAK-BUR"], 0);
-  assert.equal(p["PAK-BUR-EXTRA"], 12500);
-  assert.equal(p["HM-LOS"], 14500);
-  assert.equal(p["HM-ORG1"], 9500);
-  assert.equal(p["HM-ORG2"], 9500);
+  assert.equal(p["PAK-BUR1"], 12500);
+  assert.equal(p["PAK-BUR2"], 11000);
+  assert.equal(p["PAK-BUR3"], 9900);
+  assert.equal(p["HM-LOS"], 19500);
+  assert.equal(p["HM-PZL"], 14500);
   assert.equal(p["HM-ORG3"], 7500);
-  assert.equal(p["HM-PRO"], 9500);
-  assert.equal(p["HM-BUR"], 7500);
+  for (const c of ["HM-BUR1", "HM-BUR2", "HM-BUR3"]) assert.equal(p[c], 7500);
+});
+
+test("de marges uit het partnerpakket kloppen op de echte prijzen", () => {
+  const p = leesPrijzen();
+  const klant = p["PAK-LOS"];
+  assert.equal(klant - p["PAK-PZL"], 24600, "zonder licentie is de marge geen 246");
+  assert.equal(klant - p["PAK-PRO"], 35000, "met Professional is de marge geen 350");
+  assert.equal(klant - p["PAK-BUR1"], 37000, "Bureau klein geeft geen 370 marge");
+  assert.equal(klant - p["PAK-BUR3"], 39600, "Bureau groot geeft geen 396 marge");
 });
 
 test("elke lijn hoger is goedkoper per pakket", () => {
   const p = leesPrijzen();
-  const trap = [p["PAK-LOS"], p["PAK-ORG1"], p["PAK-ORG2"], p["PAK-ORG3"]];
+  const trap = [p["PAK-LOS"], p["PAK-PZL"], p["PAK-ORG1"], p["PAK-ORG2"], p["PAK-ORG3"]];
   for (let i = 1; i < trap.length; i++){
     assert.ok(trap[i] < trap[i - 1], `stap ${i} van de staffel daalt niet`);
   }
   assert.ok(p["PAK-PRO"] <= p["PAK-ORG3"], "een Professional betaalt meer dan Organisatie groot");
-  assert.ok(p["PAK-BUR-EXTRA"] < p["PAK-PRO"], "buiten het bureautegoed is niet goedkoper dan Professional");
+  assert.ok(p["PAK-BUR1"] < p["PAK-PRO"], "Bureau klein is niet goedkoper dan Professional");
 });
 
 /* --- sectie 3, Organisatie --- */
@@ -675,53 +697,43 @@ const kostenOrg = (p, staffel, n) =>
   ({ los: 0, org1: p["ORG-1"], org2: p["ORG-2"], org3: p["ORG-3"] }[staffel])
   + n * p[{ los: "PAK-LOS", org1: "PAK-ORG1", org2: "PAK-ORG2", org3: "PAK-ORG3" }[staffel]];
 
-test("sectie 3: de pakketprijs daalt per staffel", () => {
+test("sectie 4: de pakketprijs daalt per staffel", () => {
   const p = leesPrijzen();
   assert.ok(p["PAK-ORG1"] > p["PAK-ORG2"] && p["PAK-ORG2"] > p["PAK-ORG3"], "195 > 175 > 145 klopt niet");
 });
 
-test("sectie 3: bij vier teams is ORG-1 goedkoper dan vier keer Los", () => {
+test("sectie 4: bij twee teams is ORG-1 goedkoper dan twee keer Los", () => {
   const p = leesPrijzen();
-  assert.equal(kostenOrg(p, "org1", 4), 127000);
-  assert.equal(kostenOrg(p, "los", 4), 138000);
-  assert.ok(kostenOrg(p, "org1", 4) < kostenOrg(p, "los", 4));
+  const viaOrg = p["ORG-1"] + 2 * p["PAK-ORG1"];
+  assert.equal(viaOrg, 88000);
+  assert.equal(2 * p["PAK-LOS"], 99000);
+  assert.ok(viaOrg < 2 * p["PAK-LOS"]);
 });
 
-test("sectie 3: het omslagpunt tegenover Los ligt bij 4, 6 en 10 teams", () => {
-  const p = leesPrijzen();
-  const omslag = (staffel) => {
-    for (let n = 1; n <= 200; n++) if (kostenOrg(p, staffel, n) < kostenOrg(p, "los", n)) return n;
-    return null;
-  };
-  assert.equal(omslag("org1"), 4);
-  assert.equal(omslag("org2"), 6);
-  assert.equal(omslag("org3"), 10);
-});
 
-test("bekend punt: de staffels lopen op seats, niet op prijs", () => {
-  const p = leesPrijzen();
-  // ORG-1 blijft de goedkoopste rekening tot ver voorbij zijn drie seats. Wie
-  // op prijs kiest gaat dus nooit naar midden of groot; die stappen worden
-  // gekocht om de seats en het dashboard. Zie het rapport bij vraag 1.
-  const eerstGoedkoper = (a, b) => {
-    for (let n = 1; n <= 500; n++) if (kostenOrg(p, a, n) < kostenOrg(p, b, n)) return n;
-    return null;
-  };
-  assert.equal(eerstGoedkoper("org2", "org1"), 26);
-  assert.equal(eerstGoedkoper("org3", "org2"), 34);
-  assert.ok(kostenOrg(p, "org1", 10) < kostenOrg(p, "org3", 10), "bij tien teams is groot nog altijd duurder");
-});
+
 
 /* --- sectie 4, Professional --- */
 
-test("sectie 4: het startpakket is goedkoper dan de onderdelen los", () => {
+test("sectie 5: het startpakket is goedkoper dan de onderdelen los", () => {
   const p = leesPrijzen();
-  const los = p["BEG-1"] + p["PRO-J"] + 5 * p["PAK-PRO"];
-  assert.equal(los, 221000);
+  // In v4 zit er geen pakkettegoed meer in PRO-START; het is certificering plus
+  // een jaar licentie.
+  const los = p["BEG-1"] + p["PRO-J"];
+  assert.equal(los, 148500);
   assert.ok(p["PRO-START"] < los, "PRO-START is niet goedkoper dan los kopen");
 });
 
-test("sectie 4: een jaar is goedkoper dan twaalf maanden", () => {
+test("sectie 5: de licentie verdient zich terug vanaf zes teams", () => {
+  const p = leesPrijzen();
+  const winstPerTeam = p["PAK-PZL"] - p["PAK-PRO"];
+  assert.equal(winstPerTeam, 10400);                 // 249 min 145
+  const omslag = Math.ceil(p["PRO-J"] / winstPerTeam);
+  assert.equal(omslag, 6, "het omslagpunt ligt niet bij zes teams");
+  assert.ok(5 * winstPerTeam < p["PRO-J"], "bij vijf teams zou de licentie al uit moeten kunnen");
+});
+
+test("sectie 5: een jaar is goedkoper dan twaalf maanden", () => {
   const p = leesPrijzen();
   assert.equal(12 * p["PRO-M"], 70800);
   assert.ok(p["PRO-J"] < 12 * p["PRO-M"]);
@@ -731,134 +743,120 @@ test("sectie 4: een jaar is goedkoper dan twaalf maanden", () => {
 
 const perPakket = (p, code, tegoed) => p[code] / tegoed;
 
-test("sectie 5: de prijs per pakket daalt per staffel", () => {
-  const p = leesPrijzen();
-  const klein  = perPakket(p, "BUR-1", 15);
-  const midden = perPakket(p, "BUR-2", 40);
-  const groot  = perPakket(p, "BUR-3", 100);
-  assert.equal(klein, 16600);
-  assert.equal(midden, 12250);   // de briefing rondt dit af op 122 euro
-  assert.equal(groot, 9900);
-  assert.ok(klein > midden && midden > groot);
-});
 
-test("sectie 5: een eenling vlucht niet naar Bureau", () => {
-  const p = leesPrijzen();
-  assert.equal(perPakket(p, "BUR-1", 15), 16600);
-  assert.ok(perPakket(p, "BUR-1", 15) > p["PAK-PRO"], "Bureau klein is per pakket niet duurder dan Professional");
-});
 
-test("sectie 5: bijkopen boven een kleine bundel loont niet meer dan de volgende staffel", () => {
-  const p = leesPrijzen();
-  // Veertig pakketten via klein plus bijkopen kost meer dan de bundel midden.
-  // Bij 95 euro buiten tegoed was dat andersom en verdiende BUR-2 zichzelf niet
-  // terug; met 125 klopt de trap.
-  const viaKlein = p["BUR-1"] + 25 * p["PAK-BUR-EXTRA"];
-  assert.equal(viaKlein, 561500);
-  assert.ok(viaKlein > p["BUR-2"], "Bureau midden is nog altijd niet de goedkopere weg");
-});
 
-test("sectie 5: de zestig pakketten van groot boven midden kosten 83 euro per stuk", () => {
-  const p = leesPrijzen();
-  const perExtra = (p["BUR-3"] - p["BUR-2"]) / 60;
-  assert.equal(Math.round(perExtra), 8333);
-  assert.ok(perExtra < p["PAK-BUR-EXTRA"], "doorgroeien naar groot is duurder dan bijkopen");
-});
 
-test("sectie 5: buiten het tegoed blijft een bureau goedkoper uit dan een Professional", () => {
-  const p = leesPrijzen();
-  assert.equal(p["PAK-BUR-EXTRA"], 12500);
-  assert.ok(p["PAK-BUR-EXTRA"] < p["PAK-PRO"], "buiten tegoed is niet goedkoper dan Professional");
-});
 
 /* --- sectie 6, certificering --- */
 
-test("sectie 6: een abonnement is goedkoper dan hetzelfde abonnement met LEZ-1 erbij", () => {
+test("sectie 6: een bureau is goedkoper dan losse Professional-licenties", () => {
   const p = leesPrijzen();
-  // De beheerder van een organisatie krijgt de module en de toets bij het
-  // abonnement, dus LEZ-1 er los bij kopen is weggegooid geld.
-  assert.equal(p["LEZ-1"] + p["ORG-1"], 63900);
-  assert.ok(p["ORG-1"] < p["LEZ-1"] + p["ORG-1"], "ORG-1 is niet goedkoper");
-  assert.ok(p["OPL-2"] < p["OPL-1"] + 10 * p["CERT-AFD"], "OPL-2 is niet goedkoper");
-  assert.equal(p["OPL-1"] + 10 * p["CERT-AFD"], 395000);
+  assert.ok(p["BUR-1"] < 3 * p["PRO-J"], "Bureau klein is niet goedkoper dan drie losse licenties");
+  assert.ok(p["BUR-2"] < 10 * p["PRO-J"], "Bureau midden is niet goedkoper dan tien losse licenties");
+  assert.equal(3 * p["PRO-J"], 177000);
+  assert.equal(10 * p["PRO-J"], 590000);
+  // Groot is onbeperkt; hij loont vanaf veertien seats.
+  assert.equal(Math.ceil(p["BUR-3"] / p["PRO-J"]), 14);
 });
 
-test("sectie 6: tien plekken zijn per plek goedkoper dan een abonnement", () => {
+test("sectie 7: de middenoptie is goedkoper dan de onderdelen los", () => {
+  const p = leesPrijzen();
+  assert.equal(p["LEZ-1"] + p["ORG-1"], 63900);
+  assert.ok(p["LEZ-2"] < p["LEZ-1"] + p["ORG-1"], "LEZ-2 is niet goedkoper");
+});
+
+test("bekend gat: LEZ-2 is goedkoper dan ORG-1 alleen", () => {
+  const p = leesPrijzen();
+  // Wie alleen Organisatie klein wil, koopt LEZ-2 en krijgt het certificaat er
+  // gratis bij. Daarmee is 395 in de praktijk de prijs van ORG-1. Dit gat is op
+  // 10 september gedicht door LEZ-2 te schrappen; v4 zet hem terug. De controle
+  // die v4 voorschrijft (LEZ-2 < LEZ-1 + ORG-1) laat dit niet zien.
+  assert.ok(p["LEZ-2"] < p["ORG-1"]);
+});
+
+test("sectie 7: tien plekken zijn per plek goedkoper dan de middenoptie", () => {
   const p = leesPrijzen();
   assert.equal(p["LEZ-10"] / 10, 19900);
-  assert.ok(p["LEZ-10"] / 10 < p["ORG-1"], "tien plekken zijn per plek niet goedkoper dan ORG-1");
+  assert.ok(p["LEZ-10"] / 10 < p["LEZ-2"]);
+  assert.ok(p["OPL-2"] < p["OPL-1"] + 10 * p["CERT-AFD"], "OPL-2 is niet goedkoper");
 });
 
 
-test("de bèta krijgt zijn korting van 355 euro", () => {
+test("sectie 8: de founder houdt de hele adviesprijs", () => {
   const p = leesPrijzen();
-  assert.equal(p["PRO-START"] - 89500, 35500);
+  // Inkoop nul in de foundersperiode, dus de volledige 495 is voor de founder.
+  assert.equal(p["PAK-LOS"], 49500);
+  // Daarna het startpakket met founderskorting.
+  assert.equal(p["PRO-START-F"], 89500);
+  assert.equal(p["PRO-START"] - p["PRO-START-F"], 35500);
 });
 
 /* --- wat vervalt --- */
 
 test("de oude productcodes gaan uit en niet weg", () => {
-  const weg = leesVervallen();
-  for (const code of ["TF", "HM", "BEG-2", "BEG-8", "LIC-ORG-10", "LIC-ORG-30", "LIC-ORG-X", "LIC-M", "LIC-J"]){
+  // De omschakeling staat in een eigen bestand, want hij hoort pas te draaien
+  // als de nieuwe code live is.
+  const blok = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14-blok-z.sql", import.meta.url), "utf8");
+  const weg = new Set([...blok.matchAll(/'([A-Z0-9-]+)'/g)].map(m => m[1]));
+  const v4 = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14.sql", import.meta.url), "utf8");
+  // De tegoedrijen uit v3 vervallen: partners kopen niets meer vooraf.
+  for (const code of ["PAK-BUR", "PAK-BUR-EXTRA", "HM-BUR", "TF", "HM", "LIC-M", "LIC-J"]){
     assert.ok(weg.has(code), `${code} wordt niet uitgezet`);
   }
-  // Eén uitzondering op de regel dat een rij blijft staan: LEZ-2 is vervallen,
-  // is nooit verkocht, en staat ook niet meer in de bronmigratie. De delete
-  // hoort alleen te vuren als er geen bestelling aan hangt.
-  const sql = readFileSync(new URL("../migratie-tarieven-2026-09-09.sql", import.meta.url), "utf8");
-  const deletes = [...sql.matchAll(/delete from public\.producten[\s\S]*?;/g)].map(m => m[0]);
-  assert.equal(deletes.length, 1, "er wordt meer dan een productrij verwijderd");
-  assert.match(deletes[0], /'LEZ-2'/);
-  assert.match(deletes[0], /not exists \(select 1 from public\.bestellingen/);
+  assert.ok(!/delete\s+from\s+public\.producten/i.test(v4), "er wordt een productrij verwijderd");
 });
 
 /* --- de prijsbepaling --- */
 
 const PRODUCTEN_PAK_HM = [
-  { code: "PAK-LOS",       groep: "PAK", prijsniveau: "los",       prijs_ex_btw: 34500, actief: true },
-  { code: "PAK-ORG1",      groep: "PAK", prijsniveau: "org1",      prijs_ex_btw: 19500, actief: true },
-  { code: "PAK-ORG2",      groep: "PAK", prijsniveau: "org2",      prijs_ex_btw: 17500, actief: true },
-  { code: "PAK-ORG3",      groep: "PAK", prijsniveau: "org3",      prijs_ex_btw: 14500, actief: true },
-  { code: "PAK-PRO",       groep: "PAK", prijsniveau: "pro",       prijs_ex_btw: 14500, actief: true },
-  { code: "PAK-BUR",       groep: "PAK", prijsniveau: "bur",       prijs_ex_btw: 0,     actief: true },
-  { code: "PAK-BUR-EXTRA", groep: "PAK", prijsniveau: "bur_extra", prijs_ex_btw: 12500, actief: true },
-  { code: "HM-LOS",        groep: "HM",  prijsniveau: "los",       prijs_ex_btw: 14500, actief: true },
-  { code: "HM-ORG1",       groep: "HM",  prijsniveau: "org1",      prijs_ex_btw: 9500,  actief: true },
-  { code: "HM-ORG2",       groep: "HM",  prijsniveau: "org2",      prijs_ex_btw: 9500,  actief: true },
-  { code: "HM-ORG3",       groep: "HM",  prijsniveau: "org3",      prijs_ex_btw: 7500,  actief: true },
-  { code: "HM-PRO",        groep: "HM",  prijsniveau: "pro",       prijs_ex_btw: 9500,  actief: true },
-  { code: "HM-BUR",        groep: "HM",  prijsniveau: "bur",       prijs_ex_btw: 7500,  actief: true }
+  { code: "PAK-LOS",  groep: "PAK", prijsniveau: "los",  prijs_ex_btw: 49500, actief: true },
+  { code: "PAK-PZL",  groep: "PAK", prijsniveau: "pzl",  prijs_ex_btw: 24900, actief: true },
+  { code: "PAK-ORG1", groep: "PAK", prijsniveau: "org1", prijs_ex_btw: 19500, actief: true },
+  { code: "PAK-ORG2", groep: "PAK", prijsniveau: "org2", prijs_ex_btw: 17500, actief: true },
+  { code: "PAK-ORG3", groep: "PAK", prijsniveau: "org3", prijs_ex_btw: 14500, actief: true },
+  { code: "PAK-PRO",  groep: "PAK", prijsniveau: "pro",  prijs_ex_btw: 14500, actief: true },
+  { code: "PAK-BUR1", groep: "PAK", prijsniveau: "bur1", prijs_ex_btw: 12500, actief: true },
+  { code: "PAK-BUR2", groep: "PAK", prijsniveau: "bur2", prijs_ex_btw: 11000, actief: true },
+  { code: "PAK-BUR3", groep: "PAK", prijsniveau: "bur3", prijs_ex_btw:  9900, actief: true },
+  { code: "HM-LOS",   groep: "HM",  prijsniveau: "los",  prijs_ex_btw: 19500, actief: true },
+  { code: "HM-PZL",   groep: "HM",  prijsniveau: "pzl",  prijs_ex_btw: 14500, actief: true },
+  { code: "HM-ORG1",  groep: "HM",  prijsniveau: "org1", prijs_ex_btw:  9500, actief: true },
+  { code: "HM-ORG2",  groep: "HM",  prijsniveau: "org2", prijs_ex_btw:  9500, actief: true },
+  { code: "HM-ORG3",  groep: "HM",  prijsniveau: "org3", prijs_ex_btw:  7500, actief: true },
+  { code: "HM-PRO",   groep: "HM",  prijsniveau: "pro",  prijs_ex_btw:  9500, actief: true },
+  { code: "HM-BUR1",  groep: "HM",  prijsniveau: "bur1", prijs_ex_btw:  7500, actief: true },
+  { code: "HM-BUR2",  groep: "HM",  prijsniveau: "bur2", prijs_ex_btw:  7500, actief: true },
+  { code: "HM-BUR3",  groep: "HM",  prijsniveau: "bur3", prijs_ex_btw:  7500, actief: true }
 ];
 
-test("de bèta gaat voor de lijn, en de lijn voor los", () => {
-  const nu = new Date("2026-09-09");
-  const bureau = { actief: true, abonnement_tot: "2027-01-01", pak_tegoed: 15, pak_verbruikt: 0 };
+test("de founder gaat voor de lijn, en de lijn voor los", () => {
+  const nu = new Date("2026-09-14");
+  const bureau = { actief: true, abonnement_tot: "2027-01-01", staffel: "midden" };
   const org = { actief: true, abonnement_tot: "2027-01-01", staffel: "midden" };
   const niveau = (a) => koper({ ...a, vandaag: nu }).prijsniveau;
 
-  // Bèta wint van alles, ook van een lopende bureaubundel.
-  assert.equal(niveau({ gebruiker: { beta: true, beta_tot: "2027-03-09" }, bureau }), "beta");
-  assert.equal(niveau({ gebruiker: { beta: true, beta_tot: "2026-08-01" } }), "los");
-  // Bureau gaat voor Professional, en het tegoed bepaalt welke rij.
-  assert.equal(niveau({ gebruiker: {}, bureau }), "bur");
-  assert.equal(niveau({ gebruiker: {}, bureau: { ...bureau, pak_verbruikt: 15 } }), "bur_extra");
-  // Professional gaat voor Organisatie.
+  assert.equal(niveau({ gebruiker: { founder: true, founder_tot: "2027-03-14" }, bureau }), "founder");
+  assert.equal(niveau({ gebruiker: { founder: true, founder_tot: "2026-08-01" } }), "los");
+  assert.equal(niveau({ gebruiker: { niveau: "begeleider" }, bureau }), "bur2");
+  assert.equal(niveau({ gebruiker: { niveau: "begeleider" }, bureau: { ...bureau, staffel: "groot" } }), "bur3");
   const pro = { niveau: "begeleider", licentie_actief: true, licentie_tot: "2027-01-01" };
   assert.equal(niveau({ gebruiker: pro, organisatie: org }), "pro");
-  // Een verlopen abonnement valt terug op los.
   assert.equal(niveau({ gebruiker: {}, organisatie: { ...org, abonnement_tot: "2026-01-01" } }), "los");
   assert.equal(niveau({ gebruiker: {}, organisatie: org }), "org2");
   assert.equal(niveau({ gebruiker: {} }), "los");
+  // Nieuw in v4: een certificaat zonder licentie is een eigen lijn.
+  assert.equal(niveau({ gebruiker: { niveau: "lezer" } }), "pzl");
 });
 
-test("het niveau wijst een prijs aan, en de bèta betaalt nul", () => {
-  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "org3").prijs_ex_btw, 14500);
-  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "los").code, "PAK-LOS");
-  const beta = prijsVoor(PRODUCTEN_PAK_HM, "PAK", "beta");
-  assert.equal(beta.prijs_ex_btw, 0);
-  assert.equal(beta.code, "PAK-LOS");     // wel te zien welk pakket er is geleverd
-  assert.equal(beta.reden, "beta");
-  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "HM", "los").prijs_ex_btw, 14500);
+test("het niveau wijst een prijs aan, en de founder betaalt nul", () => {
+  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "los").prijs_ex_btw, 49500);
+  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "pzl").prijs_ex_btw, 24900);
+  assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "bur3").prijs_ex_btw, 9900);
+  const f = prijsVoor(PRODUCTEN_PAK_HM, "PAK", "founder");
+  assert.equal(f.prijs_ex_btw, 0);
+  assert.equal(f.code, "PAK-PRO");     // wel te zien welk pakket er is geleverd
+  assert.equal(f.reden, "founder");
   assert.equal(prijsVoor(PRODUCTEN_PAK_HM, "PAK", "onzin"), null);
 });
 
@@ -880,7 +878,7 @@ test("de teamlijst haalt geen scores op", () => {
 
 /* ----------------------------------------------- de vier koperslijnen (v3) */
 
-const NU = new Date("2026-09-09");
+const NU = new Date("2026-09-14");
 const wie = (a) => koper({ ...a, vandaag: NU });
 
 test("Los is de stand van wie niets heeft", () => {
@@ -904,52 +902,57 @@ test("Organisatie: staffel bepaalt de prijs, seats staan erbij", () => {
 });
 
 test("Professional zonder certificaat Begeleider is geen Professional", () => {
-  // Betaald of niet: zonder certificaat geldt de licentie niet. Dat is de
-  // voorwaarde uit sectie 4 en hij hoort hier te staan, niet in de UI.
+  // Betaald of niet: zonder certificaat geldt de licentie niet. In v4 valt hij
+  // niet terug op los maar op partner zonder licentie, want hij heeft wel het
+  // Lezer-certificaat en koopt dus tegen de partnerprijs.
   const zonder = wie({ gebruiker: { licentie_actief: true, licentie_tot: "2027-01-01", niveau: "lezer" } });
-  assert.equal(zonder.lijn, "los");
-  assert.equal(zonder.prijsniveau, "los");
+  assert.equal(zonder.lijn, "partner_zonder_licentie");
+  assert.equal(zonder.prijsniveau, "pzl");
   assert.equal(zonder.leadknop, false);
+  assert.equal(zonder.landelijk_beeld, false);
 
   const met = wie({ gebruiker: { licentie_actief: true, licentie_tot: "2027-01-01", niveau: "begeleider" } });
   assert.equal(met.lijn, "professional");
   assert.equal(met.register, "actief");
   assert.equal(met.leadknop, true);
-  assert.equal(met.naam_op_kaart, true);
+  assert.equal(met.landelijk_beeld, true);
+  assert.equal(met.opfrisdag, true);
 });
 
-test("een verlopen Professional valt terug op los en houdt zijn certificaat", () => {
-  // Sectie 4: registerstatus niet actief, leadknop uit, lijn los. Het
-  // certificaat blijft, dus reactivatie kan zonder nieuwe toets.
+test("een verlopen Professional wordt partner zonder licentie", () => {
+  // Sectie 5 van v4: lijn wordt partner_zonder_licentie, registerstatus niet
+  // actief, leadknop uit. Het certificaat blijft, dus reactivatie kan zonder
+  // nieuwe toets. Zijn inkoop gaat van 145 naar 249.
   const k = wie({ gebruiker: { licentie_actief: true, licentie_tot: "2026-08-01", niveau: "begeleider" } });
-  assert.equal(k.lijn, "los");
+  assert.equal(k.lijn, "partner_zonder_licentie");
+  assert.equal(k.prijsniveau, "pzl");
   assert.equal(k.register, "niet actief");
   assert.equal(k.leadknop, false);
   assert.equal(k.begeleider, true);
+  assert.equal(k.betaalwijze, "vooraf");
 });
 
-test("Bureau: het tegoed bepaalt of het pakket uit de bundel komt", () => {
-  const bundel = { staffel: "klein", seats_max: 3, pak_tegoed: 15, abonnement_tot: "2027-01-01" };
-  const over = wie({ gebruiker: { niveau: "begeleider" }, bureau: { ...bundel, pak_verbruikt: 3 } });
-  assert.equal(over.lijn, "bureau");
-  assert.equal(over.prijsniveau, "bur");
-  assert.equal(over.tegoed_over, 12);
-  assert.match(over.reden, /12 pakketten over/);
-
-  const op = wie({ gebruiker: { niveau: "begeleider" }, bureau: { ...bundel, pak_verbruikt: 15 } });
-  assert.equal(op.prijsniveau, "bur_extra");
-  assert.equal(op.tegoed_over, 0);
+test("Bureau: de staffel bepaalt de inkoopprijs, er is geen tegoed meer", () => {
+  const b = (staffel) => wie({ gebruiker: { niveau: "begeleider" },
+    bureau: { staffel, seats_max: 3, abonnement_tot: "2027-01-01" } });
+  assert.equal(b("klein").prijsniveau, "bur1");
+  assert.equal(b("midden").prijsniveau, "bur2");
+  assert.equal(b("groot").prijsniveau, "bur3");
+  assert.equal(b("klein").lijn, "bureau");
+  assert.equal(b("klein").betaalwijze, "achteraf");
+  assert.equal(b("klein").opfrisdag, true);
 });
 
-test("een bureauseat zonder certificaat koopt uit het tegoed maar staat niet in het register", () => {
-  // Sectie 5, letterlijk: zonder certificaat telt de seat als
-  // Organisatie-gebruiker, dus wel het tarief en niet de vermelding.
-  const bundel = { staffel: "klein", pak_tegoed: 15, pak_verbruikt: 0, abonnement_tot: "2027-01-01" };
-  const k = wie({ gebruiker: { niveau: "geen" }, bureau: bundel });
-  assert.equal(k.prijsniveau, "bur");
+test("een bureauseat zonder certificaat krijgt het tarief maar niet het register", () => {
+  // Sectie 6: zonder certificaat telt de seat als Organisatie-gebruiker, dus wel
+  // de inkoopprijs en niet de vermelding.
+  const k = wie({ gebruiker: { niveau: "geen" },
+    bureau: { staffel: "klein", abonnement_tot: "2027-01-01" } });
+  assert.equal(k.prijsniveau, "bur1");
   assert.equal(k.register, null);
   assert.equal(k.leadknop, false);
   assert.equal(k.naam_op_kaart, false);
+  assert.equal(k.opfrisdag, false);
   assert.equal(k.bureaudashboard, true);
 });
 
@@ -960,15 +963,15 @@ test("een verlopen bundel of abonnement telt niet meer mee", () => {
   assert.equal(uit.lijn, "los");
 });
 
-test("de bèta is een Professional zonder abonnement", () => {
-  // Sectie 7: pakket en hermeting nul, lijn professional, certificaat
-  // voorlopig, registerstatus beta.
-  const k = wie({ gebruiker: { beta: true, beta_tot: "2027-03-09", niveau: "geen" } });
+test("de founder is een Professional zonder abonnement en met inkoop nul", () => {
+  // Sectie 8: lijn professional, certificaat voorlopig, label blijvend.
+  const k = wie({ gebruiker: { founder: true, founder_tot: "2027-03-14", niveau: "geen" } });
   assert.equal(k.lijn, "professional");
-  assert.equal(k.prijsniveau, "beta");
-  assert.equal(k.register, "beta");
+  assert.equal(k.prijsniveau, "founder");
+  assert.equal(k.register, "founding partner");
   assert.equal(k.leadknop, true);
   assert.equal(k.begeleider, true);
+  assert.equal(k.landelijk_beeld, true);
 });
 
 test("elke lijn koopt wat bij die lijn hoort", () => {
@@ -1007,7 +1010,7 @@ test("een oude productcode wijst nog steeds naar zijn groep", () => {
   assert.equal(groepVanCode("onzin"), null);
 });
 
-test("de prijskaart zegt wat het kost, waarom, en wat het zonder abonnement was", () => {
+test("de prijskaart zegt wat het kost, waarom, en wat de klant betaalt", () => {
   const k = wie({ gebruiker: {}, organisatie: { staffel: "midden", abonnement_tot: "2027-01-01" } });
   const uit = prijskaart({ producten: PRODUCTEN_PAK_HM, wie: k });
   assert.equal(uit.PAK.code, "PAK-ORG2");
@@ -1015,8 +1018,11 @@ test("de prijskaart zegt wat het kost, waarom, en wat het zonder abonnement was"
   assert.equal(uit.PAK.btw, 3675);
   assert.equal(uit.PAK.reden, "Organisatie midden");
   assert.equal(uit.HM.ex, 9500);
-  // Wat het zonder abonnement zou kosten staat er altijd bij (sectie 1).
-  assert.equal(uit.zonder_abonnement.ex, 34500);
+  assert.equal(uit.PAK.betaalwijze, "achteraf");
+  // De adviesprijs staat er altijd bij: dat is wat de klant betaalt en dus het
+  // anker voor de marge.
+  assert.equal(uit.adviesprijs.ex, 49500);
+  assert.equal(uit.marge_per_team, 32000);   // 495 min 175
 
   // Ligt er nog een hermeting in het pakket, dan is dat het antwoord en niet
   // een bedrag.
@@ -1027,24 +1033,15 @@ test("de prijskaart zegt wat het kost, waarom, en wat het zonder abonnement was"
   assert.match(met.HM.reden, /Zit in het pakket/);
 });
 
-test("een bèta ziet nul, met het pakket er nog onder", () => {
-  const k = wie({ gebruiker: { beta: true, beta_tot: "2027-03-09" } });
+test("een founder ziet nul, met het pakket er nog onder", () => {
+  const k = wie({ gebruiker: { founder: true, founder_tot: "2027-03-14" } });
   const uit = prijskaart({ producten: PRODUCTEN_PAK_HM, wie: k });
   assert.equal(uit.PAK.ex, 0);
-  assert.equal(uit.PAK.code, "PAK-LOS");   // wel te zien wat er is geleverd
+  assert.equal(uit.PAK.code, "PAK-PRO");
   assert.equal(uit.HM.ex, 0);
+  assert.equal(uit.adviesprijs.ex, 49500);   // wat zijn klant betaalt
 });
 
-test("een bureau met een leeg tegoed betaalt nog steeds het bureautarief voor een hermeting", () => {
-  // Het tegoed gaat alleen over pakketten. Zonder deze terugval zou een bureau
-  // dat zijn bundel op heeft helemaal geen hermetingprijs krijgen.
-  const k = wie({ gebruiker: { niveau: "begeleider" },
-    bureau: { staffel: "klein", pak_tegoed: 15, pak_verbruikt: 15, abonnement_tot: "2027-01-01" } });
-  assert.equal(k.prijsniveau, "bur_extra");
-  const uit = prijskaart({ producten: PRODUCTEN_PAK_HM, wie: k });
-  assert.equal(uit.PAK.ex, 12500);         // boven het tegoed
-  assert.equal(uit.HM.ex, 7500);           // bureautarief, tegoed of niet
-});
 
 /* ------------------------------------------------------------ abonnementen */
 
@@ -1165,3 +1162,180 @@ for (const bestand of [
     });
   });
 }
+
+/* ------------------------------------------- de pagina op teamkrachtindex.nl */
+
+/* De bedragen op die pagina komen uit /api/prijslijst, maar er staat een
+   terugval in de HTML voor wie geen javascript heeft. Die terugval is het enige
+   bedrag in dit project dat is overgetypt, dus hij hoort gelijk te lopen met de
+   migratie. Zonder deze test staat er over een half jaar een oude prijs op de
+   site zonder dat iemand het merkt. */
+test("de terugvalprijzen op teamkrachtindex.nl kloppen met de migratie", () => {
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  const p = leesPrijzen();
+
+  const spans = [...pagina.matchAll(/data-prijs="([A-Z0-9-]+)">€\s*([\d.]+)</g)];
+  assert.ok(spans.length >= 4, "de prijsspans zijn niet meer te vinden");
+
+  for (const [, code, getoond] of spans){
+    const cent = p[code];
+    assert.ok(cent !== undefined, `${code} bestaat niet in de migratie`);
+    const verwacht = (cent / 100).toFixed(2).replace(/\.00$/, "").replace(".", ",");
+    const metPunt = verwacht.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    assert.equal(getoond, metPunt, `de pagina toont ${getoond} voor ${code}, de migratie zegt ${metPunt}`);
+  }
+});
+
+test("de pagina op teamkrachtindex.nl verwijst nergens naar een bestand dat er niet is", () => {
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  const hier = new URL("../", import.meta.url);
+
+  for (const [, adres] of pagina.matchAll(/(?:href|src)="([^"]+)"/g)){
+    if (/^(https?:|mailto:|#|\/$)/.test(adres)) continue;
+    assert.ok(existsSync(new URL(adres, hier)), `${adres} bestaat niet in de repo`);
+  }
+});
+
+/* ------------------------------------------ de maandelijkse verrekening (v4) */
+
+import { isEersteWerkdag, periodeVan, groepeer, telOp,
+         incassoOmschrijving, naMislukteIncasso, creditnotaVoor } from "../facturen.js";
+
+test("de factuurrun draait op de eerste werkdag van de maand", () => {
+  // 1 november 2026 is een zondag, dus de run hoort op maandag de 2e te draaien.
+  assert.equal(isEersteWerkdag(new Date(2026, 10, 1)), false);
+  assert.equal(isEersteWerkdag(new Date(2026, 10, 2)), true);
+  assert.equal(isEersteWerkdag(new Date(2026, 10, 3)), false);
+  // 1 oktober 2026 is een donderdag, dus dan is het gewoon de eerste.
+  assert.equal(isEersteWerkdag(new Date(2026, 9, 1)), true);
+  assert.equal(isEersteWerkdag(new Date(2026, 9, 2)), false);
+  // En nooit halverwege de maand.
+  assert.equal(isEersteWerkdag(new Date(2026, 9, 15)), false);
+});
+
+test("de factuur gaat over de hele vorige maand", () => {
+  assert.deepEqual(periodeVan(new Date(2026, 10, 2)), { van: "2026-10-01", tot: "2026-10-31" });
+  assert.deepEqual(periodeVan(new Date(2027, 0, 4)), { van: "2026-12-01", tot: "2026-12-31" });
+});
+
+test("de rekening gaat naar het abonnement, niet naar de seat", () => {
+  const afnames = [
+    { gebruiker_id: "u1", organisatie_id: "o1", product_code: "PAK-ORG1", prijs_ex_btw: 19500 },
+    { gebruiker_id: "u2", organisatie_id: "o1", product_code: "PAK-ORG1", prijs_ex_btw: 19500 },
+    { gebruiker_id: "u3", bureau_id: "b1",      product_code: "PAK-BUR1", prijs_ex_btw: 12500 },
+    { gebruiker_id: "u4",                       product_code: "PAK-PRO",  prijs_ex_btw: 14500 },
+    // Al gefactureerd of geannuleerd telt niet mee.
+    { gebruiker_id: "u1", organisatie_id: "o1", product_code: "PAK-ORG1", prijs_ex_btw: 19500, gefactureerd: true },
+    { gebruiker_id: "u1", organisatie_id: "o1", product_code: "PAK-ORG1", prijs_ex_btw: 19500, geannuleerd_op: "2026-10-05" }
+  ];
+  const uit = groepeer(afnames);
+  assert.equal(uit.size, 3);
+  assert.equal(uit.get("organisatie:o1").length, 2, "twee seats van dezelfde organisatie horen op één factuur");
+  assert.equal(uit.get("bureau:b1").length, 1);
+  assert.equal(uit.get("gebruiker:u4").length, 1);
+});
+
+test("de factuur telt gelijke regels samen en rekent btw over het totaal", () => {
+  const afnames = [
+    { product_code: "PAK-PRO", prijs_ex_btw: 14500, btw_promille: 210 },
+    { product_code: "PAK-PRO", prijs_ex_btw: 14500, btw_promille: 210 },
+    { product_code: "PAK-PRO", prijs_ex_btw: 14500, btw_promille: 210 },
+    { product_code: "HM-PRO",  prijs_ex_btw: 9500,  btw_promille: 210 }
+  ];
+  const f = telOp(afnames);
+  assert.equal(f.regels.length, 2, "gelijke producten horen op één regel");
+  const pak = f.regels.find(r => r.product_code === "PAK-PRO");
+  assert.equal(pak.aantal, 3);
+  assert.equal(pak.bedrag, 43500);
+  assert.equal(f.bedrag_ex_btw, 53000);          // 3 x 145 plus 95
+  assert.equal(f.btw_cent, 11130);               // 21 procent over het totaal
+  assert.equal(f.bedrag_totaal, 64130);
+  assert.equal(telOp([]), null, "nul afnames is geen factuur");
+});
+
+test("btw verlegd zet het bedrag op nul en laat het totaal ongemoeid", () => {
+  const afnames = [{ product_code: "PAK-PRO", prijs_ex_btw: 14500, btw_promille: 210 }];
+  const f = telOp(afnames, { btw_verlegd: true });
+  assert.equal(f.btw_cent, 0);
+  assert.equal(f.bedrag_totaal, 14500);
+  assert.equal(f.btw_verlegd, true);
+});
+
+test("het factuurnummer staat op het afschrift van de klant", () => {
+  const t = incassoOmschrijving("2026-0042", { van: "2026-10-01", tot: "2026-10-31" });
+  assert.match(t, /2026-0042/);
+  assert.ok(t.length <= 100, "Mollie kapt een omschrijving boven de honderd tekens af");
+});
+
+test("een mislukte incasso krijgt één herpoging, daarna gaat de kraan dicht", () => {
+  const nu = new Date("2026-11-02");
+  const eerste = naMislukteIncasso({ status: "open" }, nu);
+  assert.equal(eerste.status, "herpoging");
+  assert.equal(eerste.blokkeren, false, "één keer mislukken is nog geen reden om te blokkeren");
+  assert.equal(eerste.herpoging_op, "2026-11-07");
+
+  const tweede = naMislukteIncasso({ status: "herpoging" }, nu);
+  assert.equal(tweede.status, "oninbaar");
+  assert.equal(tweede.blokkeren, true);
+});
+
+test("een creditnota is een tegenboeking met een eigen nummer", () => {
+  const factuur = {
+    id: "f1", nummer: "2026-0042", gebruiker_id: "u1", organisatie_id: null, bureau_id: null,
+    periode_van: "2026-10-01", periode_tot: "2026-10-31",
+    bedrag_ex_btw: 53000, btw_cent: 11130, bedrag_totaal: 64130, btw_verlegd: false,
+    regels: [{ product_code: "PAK-PRO", aantal: 3, stuksprijs: 14500, bedrag: 43500 }]
+  };
+  const c = creditnotaVoor(factuur, "2026-0043");
+  assert.equal(c.nummer, "2026-0043", "een creditnota krijgt een eigen nummer uit dezelfde reeks");
+  assert.equal(c.crediteert_id, "f1");
+  assert.equal(c.bedrag_totaal, -64130);
+  assert.equal(c.regels[0].bedrag, -43500);
+  assert.equal(c.soort, "creditnota");
+});
+
+/* ------------------------------------------- de kaart zonder landelijk beeld */
+
+import { tekenKaartSvg, bouwKaartHtml, ZONDER_LANDELIJK } from "../teamkracht-kaart.js";
+
+const BEELD = {
+  team_zien: 66, team_sturen: 51, team_doen: 49,
+  norm_zien: 74, norm_sturen: 69, norm_doen: 65,
+  n: 11, soort: "start", breuk: "zien_sturen",
+  verdeling: { ziener: 4, aanpakker: 2, middenband: 5 },
+  dynamieken: [{ code: "R1" }],
+  lijnen: [[84, 42, 34], [88, 44, 32]]
+};
+
+test("zonder landelijk beeld verdwijnt de magenta streep uit de tekening", () => {
+  const met = tekenKaartSvg(BEELD, {});
+  const zonder = tekenKaartSvg(BEELD, { landelijk_beeld: false });
+
+  assert.match(met, /GEMIDDELDE/, "de kaart met landelijk beeld hoort het label te tonen");
+  assert.ok(!zonder.includes("GEMIDDELDE"), "het label staat er nog zonder landelijk beeld");
+
+  // De streep van het gemiddelde is 120 breed en magenta; de teamlijn is dat
+  // niet. Tellen op de kleur alleen zou de doellijn meenemen.
+  const strepen = (s) => (s.match(/stroke-width="3" opacity="\.8"/g) || []).length;
+  assert.equal(strepen(met), 3, "er horen drie strepen te staan, een per kolom");
+  assert.equal(strepen(zonder), 0);
+
+  // De teamlijn blijft staan: het team ziet zichzelf nog steeds.
+  assert.match(zonder, /stroke-width="5"/);
+});
+
+test("zonder landelijk beeld staat er wat het team scoorde, geen verschil", () => {
+  const regels = [{ code: "R1", titel: "x", dynamiek: "y", interventie: "z", gespreksvraag: "q", richting: "remmend" }];
+  const profielen = [{ code: "ziener", naam: "Zieners" }];
+
+  const met = bouwKaartHtml({ teambeeld: BEELD, regels, profielen, teamnaam: "Noord" });
+  assert.match(met, /ten opzichte van het gemiddelde/);
+  assert.match(met, /Magenta is het gemiddelde/);
+
+  const zonder = bouwKaartHtml({ teambeeld: BEELD, regels, profielen, teamnaam: "Noord", landelijk_beeld: false });
+  assert.ok(!zonder.includes("ten opzichte van het gemiddelde"), "het verschil staat er nog");
+  assert.ok(!zonder.includes("Magenta is het gemiddelde"), "de inleiding noemt het gemiddelde nog");
+  assert.match(zonder, /Zien 66, Sturen 51, Doen 49/, "de eigen scores horen er wel te staan");
+  // Sectie 1 van v4 vraagt deze regel op de kaart.
+  assert.ok(zonder.includes(ZONDER_LANDELIJK.slice(0, 40)), "de regel over de licentie ontbreekt");
+});

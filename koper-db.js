@@ -9,12 +9,15 @@
 import { koper } from "./toegang.js";
 
 export async function haalKoper(db, userId, vandaag = new Date()){
-  const [g, ol, bl] = await Promise.all([
+  const [g, ol, bl, cfg] = await Promise.all([
     db.from("teamkracht_gebruikers")
-      .select("user_id, rol, niveau, lijn, licentie_actief, licentie_tot, beta, beta_tot, pak_tegoed")
+      .select("user_id, rol, niveau, lijn, licentie_actief, licentie_tot, founder, founder_tot, afname_geblokkeerd, mollie_customer_id, mollie_mandate_id")
       .eq("user_id", userId).maybeSingle(),
     db.from("organisatie_leden").select("organisatie_id, rol").eq("user_id", userId).maybeSingle(),
-    db.from("bureau_leden").select("bureau_id, rol").eq("user_id", userId).maybeSingle()
+    db.from("bureau_leden").select("bureau_id, rol").eq("user_id", userId).maybeSingle(),
+    // De vlag voor het landelijk beeld zonder licentie. Eén rij, dus goedkoop,
+    // en hij hoort bij de koper omdat hij bepaalt wat er op zijn kaart komt.
+    db.from("teamkracht_config").select("landelijk_beeld_zonder_licentie").eq("id", 1).maybeSingle()
   ]);
 
   const [o, b] = await Promise.all([
@@ -29,7 +32,8 @@ export async function haalKoper(db, userId, vandaag = new Date()){
   ]);
 
   const wie = koper({
-    gebruiker: g.data || {}, organisatie: o.data || null, bureau: b.data || null, vandaag
+    gebruiker: g.data || {}, organisatie: o.data || null, bureau: b.data || null,
+    config: cfg.data || {}, vandaag
   });
 
   return {
@@ -40,7 +44,9 @@ export async function haalKoper(db, userId, vandaag = new Date()){
     organisatie: o.data || null,
     bureau: b.data || null,
     beheerder_van_organisatie: ol.data?.rol === "beheerder",
-    beheerder_van_bureau: bl.data?.rol === "beheerder"
+    beheerder_van_bureau: bl.data?.rol === "beheerder",
+    mollie_customer_id: g.data?.mollie_customer_id || null,
+    mollie_mandate_id: g.data?.mollie_mandate_id || null
   };
 }
 

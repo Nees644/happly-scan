@@ -2,57 +2,71 @@
 > Downloads of Drive is een werkversie; wijk je daarvan af, werk dan dit bestand
 > bij. Zie CLAUDE.md.
 >
-> **Gecorrigeerd ten opzichte van de aangeleverde versie:** waar de briefing
-> Stripe noemt staat hier Mollie, want dat is wat er is gebouwd. Waar de briefing
-> acht deelnemers noemt staat hier vijf, het besluit van 7, 8 en 9 september 2026.
+> **Gecorrigeerd op 14 september 2026, bevestigd door Maarten:** het minimum is
+> vijf deelnemers en niet acht, en `stripe_customer_id` is `mollie_customer_id`.
+> De betaalprovider is en blijft Mollie.
 
-# Briefing Claude Code · Tarieven en producten v3
+# Briefing Claude Code · Tarieven en producten v4
 
-Datum: 9 september 2026, bijgewerkt 10 september 2026. Vervangt v1 en v2 van `briefing_code_tarieven.md` volledig. Hoort bij `briefing_code_certificering.md` en `briefing_code_teamkracht.md`. Bij tegenstrijdigheid geldt dit document voor prijzen en productlogica.
+Datum: 14 september 2026 (b, Mollie). Vervangt v1, v2 en v3 van `briefing_code_tarieven.md` volledig. Hoort bij `briefing_code_certificering.md` en `briefing_code_teamkracht.md`. Bij tegenstrijdigheid geldt dit document voor prijzen en productlogica.
 
-## 0. Het model in één alinea
+## 0. Wat er verandert ten opzichte van v3, en waarom
 
-Er is één kernproduct: het **pakket** (Teamfoto plus één hermeting binnen zes maanden, één team, minimaal vijf deelnemers). Er zijn vier koperslijnen die het pakket tegen een eigen prijs afnemen: **Los**, **Organisatie**, **Professional**, **Bureau**. Elke lijn hoger is goedkoper per pakket en geeft meer. De prijs van een pakket wordt server-side bepaald door de lijn van de koper. De Zelfkracht Index is altijd gratis.
+De partner (Professional, Bureau) is geen klant maar een verkoper. Hij factureert de Teamkracht Index aan zijn eigen klant, bovenop zijn uren, en Happly verrekent achteraf de inkoop met hem. Daaruit volgen vier wijzigingen:
 
-Wat vervalt uit v1 en v2: productcodes TF, HM (v1), TK, LIC-LEZ, LIC-BEG, LEZ-10 oude prijs, BEG-2, BEG-8, LIC-ORG. Bestaande rijen in `producten` met die codes: `actief = false`, niet verwijderen. LIC-M en LIC-J vervallen ook: ze beloven onbeperkt gratis metingen en er is niets van verkocht (bevestigd 10 september 2026).
+1. **Eén adviesprijs voor de eindklant: € 495 per pakket.** Dit is ook de prijs op de site voor wie rechtstreeks koopt. De klant koopt dus nooit goedkoper om de partner heen.
+2. **Geen vooraf ingekochte bundels of tegoeden meer.** Bureaubundels met pakkettegoed (BUR uit v3) en het pakkettegoed in PRO-START vervallen. Partners kopen niets vooraf.
+3. **Licentiehouders betalen achteraf.** Organisatie, Professional en Bureau krijgen een maandelijkse verrekening van de gebruikte pakketten. Alleen kopers zonder licentie betalen vooraf via een losse Mollie-betaling.
+4. **De licentie is het verschil tussen los en partner.** Zonder licentie: inkoop € 249, vooraf, kaart zonder landelijk beeld. Met licentie: inkoop € 145, achteraf, landelijk beeld, jaarlijkse opfrisdag, register en leadknop.
 
-Gewijzigd op 10 september 2026, vier punten:
-
-1. **LEZ-2 vervalt volledig**, ook uit fase A en uit de checkout-lijst. De rij is nooit verkocht en wordt verwijderd in plaats van op `actief = false` gezet.
-2. **ORG-1, ORG-2 en ORG-3 geven de beheerder toegang tot de Lezer-module en de toets.** Nieuw veld `lezer_module_toegang` (boolean) op de gebruiker.
-3. **LEZ-10 blijft**: tien maal module-toegang plus twaalf maanden ORG-2, € 1.990.
-4. **Bureau buiten tegoed: PAK van € 95 naar € 125.** HM blijft € 75.
+Vervallen productcodes: BUR-1/2/3 (v3), PRO-START met tegoed (v3), en alles uit v1 en v2. Bestaande rijen in `producten`: `actief = false`, niet verwijderen.
 
 ## Uitgangspunten
 
-- Alle bedragen exclusief btw, in euro's. Btw 21% bij checkout.
+- Alle bedragen exclusief btw, in euro's. Btw 21% op elke factuur.
+- Pakket (PAK) = Teamfoto plus één hermeting binnen zes maanden, één team, minimaal vijf deelnemers. Extra hermeting (HM) daarbuiten.
 - Prijzen staan in één configuratietabel `producten`, nooit hardcoded in de frontend.
-- Een gebruiker heeft precies één lijn: `lijn` in (`los`, `organisatie`, `professional`, `bureau`). Standaard `los`.
-- Organisatie en Bureau zijn accounts met seats; Professional is persoonlijk; Los is zonder account-abonnement.
-- Teams worden nooit vergeleken met andere teams in dezelfde organisatie. Alleen tegen het landelijk beeld en de eigen vorige meting. Ook niet in het organisatiedashboard.
+- Een gebruiker heeft precies één lijn: `lijn` in (`los`, `partner_zonder_licentie`, `organisatie`, `professional`, `bureau`). Standaard `los`.
+- Betaalwijze volgt de lijn: `los` en `partner_zonder_licentie` betalen vooraf per pakket (losse Mollie-betaling); `organisatie`, `professional` en `bureau` betalen achteraf (maandelijkse verrekening).
+- Teams worden nooit vergeleken met andere teams in dezelfde organisatie. Alleen tegen het landelijk beeld (waar de lijn dat toestaat) en de eigen vorige meting.
 
 ## 1. Het pakket en de hermeting, prijs per lijn
 
-| Productcode | Product | Los | Organisatie klein | Organisatie midden | Organisatie groot | Professional | Bureau (binnen tegoed) | Bureau (buiten tegoed) |
-|---|---|---|---|---|---|---|---|---|
-| PAK | Pakket: Teamfoto + 1 hermeting binnen 6 maanden | € 345 | € 195 | € 175 | € 145 | € 145 | € 0 (tegoed) | € 125 |
-| HM | Extra hermeting | € 145 | € 95 | € 95 | € 75 | € 95 | € 75 | € 75 |
+| Productcode | Product | Los (eindklant) | Partner zonder licentie | Organisatie klein / midden / groot | Professional | Bureau klein / midden / groot |
+|---|---|---|---|---|---|---|
+| PAK | Pakket | € 495 | € 249 | € 195 / € 175 / € 145 | € 145 | € 125 / € 110 / € 99 |
+| HM | Extra hermeting | € 195 | € 145 | € 95 / € 95 / € 75 | € 95 | € 75 |
+| | Betaalwijze | vooraf | vooraf | achteraf | achteraf | achteraf |
+| | Landelijk beeld op de kaart | nee | nee | ja | ja | ja |
 
 Regels voor code:
-- Bij aankoop PAK: `hermeting_tegoed = 1` op het team, `hermeting_tot = aankoopdatum + 6 maanden`. De eerste hermeting binnen die termijn verbruikt het tegoed; daarna geldt HM.
-- Prijsbepaling server-side, in deze volgorde: `beta` > `lijn` en staffel > `los`. De frontend haalt de geldende prijs op via een endpoint en toont daarbij "zonder abonnement € 345".
-- In `producten` staat PAK als productgroep met één rij per prijsniveau (`prijsniveau` in: los, org1, org2, org3, pro, bur_extra). Idem voor HM.
-- Geen leesdrempel vóór de eerste Teamfoto. De Lezer-module wordt na aankoop aanbevolen, niet vereist.
+- `partner_zonder_licentie` = gebruiker met `niveau` lezer of begeleider zonder actieve licentie. Hij koopt tegen € 249 en factureert zelf aan zijn klant.
+- Bij aankoop of afname PAK: `hermeting_tegoed = 1` op het team, `hermeting_tot = datum + 6 maanden`. De eerste hermeting binnen die termijn verbruikt het tegoed; daarna HM.
+- Prijsbepaling server-side, in deze volgorde: `founder` > `lijn` en staffel > `los`. Endpoint geeft prijs, betaalwijze en reden terug.
+- Kaart zonder landelijk beeld toont het team alleen tegen zijn eigen vorige meting (bij eerste meting: alleen het startbeeld). Dit is het zichtbare verschil tussen los en licentie; toon op de kaart de regel "landelijk beeld beschikbaar met licentie".
+- Geen leesdrempel vóór de eerste Teamfoto.
 
-## 2. Lijn Los
+## 2. Verrekening achteraf (nieuw, fase A)
 
-Koper: teamleider of manager met één team. Geen abonnement, geen account-lijn. Koopt PAK à € 345 via de checkout. Na het eindbeeld krijgt hij drie aanbiedingen in de kaart: extra hermeting, Organisatie klein, of een Professional uit het register (leadknop).
+Betaalprovider is Mollie. Nergens Stripe.
+
+- Bij afsluiten van een licentie (Organisatie, Professional, Bureau) doet de klant een eerste betaling via Mollie met `sequenceType: first` (iDEAL of kaart). Daarmee ontstaat een mandaat (`mandateId`) op de Mollie-klant. Geen geldig mandaat, geen licentie.
+- Het licentieabonnement zelf loopt als Mollie Subscription op dat mandaat (maand of jaar).
+- Elke afname van PAK of HM door een licentiehouder wordt gelogd in `afnames` (user_id, team_id, productcode, prijs, datum, gefactureerd = false).
+- Op de eerste werkdag van de maand maakt het systeem per licentiehouder één betaling aan met `sequenceType: recurring` op het mandaat, voor het totaal van alle niet-gefactureerde afnames, met factuurnummer in de `description` en een eigen factuur-pdf uit Supabase. Nul afnames: geen betaling.
+- Mollie heeft geen ingebouwde facturatie; factuur (nummer, btw, regels) maken wij zelf en bewaren we in tabel `facturen`.
+- Webhook: Mollie stuurt alleen een id; de server haalt de status op via de API en verwerkt `paid`, `failed`, `expired`, `canceled`. Idempotent, gelogd in `betalingen`.
+- Bij `failed` op de maandbetaling: één automatische herpoging na 5 dagen; daarna `afname_geblokkeerd = true`, nieuwe teams aanmaken niet mogelijk, bestaande kaarten blijven zichtbaar. Na betaling automatisch vrijgegeven.
+
+## 3. Lijn Los
+
+Koper: eindklant (teamleider, manager) met één team, of een partner zonder licentie. Losse Mollie-betaling per pakket. Na het eindbeeld drie aanbiedingen in de kaart: extra hermeting, Organisatie klein, of een Professional uit het register (leadknop).
 
 Status: fase A.
 
-## 3. Lijn Organisatie (jaarabonnement per organisatie)
+## 4. Lijn Organisatie (jaarabonnement per organisatie, verrekening achteraf)
 
-Koper: HR, directeur, afdelingshoofd, interne coach. Meet eigen teams. Geen register, geen leads.
+Koper: HR, directeur, afdelingshoofd, interne coach. Eigen teams. Geen register, geen leads.
 
 | Productcode | Staffel | Prijs per jaar | Seats | PAK | HM | Status |
 |---|---|---|---|---|---|---|
@@ -60,108 +74,91 @@ Koper: HR, directeur, afdelingshoofd, interne coach. Meet eigen teams. Geen regi
 | ORG-2 | Midden | € 990 | 10 | € 175 | € 95 | fase A |
 | ORG-3 | Groot | € 1.990 | onbeperkt | € 145 | € 75 | fase A |
 
-Inbegrepen op alle staffels: organisatiedashboard met alle teams (elk team alleen tegen landelijk beeld en eigen vorige meting), kwartaalbeelden, modelupdates, seatbeheer door één beheerder, en toegang tot de Lezer-module en de toets voor de beheerder.
+Inbegrepen: landelijk beeld, organisatiedashboard (elk team alleen tegen landelijk beeld en eigen vorige meting), kwartaalbeelden, modelupdates, seatbeheer, maandelijkse verrekening.
 
-Die laatste is nieuw op 10 september 2026 en vervangt LEZ-2. De regel is nauw: alleen de beheerder (`rol = beheerder` in `organisatie_leden`), niet elke seat. Een seat is een gebruiker, geen cursist.
+Database: `organisaties` (id, naam, staffel, seats_max, abonnement_tot, beheerder_user_id, mollie_customer_id); `organisatie_leden` (organisatie_id, user_id, rol). Afnames van leden worden gefactureerd aan de organisatie.
 
-Database: `organisaties` (id, naam, staffel, seats_max, abonnement_tot, beheerder_user_id); `organisatie_leden` (organisatie_id, user_id, rol in: beheerder, gebruiker). Een gebruiker in `organisatie_leden` krijgt `lijn = organisatie` zolang `abonnement_tot` in de toekomst ligt.
+Klantlogica als test: PAK daalt per staffel; bij 2 teams is ORG-1 (490 + 390 = 880) goedkoper dan 2 × Los (990).
 
-Nieuw veld op de gebruiker: `lezer_module_toegang` (boolean, standaard false). Gaat op true bij:
+## 5. Lijn Professional (persoonlijk abonnement, verrekening achteraf)
 
-- aankoop LEZ-1;
-- aankoop LEZ-10, voor elk van de tien plekken;
-- aanmaak van een organisatie, voor de beheerder.
-
-Wat het veld niet doet is een niveau zetten. `niveau = lezer` komt uitsluitend na een geslaagde toets, nooit bij een aankoop. Toegang tot de module is iets anders dan het certificaat, en dat verschil is de waarde van het register.
-
-Loopt het abonnement af, dan blijft `lezer_module_toegang` staan. Wie halverwege hoofdstuk 4 zit hoort niet buiten te staan omdat een factuur bleef liggen; het abonnement gaat over de metingen en het dashboard, niet over het lezen.
-
-Klantlogica als test: PAK-prijs daalt per staffel (195 > 175 > 145); break-even ten opzichte van Los ligt bij 4, 6 en 10 teams. Test: bij 4 teams is ORG-1 goedkoper dan 4 × Los (1.270 < 1.380).
-
-## 4. Lijn Professional (persoonlijk abonnement)
-
-Koper: interim- of changemanager, coach, zelfstandig HR-adviseur. Begeleidt teams van anderen. Vereist `niveau = begeleider`.
+Koper: interim- of changemanager, coach, zelfstandig HR-adviseur. Verkoopt de Teamkracht Index aan eigen klanten. Vereist `niveau = begeleider`.
 
 | Productcode | Staffel | Prijs | Interval | Bevat | Status |
 |---|---|---|---|---|---|
 | PRO-M | Maand | € 59 | maandelijks | licentie | fase B |
 | PRO-J | Jaar | € 590 | jaarlijks | licentie | fase B |
-| PRO-START | Start | € 1.250 | eenmalig, daarna PRO-J | certificering Begeleider (BEG-1) + 12 maanden licentie + 5 PAK-tegoed | fase B |
+| PRO-START | Start | € 1.250 | eenmalig, daarna PRO-J | certificering Begeleider (BEG-1) + 12 maanden licentie | fase B |
 
-Licentie bevat: PAK à € 145, HM à € 95, actieve vermelding in register, leadknop op de Teamkrachtkaart, naam en logo op de kaart, doelbeeld-tool, online intervisie, kwartaalbeelden.
+Licentie bevat, en dit is de lijst die de site toont als verschil met los kopen:
+- inkoop € 145 in plaats van € 249, dus marge € 350 in plaats van € 246 per team bij € 495 adviesprijs
+- verrekening achteraf, niets voorschieten
+- landelijk beeld op elke kaart
+- jaarlijkse opfrisdag (modelupdate, kwartaalbeelden, casuïstiek)
+- actieve vermelding in register, leadknop, naam en logo op de kaart, doelbeeld-tool, online intervisie
 
-Database: `licentie_actief`, `licentie_tot`, `lijn = professional`, `begeleider_zichtbaar = true`, `pak_tegoed` (bij PRO-START = 5, geen vervaldatum binnen de licentieperiode).
+Verloop: zonder betaling `licentie_actief = false`, `lijn = partner_zonder_licentie`, registerstatus "niet actief", leadknop uit. Openstaande verrekening blijft verschuldigd. Reactivatie herstelt alles.
 
-Verloop: zonder betaling `licentie_actief = false`, registerstatus "niet actief", leadknop uit, `lijn = los`. Certificaat blijft. Reactivatie herstelt alles zonder nieuwe toets.
+Klantlogica als test: PRO-START (1.250) < BEG-1 + PRO-J (1.485). PRO-J (590) < 12 × PRO-M (708). Break-even licentie ten opzichte van partner zonder licentie: 590 / (249 - 145) = 5,7, dus vanaf 6 teams per jaar.
 
-Klantlogica als test: PRO-START (1.250) < BEG-1 + PRO-J + 5 × PAK-pro (895 + 590 + 725 = 2.210). PRO-J (590) < 12 × PRO-M (708).
+## 6. Lijn Bureau (jaarabonnement met seats, verrekening achteraf)
 
-## 5. Lijn Bureau (jaarbundel)
+Koper: bureau of opleidingsinstituut met meerdere professionals. Geen pakkettegoed; alleen seats en een lagere inkoop.
 
-Koper: bureau of opleidingsinstituut met meerdere professionals.
-
-| Productcode | Staffel | Prijs per jaar | PAK-tegoed | Professional-seats | Per pakket | Extra's | Status |
+| Productcode | Staffel | Prijs per jaar | Professional-seats | PAK | HM | Extra's | Status |
 |---|---|---|---|---|---|---|---|
-| BUR-1 | Klein | € 2.490 | 15 | 3 | € 166 | | fase B |
-| BUR-2 | Midden | € 4.900 | 40 | 10 | € 122 | bureaulogo op de kaart | fase B |
-| BUR-3 | Groot | € 9.900 | 100 | onbeperkt | € 99 | bureaulogo, eigen registerpagina | fase B |
+| BUR-1 | Klein | € 1.490 | 3 | € 125 | € 75 | | fase B |
+| BUR-2 | Midden | € 3.900 | 10 | € 110 | € 75 | bureaulogo op de kaart | fase B |
+| BUR-3 | Groot | € 7.900 | onbeperkt | € 99 | € 75 | bureaulogo, eigen registerpagina | fase B |
 
-Buiten tegoed: PAK € 125, HM € 75. Tegoed vervalt aan het einde van het bundeljaar, niet overdraagbaar. Een seat vereist `niveau = begeleider`; zonder certificaat telt de seat als Organisatie-gebruiker (PAK uit tegoed, geen register).
+Elke seat heeft alles van Professional, inclusief opfrisdag. Seat vereist `niveau = begeleider`; zonder certificaat telt de seat als Organisatie-gebruiker (geen register). Verrekening aan het bureau.
 
-Database: `bureaus` (id, naam, staffel, pak_tegoed, pak_verbruikt, seats_max, abonnement_tot, beheerder_user_id, logo_url); `bureau_leden` (bureau_id, user_id, rol). Leden krijgen `lijn = bureau`.
+Database: `bureaus` (id, naam, staffel, seats_max, abonnement_tot, beheerder_user_id, logo_url, mollie_customer_id); `bureau_leden`.
 
-Klantlogica als test (herzien 10 september 2026):
+Klantlogica als test: BUR-1 (1.490) < 3 × PRO-J (1.770); BUR-2 (3.900) < 10 × PRO-J (5.900); PAK daalt per staffel en is altijd lager dan Professional (145).
 
-- BUR-1 plus 25 × PAK buiten tegoed (2.490 + 3.125 = 5.615) > BUR-2 (4.900), zodat bijkopen boven een kleine bundel niet loont waar de volgende staffel klaarligt;
-- (BUR-3 min BUR-2) gedeeld door 60 = € 83 < € 125, zodat doorgroeien naar groot goedkoper is dan bijkopen;
-- PAK buiten tegoed (125) < PAK-pro (145), zodat een bureau altijd voordeliger uit is dan een losse Professional;
-- BUR-1 per pakket (166) > PAK-pro (145), zodat een eenling niet naar Bureau vlucht.
-
-Bij € 95 buiten tegoed klopte de eerste regel niet: veertig pakketten via BUR-1 plus bijkopen kostte 4.865 tegen 4.900 voor BUR-2, en dan verdient de middelste staffel zichzelf niet terug. Met € 125 klopt de trap.
-
-## 6. Certificering (eenmalig, staat los van de lijnen)
+## 7. Certificering (eenmalig, los van de lijnen)
 
 | Productcode | Product | Prijs | Bevat | Zet in database | Status |
 |---|---|---|---|---|---|
-| LEZ-1 | Lezer, instap | € 149 | module, toets, certificaat, badge, register | `lezer_module_toegang = true`; `niveau = lezer` pas na geslaagde toets | fase A |
-| LEZ-10 | Lezer, tien plekken | € 1.990 | 10 × module-toegang + 12 maanden ORG-2 | tien uitnodigingscodes, elk `lezer_module_toegang = true`; organisatie staffel midden | later |
-| BEG-1 | Begeleider, alleen certificering | € 895 | opleidingsdag, drie intervisies, certificaat, badge, register | `niveau = begeleider` na afronding | fase B |
-| OPL-1 | Opleider, instap | € 2.500 | train-de-trainer, opleiderslicentie jaar 1 | `niveau = opleider`, `opleider_tot = +12 maanden` | later |
-| OPL-2 | Opleider, met startpakket (gewenst midden) | € 3.250 | OPL-1 + 10 certificaatcredits + marketingpakket | als OPL-1, `certificaat_credits = 10` | later |
-| OPL-P | Opleider, partner | op maat | instituten met meer dan 100 deelnemers per jaar | handmatig | later |
+| LEZ-1 | Lezer, instap | € 149 | module, toets, certificaat, badge, register | `niveau = lezer` | fase A |
+| LEZ-2 | Lezer, met Organisatie klein | € 395 | LEZ-1 + 12 maanden ORG-1 | `niveau = lezer`, organisatie staffel klein | fase A |
+| LEZ-10 | Lezer, tien plekken | € 1.990 | 10 × LEZ-1 + 12 maanden ORG-2 | tien codes, organisatie staffel midden | later |
+| BEG-1 | Begeleider, alleen certificering | € 895 | opleidingsdag, drie intervisies, certificaat, badge, register | `niveau = begeleider` | fase B |
+| OPL-1 | Opleider, instap | € 2.500 | train-de-trainer, opleiderslicentie jaar 1 | `niveau = opleider`, `opleider_tot` | later |
+| OPL-2 | Opleider, met startpakket | € 3.250 | OPL-1 + 10 certificaatcredits + marketingpakket | `certificaat_credits = 10` | later |
+| OPL-P | Opleider, partner | op maat | > 100 deelnemers per jaar | handmatig | later |
 | LIC-OPL | Opleiderslicentie, verlenging | € 990 per jaar | | `opleider_tot` +12 maanden | later |
-| CERT-AFD | Certificaatcredit | € 145 per uitgereikt certificaat | Opleider koopt per 10 vooraf; cursusgeld int de Opleider zelf | `certificaat_credits` +10 | later |
+| CERT-AFD | Certificaatcredit | € 145 per certificaat | per 10 vooraf; cursusgeld int de Opleider zelf | `certificaat_credits` +10 | later |
 
-Voorwaarden: Begeleider vereist geldig Lezer-certificaat; Opleider vereist geldig Begeleider-certificaat. De gecertificeerde koopt zijn licentie altijd rechtstreeks bij Happly; een Opleider verkoopt geen licenties en geen pakketten.
+Certificaatcredits zijn de enige vooruitbetaling die blijft: het is een afdracht per certificaat, geen pakketinkoop.
 
-Klantlogica als test (herzien 10 september 2026):
+Klantlogica als test: LEZ-2 (395) < LEZ-1 + ORG-1 (639); LEZ-10 per plek (199) < LEZ-2; OPL-2 (3.250) < OPL-1 + 10 × CERT-AFD (3.950).
 
-- ORG-1 (490) < LEZ-1 + ORG-1 (639), want de beheerder krijgt de module bij het abonnement en hoeft LEZ-1 er niet los bij te kopen;
-- LEZ-10 per plek (199) < ORG-1 (490);
-- OPL-2 (3.250) < OPL-1 + 10 × CERT-AFD (3.950).
+## 8. Foundergroep (september tot en met maart)
 
-## 7. Bèta (september en oktober 2026)
+Tien founding partners: `founder = true`, `founder_tot = +6 maanden`, `lijn = professional` zonder abonnement, `niveau = begeleider` voorlopig, registerstatus "founding partner" (blijvend label, ook daarna). Inkoop € 0, dus de volledige € 495 is voor de founder. Na zes maanden: PRO-START-F à € 895. Prijsbepaling kijkt eerst naar `founder`.
 
-Tien interim- en changemanagers krijgen `beta = true`, `beta_tot = +6 maanden`. Voor hen: PAK en HM € 0, `lijn = professional` zonder abonnement, `niveau = begeleider` voorlopig, registerstatus "bèta". Na zes maanden automatisch aanbod PRO-START-B à € 895 (bètakorting € 355). De prijsbepaling kijkt eerst naar `beta`.
-
-## 8. Fase A (september en oktober 2026)
+## 9. Fase A (september en oktober 2026)
 
 1. Gratis: ZKI.
-2. Checkout: PAK (los, org1, org2, org3), HM (idem), ORG-1, ORG-2, ORG-3, LEZ-1.
-3. Tabellen: `producten`, `organisaties`, `organisatie_leden`, `betalingen`; velden `hermeting_tegoed` en `hermeting_tot` op team, `beta`, `beta_tot`, `lijn` en `lezer_module_toegang` op user.
-4. Prijsendpoint: geeft voor een ingelogde gebruiker en een team de geldende PAK- en HM-prijs terug plus de reden (lijn en staffel).
-5. Mollie-meldingen: de betaalmelding van Mollie (een id, waarna wij de stand zelf ophalen). Idempotent, gelogd in `betalingen`.
-6. Organisatiedashboard: lijst van teams met startbeeld, doelbeeld, eindbeeld per team. Geen onderlinge vergelijking, geen ranglijst, geen gemiddelde over teams.
-7. Prijswijziging: nieuwe rij met nieuwe de productcode, oude rij `actief = false`. Bestaande abonnementen behouden hun prijs.
+2. Losse Mollie-betalingen: PAK en HM voor `los` en `partner_zonder_licentie`; LEZ-1; LEZ-2; ORG-1, ORG-2, ORG-3 (Mollie Subscription op mandaat).
+3. Verrekening achteraf (sectie 2) voor Organisatie; dezelfde code dient in fase B voor Professional en Bureau.
+4. Tabellen: `producten`, `organisaties`, `organisatie_leden`, `afnames`, `betalingen`; velden `hermeting_tegoed`, `hermeting_tot`, `founder`, `founder_tot`, `lijn`, `afname_geblokkeerd`.
+5. Prijsendpoint met prijs, betaalwijze en reden.
+6. Kaart met en zonder landelijk beeld, afhankelijk van lijn.
+7. Organisatiedashboard zonder onderlinge vergelijking.
+8. Mollie-webhook: één endpoint, status ophalen via API, idempotent verwerken, gelogd in `betalingen`.
 
-## 9. Fase B (november 2026)
+## 10. Fase B (november 2026)
 
-PRO-M, PRO-J, PRO-START, BEG-1, BUR-1, BUR-2, BUR-3; tabellen `bureaus`, `bureau_leden`; leadknop in de Teamkrachtkaart; doelbeeld-tool; naam en logo op de kaart; register met filter op actief.
+PRO-M, PRO-J, PRO-START, BEG-1, BUR-1/2/3; verrekening voor Professional en Bureau; register met filter op actief; leadknop; doelbeeld-tool; naam en logo op de kaart; partnerpagina met founding-partnerlabel.
 
 ## Vragen aan Claude Code
 
-1. Bevestig dat alle klantlogica-checks uit sectie 3 tot en met 6 als tests worden opgenomen.
-2. Lever het SQL-migratieblok (nieuwe tabellen, nieuwe velden, deactiveren van oude productcodes) en de productlijst voor de tabel producten. Mollie kent geen catalogus, dus die tabel is de catalogus.
-3. Geef aan hoe PRO-START als één checkout werkt (eenmalig bedrag plus abonnement met eerste jaar inbegrepen). Kies de variant waarbij de verlenging na jaar 1 automatisch op PRO-J loopt.
-4. Meld welke bestaande kaartlogica (`briefing_code_teamkracht.md`) aangepast moet worden voor hermeting-tegoed, de drie aanbiedingen na het eindbeeld (sectie 2) en de leadknop. Nog niet bouwen; alleen rapporteren.
-5. Bevestig dat het organisatiedashboard en het bureaudashboard geen enkele weergave bevatten waarin teams van dezelfde organisatie naast elkaar op score staan.
+1. Bevestig dat alle klantlogica-checks uit sectie 4 tot en met 7 als tests worden opgenomen.
+2. Lever het SQL-migratieblok (nieuwe tabellen en velden, inclusief `facturen`, deactiveren van oude codes). Mollie kent geen productcatalogus; prijzen komen uit `producten`. Maarten plaatst zelf de Mollie API-keys (test en live).
+3. Werk de maandelijkse verrekening uit op Mollie-mandaten (sectie 2): factuurrun, eigen factuurnummering en btw, creditnota bij annulering, herpoging bij mislukte incasso. Geef aan welke Mollie-betaalmethoden mandaten ondersteunen en welke je aanraadt voor Nederlandse zakelijke klanten.
+4. Geef aan hoe LEZ-2 en PRO-START werken als één eerste betaling (`sequenceType: first`, eenmalig bedrag) waarna een Mollie Subscription start met eerste incasso over 12 maanden, op ORG-1 respectievelijk PRO-J.
+5. Meld welke kaartlogica (`briefing_code_teamkracht.md`) aangepast moet worden voor: kaart zonder landelijk beeld, hermeting-tegoed, de drie aanbiedingen na het eindbeeld, de leadknop, de uitnodiging aan teamleden uit naam van Teamkracht Index met de privacyregels in de eerste zin. Nog niet bouwen; alleen rapporteren.
+6. Bevestig dat geen enkel dashboard teams van dezelfde organisatie naast elkaar op score toont.

@@ -61,13 +61,14 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
 - Teamkracht fase 1 is live sinds 8 september 2026.
 - De tarieven v3 met vier koperslijnen (los, organisatie, professional, bureau)
   zijn gebouwd, inclusief het organisatiedashboard met seatbeheer.
-- **De migraties zijn nog niet gedraaid.** Drie bestanden, in deze volgorde:
-  1. `migratie-certificering-2026-09-09.sql`
-  2. `migratie-tarieven-2026-09-09.sql` (voegt alleen toe, kan altijd)
-  3. `migratie-tarieven-2026-09-09-blok-z.sql` (zet de oude codes uit, pas als de
-     nieuwe code live staat, want de huidige site vraagt nog om TF en HM)
-
-  Tot ze draaien kent de database de nieuwe codes en kolommen niet.
+- **De tarieven v3 staan live sinds 10 september 2026.** Alle drie de migraties
+  zijn gedraaid en de code staat op productie. De openbare prijslijst geeft
+  dertien rijen: ZKI, vier maal PAK, vier maal HM, LEZ-1 en de drie
+  ORG-staffels. De codes TF, HM, LIC-M, LIC-J en LEZ-2 bestaan niet meer of
+  staan op inactief.
+- Wat in de tabel `producten` op fase B staat (PAK-PRO, PAK-BUR, PAK-BUR-EXTRA,
+  HM-PRO, HM-BUR, PRO-M, PRO-J, PRO-START, BUR-1 tot en met BUR-3, BEG-1) is
+  aangemaakt maar niet te koop; de prijslijst toont alleen fase A en bestaand.
 
 ## Werkregels
 
