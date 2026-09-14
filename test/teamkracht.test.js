@@ -556,11 +556,11 @@ test("het pakket dekt de kaart, het tegoed de hermeting, anders niet", () => {
 
   const pakket = { id: "b1", product_code: "PAK-LOS", status: "betaald", verbruikt_op: null, team_id: team, geldig_tot: "2027-09-14" };
   const start = rechtOpKaart({ wie: los, bestellingen: [pakket], teamId: team, vandaag: nu });
-  assert.deepEqual(start, { mag: true, reden: "bestelling", bestelling_id: "b1", tegoed: false });
+  assert.deepEqual(start, { mag: true, reden: "bestelling", bestelling_id: "b1", tegoed: false, afname: false });
 
   const metTegoed = { hermeting_tegoed: 1, hermeting_tot: "2027-03-14" };
   const her = rechtOpKaart({ wie: los, team: metTegoed, bestellingen: [pakket], teamId: team, soort: "hermeting", vandaag: nu });
-  assert.deepEqual(her, { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true });
+  assert.deepEqual(her, { mag: true, reden: "tegoed", bestelling_id: null, tegoed: true, afname: false });
 
   // Een founder betaalt nergens voor.
   const founder = koper({ gebruiker: { founder: true, founder_tot: "2027-03-14" }, vandaag: nu });
@@ -1170,6 +1170,24 @@ for (const bestand of [
    bedrag in dit project dat is overgetypt, dus hij hoort gelijk te lopen met de
    migratie. Zonder deze test staat er over een half jaar een oude prijs op de
    site zonder dat iemand het merkt. */
+test("de publieke pagina verklapt geen inkoopprijs of marge", () => {
+  // De site wordt gelezen door de eindklant van een partner. Staat daar wat die
+  // partner inkoopt, dan ziet zijn klant zijn marge. Alleen de adviesprijs en de
+  // abonnementen die een klant zelf afsluit horen hier.
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+
+  const VERBODEN = ["PAK-PRO", "PAK-PZL", "PAK-BUR1", "PAK-BUR2", "PAK-BUR3",
+                    "HM-PRO", "HM-PZL", "inkoop", "marge", "adviesprijs"];
+  for (const woord of VERBODEN){
+    assert.ok(!pagina.includes(woord), `de publieke pagina noemt "${woord}"`);
+  }
+
+  // Wat er wel mag staan: wat een klant zelf betaalt.
+  for (const code of ["PAK-LOS", "HM-LOS", "ORG-1"]){
+    assert.ok(pagina.includes(code), `${code} hoort er juist wel op te staan`);
+  }
+});
+
 test("de terugvalprijzen op teamkrachtindex.nl kloppen met de migratie", () => {
   const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
   const p = leesPrijzen();
@@ -1392,4 +1410,50 @@ test("het deelbeeld bestaat en heeft het formaat dat LinkedIn verwacht", () => {
   assert.match(pagina, /og:image:width" content="1200"/);
   assert.match(pagina, /og:image:height" content="630"/);
   assert.match(pagina, /twitter:card" content="summary_large_image"/);
+});
+
+/* ------------------------------------------------ wie achteraf betaalt (v4) */
+
+test("met een licentie hoeft er niets vooraf te liggen", () => {
+  const team = "11111111-1111-1111-1111-111111111111";
+  const nu = new Date("2026-09-14");
+
+  // Dit was het gat: een organisatielid betaalt achteraf en heeft dus nooit een
+  // betaalde bestelling. Zonder deze weg kreeg hij te horen dat er een pakket
+  // nodig was dat hij juist niet hoefde te kopen.
+  const org = koper({ gebruiker: {}, organisatie: { staffel: "klein", abonnement_tot: "2027-01-01" }, vandaag: nu });
+  const uit = rechtOpKaart({ wie: org, teamId: team, vandaag: nu });
+  assert.equal(uit.mag, true);
+  assert.equal(uit.reden, "achteraf");
+  assert.equal(uit.afname, true, "dit hoort op de maandfactuur te komen");
+  assert.equal(uit.bestelling_id, null);
+
+  // Wie vooraf betaalt houdt de oude weg.
+  const los = koper({ gebruiker: {}, vandaag: nu });
+  assert.equal(rechtOpKaart({ wie: los, teamId: team, vandaag: nu }).mag, false);
+  assert.equal(rechtOpKaart({ wie: los, teamId: team, vandaag: nu }).afname, false);
+});
+
+test("het tegoed gaat voor de verrekening", () => {
+  const team = "11111111-1111-1111-1111-111111111111";
+  const nu = new Date("2026-09-14");
+  const org = koper({ gebruiker: {}, organisatie: { staffel: "klein", abonnement_tot: "2027-01-01" }, vandaag: nu });
+
+  // Een hermeting die al in het pakket zat hoort niet nog eens op de factuur.
+  const uit = rechtOpKaart({
+    wie: org, team: { hermeting_tegoed: 1, hermeting_tot: "2027-03-14" },
+    teamId: team, soort: "hermeting", vandaag: nu });
+  assert.equal(uit.reden, "tegoed");
+  assert.equal(uit.afname, false, "dit zou dubbel factureren zijn");
+});
+
+test("een openstaande factuur zet de kaart op slot, ook voor een licentiehouder", () => {
+  const nu = new Date("2026-09-14");
+  const org = koper({
+    gebruiker: { afname_geblokkeerd: true },
+    organisatie: { staffel: "klein", abonnement_tot: "2027-01-01" }, vandaag: nu });
+  const uit = rechtOpKaart({ wie: org, teamId: "t1", vandaag: nu });
+  assert.equal(uit.mag, false);
+  assert.match(uit.reden, /openstaande factuur/);
+  assert.equal(uit.afname, false);
 });
