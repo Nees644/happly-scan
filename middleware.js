@@ -24,9 +24,13 @@ export default function middleware(request){
   const host = request.headers.get("host") || "";
   if (!TEAMKRACHTINDEX.test(host)) return;          // scan.happly.nl blijft zoals hij was
 
+  // Zonder .html: cleanUrls staat aan in vercel.json, dus Vercel serveert de
+  // pagina op /teamkrachtindex en stuurt /teamkrachtindex.html daarheen door.
+  // Rewriten naar het bestand zelf geeft een 404.
+  //
   // Rewriten en niet doorsturen: het adres in de balk blijft
-  // www.teamkrachtindex.nl, de bezoeker ziet geen bestandsnaam.
-  const doel = new URL("/teamkrachtindex.html", request.url);
+  // www.teamkrachtindex.nl, de bezoeker ziet geen pad.
+  const doel = new URL("/teamkrachtindex", request.url);
   return new Response(null, {
     headers: { "x-middleware-rewrite": doel.toString() }
   });

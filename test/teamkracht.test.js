@@ -1356,7 +1356,8 @@ test("de middleware wisselt de voordeur alleen op teamkrachtindex.nl", async () 
   for (const host of ["teamkrachtindex.nl", "www.teamkrachtindex.nl", "WWW.TEAMKRACHTINDEX.NL"]){
     const uit = middleware(vraag(host));
     assert.ok(uit, `${host} hoort de Teamkracht-pagina te krijgen`);
-    assert.match(uit.headers.get("x-middleware-rewrite"), /\/teamkrachtindex\.html$/);
+    assert.match(uit.headers.get("x-middleware-rewrite"), /\/teamkrachtindex$/,
+      "zonder .html: met cleanUrls geeft het bestandspad een 404");
   }
 
   // Alles wat niet dat domein is, blijft ongemoeid.
