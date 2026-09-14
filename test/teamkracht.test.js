@@ -1575,3 +1575,36 @@ test("de demo slaat niets op en praat met geen server", () => {
     assert.ok(!demo.includes(woord), `de demo gebruikt ${woord}, en dat hoort niet`);
   }
 });
+
+test("de schuifjes staan bovenaan de rechterkolom, niet onder de kaart", () => {
+  // Ze stonden onder de tekening en vielen daarmee buiten beeld: je kon schuiven
+  // zonder te zien wat er gebeurde. De werkbank heeft twee kolommen; de
+  // schuifjes horen in de tweede, vóór de breuk.
+  const demo = readFileSync(new URL("../teamkracht-demo-interactief.html", import.meta.url), "utf8");
+  // Beginnen bij de punthaak, niet bij het class-attribuut: anders telt de
+  // openingstag van de werkbank zelf niet mee en lijkt er een sluiting te veel.
+  const werkbank = demo.slice(demo.indexOf('<div class="wrap werkbank"'),
+                              demo.indexOf('<div class="wrap voet"'));
+
+  const tekening = werkbank.indexOf('id="tekening"');
+  const schuifjes = werkbank.indexOf('class="paneel regelaars"');
+  const breuk = werkbank.indexOf('class="breuk"');
+  assert.ok(tekening > 0 && schuifjes > tekening, "de schuifjes staan niet na de tekening in de opmaak");
+  assert.ok(breuk > schuifjes, "de breuk hoort onder de schuifjes te staan");
+
+  // En de div's moeten in balans zijn, anders valt een kolom uit de grid. Dat
+  // gebeurde toen ik het blok met zoeken en vervangen verplaatste.
+  let diepte = 0;
+  for (const m of werkbank.matchAll(/<(\/?)div/g)){
+    diepte += m[1] ? -1 : 1;
+    assert.ok(diepte >= 0, "er wordt een div gesloten die niet open staat");
+  }
+  assert.equal(diepte, 0, "de div's in de werkbank zijn niet in balans");
+});
+
+test("de schuifjes zijn zichtbaar gemaakt en niet het standaard streepje", () => {
+  const demo = readFileSync(new URL("../teamkracht-demo-interactief.html", import.meta.url), "utf8");
+  assert.match(demo, /slider-runnable-track/, "de baan van het schuifje is niet gestyled");
+  assert.match(demo, /slider-thumb/, "de knop van het schuifje is niet gestyled");
+  assert.match(demo, /-moz-range-thumb/, "Firefox krijgt geen zichtbare knop");
+});

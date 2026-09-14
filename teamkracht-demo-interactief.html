@@ -39,11 +39,30 @@ h1{font-size:clamp(2rem,4.4vw,3.1rem);margin-bottom:14px}
 
 svg{width:100%;height:auto;display:block}
 
-.schuif{margin-bottom:22px}
-.schuif label{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:600;margin-bottom:8px}
+.schuif{margin-bottom:16px}
+.uitleg{font-size:13px;color:var(--grijs);line-height:1.45;margin:14px 0 4px}
+.schuif label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:15px;font-weight:600;margin-bottom:8px;flex-wrap:wrap}
+.schuif label>span{display:flex;align-items:baseline;gap:8px;font-weight:400}
 .schuif .waarde{font-family:var(--serif);font-size:24px;font-weight:400}
-.schuif .tov{font-size:13px;color:var(--grijs);font-weight:400;margin-left:8px}
-input[type=range]{width:100%;accent-color:var(--magenta);height:26px;cursor:pointer}
+.schuif .tov{font-size:13px;color:var(--grijs);font-weight:400;text-align:right}
+/* Een schuifje met alleen accent-color is een dun streepje dat je over het hoofd
+   ziet. Deze heeft een zichtbare baan en een knop met een rand, zodat meteen
+   duidelijk is dat je eraan kunt trekken. */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:34px;
+  background:transparent;cursor:grab;display:block;margin:0}
+input[type=range]:active{cursor:grabbing}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:99px;
+  background:linear-gradient(90deg,var(--lijn),#D9CFE0)}
+input[type=range]::-moz-range-track{height:10px;border-radius:99px;
+  background:linear-gradient(90deg,var(--lijn),#D9CFE0)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:30px;height:30px;margin-top:-10px;border-radius:50%;background:var(--magenta);
+  border:3px solid var(--wit);box-shadow:0 2px 8px rgba(26,11,46,.28)}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;
+  background:var(--magenta);border:3px solid var(--wit);box-shadow:0 2px 8px rgba(26,11,46,.28)}
+input[type=range]:focus-visible::-webkit-slider-thumb{outline:3px solid var(--paars);outline-offset:2px}
+.schuif .merk{display:flex;justify-content:space-between;font-size:11.5px;color:var(--grijs);
+  letter-spacing:.5px;margin-top:2px}
 
 .breuk{background:var(--paars);color:var(--wit);border-radius:12px;padding:22px;margin-bottom:20px}
 .breuk .tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#E870B8;margin-bottom:8px}
@@ -52,6 +71,8 @@ input[type=range]{width:100%;accent-color:var(--magenta);height:26px;cursor:poin
 .breuk .cijfers{margin-top:10px;font-size:13px;opacity:.75}
 
 .vak{border-top:1px solid var(--lijn);padding-top:18px;margin-top:18px}
+.regelaars{margin-bottom:20px}
+.regelaars h3{font-size:17px;margin-bottom:16px}
 .vak h3{font-size:16px;margin-bottom:10px}
 .verdeling{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14.5px}
 .verdeling b{font-weight:600}
@@ -78,9 +99,9 @@ input[type=range]{width:100%;accent-color:var(--magenta);height:26px;cursor:poin
 </div></header>
 
 <div class="wrap kop">
-  <div class="eyebrow">Probeer het zelf</div>
-  <h1>Schuif aan een team</h1>
-  <p class="lees">Dit is een echt team van elf mensen uit onze testverzameling. Verschuif wat het team ziet, kiest en doet, en kijk wat er met de kaart gebeurt: waar de keten zakt, hoe de patronen verschuiven en welke dynamieken naar boven komen. Er wordt niets opgeslagen.</p>
+  <div class="eyebrow">Demo</div>
+  <h1>Probeer de Teamkrachtkaart</h1>
+  <p class="lees">Hieronder staat een team van elf mensen. Verzet de drie schuifjes en de kaart rekent meteen opnieuw: de lijn kantelt, de breuk verspringt, de patronen verschuiven en er komen andere dynamieken naar boven. Er wordt niets opgeslagen.</p>
 </div>
 
 <div class="wrap werkbank">
@@ -88,30 +109,34 @@ input[type=range]{width:100%;accent-color:var(--magenta);height:26px;cursor:poin
     <h2>De keten van dit team</h2>
     <p class="sub">De dikke lijn is het team, de dunne lijnen zijn de elf deelnemers. Magenta is het gemiddelde van alle metingen.</p>
     <div id="tekening"></div>
+  </div>
 
-    <div class="vak">
-      <h3>Verschuif het team</h3>
+  <div>
+    <div class="paneel regelaars">
+      <h3>Verzet de schuifjes</h3>
       <div class="schuif">
         <label for="s-zien">Zien <span><span class="waarde" id="w-zien">0</span><span class="tov" id="t-zien"></span></span></label>
-        <input type="range" id="s-zien" min="-25" max="25" value="0" step="1">
+        <input type="range" id="s-zien" min="-25" max="25" value="0" step="1" aria-describedby="u-zien">
+        <div class="merk"><span>veel lager</span><span id="u-zien">zoals gemeten</span><span>veel hoger</span></div>
       </div>
       <div class="schuif">
         <label for="s-sturen">Sturen <span><span class="waarde" id="w-sturen">0</span><span class="tov" id="t-sturen"></span></span></label>
-        <input type="range" id="s-sturen" min="-25" max="25" value="0" step="1">
+        <input type="range" id="s-sturen" min="-25" max="25" value="0" step="1" aria-describedby="u-sturen">
+        <div class="merk"><span>veel lager</span><span id="u-sturen">zoals gemeten</span><span>veel hoger</span></div>
       </div>
       <div class="schuif">
         <label for="s-doen">Doen <span><span class="waarde" id="w-doen">0</span><span class="tov" id="t-doen"></span></span></label>
-        <input type="range" id="s-doen" min="-25" max="25" value="0" step="1">
+        <input type="range" id="s-doen" min="-25" max="25" value="0" step="1" aria-describedby="u-doen">
+        <div class="merk"><span>veel lager</span><span id="u-doen">zoals gemeten</span><span>veel hoger</span></div>
       </div>
+      <p class="uitleg">Het getal rechts is de score van het team; daarachter staat hoeveel dat scheelt met het gemiddelde van alle metingen.</p>
       <div class="knoppen">
         <button class="knop lijn" id="herstel">Terug naar het echte team</button>
         <button class="knop lijn" id="voorbeeld1">Ziet veel, kiest weinig</button>
         <button class="knop lijn" id="voorbeeld2">Doet veel, kijkt weinig</button>
       </div>
     </div>
-  </div>
 
-  <div>
     <div class="breuk">
       <div class="tag">De breuk in de keten</div>
       <h3 id="breuk-kop">&nbsp;</h3>
