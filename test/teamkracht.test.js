@@ -11,6 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { execSync } from "node:child_process";
 
 import {
   bepaalProfiel, bepaalTeamlijn, bepaalBreuk, bepaalVerdeling,
@@ -1490,4 +1491,25 @@ test("de factuurrun boekt af op de factuur, niet op de betaling", () => {
   const incasso = maak.indexOf("incasseer(");
   assert.ok(factuur > 0 && afboeken > factuur, "de afnames worden afgeboekt voordat de factuur bestaat");
   assert.ok(incasso > afboeken, "er wordt geincasseerd voordat de afnames zijn afgeboekt");
+});
+
+test("de voorbeeldkaart wordt ook echt gedeployd", () => {
+  // Dit ging mis: de pagina linkte naar teamkracht-voorbeeld, dat bestand stond
+  // op mijn schijf maar in .gitignore. De test keek naar het bestandssysteem en
+  // zag hem, Vercel kreeg hem nooit, en de bezoeker kreeg een 404.
+  //
+  // Een test op het bestandssysteem zegt niets over wat er live staat. Deze
+  // kijkt naar wat git kent.
+  const pagina = readFileSync(new URL("../teamkrachtindex.html", import.meta.url), "utf8");
+  const intern = [...pagina.matchAll(/(?:href|src)="\/?([a-z0-9][a-z0-9._\/-]*)"/gi)]
+    .map(m => m[1])
+    .filter(p => !p.startsWith("http") && !p.startsWith("mailto"));
+
+  const inGit = execSync("git ls-files", { cwd: new URL("../", import.meta.url) })
+    .toString().split("\n");
+
+  for (const pad of new Set(intern)){
+    const bekend = inGit.includes(pad) || inGit.includes(`${pad}.html`);
+    assert.ok(bekend, `${pad} zit niet in git, dus Vercel krijgt hem nooit`);
+  }
 });
