@@ -25,16 +25,8 @@ jouw eigen woorden.
       deploy, anders vraagt de site om prijzen die niet meer bestaan. Claude kan
       dit voor je draaien als Chrome openstaat.
 
-## Voor teamkrachtindex.nl
-
-- [ ] **Domein koppelen** in Vercel, project happly-scan, bij Domains. Zet
-      `www.teamkrachtindex.nl` als hoofdadres en laat de kale naam doorsturen.
-- [ ] **DNS omzetten bij TransIP.** Vercel vertelt welke gegevens.
-- [ ] **`SITE_URL` controleren** in Vercel bij Environment Variables. Hij hoort
-      op `https://scan.happly.nl` te staan, zodat een betaling altijd op één
-      adres terugkomt, ongeacht via welk domein hij begon.
-- [ ] **Een deelafbeelding aanleveren**, 1200 bij 630, voor als de pagina op
-      LinkedIn wordt gedeeld. Nu staat er een vierkant app-icoontje.
+Teamkrachtindex.nl staat live sinds 14 september. Domein, DNS en SITE_URL zijn
+klaar; de deelafbeelding maakt Claude.
 
 ## Inhoud schrijven, hier staat de rest op stil
 
@@ -155,3 +147,8 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
 - [x] Tarieven v4: adviesprijs 495, vijf inkoopprijzen, partner zonder licentie,
       kaart zonder landelijk beeld, het rekenwerk van de maandfactuur
 - [x] De v4-migratie gedraaid en geverifieerd op 14 september
+- [x] Tarieven v4 live: gemerged, gedeployd, blok Z gedraaid
+- [x] www.teamkrachtindex.nl live met de Teamkracht-pagina en de prijzen uit de
+      database; de kale naam stuurt door naar www. De voordeur wisselt per domein
+      via `middleware.js`, want een rewrite in `vercel.json` wordt bij / nooit
+      bereikt.
