@@ -46,7 +46,7 @@ scorekolom bij komt.
 | Wat kost het | de tabel `producten`, aangemaakt in de migraties |
 | Wie mag wat | `toegang.js`, functie `koper()` |
 | Hoe schrijven we | `taalregels.md` |
-| Wat ligt er nog | `vervolg.md` en `rapport-tarieven-v3.md` |
+| Wat ligt er nog | `taken.md` is de afvinklijst, `vervolg.md` en `rapport-tarieven-v3.md` geven de uitleg |
 
 `briefings/` is de bijgewerkte versie. Kopieën in Downloads of Drive zijn
 werkversies: wijkt er een af, dan is de repo leidend en werk je de repo bij.
@@ -61,14 +61,18 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
 - Teamkracht fase 1 is live sinds 8 september 2026.
 - De tarieven v3 met vier koperslijnen (los, organisatie, professional, bureau)
   zijn gebouwd, inclusief het organisatiedashboard met seatbeheer.
-- **De tarieven v3 staan live sinds 10 september 2026.** Alle drie de migraties
-  zijn gedraaid en de code staat op productie. De openbare prijslijst geeft
-  dertien rijen: ZKI, vier maal PAK, vier maal HM, LEZ-1 en de drie
-  ORG-staffels. De codes TF, HM, LIC-M, LIC-J en LEZ-2 bestaan niet meer of
-  staan op inactief.
-- Wat in de tabel `producten` op fase B staat (PAK-PRO, PAK-BUR, PAK-BUR-EXTRA,
-  HM-PRO, HM-BUR, PRO-M, PRO-J, PRO-START, BUR-1 tot en met BUR-3, BEG-1) is
-  aangemaakt maar niet te koop; de prijslijst toont alleen fase A en bestaand.
+- **De tarieven v4 staan live sinds 14 september 2026.** Eén adviesprijs van 495
+  voor de eindklant, en daaronder vijf inkoopprijzen per lijn. De partner is geen
+  klant maar een verkoper: hij factureert 495 aan zijn klant en Happly verrekent
+  achteraf. De openbare prijslijst geeft zestien rijen.
+- **Vooraf betalen is de uitzondering.** Wie een licentie heeft (organisatie,
+  professional, bureau) krijgt zijn afnames op een maandfactuur; alleen `los` en
+  `partner_zonder_licentie` rekenen per pakket af.
+- Wat op fase B staat is aangemaakt maar niet te koop; de prijslijst toont alleen
+  fase A en bestaand.
+- **Nog niet gebouwd:** afnames wegschrijven bij het maken van een kaart, en de
+  maandelijkse factuurrun. Het rekenwerk staat in `facturen.js` en is getest; de
+  koppeling met de database en Mollie ontbreekt.
 
 ## Werkregels
 
