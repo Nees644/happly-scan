@@ -2,6 +2,22 @@
 > Downloads of Drive is een werkversie; wijk je daarvan af, werk dan dit bestand
 > bij. Zie CLAUDE.md.
 
+> **Vier correcties op de aangeleverde versie, vastgesteld op 15 september 2026.**
+> Ze gaan voor op wat er verderop staat.
+>
+> 1. Het minimum voor een Teamfoto is **vijf** deelnemers, niet acht. Dat raakt
+>    K4, de tekst bij teamomvang en de banden zelf: die lopen `2-4`, `5-9`,
+>    `10-20`, `21+`.
+> 2. Een Teamkracht Index als getal voor een heel team bestaat nog niet in de
+>    code. Voor het Leidersbeeld is de formule gelijk aan die van de
+>    individuele meting: `round((zien + sturen + doen) / 3)`.
+> 3. Een partnertoken bestaat niet. `partner_id` is de auth-id van de partner.
+> 4. De opvolging is niet van het Leidersbeeld alleen. Er is een tabel
+>    `opvolging` met twee bronnen, zodat dezelfde lijst later ook de leads van
+>    de Zelfkracht Index kan tonen. Paragraaf 5a gaat uit van een bestaande
+>    opvolgtabel met statussen en notities; die bestaat niet. `opvolgreeks`
+>    houdt alleen bij welke automatische mail is verstuurd.
+
 # Briefing Code · Leidersbeeld · v2.2 (15 september 2026)
 
 Vervangt v1 van dezelfde dag. Aanvulling op `briefing_code_teamkracht.md`, `teamkracht_model_v4_keten.md` en `briefing_code_tarieven_v4.md`. Lees die eerst. Niets in R1 tot en met R12 verandert.

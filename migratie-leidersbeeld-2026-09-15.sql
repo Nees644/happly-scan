@@ -11,8 +11,9 @@
 -- terwijl de site doorloopt. Er is nog geen route die deze tabellen gebruikt;
 -- die komt in stap 2.
 --
--- Drie plekken wijken bewust af van de briefing. Ze staan hieronder met de
--- reden erbij en zijn gemarkeerd met AFWIJKING.
+-- Vier plekken wijken bewust af van de briefing. Ze staan hieronder met de
+-- reden erbij en zijn gemarkeerd met AFWIJKING. Alle vier zijn op 15 september
+-- 2026 bevestigd door Maarten.
 -- ===========================================================================
 
 
@@ -42,11 +43,10 @@ create table if not exists public.teamkracht_leidersbeeld (
 
   -- AFWIJKING 1 · de banden lopen in de briefing 2-7, 8-12, 13-20, 21+. Het
   -- minimum voor een Teamfoto is vijf deelnemers en niet acht
-  -- (teamkracht_config.min_deelnemers_kaart, bevestigd op 7, 8 en 9 september).
-  -- Met de banden uit de briefing valt de grens middenin de eerste band en is
-  -- van een team van zes niet te zeggen of het een kaart kan krijgen. De grens
-  -- ligt hier daarom op vijf. Wil je toch de letterlijke banden, dan is dit de
-  -- enige regel die verandert.
+  -- (teamkracht_config.min_deelnemers_kaart, bevestigd op 7, 8 en 9 september
+  -- en opnieuw op 15 september). Met de banden uit de briefing valt de grens
+  -- middenin de eerste band en is van een team van zes niet te zeggen of het
+  -- een kaart kan krijgen. De grens ligt hier daarom op vijf.
   teamomvang        text not null check (teamomvang in ('2-4','5-9','10-20','21+')),
 
   -- De drie dimensies, op dezelfde schaal van nul tot honderd als een meting.
@@ -119,30 +119,52 @@ create index if not exists teamkracht_leidersbeeld_partner_idx
 -- Een rij per contactmoment, nooit overschrijven. De laatste rij bepaalt wat er
 -- in de lijst staat; de rijen ervoor zijn de geschiedenis.
 --
--- Bij de Zelfkracht Index bestaat tabel opvolgreeks. Die vult de software, niet
--- een mens: hij houdt alleen bij welke automatische mail op dag 3, 7 en 56 is
--- verstuurd. Er is dus geen bestaande kolom opvolgstatus, notitie of volgende
--- actie om over te nemen. Wat wel wordt overgenomen is de vorm: Nederlandse
--- kolomnamen, created_at, en RLS zonder anon.
-create table if not exists public.teamkracht_leidersbeeld_opvolging (
+-- De briefing vraagt om een opvolgtabel die alleen bij het Leidersbeeld hoort.
+-- Dat is een tabel te veel. Bij de Zelfkracht Index bestaat tabel opvolgreeks,
+-- en die wordt met de hand gebruikt om na te bellen terwijl hij daar niet voor
+-- gemaakt is: hij houdt alleen bij welke automatische mail op dag 3, 7 en 56 is
+-- verstuurd, en heeft geen veld voor een status of een notitie. Er valt dus
+-- geen veldnaam over te nemen, en er komt op termijn wel een scherm waarin
+-- beide soorten leads worden opgevolgd.
+--
+-- AFWIJKING 4 · daarom een opvolging die niet aan het Leidersbeeld vastzit.
+-- Twee bronnen, elk met een echte verwijzing, en een check die afdwingt dat er
+-- precies een van de twee is gevuld. Een los bron_id zonder foreign key zou
+-- hetzelfde lijken en de verwijzing niet bewaken.
+create table if not exists public.opvolging (
   id              uuid primary key default gen_random_uuid(),
   created_at      timestamptz not null default now(),
-  leidersbeeld_id uuid not null references public.teamkracht_leidersbeeld(id) on delete cascade,
+
+  bron            text not null check (bron in ('leidersbeeld','zelfkracht')),
+  leidersbeeld_id uuid references public.teamkracht_leidersbeeld(id) on delete cascade,
+  opvolgreeks_id  uuid references public.opvolgreeks(id) on delete cascade,
+
   opvolgstatus    text not null check (opvolgstatus in
                     ('nieuw','gebeld','gemaild','afspraak','offerte','gewonnen','verloren','parkeren')),
   notitie         text,
   volgende_actie  text,
   volgende_datum  date,
   -- Wie het schreef: Maarten of de partner.
-  door            uuid references auth.users(id) on delete set null
+  door            uuid references auth.users(id) on delete set null,
+
+  constraint opvolging_een_bron check (
+    (bron = 'leidersbeeld' and leidersbeeld_id is not null and opvolgreeks_id  is null)
+    or
+    (bron = 'zelfkracht'   and opvolgreeks_id  is not null and leidersbeeld_id is null)
+  )
 );
+
+create index if not exists opvolging_leidersbeeld_idx
+  on public.opvolging (leidersbeeld_id, created_at desc)
+  where leidersbeeld_id is not null;
+create index if not exists opvolging_opvolgreeks_idx
+  on public.opvolging (opvolgreeks_id, created_at desc)
+  where opvolgreeks_id is not null;
 
 -- De lijst sorteert op volgende datum, zodat bovenaan staat wie vandaag aan de
 -- beurt is.
-create index if not exists teamkracht_leidersbeeld_opvolging_lead_idx
-  on public.teamkracht_leidersbeeld_opvolging (leidersbeeld_id, created_at desc);
-create index if not exists teamkracht_leidersbeeld_opvolging_datum_idx
-  on public.teamkracht_leidersbeeld_opvolging (volgende_datum)
+create index if not exists opvolging_datum_idx
+  on public.opvolging (volgende_datum)
   where volgende_datum is not null;
 
 
@@ -153,7 +175,7 @@ create index if not exists teamkracht_leidersbeeld_opvolging_datum_idx
 -- gaat langs RLS heen. De anon-rol krijgt hier niets: geen insert, geen select.
 -- /leider/:token leest ook via een serverfunctie, op token.
 alter table public.teamkracht_leidersbeeld enable row level security;
-alter table public.teamkracht_leidersbeeld_opvolging enable row level security;
+alter table public.opvolging enable row level security;
 
 -- Lezen in het beheerscherm: de beheerder ziet alles, een partner alleen zijn
 -- eigen leads. Een gecertificeerde zonder leads ziet een lege lijst.
@@ -166,22 +188,37 @@ create policy "leads lezen" on public.teamkracht_leidersbeeld
 -- Opvolging: lezen en schrijven mag bij de leads die je mag zien. Schrijven
 -- gebeurt hier wel rechtstreeks, want dit is het enige wat een mens zelf
 -- invult en het staat achter een login.
-drop policy if exists "opvolging lezen" on public.teamkracht_leidersbeeld_opvolging;
-create policy "opvolging lezen" on public.teamkracht_leidersbeeld_opvolging
+--
+-- De opvolging van de Zelfkracht Index is alleen van de beheerder: die leads
+-- komen van de publieke scan en horen bij niemand anders.
+drop policy if exists "opvolging lezen" on public.opvolging;
+create policy "opvolging lezen" on public.opvolging
   for select to authenticated using (
-    exists (select 1 from public.teamkracht_leidersbeeld l
-             where l.id = teamkracht_leidersbeeld_opvolging.leidersbeeld_id
-               and (public.teamkracht_is_beheerder() or l.partner_id = auth.uid()))
+    public.teamkracht_is_beheerder()
+    or exists (select 1 from public.teamkracht_leidersbeeld l
+                where l.id = opvolging.leidersbeeld_id and l.partner_id = auth.uid())
   );
 
-drop policy if exists "opvolging schrijven" on public.teamkracht_leidersbeeld_opvolging;
-create policy "opvolging schrijven" on public.teamkracht_leidersbeeld_opvolging
+drop policy if exists "opvolging schrijven" on public.opvolging;
+create policy "opvolging schrijven" on public.opvolging
   for insert to authenticated with check (
     door = auth.uid()
-    and exists (select 1 from public.teamkracht_leidersbeeld l
-                 where l.id = teamkracht_leidersbeeld_opvolging.leidersbeeld_id
-                   and (public.teamkracht_is_beheerder() or l.partner_id = auth.uid()))
+    and (
+      public.teamkracht_is_beheerder()
+      or exists (select 1 from public.teamkracht_leidersbeeld l
+                  where l.id = opvolging.leidersbeeld_id and l.partner_id = auth.uid())
+    )
   );
 
 -- Geen update- en geen deletepolicy. Een contactmoment wordt niet herschreven
 -- en niet gewist; corrigeren doe je met een nieuwe rij.
+
+-- De beheerder mag de leadlijst van de Zelfkracht Index lezen om hem op te
+-- kunnen volgen. opvolgreeks had alleen een leesrecht voor iedere ingelogde
+-- gebruiker; dat wordt hier teruggebracht tot de beheerder, want sinds de
+-- partnerlijn bestaat zijn er ingelogde gebruikers die deze lijst niet hoeven
+-- te zien.
+drop policy if exists "authenticated read" on public.opvolgreeks;
+drop policy if exists "beheerder leest opvolgreeks" on public.opvolgreeks;
+create policy "beheerder leest opvolgreeks" on public.opvolgreeks
+  for select to authenticated using (public.teamkracht_is_beheerder());

@@ -1,11 +1,16 @@
 # Taken
 
-Stand van 14 september 2026. Dit is de enige afvinklijst; als een taak hier niet
+Stand van 15 september 2026. Dit is de enige afvinklijst; als een taak hier niet
 staat, ligt hij niet. Per taak staat waar de afspraak vandaan komt, en dat
 document blijft leidend. Rond je iets af, werk dan de bron bij en vink hier af.
 
-Bronnen: `briefings/tarieven.md` (v4), `briefings/partnerpakket.md`,
-`briefings/certificering.md`, `vervolg.md`, `rapport-tarieven-v3.md`.
+Bronnen: `briefings/tarieven.md` (v4), `briefings/leidersbeeld.md` (v2.2),
+`briefings/partnerpakket.md`, `briefings/certificering.md`, `vervolg.md`,
+`rapport-tarieven-v3.md`.
+
+`briefings/feiten.md` is het blad dat vooraan in een briefinggesprek hoort.
+Daarin staan de getallen en keuzes die steeds verkeerd in nieuwe briefings
+terechtkomen.
 
 ---
 
@@ -69,6 +74,25 @@ klaar; de deelafbeelding maakt Claude.
 # DEEL 2 · Wat Claude bouwt
 
 Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
+
+## Leidersbeeld, uit `briefings/leidersbeeld.md`
+
+- [ ] **Stap 1 is klaar en wacht op akkoord.**
+      `migratie-leidersbeeld-2026-09-15.sql` legt `teamkracht_leidersbeeld` en
+      `opvolging` aan. Nog niet gedraaid.
+- [ ] **Stap 2.** De gratis pagina `/leidersbeeld`, de resultaatmail met het
+      indexgetal, de herinnering na zeven dagen, `/leider/:token` toestand a en
+      b, en het leadoverzicht. Hier hoort een aanpassing van `privacy.html` bij,
+      want dit is een nieuwe gegevensstroom.
+- [ ] **Stap 3.** De koopknop met Mollie, de koppeling door een partner en de
+      statusovergangen.
+- [ ] **Stap 4.** Regel R13, het Leidersbeeld op de kaart, toestand c en de
+      printcontrole.
+- [ ] **Stap 5.** Hermeting en het Sprint-label.
+- [ ] **Opvolgscherm als CRM.** De tabel `opvolging` heeft twee bronnen. Het
+      scherm dat bij stap 2 wordt gebouwd voor de Leidersbeeld-leads kan daarna
+      ook de leads van de Zelfkracht Index tonen, zodat `opvolgreeks` niet meer
+      met de hand in de Supabase-editor hoeft te worden bijgehouden.
 
 ## Direct volgend op v4
 
