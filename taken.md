@@ -77,9 +77,10 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
 
 ## Leidersbeeld, uit `briefings/leidersbeeld.md`
 
-- [ ] **Stap 1 is klaar en wacht op akkoord.**
-      `migratie-leidersbeeld-2026-09-15.sql` legt `teamkracht_leidersbeeld` en
-      `opvolging` aan. Nog niet gedraaid.
+- [x] **Stap 1 is af.** `migratie-leidersbeeld-2026-09-15.sql` is op 15
+      september 2026 gedraaid. `teamkracht_leidersbeeld` en `opvolging` staan
+      in de database, gecontroleerd met `controle/staat-leidersbeeld-erin.sql`.
+      Er is nog geen route die ze gebruikt.
 - [ ] **Stap 2.** De gratis pagina `/leidersbeeld`, de resultaatmail met het
       indexgetal, de herinnering na zeven dagen, `/leider/:token` toestand a en
       b, en het leadoverzicht. Hier hoort een aanpassing van `privacy.html` bij,

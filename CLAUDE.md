@@ -70,6 +70,16 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   HM-PRO, HM-BUR, PRO-M, PRO-J, PRO-START, BUR-1 tot en met BUR-3, BEG-1) is
   aangemaakt maar niet te koop; de prijslijst toont alleen fase A en bestaand.
 
+- **De tabellen van het Leidersbeeld staan er sinds 15 september 2026.**
+  `teamkracht_leidersbeeld` en `opvolging` zijn aangelegd; er is nog geen route
+  die ze gebruikt. De opvolging is bewust niet van het Leidersbeeld alleen: hij
+  heeft twee bronnen, zodat hetzelfde scherm later ook de leads van de
+  Zelfkracht Index toont. `opvolgreeks` is geen opvolglijst maar de
+  administratie van de automatische mailreeks.
+- Het minimum van vijf deelnemers is op 15 september opnieuw bevestigd. Wie een
+  briefing schrijft, krijgt `briefings/feiten.md` vooraf; daar staan de
+  getallen die steeds verkeerd terugkomen.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen
