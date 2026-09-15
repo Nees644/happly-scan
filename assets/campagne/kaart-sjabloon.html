@@ -8,7 +8,7 @@
   Huisstijl volgt de Happly designstandaard en scan.happly.nl.
   Renderen: ./genereer.sh (headless Chrome, exacte pixelmaat).
   Kaartkeuze via query: ?kaart=1 (introductie), ?kaart=2 (uitslagmock),
-  ?kaart=3 (eigenaarschap, outside-in). Nieuwe kaarten: voeg een sectie toe
+  ?kaart=3 (eigenaarschap, outside-in), ?kaart=4 (Leidersbeeld). Nieuwe kaarten: voeg een sectie toe
   in KAARTEN onderaan en een regel in genereer.sh.
 -->
 <link rel="stylesheet" href="fonts.css">
@@ -66,6 +66,17 @@
     position:absolute;bottom:210px;left:50%;transform:translateX(-50%);
     width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
   }
+  /* Kaart 4: het Leidersbeeld. Twee beelden die uiteenlopen, met de gratis
+     eerste stap eronder. Zelfde opbouw als kaart 3. */
+  #kaart4{justify-content:flex-start;padding-top:230px}
+  #kaart4 h1{font-size:78px;max-width:860px}
+  #kaart4 h1 .wit{display:block;color:#fff;font-style:normal}
+  #kaart4 h1 em{display:block;margin-top:26px}
+  #kaart4 .landing{
+    position:absolute;bottom:200px;left:50%;transform:translateX(-50%);
+    width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
+  }
+  #kaart4 .landing b{display:block;color:#fff;font-weight:500;margin-top:10px}
 </style>
 </head>
 <body>
@@ -84,6 +95,11 @@
 <section class="kaart" id="kaart3">
   <h1><span class="wit">Iedereen vraagt om eigenaarschap.</span><em>Niemand kan zeggen waar het staat.</em></h1>
   <div class="landing">Eigenaarschap heeft nu een getal. De Zelfkracht Index.</div>
+</section>
+
+<section class="kaart" id="kaart4">
+  <h1><span class="wit">Jij weet hoe je team ervoor staat.</span><em>Het team weet dat ook. Alleen anders.</em></h1>
+  <div class="landing">Twaalf vragen over zien, sturen en doen.<b>Je Leidersbeeld. Drie minuten, kosteloos.</b></div>
 </section>
 
 <div class="logo" aria-label="Happly">
