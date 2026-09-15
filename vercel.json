@@ -115,6 +115,9 @@
     },
     "api/leidersbeeld-kopen.js": {
       "maxDuration": 15
+    },
+    "api/factuurgegevens.js": {
+      "maxDuration": 10
     }
   },
   "crons": [

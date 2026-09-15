@@ -11,6 +11,8 @@
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bedragMetBtw, soortBetaling, magKopen, omschrijving, prijsVoor } from "../betalen.js";
 import { haalKoper, haalProducten, zetHermetingTegoed, haalOfMaakMollieKlant } from "../koper-db.js";
+import { klantUit, klantCompleet } from "../factuur.js";
+import { betaaltAchteraf } from "../toegang.js";
 import { maakBetaling } from "../mollie.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -71,6 +73,24 @@ export default async function handler(req, res){
 
   const soort = soortBetaling(product);
   if (!soort){ res.status(400).json({ error: "Dit product kan nog niet online worden afgerekend." }); return; }
+
+  // Wie vooraf betaalt, krijgt meteen een factuur. Zonder naam en adres kan die
+  // factuur niet worden opgemaakt, en dan hoort de betaling niet te beginnen:
+  // achteraf een bedrag zonder factuur rechtzetten is veel vervelender dan nu
+  // twee velden invullen. Wie achteraf betaalt komt op de maandfactuur; daar
+  // gaat de factuurrun over.
+  if (!betaaltAchteraf(wie?.prijsniveau)){
+    const g = await db.from("teamkracht_gebruikers")
+      .select("naam, email, organisatie, btw_nummer, factuur_naam, factuur_adres, factuur_postcode, factuur_plaats, factuur_land")
+      .eq("user_id", gebruiker.user_id).maybeSingle();
+    if (!klantCompleet(klantUit(g.data || {}))){
+      res.status(400).json({
+        error: "We hebben je factuurgegevens nodig voordat je kunt betalen.",
+        factuurgegevens_nodig: true
+      });
+      return;
+    }
+  }
 
   const bedrag = bedragMetBtw(product);
   const isMeting = product.groep === "PAK" || product.groep === "HM";

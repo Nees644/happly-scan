@@ -12,6 +12,10 @@ import { groepVanCode } from "./toegang.js";
 import { zetHermetingTegoed } from "./koper-db.js";
 import { vervolgAbonnement } from "./betalen.js";
 import { verderDan } from "./leidersbeeld-koppelen.js";
+import { compleet as bedrijfCompleet, ontbreekt as bedrijfOntbreekt, BEDRIJF } from "./bedrijf.js";
+import { klantUit, klantCompleet, regelsVoor, totalen, btwVerlegd } from "./factuur.js";
+import { factuurMail } from "./factuur-mail.js";
+import { Resend } from "resend";
 
 const MOLLIE_NAAR_ONS = {
   paid: "betaald",
@@ -215,7 +219,119 @@ export async function verwerkMollieBetaling(db, mollieId){
     }catch(e){
       uitkomst = `${uitkomst}, abonnement mislukt: ${String(e.message).slice(0, 80)}`;
     }
+    // De factuur is de laatste stap en mag niets omvergooien. Wie heeft betaald
+    // heeft zijn aankoop, ook als de factuur pas later lukt.
+    try{
+      const factuur = await maakFactuur(db, bestelling);
+      if (factuur) uitkomst = `${uitkomst}, ${factuur}`;
+    }catch(e){
+      uitkomst = `${uitkomst}, factuur mislukt: ${String(e.message).slice(0, 80)}`;
+    }
   }
 
   return { uitkomst, bestelling: { ...bestelling, status: nieuw } };
+}
+
+/* De factuur bij een aankoop vooraf. Een bestelling krijgt er hoogstens een;
+   dat wordt bewaakt door de unieke index op facturen.bestelling_id, en niet
+   door hier te tellen. Twee meldingen tegelijk leveren dus een botsing op en
+   geen tweede factuurnummer.
+
+   Zonder complete bedrijfsgegevens gaat er niets uit. Een factuur zonder
+   btw-nummer of KvK is geen factuur, en een klant die hem niet kan boeken is
+   slechter af dan een klant die nog even wacht. */
+export async function maakFactuur(db, bestelling, verzender = undefined){
+  // De verzender komt uit de omgeving, tenzij een test er een meegeeft. Zonder
+  // sleutel wordt de factuur wel gemaakt en niet gemaild; dan staat hij klaar.
+  if (verzender === undefined){
+    verzender = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+  }
+
+  const bestaat = await db.from("facturen").select("id, nummer").eq("bestelling_id", bestelling.id).maybeSingle();
+  if (bestaat.data) return `factuur ${bestaat.data.nummer} stond er al`;
+
+  if (!bedrijfCompleet()){
+    await waarschuw(verzender, bestelling,
+      `De bedrijfsgegevens in bedrijf.js zijn onvolledig: ${bedrijfOntbreekt().join(", ")}.`);
+    return `geen factuur: bedrijfsgegevens onvolledig (${bedrijfOntbreekt().join(", ")})`;
+  }
+
+  const g = await db.from("teamkracht_gebruikers")
+    .select("naam, email, organisatie, btw_nummer, factuur_naam, factuur_adres, factuur_postcode, factuur_plaats, factuur_land")
+    .eq("user_id", bestelling.gebruiker_id).maybeSingle();
+  const klant = klantUit(g.data || {});
+  if (!klantCompleet(klant)){
+    await waarschuw(verzender, bestelling, "De factuurgegevens van de klant ontbreken.");
+    return "geen factuur: de factuurgegevens van de klant ontbreken";
+  }
+
+  const product = (await db.from("producten")
+    .select("code, naam, btw_promille").eq("code", bestelling.product_code).maybeSingle()).data;
+
+  const verlegd = btwVerlegd(klant);
+  const regels = regelsVoor({ product, bestelling });
+  const bedrag = totalen(regels, { verlegd });
+
+  const nummer = await db.rpc("volgend_factuurnummer");
+  if (nummer.error || !nummer.data) throw new Error("geen factuurnummer gekregen");
+
+  const vandaag = new Date().toISOString().slice(0, 10);
+  const ins = await db.from("facturen").insert({
+    nummer: nummer.data,
+    soort: "factuur",
+    gebruiker_id: bestelling.gebruiker_id,
+    bestelling_id: bestelling.id,
+    periode_van: vandaag,
+    periode_tot: vandaag,
+    bedrag_ex_btw: bedrag.ex,
+    btw_cent: bedrag.btw,
+    bedrag_totaal: bedrag.totaal,
+    btw_verlegd: verlegd,
+    btw_nummer: klant.btw_nummer,
+    status: "betaald",
+    mollie_payment_id: bestelling.mollie_payment_id,
+    betaald_op: new Date().toISOString(),
+    klant_naam: klant.naam,
+    klant_adres: klant.adres,
+    klant_postcode: klant.postcode,
+    klant_plaats: klant.plaats,
+    klant_land: klant.land,
+    regels
+  }).select("*").single();
+  if (ins.error){
+    if (/duplicate|unique/i.test(ins.error.message || "")) return "factuur werd net al gemaakt";
+    throw new Error(`factuur opslaan mislukt: ${ins.error.message}`);
+  }
+
+  const naar = klant.email || g.data?.email;
+  if (verzender && naar){
+    const mail = factuurMail(ins.data, BEDRIJF);
+    const uit = await verzender.emails.send({
+      from: `${BEDRIJF.naam} <${BEDRIJF.email}>`, to: naar, subject: mail.subject, html: mail.html
+    });
+    if (!(uit && uit.error)){
+      await db.from("facturen").update({ verstuurd_op: new Date().toISOString() }).eq("id", ins.data.id);
+      return `factuur ${ins.data.nummer} verstuurd`;
+    }
+    return `factuur ${ins.data.nummer} gemaakt, mail mislukt`;
+  }
+  return `factuur ${ins.data.nummer} gemaakt`;
+}
+
+/* Kan er geen factuur worden gemaakt terwijl er wel is betaald, dan hoort
+   iemand dat te weten. De klant kan er niets aan doen en merkt er niets van;
+   dit is een bericht aan onszelf, zodat de factuur met de hand kan volgen. */
+async function waarschuw(verzender, bestelling, reden){
+  try{
+    if (!verzender) return;
+    await verzender.emails.send({
+      from: `${BEDRIJF.naam} <${BEDRIJF.email}>`,
+      to: BEDRIJF.email,
+      subject: `Betaling zonder factuur: bestelling ${bestelling.id}`,
+      html: `<p>Er is betaald, maar er kon geen factuur worden opgemaakt.</p>
+             <p><b>Reden:</b> ${reden}</p>
+             <p>Bestelling ${bestelling.id}, product ${bestelling.product_code},
+             bedrag ${(Number(bestelling.bedrag_cent || 0) / 100).toFixed(2)} euro.</p>`
+    });
+  }catch(e){ /* stil */ }
 }

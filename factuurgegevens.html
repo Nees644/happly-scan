@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Je factuurgegevens &middot; Teamkracht Index</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:16px}
+.wrap{max-width:520px;margin:0 auto;padding:48px 22px 80px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.9rem;line-height:1.15;margin-bottom:.35em}
+.lead{color:var(--grijs);margin-bottom:22px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:24px}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 5px}
+input{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+input:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+.knop{font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:12px 26px;cursor:pointer;margin-top:20px}
+.knop:disabled{opacity:.45}
+.melding{border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:16px}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044}
+.goed{background:#E6F4EC;border:1px solid #BFE3CE;color:#14603D}
+.klein{font-size:13.5px;color:var(--grijs)}
+.twee{display:grid;grid-template-columns:140px 1fr;gap:12px}
+#login input{margin-bottom:10px}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Je factuurgegevens</h1>
+  <p class="lead">Wat hier staat, komt op je facturen. Naam en adres zijn verplicht; zonder die gegevens kunnen we geen factuur opmaken die je kunt boeken.</p>
+
+  <div class="kaart" id="login">
+    <label for="l-mail">E-mailadres</label>
+    <input type="email" id="l-mail" autocomplete="username">
+    <label for="l-ww">Wachtwoord</label>
+    <input type="password" id="l-ww" autocomplete="current-password">
+    <button type="button" class="knop" id="l-knop">Inloggen</button>
+    <div class="melding fout" id="l-fout" hidden>Inloggen lukte niet.</div>
+  </div>
+
+  <div class="kaart" id="formulier" hidden>
+    <label for="f-naam">Bedrijfsnaam of naam</label>
+    <input type="text" id="f-naam" autocomplete="organization">
+
+    <label for="f-adres">Adres</label>
+    <input type="text" id="f-adres" autocomplete="street-address" placeholder="Straat en huisnummer">
+
+    <div class="twee">
+      <div><label for="f-postcode">Postcode</label><input type="text" id="f-postcode" autocomplete="postal-code"></div>
+      <div><label for="f-plaats">Plaats</label><input type="text" id="f-plaats" autocomplete="address-level2"></div>
+    </div>
+
+    <label for="f-land">Land</label>
+    <input type="text" id="f-land" value="NL" maxlength="2">
+
+    <label for="f-btw">Btw-nummer <span style="font-weight:400;color:var(--grijs)">optioneel</span></label>
+    <input type="text" id="f-btw">
+
+    <button type="button" class="knop" id="bewaar">Bewaren</button>
+    <div class="melding" id="melding" hidden></div>
+  </div>
+</div>
+
+<script type="module">
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+const el = id => document.getElementById(id);
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, { ...opties, headers: {
+    "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{})
+  }});
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+el("l-knop").addEventListener("click", async () => {
+  el("l-fout").hidden = true;
+  el("l-knop").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email: el("l-mail").value.trim(), password: el("l-ww").value });
+  el("l-knop").disabled = false;
+  if (error){ el("l-fout").hidden = false; return; }
+  await start();
+});
+
+async function start(){
+  el("login").hidden = true;
+  el("formulier").hidden = false;
+  const uit = await api("/api/factuurgegevens");
+  const g = uit.gegevens || {};
+  el("f-naam").value     = g.factuur_naam || g.organisatie || g.naam || "";
+  el("f-adres").value    = g.factuur_adres || "";
+  el("f-postcode").value = g.factuur_postcode || "";
+  el("f-plaats").value   = g.factuur_plaats || "";
+  el("f-land").value     = g.factuur_land || "NL";
+  el("f-btw").value      = g.btw_nummer || "";
+}
+
+el("bewaar").addEventListener("click", async () => {
+  const melding = el("melding");
+  melding.hidden = false; melding.className = "melding"; melding.textContent = "Bezig...";
+  try{
+    const uit = await api("/api/factuurgegevens", { method: "POST", body: JSON.stringify({
+      factuur_naam:     el("f-naam").value,
+      factuur_adres:    el("f-adres").value,
+      factuur_postcode: el("f-postcode").value,
+      factuur_plaats:   el("f-plaats").value,
+      factuur_land:     el("f-land").value,
+      btw_nummer:       el("f-btw").value
+    })});
+    melding.className = "melding " + (uit.compleet ? "goed" : "fout");
+    melding.textContent = uit.compleet
+      ? "Bewaard. Je facturen krijgen deze gegevens."
+      : "Bewaard, maar nog niet compleet. Vul naam, adres, postcode en plaats in.";
+  }catch(e){
+    melding.className = "melding fout";
+    melding.textContent = e.message;
+  }
+});
+
+db.auth.getSession().then(({ data }) => { if (data.session) start(); });
+</script>
+</body>
+</html>

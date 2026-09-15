@@ -278,9 +278,20 @@ async function koopAbonnement(code, knop){
     location.href = uit.betaalpagina;
   }catch(e){
     melding.className = "melding fout";
-    melding.textContent = e.message;
+    toonFout(melding, e.message);
     knop.disabled = false;
   }
+}
+
+/* Ontbreken de factuurgegevens, dan is de melding pas bruikbaar met de weg
+   erheen erbij. Zonder die gegevens kan er geen factuur worden opgemaakt en
+   begint de betaling niet. */
+function toonFout(melding, tekst){
+  if (/factuurgegevens/i.test(tekst)){
+    melding.innerHTML = `${esc(tekst)} <a href="/factuurgegevens">Vul ze hier in</a> en probeer het daarna opnieuw.`;
+    return;
+  }
+  melding.textContent = tekst;
 }
 
 /* Bedragen lopen sinds de tarieven van v3 tot in de duizenden, dus een
@@ -379,7 +390,7 @@ async function koop(groep, teamId, naam){
     location.href = uit.betaalpagina;
   }catch(e){
     melding.className = "melding fout";
-    melding.textContent = e.message;
+    toonFout(melding, e.message);
   }
 }
 

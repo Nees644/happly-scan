@@ -70,6 +70,29 @@ input[readonly]{background:#F4F0F6;color:var(--grijs)}
     <label for="ww">Wachtwoord</label>
     <input type="password" id="ww" autocomplete="new-password" placeholder="Minstens acht tekens">
 
+    <h2 style="margin-top:26px">Waar sturen we de factuur naartoe</h2>
+    <p class="klein">Je krijgt de factuur direct na de betaling in je mail. Naam en adres staan erop, want anders kun je hem niet boeken.</p>
+
+    <label for="f-naam">Bedrijfsnaam of naam</label>
+    <input type="text" id="f-naam" autocomplete="organization">
+
+    <label for="f-adres">Adres</label>
+    <input type="text" id="f-adres" autocomplete="street-address" placeholder="Straat en huisnummer">
+
+    <div style="display:grid;grid-template-columns:140px 1fr;gap:12px">
+      <div>
+        <label for="f-postcode">Postcode</label>
+        <input type="text" id="f-postcode" autocomplete="postal-code">
+      </div>
+      <div>
+        <label for="f-plaats">Plaats</label>
+        <input type="text" id="f-plaats" autocomplete="address-level2">
+      </div>
+    </div>
+
+    <label for="f-btw">Btw-nummer <span style="font-weight:400;color:var(--grijs)">optioneel</span></label>
+    <input type="text" id="f-btw" placeholder="Alleen als je het op de factuur wilt">
+
     <button type="button" class="knop" id="verder">Verder naar betalen</button>
     <button type="button" class="wissel" id="wissel">Ik heb al een account</button>
     <div class="melding fout" id="fout" hidden></div>
@@ -105,6 +128,7 @@ fetch(`/api/leidersbeeld-kopen?t=${encodeURIComponent(token)}`).then(r => r.json
   el("mail").value = uit.leider_email || "";
   el("mail").readOnly = true;
   el("kop").textContent = `De Teamfoto van ${uit.organisatie}`;
+  if (!el("f-naam").value) el("f-naam").value = uit.organisatie || "";
   if (uit.al_gekoppeld){
     meld("Aan dit Leidersbeeld hangt al een team. Log in om verder te gaan.", true);
     aanmelden = false; zetWissel();
@@ -124,6 +148,21 @@ el("verder").addEventListener("click", async () => {
   const mail = el("mail").value.trim(), ww = el("ww").value;
   if (!mail || ww.length < 8){ meld("Vul een wachtwoord van minstens acht tekens in."); return; }
 
+  const factuur = {
+    factuur_naam:     el("f-naam").value.trim(),
+    factuur_adres:    el("f-adres").value.trim(),
+    factuur_postcode: el("f-postcode").value.trim(),
+    factuur_plaats:   el("f-plaats").value.trim(),
+    btw_nummer:       el("f-btw").value.trim()
+  };
+  const mist = [
+    [factuur.factuur_naam, "een naam voor op de factuur"],
+    [factuur.factuur_adres, "je adres"],
+    [factuur.factuur_postcode, "je postcode"],
+    [factuur.factuur_plaats, "je plaats"]
+  ].filter(([w]) => w.length < 2).map(([, t]) => t);
+  if (mist.length){ meld("We missen nog " + mist.join(", ") + "."); return; }
+
   el("verder").disabled = true;
   el("verder").textContent = "Een moment...";
   try{
@@ -142,6 +181,12 @@ el("verder").addEventListener("click", async () => {
     }
 
     const kop = { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` };
+
+    // Eerst de factuurgegevens, want zonder die gegevens weigert de betaling.
+    const bewaard = await (await fetch("/api/factuurgegevens", {
+      method: "POST", headers: kop, body: JSON.stringify(factuur)
+    })).json();
+    if (!bewaard.compleet) throw new Error("De factuurgegevens zijn nog niet compleet.");
 
     // Eerst het team en de koppeling, dan pas de betaling. Een betaling zonder
     // team is een bedrag zonder bestemming.
