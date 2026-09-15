@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Je Leidersbeeld bij de hermeting &middot; Teamkracht Index</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--paars);background:var(--room);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.4vw,2.8rem);margin-bottom:.4em}
+h2{font-size:clamp(1.4rem,3vw,1.9rem);margin-bottom:.5em}
+a{color:var(--magenta)}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--lijn);background:var(--wit)}
+header .wrap{display:flex;align-items:center;height:64px}
+header img{height:28px;display:block}
+main{padding:44px 0 80px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:26px}
+.lead{color:var(--grijs);margin-bottom:26px}
+label{display:block;font-size:14px;font-weight:600;margin:16px 0 5px}
+input[type=text],input[type=email],select{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+input:focus,select:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+.vink{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14.5px;line-height:1.5}
+.vink input{width:19px;height:19px;margin-top:2px;accent-color:var(--magenta);flex:none}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;margin-top:24px}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.terug{background:none;border:0;font:inherit;font-size:14px;color:var(--grijs);cursor:pointer;text-decoration:underline;margin-top:18px;padding:0}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044;border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:18px}
+.balk{height:5px;background:var(--lijn);border-radius:99px;overflow:hidden;margin-bottom:22px}
+.balk i{display:block;height:100%;background:var(--magenta);width:0;transition:width .25s}
+.teller{font-size:13px;color:var(--grijs);margin-bottom:8px}
+.vraag{font-family:var(--serif);font-size:clamp(1.3rem,3vw,1.7rem);line-height:1.25;margin-bottom:22px}
+.schaal{display:grid;gap:9px}
+.schaal button{font:inherit;font-size:15.5px;text-align:left;padding:13px 16px;border:1.5px solid var(--lijn);border-radius:10px;background:var(--wit);color:var(--paars);cursor:pointer}
+.schaal button:hover{border-color:var(--magenta)}
+.instructie{font-size:14.5px;color:var(--grijs);background:#F2ECF5;border-radius:10px;padding:13px 15px;margin-bottom:22px}
+.klein{font-size:14px;color:var(--grijs);margin-top:22px}
+footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:var(--grijs)}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><a href="/teamkrachtindex"><img src="happly-logo.svg" alt="Happly"></a></div></header>
+
+<main class="wrap">
+
+  <section id="stap-start">
+    <div class="eyebrow">Hermeting</div>
+    <h1>Hoe doet je team het nu?</h1>
+    <p class="lead">Dezelfde twaalf vragen als de vorige keer. Je eerste Leidersbeeld blijft staan; het gaat om het verschil tussen toen en nu. Vul ze in voordat de eindkaart wordt gemaakt, anders staat je beeld er niet naast.</p>
+    <button type="button" class="knop" id="start">Start de twaalf vragen</button>
+    <div id="fout-start" class="fout" hidden></div>
+  </section>
+
+  <section id="stap-vragen" hidden>
+    <div class="balk"><i id="voortgang"></i></div>
+    <div class="teller" id="teller"></div>
+    <div class="instructie">Beoordeel hoe je team dit nu doet, niet hoe jij het zelf doet. Er zijn geen goede of foute antwoorden. Antwoord zoals het meestal is, niet zoals je het zou willen.</div>
+    <p class="vraag" id="vraag"></p>
+    <div class="schaal" id="schaal"></div>
+    <button type="button" class="terug" id="terug">Vorige vraag</button>
+    <div id="fout-vragen" class="fout" hidden></div>
+  </section>
+
+  <section id="stap-klaar" hidden>
+    <div class="eyebrow">Verstuurd</div>
+    <h1>Je tweede Leidersbeeld staat vast.</h1>
+    <p class="lead">Zodra de eindkaart klaar is, zie je op je eigen pagina wat er is veranderd tussen jouw beeld en het beeld van je team.</p>
+    <p style="margin-top:18px"><a class="knop" id="terug-eigen" href="#">Naar je eigen pagina</a></p>
+  </section>
+
+</main>
+
+<footer><div class="wrap">Happly &middot; Teamkracht Index</div></footer>
+
+<script type="module">
+import { ITEMS, SCHAAL } from "/items.js";
+
+const el = id => document.getElementById(id);
+const token = new URLSearchParams(location.search).get("t") || "";
+const antwoorden = [];
+let plek = 0;
+
+el("terug-eigen").href = `/leider/${encodeURIComponent(token)}`;
+
+el("start").addEventListener("click", () => {
+  if (!token){
+    el("fout-start").textContent = "Deze link klopt niet. Open hem opnieuw vanuit je mail of vanaf je eigen pagina.";
+    el("fout-start").hidden = false;
+    return;
+  }
+  el("stap-start").hidden = true;
+  el("stap-vragen").hidden = false;
+  toonVraag();
+  window.scrollTo(0, 0);
+});
+
+function toonVraag(){
+  const item = ITEMS[plek];
+  el("teller").textContent = `Vraag ${plek + 1} van ${ITEMS.length}`;
+  el("voortgang").style.width = (plek / ITEMS.length * 100) + "%";
+  el("vraag").textContent = item.tekst_team;
+  el("terug").hidden = plek === 0;
+
+  el("schaal").innerHTML = "";
+  SCHAAL.forEach((label, waarde) => {
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.textContent = label;
+    if (antwoorden[plek] === waarde) knop.style.borderColor = "var(--magenta)";
+    knop.addEventListener("click", () => kies(waarde));
+    el("schaal").appendChild(knop);
+  });
+}
+
+function kies(waarde){
+  antwoorden[plek] = waarde;
+  if (plek < ITEMS.length - 1){ plek++; toonVraag(); return; }
+  verstuur();
+}
+
+el("terug").addEventListener("click", () => { if (plek > 0){ plek--; toonVraag(); } });
+
+async function verstuur(){
+  el("schaal").innerHTML = "";
+  el("vraag").textContent = "Een moment, we leggen je Leidersbeeld vast.";
+  el("terug").hidden = true;
+  el("voortgang").style.width = "100%";
+  el("fout-vragen").hidden = true;
+
+  try{
+    const antwoord = await fetch("/api/leidersbeeld", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vervolg_token: token, antwoorden })
+    });
+    const uit = await antwoord.json().catch(() => ({}));
+    if (!antwoord.ok) throw new Error(uit.error || "versturen mislukt");
+    el("stap-vragen").hidden = true;
+    el("stap-klaar").hidden = false;
+    window.scrollTo(0, 0);
+  }catch(e){
+    el("vraag").textContent = "Je antwoorden staan nog hier.";
+    el("fout-vragen").textContent = e.message;
+    el("fout-vragen").hidden = false;
+    const opnieuw = document.createElement("button");
+    opnieuw.type = "button";
+    opnieuw.className = "knop";
+    opnieuw.textContent = "Opnieuw versturen";
+    opnieuw.addEventListener("click", verstuur);
+    el("schaal").appendChild(opnieuw);
+  }
+}
+</script>
+
+</body>
+</html>

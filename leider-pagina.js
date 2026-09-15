@@ -1,14 +1,15 @@
 // leider-pagina.js — de eigen pagina van de teamleider op /leider/:token.
 //
-// Toestand a, b en c uit paragraaf 6 van briefings/leidersbeeld.md. Toestand d
-// (de hermeting) komt in stap 5.
+// De vier toestanden uit paragraaf 6 van briefings/leidersbeeld.md. De link uit
+// de eerste mail blijft de ingang, ook na de hermeting: dit is de plek waar de
+// leider terugkomt.
 //
 // Het landelijk beeld staat hier niet (K9): dat blijft het voordeel van de
 // partner met licentie. De pagina toont dus alleen de drie punten van de
 // leider zelf, zonder vergelijking.
 
 import { MINIMUM_DEELNEMERS, kanKaartKrijgen } from "./leidersbeeld.js";
-import { beoordeelLeidersbeeld } from "./leidersbeeld-regel.js";
+import { beoordeelLeidersbeeld, vergelijkMeetmomenten } from "./leidersbeeld-regel.js";
 import { tekenKaartSvg } from "./teamkracht-kaart.js";
 
 const PAARS = "#1A0B2E", MAGENTA = "#D6026F", ROOM = "#F7F3F0", LIJN = "#E6DFE9", GRIJS = "#6B6472";
@@ -73,16 +74,26 @@ function nogGeenTeam({ organisatie, teamomvang, partnernaam, token }){
 }
 
 /* Toestand c: de kaart is er. De statusregel staat bovenaan, dan de kolommen
-   met de teamlijn en het Leidersbeeld erin, dan het R13-blok. */
-function metKaart(rij, teambeeld, oordeel, landelijk){
+   met de teamlijn en het Leidersbeeld erin, dan het R13-blok. Bij de eindkaart
+   staan er vier punten per kolom: teamlijn en Leidersbeeld van toen en nu. */
+function metKaart(rij, teambeeld, oordeel, landelijk, vorige = null){
   const blok = oordeel.allesGedeeld
     ? `<p class="groot">${ontsnap(oordeel.inleiding)}</p>`
     : oordeel.blokken.map(b => `<p><b>${ontsnap(b.label)}.</b> ${ontsnap(b.tekst)}</p>`).join("") +
       `<p class="klein">${ontsnap(oordeel.slotzin)}</p>`;
 
+  const legenda = vorige
+    ? "De open cirkels zijn jouw beeld, de dikke lijn is het team. Lichter is de vorige meting."
+    : "De open cirkel is jouw beeld, de dikke lijn is het team";
+
   return `<div class="kaart">
-    ${tekenKaartSvg(teambeeld, { landelijk_beeld: landelijk, leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen } })}
-    <div class="legenda"><span></span> De open cirkel is jouw beeld, de dikke lijn is het team</div>
+    ${tekenKaartSvg(teambeeld, {
+      landelijk_beeld: landelijk,
+      leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen },
+      vorig: vorige ? vorige.teamlijn : null,
+      leidersbeeld_vorig: vorige ? vorige.leidersbeeld : null
+    })}
+    <div class="legenda"><span></span> ${legenda}</div>
   </div>
   <div class="blok">
     <div class="eyebrow">Leidersbeeld en teamlijn</div>
@@ -90,18 +101,52 @@ function metKaart(rij, teambeeld, oordeel, landelijk){
   </div>`;
 }
 
-export function bouwLeiderPagina({ rij, team = null, deelnemers = null, partnernaam = null, token = "", teambeeld = null, landelijk_beeld = false }){
-  const oordeel = teambeeld ? beoordeelLeidersbeeld({
-    leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen },
-    teamlijn: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
-    sd: sdVan(teambeeld)
+/* Toestand d: er loopt een hermeting en de leider heeft zijn tweede beeld nog
+   niet gegeven. Kan tot de eindkaart wordt gemaakt, daarna niet meer. */
+function hermetingUitnodiging(token){
+  return `<div class="blok">
+    <div class="eyebrow">Hermeting</div>
+    <p class="groot">Je team meet opnieuw. Geef ook opnieuw jouw beeld, dan zie je straks wat er is veranderd.</p>
+    <p>Je eerste Leidersbeeld blijft staan. Het gaat om het verschil tussen toen en nu.</p>
+    <p style="margin-top:14px"><a class="knop" href="/leidersbeeld-hermeting?t=${ontsnap(token)}">Vul je tweede Leidersbeeld in</a></p>
+    <p class="klein">Dit kan tot de eindkaart wordt gemaakt.</p>
+  </div>`;
+}
+
+export function bouwLeiderPagina({
+  rij, team = null, deelnemers = null, partnernaam = null, token = "",
+  teambeeld = null, landelijk_beeld = false,
+  eindRij = null, eindBeeld = null, hermetingLoopt = false
+}){
+  const meet = (beeld, leidersbeeld) => (beeld && leidersbeeld) ? beoordeelLeidersbeeld({
+    leidersbeeld: { zien: leidersbeeld.zien, sturen: leidersbeeld.sturen, doen: leidersbeeld.doen },
+    teamlijn: { zien: beeld.team_zien, sturen: beeld.team_sturen, doen: beeld.team_doen },
+    sd: sdVan(beeld)
   }) : null;
 
+  const startOordeel = meet(teambeeld, rij);
+  const eindOordeel = meet(eindBeeld, eindRij);
+
+  // Is de eindkaart er, dan staat die voorop. De statusregel gaat dan niet over
+  // het verschil van nu, maar over wat er met het verschil is gebeurd.
+  const oordeel = eindOordeel || startOordeel;
   const stand = oordeel ? "c" : (team ? "b" : "a");
+  const verloop = eindOordeel ? vergelijkMeetmomenten(startOordeel, eindOordeel) : null;
+
+  const uitnodiging = (!eindRij && hermetingLoopt && teambeeld) ? hermetingUitnodiging(token) : "";
+
   const inhoud = stand === "c"
-    ? metKaart(rij, teambeeld, oordeel, landelijk_beeld)
+    ? metKaart(
+        eindOordeel ? eindRij : rij,
+        eindOordeel ? eindBeeld : teambeeld,
+        oordeel, landelijk_beeld,
+        eindOordeel ? {
+          teamlijn: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
+          leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen }
+        } : null
+      ) + uitnodiging
     : stand === "b"
-      ? deelname(deelnemers || {})
+      ? deelname(deelnemers || {}) + uitnodiging
       : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam, token });
 
   return `<!DOCTYPE html>
@@ -135,7 +180,7 @@ footer{font-size:13.5px;color:${GRIJS};margin-top:44px;border-top:1px solid ${LI
 <body>
 <div class="wrap">
   <div class="eyebrow">Leidersbeeld</div>
-  <h1>${stand === "c" ? ontsnap(oordeel.kop) : `Jouw Teamkracht Index is ${rij.index_score}`}</h1>
+  <h1>${stand === "c" ? ontsnap(verloop ? verloop.kop : oordeel.kop) : `Jouw Teamkracht Index is ${rij.index_score}`}</h1>
   ${stand === "c" ? "" : `<div class="kaart">
     ${kolommen({ zien: rij.zien, sturen: rij.sturen, doen: rij.doen })}
     <div class="legenda"><span></span> Jouw beeld van het team</div>

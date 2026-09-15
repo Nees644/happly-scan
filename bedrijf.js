@@ -23,7 +23,11 @@ export const BEDRIJF = {
   iban:       "",
   telefoon:   "+31 85 878 5961",
   email:      "hallo@happly.nl",
-  website:    "happly.nl"
+  website:    "happly.nl",
+  // Het beeldmerk op de factuur. Een absolute https-adres, want een mail heeft
+  // geen eigen map; een png en geen svg, want de meeste mailprogramma's tonen
+  // svg niet. Blokkeert de ontvanger afbeeldingen, dan staat de naam er nog.
+  logo:       "https://www.teamkrachtindex.nl/assets/happly-logo.png"
 };
 
 // Wat er minimaal moet staan voordat er iets verstuurd kan worden.

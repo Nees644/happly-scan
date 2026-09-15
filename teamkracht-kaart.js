@@ -132,6 +132,26 @@ export function tekenKaartSvg(teambeeld, opties = {}){
     d.push(`<text x="${KOLOM.zien - 20}" y="${yDoel}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.magenta}">doel</text>`);
   }
 
+  // De vorige meting, lichter. Bij een eindbeeld hoort het startbeeld eronder
+  // te liggen: de voetnoot belooft dat al sinds fase 1 en nu staat het er ook.
+  const vorig = opties.vorig || null;
+  if (vorig){
+    const pv = punt(vorig);
+    d.push(`<polyline points="${pv.map(([x, y]) => `${x},${y}`).join(" ")}" fill="none" stroke="${KLEUR.inkt}" stroke-width="4" stroke-linejoin="round" opacity=".28"/>`);
+    for (const [x, y] of pv) d.push(`<circle cx="${x}" cy="${y}" r="7" fill="${KLEUR.inkt}" opacity=".28"/>`);
+    d.push(`<text x="${KOLOM.zien - 20}" y="${yVoorScore(vorig.zien) - 13}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="12" fill="${KLEUR.gedempt}">start</text>`);
+  }
+
+  // Het Leidersbeeld van de vorige meting, lichter magenta. Samen met de drie
+  // hierboven zijn dat vier punten per kolom, en meer worden het er niet.
+  const lbVorig = opties.leidersbeeld_vorig || null;
+  if (lbVorig){
+    for (const [v, x] of Object.entries(KOLOM)){
+      const y = yVoorScore(lbVorig[v]);
+      d.push(`<circle cx="${x}" cy="${y}" r="7" fill="#fff" stroke="${KLEUR.magenta}" stroke-width="2.5" opacity=".42"/>`);
+    }
+  }
+
   // Het Leidersbeeld: een open cirkel met een korte streeplijn in magenta. Geen
   // lijn tussen de drie punten, want het is geen keten maar een tweede
   // waarneming per dimensie. Staat er alleen als de leider hem heeft ingevuld
@@ -250,7 +270,7 @@ function sdVan(teambeeld, terugval = null){
   return { sd_zien: pak("sd_zien"), sd_sturen: pak("sd_sturen"), sd_doen: pak("sd_doen") };
 }
 
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true, leidersbeeld = null }){
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true, leidersbeeld = null, vorig = null, leidersbeeld_vorig = null }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
   const soort = doel ? "doel" : teambeeld.soort;
@@ -443,7 +463,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
     </header>
     <div class="romp${poster ? " poster" : ""}${doel && !poster ? " doelbeeld" : ""}">
-      <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld, leidersbeeld })}${leidersBlok}</div>
+      <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld, leidersbeeld, vorig, leidersbeeld_vorig })}${leidersBlok}</div>
       <div class="rechts">${rechts}</div>
       ${planRij}
     </div>

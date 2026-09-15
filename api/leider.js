@@ -46,6 +46,7 @@ export default async function handler(req, res){
 
     let team = null, deelnemers = null, partnernaam = null;
     let teambeeld = null, landelijk_beeld = false;
+    let eindRij = null, eindBeeld = null, hermetingLoopt = false;
     if (rij.team_id){
       const t = await db.from("teamkracht_teams").select("id, naam, coach_user_id").eq("id", rij.team_id).maybeSingle();
       if (!t.error && t.data){
@@ -55,14 +56,33 @@ export default async function handler(req, res){
           .eq("teamkracht_team_id", rij.team_id);
         deelnemers = { ingevuld: tel.count ?? 0, uitgenodigd: null };
 
-        // Is de kaart er, dan is dit toestand c. Het beeld van dit meetmoment,
-        // het nieuwste eerst.
-        const soort = rij.meetmoment === "eind" ? "hermeting" : "start";
+        // De beelden van dit team, allebei. De link uit de eerste mail blijft de
+        // ingang, ook na de hermeting, dus deze pagina moet beide kennen.
+        const kolommen = "team_zien, team_sturen, team_doen, norm_zien, norm_sturen, norm_doen, breuk, lijnen, config_snapshot, soort, created_at";
         const b = await db.from("teamkracht_teambeeld")
-          .select("team_zien, team_sturen, team_doen, norm_zien, norm_sturen, norm_doen, breuk, lijnen, config_snapshot, soort")
-          .eq("team_id", rij.team_id).eq("soort", soort)
-          .order("created_at", { ascending: false }).limit(1);
-        if (!b.error && (b.data || []).length && rij.op_kaart !== false) teambeeld = b.data[0];
+          .select(kolommen).eq("team_id", rij.team_id)
+          .order("created_at", { ascending: false });
+        const beelden = (b.error ? [] : (b.data || []));
+        const start = beelden.filter(x => x.soort === "start")[0] || null;
+        const eind  = beelden.filter(x => x.soort === "hermeting")[0] || null;
+        if (rij.op_kaart !== false) teambeeld = start;
+
+        // Het tweede Leidersbeeld, als hij dat al heeft gegeven.
+        const e = await db.from("teamkracht_leidersbeeld")
+          .select("zien, sturen, doen, index_score, op_kaart")
+          .eq("team_id", rij.team_id).eq("meetmoment", "eind").maybeSingle();
+        if (!e.error && e.data && e.data.op_kaart !== false) eindRij = e.data;
+        if (eindRij && rij.op_kaart !== false) eindBeeld = eind;
+
+        // Loopt er een hermeting? Dat is te zien aan metingen van na het
+        // startbeeld: dan is het team opnieuw aan het invullen.
+        if (start && !eind){
+          const na = await db.from("index_scan_results")
+            .select("id", { count: "exact", head: true })
+            .eq("teamkracht_team_id", rij.team_id)
+            .gt("created_at", start.created_at);
+          hermetingLoopt = (na.count ?? 0) > 0;
+        }
 
         // Het landelijk beeld hangt aan de lijn van de coach, net als op de
         // kaart zelf. Zonder coach of zonder licentie staat het er niet.
@@ -81,7 +101,10 @@ export default async function handler(req, res){
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
-    res.status(200).send(bouwLeiderPagina({ rij, team, deelnemers, partnernaam, token, teambeeld, landelijk_beeld }));
+    res.status(200).send(bouwLeiderPagina({
+      rij, team, deelnemers, partnernaam, token,
+      teambeeld, landelijk_beeld, eindRij, eindBeeld, hermetingLoopt
+    }));
   }catch(e){
     nietGevonden(res);
   }

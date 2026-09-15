@@ -26,6 +26,8 @@
   .schuif{margin-bottom:22px}
   .schuif .rij{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
   .schuif .naam{font-weight:600;letter-spacing:.1em;font-size:12px;text-transform:uppercase;color:var(--gedempt)}
+  .schuif .startpunt{color:var(--magenta)}
+  .schuif .startpunt[hidden]{display:none}
   .schuif .waarde{font-family:"DM Serif Display",serif;font-size:1.5rem}
   .schuif .delta{font-size:12.5px;font-weight:300;color:var(--gedempt);margin-left:8px}
   .schuif .delta.op{color:var(--magenta)}
@@ -136,6 +138,7 @@
 import { tekenKaartSvg } from "./teamkracht-kaart.js";
 import { beoordeelDoel } from "./teamkracht-logica.js";
 import { VOORBEELD_TEAMBEELD, VOORBEELD_INTERVENTIES, VOORBEELD_PROFIELEN, VOORBEELD_DOELREGELS } from "./teamkracht-voorbeeld-data.js";
+import { beoordeelLeidersbeeld, aanbevolenStartpunt, SPRINT_LABEL } from "./leidersbeeld-regel.js";
 
 
 /* Alle drie gelijk behandeld (besluit 07-09-2026): ook Zien hoort boven het
@@ -194,11 +197,35 @@ function normaleAmbitie(){
   return uit;
 }
 
+/* Paragraaf 11 van briefings/leidersbeeld.md: de dimensie waar het beeld van
+   de leider het verst van de teamlijn ligt, krijgt het label aanbevolen
+   startpunt. Is er geen Leidersbeeld of geen verschil boven de drempel, dan
+   staat er niets en kiest het team zelf. Dat is precies goed: een aanbeveling
+   zonder grond is een sturing zonder reden. */
+function toonStartpunt(){
+  const lb = teambeeld.leidersbeeld;
+  if (!lb) return;
+  const snap = teambeeld.config_snapshot || {};
+  const oordeel = beoordeelLeidersbeeld({
+    leidersbeeld: lb,
+    teamlijn: { zien: nu("zien"), sturen: nu("sturen"), doen: nu("doen") },
+    sd: {
+      sd_zien:   Number(snap.sd_zien   ?? 12),
+      sd_sturen: Number(snap.sd_sturen ?? 12),
+      sd_doen:   Number(snap.sd_doen   ?? 12)
+    }
+  });
+  const startpunt = aanbevolenStartpunt(oordeel);
+  if (!startpunt) return;
+  const merk = el(`sp-${startpunt}`);
+  if (merk) merk.hidden = false;
+}
+
 function bouwSchuifjes(){
   el("schuifjes").innerHTML = VAARDIGHEDEN.map(({ sleutel, naam }) => `
     <div class="schuif" data-v="${sleutel}">
       <div class="rij">
-        <span class="naam">${naam}</span>
+        <span class="naam">${naam}<span class="startpunt" id="sp-${sleutel}" hidden> &middot; ${SPRINT_LABEL}</span></span>
         <span><span class="waarde" id="w-${sleutel}"></span><span class="delta" id="d-${sleutel}"></span></span>
       </div>
       <div class="baan">
@@ -448,6 +475,7 @@ async function start(){
 
   doel = beginDoel();
   bouwSchuifjes();
+  toonStartpunt();
   teken();
 
   toonInterventies();

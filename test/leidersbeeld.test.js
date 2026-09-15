@@ -126,7 +126,8 @@ test("de banden lopen langs het minimum van vijf", () => {
 });
 
 test("het minimum van vijf staat nergens als acht in de teksten", () => {
-  for (const bestand of ["leidersbeeld.html", "leidersbeeld.js", "leider-pagina.js"]){
+  for (const bestand of ["leidersbeeld.html", "leidersbeeld-hermeting.html",
+                         "leidersbeeld.js", "leider-pagina.js"]){
     const tekst = readFileSync(new URL(`../${bestand}`, import.meta.url), "utf8");
     assert.ok(!/minimaal acht|acht deelnemers/i.test(tekst), `${bestand} noemt acht deelnemers`);
   }
@@ -161,7 +162,8 @@ test("de mailonderwerpen bevatten het getal", () => {
 });
 
 test("geen gedachtestreepjes en geen uitroeptekens in de nieuwe teksten", () => {
-  for (const bestand of ["leidersbeeld.js", "leidersbeeld.html", "leider-pagina.js", "items.js"]){
+  for (const bestand of ["leidersbeeld.js", "leidersbeeld.html", "leidersbeeld-hermeting.html",
+                         "leider-pagina.js", "leidersbeeld-regel.js", "items.js"]){
     // De kopregel van een bestand mag het streepje houden, zoals overal in deze
     // repo. Het gaat om de teksten die een lezer te zien krijgt.
     const tekst = readFileSync(new URL(`../${bestand}`, import.meta.url), "utf8")
@@ -224,13 +226,31 @@ test("de koopknop staat er alleen als er iets te kopen valt", async () => {
   assert.ok(viaPartner.includes("Bureau Noord"));
 });
 
+/* ---------------------------------------- A7 · na de eindkaart is het dicht */
+test("A7 · de route weigert een tweede Leidersbeeld als de eindkaart er is", () => {
+  const route = readFileSync(new URL("../api/leidersbeeld.js", import.meta.url), "utf8");
+  assert.ok(route.includes('eq("soort", "hermeting")'),
+    "de route kijkt niet of de eindkaart er al is");
+  assert.ok(/409/.test(route), "een gesloten Leidersbeeld hoort geweigerd te worden");
+  assert.ok(route.includes('meetmoment: "eind"'), "het tweede beeld krijgt het verkeerde meetmoment");
+});
+
+test("het tweede Leidersbeeld overschrijft het eerste niet", () => {
+  const route = readFileSync(new URL("../api/leidersbeeld.js", import.meta.url), "utf8");
+  const na = route.split("async function hermeting")[1] || "";
+  assert.ok(na.includes(".insert("), "er hoort een nieuwe rij bij te komen");
+  assert.ok(!na.includes(".update("), "het eerste beeld wordt bijgewerkt in plaats van bewaard");
+});
+
 /* -------------------------------------------- de bestanden staan ook in git */
 test("de nieuwe bestanden staan in git en komen dus op productie", () => {
   const inGit = execSync("git ls-files", { encoding: "utf8" }).split("\n");
   for (const bestand of ["items.js", "leidersbeeld.js", "leidersbeeld.html",
                          "leider-pagina.js", "api/leidersbeeld.js", "api/leider.js",
                          "leidersbeeld-koppelen.js", "leidersbeeld-kopen.html",
-                         "api/leidersbeeld-kopen.js", "leads.html", "api/leads.js"]){
+                         "api/leidersbeeld-kopen.js", "leads.html", "api/leads.js",
+                         "leidersbeeld-regel.js", "leidersbeeld-hermeting.html",
+                         "testdata_leidersbeeld_noord.json"]){
     assert.ok(inGit.includes(bestand), `${bestand} staat niet in git`);
   }
 });

@@ -49,8 +49,17 @@ export function bouwFactuurHtml(factuur, bedrijf = BEDRIJF){
 
   return `<div style="background:#F7F3F0;padding:32px 16px">
   <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-    <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Factuur</div>
-    <div style="padding:28px 32px 34px">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid ${BD}">
+      <tr>
+        <td style="padding:22px 32px 18px">
+          ${bedrijf.logo
+            ? `<img src="${bedrijf.logo}" alt="${ontsnap(bedrijf.naam)}" width="104" style="display:block;width:104px;height:auto;border:0">`
+            : `<span style="font-family:${FONT};font-size:19px;font-weight:600;color:${PK}">${ontsnap(bedrijf.naam)}</span>`}
+        </td>
+        <td style="padding:22px 32px 18px;text-align:right;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:${MUT}">Factuur</td>
+      </tr>
+    </table>
+    <div style="padding:26px 32px 34px">
 
       <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:22px">
         <tr>

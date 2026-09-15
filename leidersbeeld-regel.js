@@ -90,3 +90,46 @@ export function beoordeelLeidersbeeld({ leidersbeeld, teamlijn, sd }){
     slotzin: volgorde.length === 0 ? null : SLOTZIN
   };
 }
+
+/* ------------------------------------------------------------- hermeting */
+
+/* De statusregel van de eindkaart. Niet het verschil van nu, maar wat er met
+   het verschil is gebeurd: dat is wat een traject laat zien. Volgorde: eerst
+   wat is opgelost, dan wat blijft, dan wat erbij is gekomen. */
+export function vergelijkMeetmomenten(start, eind){
+  if (!eind) return null;
+  if (!start) return { kop: eind.kop, regels: [], nieuw: true };
+
+  const opgelost = [], blijft = [], erbij = [];
+  for (const d of DIMENSIES){
+    const was = start.per[d]?.uitkomst ?? "gedeeld";
+    const nu = eind.per[d].uitkomst;
+    if (was !== "gedeeld" && nu === "gedeeld") opgelost.push(d);
+    else if (was !== "gedeeld" && nu !== "gedeeld") blijft.push(d);
+    else if (was === "gedeeld" && nu !== "gedeeld") erbij.push(d);
+  }
+
+  const regels = [
+    ...opgelost.map(d => ({ dimensie: d, soort: "opgelost", tekst: `Beeld op ${LABEL[d]} is nu gedeeld` })),
+    ...blijft.map(d   => ({ dimensie: d, soort: "blijft",   tekst: `Verschil op ${LABEL[d]} blijft` })),
+    ...erbij.map(d    => ({ dimensie: d, soort: "erbij",    tekst: `Verschil in beeld op ${LABEL[d]}` }))
+  ];
+
+  const kop = regels.length
+    ? regels[0].tekst
+    : "Beeld op Zien, Sturen en Doen blijft gedeeld";
+
+  return { kop, regels, opgelost, blijft, erbij, nieuw: false };
+}
+
+/* --------------------------------------------------------------- sprint */
+
+/* Waar het gesprek over het doel het beste kan beginnen: de dimensie met het
+   grootste verschil boven de drempel. Is er geen verschil, dan is er ook geen
+   aanbeveling; dan kiest het team zelf en dat is precies goed. */
+export const SPRINT_LABEL = "aanbevolen startpunt";
+
+export function aanbevolenStartpunt(oordeel){
+  if (!oordeel || !oordeel.volgorde.length) return null;
+  return oordeel.volgorde[0];
+}

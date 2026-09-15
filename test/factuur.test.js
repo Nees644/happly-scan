@@ -6,6 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 
 import { BEDRIJF, VERPLICHT, ontbreekt, compleet } from "../bedrijf.js";
 import {
@@ -107,6 +108,23 @@ test("op de factuur staat alles wat erop hoort", () => {
   }
   assert.ok(html.includes("voldaan via Mollie"));
   assert.equal(factuurMail(FACTUUR, VOLLEDIG).subject, "Factuur 2026-0001 van Happly");
+});
+
+test("het beeldmerk staat op de factuur, als afbeelding met een alt-tekst", () => {
+  const html = bouwFactuurHtml(FACTUUR, { ...VOLLEDIG, logo: "https://www.teamkrachtindex.nl/assets/happly-logo.png" });
+  assert.ok(html.includes('src="https://www.teamkrachtindex.nl/assets/happly-logo.png"'));
+  assert.ok(html.includes('alt="Happly"'), "zonder alt staat er niets als afbeeldingen geblokkeerd zijn");
+  assert.ok(/logo\.png/.test(html) && !/\.svg/.test(html), "svg wordt in de meeste mailprogramma's niet getoond");
+
+  // Zonder logo hoort de naam er te staan, en geen lege afbeelding.
+  const zonder = bouwFactuurHtml(FACTUUR, { ...VOLLEDIG, logo: "" });
+  assert.ok(!zonder.includes("<img"));
+  assert.ok(zonder.includes("Happly"));
+});
+
+test("het beeldmerk staat in de repo en gaat dus mee naar productie", () => {
+  const inGit = execSync("git ls-files", { encoding: "utf8" }).split("\n");
+  assert.ok(inGit.includes("assets/happly-logo.png"), "assets/happly-logo.png staat niet in git");
 });
 
 test("bij btw verlegd staat er geen btw op", () => {

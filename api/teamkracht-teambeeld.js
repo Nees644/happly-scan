@@ -29,6 +29,21 @@ export default async function handler(req, res){
     }
   }
 
+  // Het Leidersbeeld van dit meetmoment gaat mee, zodat de doelpagina de
+  // dimensie met het grootste verschil kan aanwijzen als startpunt (R13 en
+  // paragraaf 11 van briefings/leidersbeeld.md). Zonder Leidersbeeld gewoon
+  // null; dan is er geen aanbeveling en kiest het team zelf.
+  let leidersbeeld = null;
+  try{
+    const moment = q.data.soort === "hermeting" ? "eind" : "start";
+    const lb = await db.from("teamkracht_leidersbeeld")
+      .select("zien, sturen, doen, op_kaart")
+      .eq("team_id", q.data.team_id).eq("meetmoment", moment).maybeSingle();
+    if (lb.data && lb.data.op_kaart !== false && lb.data.zien !== null){
+      leidersbeeld = { zien: Number(lb.data.zien), sturen: Number(lb.data.sturen), doen: Number(lb.data.doen) };
+    }
+  }catch(e){ /* zonder Leidersbeeld gewoon het teambeeld */ }
+
   const { team_id, ...beeld } = q.data;
-  res.status(200).json(beeld);
+  res.status(200).json({ ...beeld, leidersbeeld });
 }

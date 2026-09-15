@@ -81,8 +81,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   `/leider/:token` in toestand a en b, `/leads` voor de opvolging, en sinds
   stap 3 de koopknop met `/leidersbeeld-kopen`. Er is geen tweede betaalweg:
   die pagina maakt een team en gebruikt daarna `/api/betaling-start`. Stap 4
-  staat er ook: regel R13 in `leidersbeeld-regel.js`, de open cirkel op de
-  kaart en toestand c. Stap 5 (hermeting) ligt nog open.
+  en 5 staan er ook: regel R13 in `leidersbeeld-regel.js`, de open cirkel op
+  de kaart, toestand c en d, het tweede Leidersbeeld bij de hermeting en het
+  label aanbevolen startpunt op de doelpagina. De hele briefing is gebouwd.
+- **Een eindkaart tekent nu ook het startbeeld**, lichter. De voetnoot beloofde
+  dat al sinds fase 1; de tekening deed het niet. Vier punten per kolom is het
+  maximum: teamlijn en Leidersbeeld van toen en nu.
 - **Een aankoop vooraf levert een factuur op**, met een nummer uit dezelfde
   reeks als de maandfactuur. De gegevens van Happly staan in `bedrijf.js`;
   zolang die onvolledig zijn gaat er niets uit en komt er een bericht op

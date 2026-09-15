@@ -7,9 +7,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
-  DREMPEL_SD, TEKSTEN, ALLES_GEDEELD, SLOTZIN,
-  beoordeelDimensie, beoordeelLeidersbeeld, statusregel
+  DREMPEL_SD, TEKSTEN, ALLES_GEDEELD, SLOTZIN, SPRINT_LABEL,
+  beoordeelDimensie, beoordeelLeidersbeeld, statusregel,
+  vergelijkMeetmomenten, aanbevolenStartpunt
 } from "../leidersbeeld-regel.js";
+import { bouwLeiderPagina } from "../leider-pagina.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { leesRegels, leesProfielen, leesTestdata } from "./seed-lezen.js";
@@ -152,4 +154,91 @@ test("de teksten gaan over het beeld en niet over de leider als persoon", () => 
       assert.ok(TEKSTEN[dim][kant].includes("Gespreksvraag:"), `${dim} ${kant} mist de gespreksvraag`);
     }
   }
+});
+
+/* ------------------------------------------------- stap 5 · de hermeting */
+const SD3 = { sd_zien: 12, sd_sturen: 12, sd_doen: 12 };
+const oordeelVan = (lb, tl) => beoordeelLeidersbeeld({ leidersbeeld: lb, teamlijn: tl, sd: SD3 });
+const TEAM = { zien: 60, sturen: 60, doen: 60 };
+
+test("de eindkaart vertelt wat er met het verschil is gebeurd", () => {
+  const start = oordeelVan({ zien: 60, sturen: 72, doen: 60 }, TEAM);
+  const eind  = oordeelVan({ zien: 60, sturen: 61, doen: 60 }, TEAM);
+  const uit = vergelijkMeetmomenten(start, eind);
+  assert.equal(uit.kop, "Beeld op Sturen is nu gedeeld");
+  assert.deepEqual(uit.opgelost, ["sturen"]);
+  assert.deepEqual(uit.blijft, []);
+});
+
+test("een verschil dat blijft, heet ook zo", () => {
+  const start = oordeelVan({ zien: 60, sturen: 72, doen: 60 }, TEAM);
+  const eind  = oordeelVan({ zien: 60, sturen: 70, doen: 60 }, TEAM);
+  assert.equal(vergelijkMeetmomenten(start, eind).kop, "Verschil op Sturen blijft");
+});
+
+test("wat opgelost is staat voor wat blijft, en dat voor wat erbij kwam", () => {
+  const start = oordeelVan({ zien: 60, sturen: 72, doen: 72 }, TEAM);
+  const eind  = oordeelVan({ zien: 72, sturen: 60, doen: 72 }, TEAM);
+  const uit = vergelijkMeetmomenten(start, eind);
+  assert.deepEqual(uit.regels.map(r => r.soort), ["opgelost", "blijft", "erbij"]);
+  assert.equal(uit.kop, "Beeld op Sturen is nu gedeeld");
+});
+
+test("blijft alles gedeeld, dan zegt de kaart dat ook", () => {
+  const start = oordeelVan({ zien: 60, sturen: 61, doen: 60 }, TEAM);
+  const eind  = oordeelVan({ zien: 61, sturen: 60, doen: 61 }, TEAM);
+  assert.equal(vergelijkMeetmomenten(start, eind).kop, "Beeld op Zien, Sturen en Doen blijft gedeeld");
+});
+
+test("zonder eerste Leidersbeeld is er niets te vergelijken", () => {
+  const eind = oordeelVan({ zien: 60, sturen: 72, doen: 60 }, TEAM);
+  assert.equal(vergelijkMeetmomenten(null, eind).nieuw, true);
+  assert.equal(vergelijkMeetmomenten(null, eind).kop, eind.kop);
+  assert.equal(vergelijkMeetmomenten(eind, null), null);
+});
+
+/* --------------------------------------------------- stap 5 · het sprintlabel */
+test("het startpunt is de dimensie met het grootste verschil", () => {
+  assert.equal(aanbevolenStartpunt(oordeelVan({ zien: 70, sturen: 72, doen: 40 }, TEAM)), "doen");
+  assert.equal(aanbevolenStartpunt(oordeelVan({ zien: 60, sturen: 72, doen: 60 }, TEAM)), "sturen");
+  assert.equal(aanbevolenStartpunt(oordeelVan({ zien: 61, sturen: 60, doen: 61 }, TEAM)), null,
+    "zonder verschil geen aanbeveling");
+  assert.equal(aanbevolenStartpunt(null), null);
+  assert.equal(SPRINT_LABEL, "aanbevolen startpunt");
+});
+
+/* --------------------------------------------- stap 5 · de pagina van de leider */
+const RIJ = { index_score: 69, zien: 68.7, sturen: 60.8, doen: 45.9,
+              organisatie: "Testorganisatie Noord", teamomvang: "10-20" };
+const KLEIN_BEELD = { team_zien: 66.27, team_sturen: 51.18, team_doen: 49.45,
+                      norm_zien: 62, norm_sturen: 55, norm_doen: 50, breuk: "zien_sturen",
+                      lijnen: null, config_snapshot: SD3 };
+
+test("toestand d: de uitnodiging staat er zodra de hermeting loopt", () => {
+  const met = bouwLeiderPagina({ rij: RIJ, team: { id: "t" }, teambeeld: KLEIN_BEELD,
+                                 token: "abc", hermetingLoopt: true });
+  assert.ok(met.includes("/leidersbeeld-hermeting?t=abc"));
+  assert.ok(met.includes("Je team meet opnieuw"));
+
+  const zonder = bouwLeiderPagina({ rij: RIJ, team: { id: "t" }, teambeeld: KLEIN_BEELD, token: "abc" });
+  assert.ok(!zonder.includes("leidersbeeld-hermeting"), "geen hermeting, geen uitnodiging");
+});
+
+test("toestand d verdwijnt zodra het tweede Leidersbeeld er is", () => {
+  const html = bouwLeiderPagina({
+    rij: RIJ, team: { id: "t" }, teambeeld: KLEIN_BEELD, token: "abc",
+    hermetingLoopt: true, eindRij: { zien: 60, sturen: 60, doen: 60 }
+  });
+  assert.ok(!html.includes("leidersbeeld-hermeting"));
+});
+
+test("de eindkaart toont vier punten per kolom en de verandering bovenaan", () => {
+  const eindBeeld = { ...KLEIN_BEELD, team_zien: 68, team_sturen: 60, team_doen: 55, soort: "hermeting" };
+  const html = bouwLeiderPagina({
+    rij: RIJ, team: { id: "t" }, teambeeld: KLEIN_BEELD, token: "abc",
+    eindRij: { zien: 68, sturen: 61, doen: 56 }, eindBeeld
+  });
+  assert.ok(html.includes("Beeld op Sturen is nu gedeeld"), "de statusregel gaat over de verandering");
+  assert.ok(html.includes("Lichter is de vorige meting"));
+  assert.ok(html.includes(">start<"), "de vorige teamlijn mist");
 });

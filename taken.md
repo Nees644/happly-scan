@@ -21,10 +21,6 @@ jouw eigen woorden.
 
 ## Nu meteen
 
-- [ ] **Vul `bedrijf.js` in.** Adres, postcode, plaats, KvK-nummer en
-      btw-nummer van Happly. Zolang die leeg zijn gaat er geen factuur de deur
-      uit en krijg jij een bericht op hallo@happly.nl bij elke betaling zonder
-      factuur.
 
 - [ ] **Pull request #2 mergen.** github.com/Nees644/happly-scan/pull/2. Eén klik
       op Merge. Vercel deployt daarna vanzelf naar productie. Hierin zit alles:
@@ -105,7 +101,11 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       op A4 en A1. Die is er niet in deze repo; de tests controleren nu dat
       beide formaten renderen, niet dat het blok op een A4 past.
 - [ ] **De factuur als pdf** in Supabase Storage. De factuur gaat nu als mail.
-- [ ] **Stap 5.** Hermeting en het Sprint-label.
+- [x] **Stap 5 is af.** Het tweede Leidersbeeld bij de hermeting op
+      `/leidersbeeld-hermeting`, de uitnodiging op de eigen pagina zodra het
+      team opnieuw meet, de eindkaart met vier punten per kolom en een
+      statusregel over wat er is veranderd, en het label aanbevolen startpunt
+      bij het kiezen van het doel.
 - [ ] **Opvolgscherm als CRM.** De tabel `opvolging` heeft twee bronnen. Het
       scherm dat bij stap 2 wordt gebouwd voor de Leidersbeeld-leads kan daarna
       ook de leads van de Zelfkracht Index tonen, zodat `opvolgreeks` niet meer
