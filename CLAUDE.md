@@ -106,6 +106,14 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   `includeFiles: "assets/**"` in `vercel.json` nodig, anders valt het op
   productie om.
 
+- **De Lezer-module heeft inhoud sinds 15 september 2026.** De zes
+  hoofdstukken staan in `module-inhoud.js` en de veertig toetsvragen in
+  `seed-toetsvragen-2026-09-15.sql`, gedraaid in `toets_vragen`. Het is een
+  eerste versie die Maarten redigeert. Wijzigt een hoofdstuk, loop dan de
+  vragen erbij na: een toets die iets anders vraagt dan de tekst zegt, leert
+  mensen de tekst wantrouwen. Tests bewaken het aantal, de taalregels en een
+  paar harde feiten uit de code.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

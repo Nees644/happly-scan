@@ -34,14 +34,17 @@ jouw eigen woorden.
 Teamkrachtindex.nl staat live sinds 14 september. Domein, DNS en SITE_URL zijn
 klaar; de deelafbeelding maakt Claude.
 
-## Inhoud schrijven, hier staat de rest op stil
+## Inhoud nalezen, hier staat de rest op stil
 
-- [ ] **De zes hoofdstukken van de Lezer-module.** Alle teksten in
-      `module-inhoud.js` staan op PLAATSHOUDER. Zonder tekst geen vragenpool,
-      zonder pool geen toets, zonder toets geen certificaat en geen register.
+- [ ] **De zes hoofdstukken nalezen.** Er staat een eerste versie in
+      `module-inhoud.js`, geschreven op 15 september 2026 uit de profielteksten,
+      de regels en de briefings. Ongeveer 3500 woorden, 500 tot 750 per
+      hoofdstuk. Jij redigeert; de toon en de voorbeelden zijn van jou.
       Hoofdstuk 1 en 2 eerst: die zijn gratis en worden het meest gelezen.
-- [ ] **De vragen voor de toets.** Twintig worden er getrokken uit veertig, dus
-      per hoofdstuk horen er ruim genoeg te staan.
+- [ ] **De veertig toetsvragen nalezen.** Staan in
+      `seed-toetsvragen-2026-09-15.sql` en zijn gedraaid. Zeven per hoofdstuk
+      voor 1 tot en met 4, zes voor 5 en 6. Let vooral op de afleiders: die
+      moeten plausibel zijn, anders raadt iemand ze zonder de module te lezen.
 - [ ] **De vier tellingen herschrijven** in de beheerpagina. Geen code nodig,
       zie `handleiding-beheer.md` en punt 2 van `vervolg.md`. Ze bepalen of een
       traject bewijs oplevert, dus dit weegt zwaarder dan de omvang suggereert.
