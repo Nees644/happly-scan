@@ -114,6 +114,16 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   mensen de tekst wantrouwen. Tests bewaken het aantal, de taalregels en een
   paar harde feiten uit de code.
 
+- **De toets staat er sinds 15 september 2026.** `toets.js` heeft de regels,
+  `api/toets.js` de route en `toets.html` het scherm. Het juiste antwoord gaat
+  nooit mee naar de browser en nakijken gebeurt op de server; twee tests
+  bewaken dat. Het niveau `lezer` komt uit een geslaagde toets en nergens
+  anders vandaan.
+- **Rol `lezer` is de rol die iedereen bij registratie krijgt.** Een route die
+  `eisGebruiker(req, res)` zonder rollen aanroept, sluit die groep buiten. Dat
+  blokkeerde tot 15 september de module en de prijsopvraag voor elke nieuwe
+  gebruiker.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

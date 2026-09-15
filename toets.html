@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>De toets &middot; Lezer-module</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:17px}
+.wrap{max-width:660px;margin:0 auto;padding:44px 22px 90px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(1.8rem,4.2vw,2.5rem);line-height:1.15;margin-bottom:.35em}
+h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.3rem;margin-bottom:.4em}
+a{color:var(--magenta)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px}
+.lead{color:var(--grijs);margin-bottom:24px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:24px;margin-bottom:20px}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;text-decoration:none}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.knop.lijn{background:var(--wit);color:var(--paars);border:1.5px solid var(--lijn)}
+.balk{height:5px;background:var(--lijn);border-radius:99px;overflow:hidden;margin-bottom:20px}
+.balk i{display:block;height:100%;background:var(--magenta);width:0;transition:width .25s}
+.teller{font-size:13px;color:var(--grijs);margin-bottom:8px}
+.vraag{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.25rem,3vw,1.6rem);line-height:1.25;margin-bottom:20px}
+.opties{display:grid;gap:9px}
+.opties button{font:inherit;font-size:15.5px;text-align:left;padding:13px 16px;border:1.5px solid var(--lijn);border-radius:10px;background:var(--wit);color:var(--paars);cursor:pointer}
+.opties button:hover{border-color:var(--magenta)}
+.opties button[aria-pressed="true"]{border-color:var(--magenta);background:#FDF3F8}
+.rij{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px}
+.terug{background:none;border:0;font:inherit;font-size:14px;color:var(--grijs);cursor:pointer;text-decoration:underline;padding:0}
+.melding{border-radius:9px;padding:12px 15px;font-size:14.5px;margin-top:16px}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044}
+.goed{background:#E6F4EC;border:1px solid #BFE3CE;color:#14603D}
+.rustig{background:#F2ECF5;color:var(--grijs)}
+.klein{font-size:13.5px;color:var(--grijs)}
+.score{font-family:'DM Serif Display',Georgia,serif;font-size:3rem;line-height:1;color:var(--magenta)}
+.vink{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14.5px;line-height:1.5}
+.vink input{width:19px;height:19px;margin-top:2px;accent-color:var(--magenta);flex:none}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:12px}
+td{padding:6px 0;border-bottom:1px solid var(--lijn)}
+td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+#login input{width:100%;font:inherit;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;margin-bottom:10px}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login" class="kaart" hidden>
+    <h1>De toets</h1>
+    <p class="klein" style="margin-bottom:14px">Log in met je eigen account.</p>
+    <input id="l-mail" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input id="l-ww" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+    <button class="knop" id="l-knop" style="width:100%">Inloggen</button>
+    <div class="melding fout" id="l-fout" hidden>Inloggen lukte niet.</div>
+  </div>
+
+  <section id="stand" hidden>
+    <div class="eyebrow">Lezer-module</div>
+    <h1>De toets</h1>
+    <p class="lead" id="uitleg"></p>
+    <div class="kaart" id="standkaart"></div>
+  </section>
+
+  <section id="vragen" hidden>
+    <div class="balk"><i id="voortgang"></i></div>
+    <div class="teller" id="teller"></div>
+    <p class="vraag" id="vraag"></p>
+    <div class="opties" id="opties"></div>
+    <div class="rij">
+      <button type="button" class="terug" id="vorige">Vorige vraag</button>
+      <button type="button" class="knop" id="volgende">Volgende</button>
+      <button type="button" class="knop" id="inleveren" hidden>Inleveren</button>
+    </div>
+    <p class="klein" id="open"></p>
+    <div class="melding fout" id="v-fout" hidden></div>
+  </section>
+
+  <section id="uitslag" hidden></section>
+
+</div>
+
+<script type="module">
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let stand = null, vragen = [], pogingId = null, plek = 0;
+const gekozen = {};
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, { ...opties, headers: {
+    "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{})
+  }});
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+el("l-knop").addEventListener("click", async () => {
+  el("l-fout").hidden = true;
+  el("l-knop").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email: el("l-mail").value.trim(), password: el("l-ww").value });
+  el("l-knop").disabled = false;
+  if (error){ el("l-fout").hidden = false; return; }
+  toonStand();
+});
+
+/* ------------------------------------------------------------- de stand */
+async function toonStand(){
+  el("login").hidden = true;
+  el("stand").hidden = false;
+  el("vragen").hidden = true;
+  el("uitslag").hidden = true;
+
+  stand = await api("/api/toets");
+  el("uitleg").textContent =
+    `${stand.aantal_vragen} meerkeuzevragen uit de zes hoofdstukken. Je bent geslaagd bij ${stand.lat} goed. `
+    + `Je hebt hoogstens ${stand.max_pogingen} pogingen per ${stand.venster_dagen} dagen.`;
+
+  if (stand.certificaat){
+    el("standkaart").innerHTML = `
+      <h2>Je bent Lezer</h2>
+      <p>Je hebt de toets gehaald op ${esc(new Date(stand.certificaat.uitgegeven_op).toLocaleDateString("nl-NL", { day:"numeric", month:"long", year:"numeric" }))}.</p>
+      <p class="klein" style="margin-top:8px">Je certificaat staat op je naam en blijft geldig zolang je licentie loopt.</p>`;
+    return;
+  }
+
+  if (!stand.module_toegang){
+    el("standkaart").innerHTML = `
+      <h2>De module staat nog niet open</h2>
+      <p>De toets hoort bij de Lezer-module. Zodra je die hebt, kun je de toets doen.</p>
+      <p style="margin-top:14px"><a class="knop" href="/module">Naar de module</a></p>`;
+    return;
+  }
+
+  if (!stand.mag_starten){
+    el("standkaart").innerHTML = `
+      <h2>Nu even niet</h2>
+      <p>${esc(stand.melding || "Je kunt de toets op dit moment niet doen.")}</p>
+      ${stand.laatste ? `<p class="klein" style="margin-top:8px">Je laatste poging: ${stand.laatste.score} van ${stand.aantal_vragen} goed.</p>` : ""}
+      <p style="margin-top:14px"><a class="knop lijn" href="/module">Terug naar de module</a></p>`;
+    return;
+  }
+
+  const over = stand.max_pogingen - stand.pogingen_gedaan;
+  el("standkaart").innerHTML = `
+    <h2>Klaar om te beginnen?</h2>
+    <p>Je hebt nog ${over} ${over === 1 ? "poging" : "pogingen"} in deze periode. Je kunt tijdens de toets heen en weer tussen de vragen; pas als je inlevert wordt er nagekeken.</p>
+    ${stand.laatste && stand.laatste.afgerond_op ? `<p class="klein" style="margin-top:8px">Je vorige poging: ${stand.laatste.score} van ${stand.aantal_vragen} goed.</p>` : ""}
+    <div class="rij"><button class="knop" id="starten">Start de toets</button>
+    <a class="knop lijn" href="/module">Eerst nog lezen</a></div>
+    <div class="melding fout" id="s-fout" hidden></div>`;
+
+  el("starten").addEventListener("click", beginnen);
+}
+
+async function beginnen(){
+  const knop = el("starten");
+  knop.disabled = true; knop.textContent = "Een moment...";
+  try{
+    const uit = await api("/api/toets", { method:"POST", body: JSON.stringify({ actie: "start" }) });
+    vragen = uit.vragen; pogingId = uit.poging_id; plek = 0;
+    el("stand").hidden = true;
+    el("vragen").hidden = false;
+    toonVraag();
+    window.scrollTo(0, 0);
+  }catch(e){
+    knop.disabled = false; knop.textContent = "Start de toets";
+    el("s-fout").textContent = e.message; el("s-fout").hidden = false;
+  }
+}
+
+/* ------------------------------------------------------------ de vragen */
+function toonVraag(){
+  const v = vragen[plek];
+  el("teller").textContent = `Vraag ${plek + 1} van ${vragen.length}`;
+  el("voortgang").style.width = ((plek + 1) / vragen.length * 100) + "%";
+  el("vraag").textContent = v.vraag;
+  el("vorige").hidden = plek === 0;
+
+  el("opties").innerHTML = "";
+  v.opties.forEach((tekst, i) => {
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.textContent = tekst;
+    knop.setAttribute("aria-pressed", String(gekozen[v.id] === i));
+    knop.addEventListener("click", () => { gekozen[v.id] = i; toonVraag(); });
+    el("opties").appendChild(knop);
+  });
+
+  const beantwoord = vragen.filter(q => Number.isInteger(gekozen[q.id])).length;
+  el("open").textContent = beantwoord === vragen.length
+    ? "Alle vragen zijn beantwoord."
+    : `${vragen.length - beantwoord} ${vragen.length - beantwoord === 1 ? "vraag" : "vragen"} nog open.`;
+
+  const laatste = plek === vragen.length - 1;
+  el("volgende").hidden = laatste;
+  el("inleveren").hidden = !laatste;
+}
+
+el("vorige").addEventListener("click", () => { if (plek > 0){ plek--; toonVraag(); } });
+el("volgende").addEventListener("click", () => { if (plek < vragen.length - 1){ plek++; toonVraag(); } });
+
+el("inleveren").addEventListener("click", async () => {
+  const open = vragen.filter(q => !Number.isInteger(gekozen[q.id])).length;
+  if (open && !confirm(`Er ${open === 1 ? "staat nog een vraag" : `staan nog ${open} vragen`} open. Die tellen als fout. Toch inleveren?`)) return;
+
+  el("inleveren").disabled = true;
+  el("inleveren").textContent = "Nakijken...";
+  el("v-fout").hidden = true;
+  try{
+    const uit = await api("/api/toets", { method:"POST", body: JSON.stringify({
+      actie: "inleveren", poging_id: pogingId, antwoorden: gekozen,
+      register_toestemming: false
+    })});
+    toonUitslag(uit);
+  }catch(e){
+    el("inleveren").disabled = false; el("inleveren").textContent = "Inleveren";
+    el("v-fout").textContent = e.message; el("v-fout").hidden = false;
+  }
+});
+
+/* ----------------------------------------------------------- de uitslag */
+function toonUitslag(uit){
+  el("vragen").hidden = true;
+  el("uitslag").hidden = false;
+
+  const perHoofdstuk = Object.entries(uit.per_hoofdstuk || {})
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([h, r]) => `<tr><td>Hoofdstuk ${esc(h)}</td><td>${r.goed} van ${r.totaal}</td></tr>`).join("");
+
+  el("uitslag").innerHTML = uit.geslaagd
+    ? `<div class="eyebrow">Geslaagd</div>
+       <h1>Je bent Lezer</h1>
+       <p class="score">${uit.score} van ${uit.totaal}</p>
+       <div class="kaart" style="margin-top:20px">
+         <p>Je certificaat staat op je naam. Je mag vanaf nu Teamfoto's lezen en bespreken met de kennis die daarbij hoort.</p>
+         <table>${perHoofdstuk}</table>
+         <div class="vink">
+           <input type="checkbox" id="register">
+           <label for="register">Zet mij in het openbare register van Happly, met mijn naam en niveau. Je kunt dit later weer uitzetten.</label>
+         </div>
+         <div class="rij">
+           <button class="knop" id="bewaar-register">Bewaren</button>
+           <a class="knop lijn" href="/module">Terug naar de module</a>
+         </div>
+         <p class="klein" id="register-melding"></p>
+       </div>`
+    : `<div class="eyebrow">Nog niet</div>
+       <h1>Je hebt ${uit.score} van de ${uit.totaal}</h1>
+       <p class="lead">Je bent geslaagd bij ${uit.lat} goed. Dat scheelt niet veel, en de module verandert niet; lees terug en probeer het opnieuw.</p>
+       <div class="kaart">
+         <h2>Waar je de meeste vragen miste</h2>
+         <table>${perHoofdstuk}</table>
+         ${uit.lees_terug.length
+            ? `<p style="margin-top:14px">Begin bij hoofdstuk ${uit.lees_terug.map(h => esc(h)).join(" en ")}.</p>`
+            : ""}
+         <div class="rij"><a class="knop" href="/module">Naar de module</a></div>
+       </div>`;
+
+  const knop = el("bewaar-register");
+  if (knop) knop.addEventListener("click", async () => {
+    knop.disabled = true;
+    try{
+      await api("/api/toets", { method:"POST", body: JSON.stringify({
+        actie: "register", toestemming: el("register").checked
+      })});
+      el("register-melding").textContent = el("register").checked
+        ? "Bewaard. Je komt in het register zodra die pagina er is."
+        : "Bewaard. Je staat niet in het register.";
+    }catch(e){
+      el("register-melding").textContent = e.message;
+    }finally{ knop.disabled = false; }
+  });
+
+  window.scrollTo(0, 0);
+}
+
+db.auth.getSession().then(({ data }) => {
+  if (data.session) toonStand(); else el("login").hidden = false;
+});
+</script>
+</body>
+</html>

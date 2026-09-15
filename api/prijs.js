@@ -17,7 +17,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function handler(req, res){
   if (req.method !== "GET"){ res.status(405).json({ error: "method" }); return; }
-  const gebruiker = await eisGebruiker(req, res);
+  // Rol 'lezer' hoort er uitdrukkelijk bij: wie mag kopen (zie betaling-start)
+  // moet ook de prijs kunnen zien.
+  const gebruiker = await eisGebruiker(req, res, ["lezer", "coach", "beheerder"]);
   if (!gebruiker) return;
 
   const teamId = req.query?.team_id ? String(req.query.team_id) : null;

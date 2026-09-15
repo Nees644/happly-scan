@@ -134,6 +134,15 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
 
 ## Certificering fase A
 
+- [x] **De toets.** Twintig vragen uit veertig, eerlijk verdeeld over de zes
+      hoofdstukken, zestien goed om te slagen, drie pogingen per dertig dagen.
+      Nakijken gebeurt op de server; het juiste antwoord verlaat hem nooit voor
+      het inleveren. Bij een voldoende volgt het certificaat en het niveau
+      lezer, en wordt gevraagd of je in het register mag.
+- [ ] **De badge** als png en svg, met naam, niveau, jaar en verificatie-URL.
+- [ ] **Het register** op teamkrachtindex.nl/register en /register/:slug, plus
+      de verificatiepagina achter de code op de badge.
+
 - [ ] Controleren of `migratie-certificering-2026-09-09.sql` echt is gedraaid.
       `controle/staat-v4-erin.sql` kijkt alleen naar de tarieven.
 - [ ] De toets bouwen. Twintig uit veertig, lat op zestien, maximaal drie

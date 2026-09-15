@@ -92,6 +92,7 @@
   </div></header>
   <main class="wrap" id="hoofdstukken"></main>
   <div class="wrap" id="koop"></div>
+  <div class="wrap" id="toetsvak"></div>
   <footer><div class="wrap"><p id="voet"></p></div></footer>
 </div>
 
@@ -206,6 +207,7 @@ function teken(){
     : `De eerste twee hoofdstukken duren een kwartier en maken de sessie makkelijker. Je kunt ook meteen beginnen.${kosten}`;
 
   tekenKoop();
+  tekenToets();
 }
 
 /* Bedragen lopen sinds de tarieven van v3 tot in de duizenden, dus een
@@ -220,6 +222,22 @@ const euro = c => {
    daarvoor is het een aanbieding die nergens op slaat. Verdwijnt zodra er is
    betaald. Het bedrag staat er exclusief btw met het totaal erbij, zodat de
    zzp'er die de btw niet terugkrijgt niet bij de afrekening schrikt. */
+/* De weg naar de toets. Alleen als de module openstaat: wie hem nog moet kopen
+   heeft eerst het koopvak hierboven. De toets zelf bewaakt zijn eigen regels,
+   dus dit is een link en geen slot. */
+function tekenToets(){
+  const vak = el("toetsvak");
+  if (!vak) return;
+  if (!stand.module_toegang){ vak.innerHTML = ""; return; }
+  const klaar = stand.afgerond.length;
+  vak.innerHTML = `<div class="koopvak">
+    <h2>De toets</h2>
+    <p>Twintig meerkeuzevragen uit de zes hoofdstukken. Bij zestien goed ben je Lezer en krijg je je certificaat.
+    ${klaar < 6 ? `Je hebt ${klaar} van de zes hoofdstukken afgerond; de vragen gaan over alle zes.` : "Je hebt alle zes de hoofdstukken afgerond."}</p>
+    <p><a class="knop" href="/toets">Naar de toets</a></p>
+  </div>`;
+}
+
 function tekenKoop(){
   const vak = el("koop");
   if (stand.module_toegang || !stand.leesdrempel_gehaald || !prijs){ vak.innerHTML = ""; return; }

@@ -20,7 +20,10 @@ async function heeftModule(db, userId){
 }
 
 export default async function handler(req, res){
-  const gebruiker = await eisGebruiker(req, res);
+  // Rol 'lezer' hoort er uitdrukkelijk bij: dat is de rol die iedereen krijgt
+  // bij registratie, en zonder die rol kan een nieuwe gebruiker de module niet
+  // openen waar hij net voor betaald heeft.
+  const gebruiker = await eisGebruiker(req, res, ["lezer", "coach", "beheerder"]);
   if (!gebruiker) return;
   const db = serviceClient();
 
