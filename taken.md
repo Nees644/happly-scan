@@ -86,8 +86,11 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       `/leider/:token` in toestand a en b, en `/leads` met de opvolging.
       `privacy.html` vermeldt de nieuwe gegevensstroom. Doorlopen op
       15 september 2026: index 69, mail verstuurd, klik geregistreerd.
-- [ ] **Stap 3.** De koopknop met Mollie, de koppeling door een partner en de
-      statusovergangen.
+- [x] **Stap 3 is af en staat live.** De koopknop op `/leider/:token`, de
+      koopagina `/leidersbeeld-kopen` die een account aanmaakt en daarna de
+      bestaande los-flow gebruikt, de koppelvraag bij een partner die een team
+      aanmaakt, en de statussen gekoppeld, betaald en gesloten. Nog niet met een
+      echte betaling doorlopen; dat kost geld en doe jij.
 - [ ] **Stap 4.** Regel R13, het Leidersbeeld op de kaart, toestand c en de
       printcontrole.
 - [ ] **Stap 5.** Hermeting en het Sprint-label.
