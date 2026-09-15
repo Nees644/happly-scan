@@ -69,6 +69,21 @@ test("wat er is gebouwd staat er ook op", () => {
   }
 });
 
+test("er staat niets op de site dat niet bestaat", () => {
+  // Het Eigenaarschapsprogramma stond er met een knop en een eigen map. Het
+  // bestaat niet in de producttabel en is op 15 september 2026 weggehaald.
+  for (const wat of ["Eigenaarschapsprogramma", "eigenaarschap/"]){
+    assert.ok(!HTML.includes(wat), `de site verwijst nog naar ${wat}`);
+  }
+
+  // Elke link binnen de site wijst naar een anker dat er ook is.
+  const ankers = [...HTML.matchAll(/href="#([a-z-]+)"/g)].map(m => m[1]);
+  for (const anker of new Set(ankers)){
+    if (anker === "top") continue;
+    assert.ok(HTML.includes(`id="${anker}"`), `de link naar #${anker} gaat nergens heen`);
+  }
+});
+
 test("de links wijzen naar wat er draait", () => {
   for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
                      "https://www.teamkrachtindex.nl/register",
