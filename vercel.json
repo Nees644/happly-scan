@@ -10,6 +10,10 @@
       "destination": "/api/uitslag?t=:token"
     },
     {
+      "source": "/leider/:token",
+      "destination": "/api/leider?t=:token"
+    },
+    {
       "source": "/betaald",
       "destination": "/betaald.html"
     },
@@ -99,6 +103,15 @@
     },
     "api/factuurrun.js": {
       "maxDuration": 60
+    },
+    "api/leidersbeeld.js": {
+      "maxDuration": 15
+    },
+    "api/leider.js": {
+      "maxDuration": 10
+    },
+    "api/leads.js": {
+      "maxDuration": 15
     }
   },
   "crons": [

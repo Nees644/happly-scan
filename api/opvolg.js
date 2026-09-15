@@ -7,6 +7,8 @@
 //   dag 7  · Sprint-mail: rolverdelingszin, weekkoppeling, beslismoment,
 //            actieve trede-link (sprint-config.js)
 //   dag 56 · hermeting-herinnering, link naar de scan met src=hermeting
+// Daarnaast gaat in dezelfde run de enige herinnering van het Leidersbeeld:
+// zeven dagen na invullen, alleen als er nog geen team aan hangt.
 // Regels: sober, huisstijl, maximaal één inhoudelijke link per mail, en in
 // elke mail een afmeldlink (/api/afmelden) die de hele reeks stopt.
 // Per run gaat er hoogstens één mail per reeks uit (de vroegste die open staat).
@@ -17,6 +19,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
+import { magHerinneren, HERINNERING_NA_DAGEN } from "../leidersbeeld.js";
+import { herinneringMail } from "../leidersbeeld-mail.js";
 
 const BASE = "https://scan.happly.nl";
 
@@ -161,7 +165,41 @@ export default async function handler(req, res){
       await db.from("opvolgreeks").update({ [MAILS[dag].veld]: new Date().toISOString() }).eq("id", r.id);
       verstuurd++;
     }
-    res.status(200).json({ ok: true, verstuurd });
+
+    // De enige herinnering van het Leidersbeeld, zeven dagen na invullen en
+    // alleen zolang er nog geen team is. magHerinneren() beslist per rij, zodat
+    // die regel te testen is zonder database.
+    // In een eigen try: gaat hier iets mis, dan is de opvolgreeks hierboven al
+    // verstuurd en die mag er niet onder lijden.
+    let herinnerd = 0;
+    try{
+      const leiders = await db.from("teamkracht_leidersbeeld")
+        .select("id,leider_token,leider_naam,leider_email,index_score,status,afgemeld,herinnering_op,created_at")
+        .eq("status", "ingevuld")
+        .eq("afgemeld", false)
+        .is("herinnering_op", null)
+        .lte("created_at", grens(HERINNERING_NA_DAGEN))
+        .order("created_at", { ascending: true })
+        .limit(100);
+      if (leiders.error) throw leiders.error;
+
+      for (const l of (leiders.data || [])){
+        if (!magHerinneren(l, new Date(nu))) continue;
+        const m = herinneringMail({
+          naam: l.leider_naam, index: l.index_score, token: l.leider_token,
+          afmeldUrl: `${BASE}/api/afmelden?l=${l.id}`
+        });
+        const sent = await resend.emails.send({
+          from: "Happly <hallo@happly.nl>", to: l.leider_email, subject: m.subject, html: m.html
+        });
+        if (sent && sent.error) continue;   // volgende run opnieuw proberen
+        await db.from("teamkracht_leidersbeeld")
+          .update({ herinnering_op: new Date().toISOString() }).eq("id", l.id);
+        herinnerd++;
+      }
+    }catch(e){ herinnerd = -1; }
+
+    res.status(200).json({ ok: true, verstuurd, herinnerd });
   }catch(e){
     res.status(500).json({ error: "opvolg mislukt" });
   }

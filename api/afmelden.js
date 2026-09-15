@@ -1,5 +1,6 @@
 // api/afmelden.js — Vercel serverless function
-// De afmeldlink onder elke mail van de opvolgreeks: /api/afmelden?r=<reeks-id>.
+// De afmeldlink onder elke mail van de opvolgreeks: /api/afmelden?r=<reeks-id>,
+// en onder de herinnering van het Leidersbeeld: /api/afmelden?l=<leidersbeeld-id>.
 // Zet afgemeld=true op de reeks (het onvoorspelbare uuid is het token) en toont
 // een sobere bevestigingspagina in de huisstijl. Idempotent: nogmaals klikken
 // geeft dezelfde pagina.
@@ -30,6 +31,17 @@ export default async function handler(req, res){
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   try{
     const r = (req.query && req.query.r) || "";
+    const l = (req.query && req.query.l) || "";
+
+    // Het Leidersbeeld heeft een eigen rij en een eigen afmeldveld. Verder
+    // dezelfde pagina en dezelfde regel: nogmaals klikken mag.
+    if (UUID.test(l)){
+      const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+      await db.from("teamkracht_leidersbeeld").update({ afgemeld: true }).eq("id", l);
+      res.status(200).send(pagina("Je bent afgemeld", "Je ontvangt geen mail meer over je Leidersbeeld. De link naar je eigen pagina blijft werken."));
+      return;
+    }
+
     if (!UUID.test(r)){
       res.status(400).send(pagina("Deze link werkt niet", "De afmeldlink is onvolledig. Kopieer de volledige link uit de mail, of mail <a href='mailto:hallo@happly.nl'>hallo@happly.nl</a>."));
       return;
