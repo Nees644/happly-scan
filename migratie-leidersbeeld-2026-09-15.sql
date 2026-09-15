@@ -6,10 +6,13 @@
 -- Draait NA migratie-teamkracht-2026-09-07.sql, migratie-certificering en de
 -- beide tarievenmigraties van 9 en 14 september.
 --
--- Herhaalbaar: create if not exists, elke policy wordt eerst gedropt. Niets
--- wordt verwijderd en niets bestaands verandert, dus dit blok kan draaien
--- terwijl de site doorloopt. Er is nog geen route die deze tabellen gebruikt;
--- die komt in stap 2.
+-- Herhaalbaar: create if not exists, elke policy wordt eerst gedropt. Er wordt
+-- niets verwijderd en er is nog geen route die deze tabellen gebruikt, dus dit
+-- blok kan draaien terwijl de site doorloopt; de routes komen in stap 2.
+--
+-- Een ding raakt wel iets bestaands: het leesrecht op opvolgreeks gaat van
+-- iedere ingelogde gebruiker naar alleen de beheerder. Zie het slot van blok C.
+-- Geen enkele pagina leest die tabel vandaag, dus er breekt niets.
 --
 -- Vier plekken wijken bewust af van de briefing. Ze staan hieronder met de
 -- reden erbij en zijn gemarkeerd met AFWIJKING. Alle vier zijn op 15 september
