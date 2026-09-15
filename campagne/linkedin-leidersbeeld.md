@@ -9,10 +9,12 @@ letters, cijfers en streepjes.
 
 ---
 
-## Post 1 · voor leidinggevenden
+## Post 1 · voor leidinggevenden en coaches
 
-Vraag een teamleider hoe zijn team ervoor staat en je krijgt een helder
-antwoord. Vraag het dat team zelf, en je krijgt een ander helder antwoord.
+Hoe goed ken je het team?
+
+Vraag het een leidinggevende en je krijgt een helder antwoord. Vraag het het
+team zelf, en je krijgt een ander helder antwoord.
 
 Allebei kloppen ze. Ze kijken alleen naar iets anders.
 
@@ -24,12 +26,15 @@ Waar die twee beelden uiteenlopen, zit bijna altijd het gesprek dat nog niet is
 gevoerd. Niet omdat iemand iets verbergt, maar omdat niemand het verschil kan
 zien.
 
-Wij hebben dat meetbaar gemaakt. Twaalf vragen over zien, sturen en doen. Jij
-beantwoordt ze over je team, je team beantwoordt ze over zichzelf, en de twee
-beelden komen naast elkaar te staan.
+Wij hebben dat meetbaar gemaakt. Twaalf vragen over zien, sturen en doen. De
+leider beantwoordt ze over het team, het team beantwoordt ze over zichzelf, en
+de twee beelden komen naast elkaar te staan.
 
-De eerste helft kun je vandaag doen. Drie minuten, geen account, geen
-betaalgegevens, en je krijgt je Leidersbeeld in je mail.
+Leid je een team: de eerste helft doe je vandaag. Drie minuten, gratis, geen
+account.
+
+Begeleid je teams: stuur de link naar een opdrachtgever. De vraag hoe het team
+het zelf ziet, komt daarna vanzelf. En die kun jij beantwoorden.
 
 https://www.teamkrachtindex.nl/leidersbeeld?src=linkedin
 
@@ -62,7 +67,7 @@ https://happly.nl
 
 ## Opmerkingen bij het plaatsen
 
-- Post 1 heeft de kaart nodig; post 2 kan zonder, of met dezelfde kaart.
+- Post 1 spreekt allebei aan en hoort bij de kaart. Post 2 is de verdieping voor coaches, voor wie na post 1 wil weten hoe de link voor hem werkt.
 - Niet allebei op dezelfde dag. Post 1 eerst, post 2 een week later, zodat wie
   beide leest de volgorde ziet die klopt: eerst het instrument, dan het aanbod.
 - LinkedIn duwt berichten met een externe link naar beneden. Wil je bereik boven
