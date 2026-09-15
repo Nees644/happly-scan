@@ -20,6 +20,7 @@ import {
   AANTAL_VRAGEN, LAT, MAX_POGINGEN, VENSTER_DAGEN,
   magStarten, trekVragen, zonderAntwoord, nakijken, leesadvies, venstergrens
 } from "../toets.js";
+import { uniekeSlug } from "../register.js";
 
 const ROLLEN = ["lezer", "coach", "beheerder"];
 
@@ -58,7 +59,7 @@ async function stand(res, db, gebruiker){
   const [pogingen, gebr, cert] = await Promise.all([
     haalPogingen(db, gebruiker.user_id),
     db.from("teamkracht_gebruikers")
-      .select("naam, niveau, lezer_module_toegang, register_toestemming").eq("user_id", gebruiker.user_id).maybeSingle(),
+      .select("naam, niveau, lezer_module_toegang, register_toestemming, register_slug").eq("user_id", gebruiker.user_id).maybeSingle(),
     db.from("certificaten")
       .select("id, niveau, uitgegeven_op, status, verificatiecode")
       .eq("gebruiker_id", gebruiker.user_id).eq("niveau", "lezer")
@@ -76,6 +77,7 @@ async function stand(res, db, gebruiker){
     naam: gebr.data?.naam || null,
     niveau: gebr.data?.niveau || "geen",
     register_toestemming: !!gebr.data?.register_toestemming,
+    register_slug: gebr.data?.register_slug || null,
     certificaat: (cert.data || [])[0] || null,
     pogingen_gedaan: pogingen.filter(p => new Date(p.gestart_op) >= grens).length,
     mag_starten: mag.mag,
@@ -181,11 +183,38 @@ async function inleveren(res, db, gebruiker, body){
    publiceren. Intrekken kan altijd en werkt meteen. */
 async function register(res, db, gebruiker, body){
   const toestemming = body.toestemming === true;
+
+  const g = await db.from("teamkracht_gebruikers")
+    .select("naam, email, register_slug").eq("user_id", gebruiker.user_id).maybeSingle();
+
+  const bij = { register_toestemming: toestemming };
+
+  // Het adres van de pagina wordt eenmalig gemaakt en blijft daarna staan, ook
+  // als iemand zijn vermelding tijdelijk uitzet. Anders krijgt hij bij het weer
+  // aanzetten een ander adres, en dan werkt de link die hij had gedeeld niet
+  // meer.
+  if (toestemming && !g.data?.register_slug){
+    const naam = g.data?.naam || (g.data?.email || "").split("@")[0];
+    const bezet = await db.from("teamkracht_gebruikers")
+      .select("register_slug").not("register_slug", "is", null);
+    const slug = uniekeSlug(naam, (bezet.data || []).map(r => r.register_slug));
+    if (!slug){
+      res.status(400).json({ error: "Vul eerst je naam in; die komt op je pagina in het register." });
+      return;
+    }
+    bij.register_slug = slug;
+  }
+
   const uit = await db.from("teamkracht_gebruikers")
-    .update({ register_toestemming: toestemming }).eq("user_id", gebruiker.user_id)
-    .select("register_toestemming").single();
+    .update(bij).eq("user_id", gebruiker.user_id)
+    .select("register_toestemming, register_slug").single();
   if (uit.error) throw uit.error;
-  res.status(200).json({ ok: true, register_toestemming: uit.data.register_toestemming });
+
+  res.status(200).json({
+    ok: true,
+    register_toestemming: uit.data.register_toestemming,
+    register_slug: uit.data.register_slug
+  });
 }
 
 /* Het certificaat. De naam wordt bevroren zoals hij nu is: een diploma hoort

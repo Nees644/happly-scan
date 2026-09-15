@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Je badge &middot; Teamkracht Index</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:17px}
+.wrap{max-width:660px;margin:0 auto;padding:44px 22px 90px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(1.8rem,4.2vw,2.5rem);line-height:1.15;margin-bottom:.35em}
+h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.3rem;margin-bottom:.4em}
+a{color:var(--magenta)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px}
+.lead{color:var(--grijs);margin-bottom:24px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:24px;margin-bottom:18px}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:15.5px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:11px 22px;cursor:pointer;text-decoration:none}
+.knop.lijn{background:var(--wit);color:var(--paars);border:1.5px solid var(--lijn)}
+.knop:disabled{opacity:.45}
+.rij{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.voorbeeld{background:var(--paars);border-radius:14px;padding:18px;display:flex;justify-content:center}
+.voorbeeld svg{width:100%;max-width:340px;height:auto;display:block}
+.vink{display:flex;gap:10px;align-items:flex-start;margin-top:4px;font-size:15px;line-height:1.5}
+.vink input{width:19px;height:19px;margin-top:3px;accent-color:var(--magenta);flex:none}
+.melding{border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:14px}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044}
+.goed{background:#E6F4EC;border:1px solid #BFE3CE;color:#14603D}
+.klein{font-size:13.5px;color:var(--grijs)}
+#login input{width:100%;font:inherit;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;margin-bottom:10px}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login" class="kaart" hidden>
+    <h1>Je badge</h1>
+    <p class="klein" style="margin-bottom:14px">Log in met je eigen account.</p>
+    <input id="l-mail" type="email" placeholder="E-mailadres" autocomplete="username">
+    <input id="l-ww" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+    <button class="knop" id="l-knop" style="width:100%">Inloggen</button>
+    <div class="melding fout" id="l-fout" hidden>Inloggen lukte niet.</div>
+  </div>
+
+  <div id="app" hidden></div>
+</div>
+
+<script type="module">
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+let stand = null, svgTekst = "";
+
+async function api(pad, opties = {}){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) throw new Error("niet ingelogd");
+  const r = await fetch(pad, { ...opties, headers: {
+    "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}`, ...(opties.headers||{})
+  }});
+  const uit = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(uit.error || `fout ${r.status}`);
+  return uit;
+}
+
+el("l-knop").addEventListener("click", async () => {
+  el("l-fout").hidden = true; el("l-knop").disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email: el("l-mail").value.trim(), password: el("l-ww").value });
+  el("l-knop").disabled = false;
+  if (error){ el("l-fout").hidden = false; return; }
+  toon();
+});
+
+async function toon(){
+  el("login").hidden = true;
+  el("app").hidden = false;
+  el("app").innerHTML = `<p class="klein">Een moment...</p>`;
+  stand = await api("/api/toets");
+
+  if (!stand.certificaat){
+    el("app").innerHTML = `
+      <div class="eyebrow">Badge</div>
+      <h1>Je hebt nog geen certificaat</h1>
+      <p class="lead">De badge hoort bij een geslaagde toets. Zodra je die hebt gehaald, staat hij hier.</p>
+      <p><a class="knop" href="/toets">Naar de toets</a></p>`;
+    return;
+  }
+
+  const code = stand.certificaat.verificatiecode;
+  const url = `${location.origin}/verificatie/${code}`;
+
+  el("app").innerHTML = `
+    <div class="eyebrow">Badge</div>
+    <h1>Je badge</h1>
+    <p class="lead">Zet hem op LinkedIn of onder je handtekening. Wie erop klikt, komt op een pagina die laat zien dat het klopt.</p>
+
+    <div class="kaart">
+      <div class="voorbeeld" id="voorbeeld"><p class="klein" style="color:#B9AECB">Badge wordt opgehaald...</p></div>
+      <div class="rij">
+        <button class="knop" id="png">Download png</button>
+        <button class="knop lijn" id="svg">Download svg</button>
+        <button class="knop lijn" id="kopieer">Kopieer de link</button>
+      </div>
+      <p class="klein" style="margin-top:12px">De png is 1200 bij 1200 en werkt overal. De svg blijft scherp op elk formaat en is bedoeld voor drukwerk.</p>
+      <p class="melding" id="melding" hidden></p>
+    </div>
+
+    <div class="kaart">
+      <h2>Je vermelding in het register</h2>
+      <p class="klein">Zonder toestemming bestaat je certificaat wel, maar is er geen openbare pagina en werkt de verificatielink op je badge niet.</p>
+      <div class="vink" style="margin-top:12px">
+        <input type="checkbox" id="toestemming" ${stand.register_toestemming ? "checked" : ""}>
+        <label for="toestemming">Zet mij in het openbare register, met mijn naam en niveau.</label>
+      </div>
+      ${stand.register_slug ? `<p class="klein" style="margin-top:10px">Je pagina: <a href="/register/${esc(stand.register_slug)}" target="_blank" rel="noopener">/register/${esc(stand.register_slug)}</a></p>` : ""}
+      <div class="rij"><button class="knop" id="bewaar">Bewaren</button>
+      <a class="knop lijn" href="/register" target="_blank" rel="noopener">Het register bekijken</a></div>
+      <p class="melding" id="r-melding" hidden></p>
+    </div>`;
+
+  // De badge zelf komt van de server, zodat er maar een plek is waar hij wordt
+  // getekend.
+  try{
+    const r = await fetch(`/api/badge?code=${encodeURIComponent(code)}`);
+    if (!r.ok) throw new Error("De badge is er pas als je in het register staat.");
+    svgTekst = await r.text();
+    el("voorbeeld").innerHTML = svgTekst;
+  }catch(e){
+    el("voorbeeld").innerHTML = `<p class="klein" style="color:#B9AECB">${esc(e.message)}</p>`;
+  }
+
+  el("svg").addEventListener("click", () => bewaarBestand(new Blob([svgTekst], { type: "image/svg+xml" }), "svg"));
+  el("png").addEventListener("click", maakPng);
+  el("kopieer").addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(url); meld("De link staat op je klembord.", true); }
+    catch(e){ meld(url); }
+  });
+  el("bewaar").addEventListener("click", bewaarRegister);
+}
+
+function meld(tekst, goed){
+  el("melding").className = "melding " + (goed ? "goed" : "fout");
+  el("melding").textContent = tekst;
+  el("melding").hidden = false;
+}
+
+function bewaarBestand(blob, soort){
+  const naam = `teamkracht-badge-${(stand.naam || "certificaat").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.${soort}`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = naam;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* De png wordt hier gemaakt en niet op de server: de badge is al vector, en een
+   tekenprogramma op een serverfunctie is veel gedoe voor een plaatje dat de
+   browser zelf in een paar regels kan zetten. */
+async function maakPng(){
+  if (!svgTekst){ meld("De badge is nog niet geladen."); return; }
+  el("png").disabled = true;
+  try{
+    const bron = URL.createObjectURL(new Blob([svgTekst], { type: "image/svg+xml;charset=utf-8" }));
+    const plaatje = new Image();
+    await new Promise((klaar, mis) => {
+      plaatje.onload = klaar;
+      plaatje.onerror = () => mis(new Error("de badge kon niet worden omgezet"));
+      plaatje.src = bron;
+    });
+    const doek = document.createElement("canvas");
+    doek.width = 1200; doek.height = 1200;
+    const pen = doek.getContext("2d");
+    pen.drawImage(plaatje, 0, 0, 1200, 1200);
+    URL.revokeObjectURL(bron);
+    const blob = await new Promise(k => doek.toBlob(k, "image/png"));
+    bewaarBestand(blob, "png");
+    meld("De png staat in je downloads.", true);
+  }catch(e){
+    meld(e.message);
+  }finally{
+    el("png").disabled = false;
+  }
+}
+
+async function bewaarRegister(){
+  const knop = el("bewaar");
+  knop.disabled = true;
+  try{
+    const uit = await api("/api/toets", { method:"POST", body: JSON.stringify({
+      actie: "register", toestemming: el("toestemming").checked
+    })});
+    el("r-melding").className = "melding goed";
+    el("r-melding").textContent = uit.register_toestemming
+      ? "Bewaard. Je staat in het register."
+      : "Bewaard. Je staat niet in het register en je verificatielink werkt niet.";
+    el("r-melding").hidden = false;
+    setTimeout(toon, 900);
+  }catch(e){
+    el("r-melding").className = "melding fout";
+    el("r-melding").textContent = e.message;
+    el("r-melding").hidden = false;
+  }finally{ knop.disabled = false; }
+}
+
+db.auth.getSession().then(({ data }) => {
+  if (data.session) toon(); else el("login").hidden = false;
+});
+</script>
+</body>
+</html>

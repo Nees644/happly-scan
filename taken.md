@@ -139,9 +139,18 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       Nakijken gebeurt op de server; het juiste antwoord verlaat hem nooit voor
       het inleveren. Bij een voldoende volgt het certificaat en het niveau
       lezer, en wordt gevraagd of je in het register mag.
-- [ ] **De badge** als png en svg, met naam, niveau, jaar en verificatie-URL.
-- [ ] **Het register** op teamkrachtindex.nl/register en /register/:slug, plus
-      de verificatiepagina achter de code op de badge.
+- [x] **De badge.** Vierkant, vector, met naam, niveau, jaar en de
+      verificatiecode. De svg komt van de server, de png maakt de browser
+      eruit; een tekenprogramma op een serverfunctie is veel gedoe voor een
+      plaatje dat al vector is. Staat op `/badge`.
+- [x] **Het register.** `/register`, `/register/:slug` en `/verificatie/:code`
+      op teamkrachtindex.nl, openbaar en zonder inlog. Alleen met uitdrukkelijke
+      toestemming, en een pagina blijft bestaan als het certificaat niet meer
+      actief is: een badge van vorig jaar hoort te blijven werken en dan
+      eerlijk te zijn.
+- [ ] **De licentie.** `licentie_actief` hangt nu nergens aan een abonnement.
+      Het register leest hem al, dus zodra de Lezer-licentie bij Mollie loopt,
+      klopt de status vanzelf.
 
 - [ ] Controleren of `migratie-certificering-2026-09-09.sql` echt is gedraaid.
       `controle/staat-v4-erin.sql` kijkt alleen naar de tarieven.

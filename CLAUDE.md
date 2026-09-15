@@ -124,6 +124,13 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   blokkeerde tot 15 september de module en de prijsopvraag voor elke nieuwe
   gebruiker.
 
+- **Het register is openbaar en staat op teamkrachtindex.nl**: `/register`,
+  `/register/:slug` en `/verificatie/:code`, server-getekend zodat een
+  verificatielink werkt zonder javascript. Er staat alleen in wat met
+  uitdrukkelijke toestemming is gegeven; zonder toestemming bestaat het
+  certificaat wel en de pagina niet. Een pagina wordt nooit verwijderd omdat
+  een certificaat verloopt: hij zegt dan niet actief.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

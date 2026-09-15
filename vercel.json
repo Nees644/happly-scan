@@ -20,6 +20,18 @@
     {
       "source": "/account",
       "destination": "/account.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/api/register"
+    },
+    {
+      "source": "/register/:slug",
+      "destination": "/api/register?slug=:slug"
+    },
+    {
+      "source": "/verificatie/:code",
+      "destination": "/api/register?code=:code"
     }
   ],
   "functions": {
@@ -127,6 +139,12 @@
     },
     "api/toets.js": {
       "maxDuration": 15
+    },
+    "api/register.js": {
+      "maxDuration": 10
+    },
+    "api/badge.js": {
+      "maxDuration": 10
     }
   },
   "crons": [
@@ -145,7 +163,7 @@
   ],
   "redirects": [
     {
-      "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-doel|teamkracht-handleiding|module|toets|account|betaald|bedankt|organisatie|professionals)",
+      "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-doel|teamkracht-handleiding|module|toets|badge|account|betaald|bedankt|organisatie|professionals)",
       "has": [
         {
           "type": "host",
