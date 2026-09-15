@@ -131,6 +131,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   certificaat wel en de pagina niet. Een pagina wordt nooit verwijderd omdat
   een certificaat verloopt: hij zegt dan niet actief.
 
+- **Er zijn drie sites in deze repo.** `index.html` is de Zelfkracht Index op
+  scan.happly.nl, `teamkrachtindex.html` is teamkrachtindex.nl, en
+  `happly.html` is de voorpagina van happly.nl. Die laatste draait niet op
+  Vercel maar op nginx en wordt met de hand geupload, daar als `index.html`.
+  Verwar de twee voorpagina's niet.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen
