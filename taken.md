@@ -81,10 +81,11 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       september 2026 gedraaid. `teamkracht_leidersbeeld` en `opvolging` staan
       in de database, gecontroleerd met `controle/staat-leidersbeeld-erin.sql`.
       Er is nog geen route die ze gebruikt.
-- [ ] **Stap 2.** De gratis pagina `/leidersbeeld`, de resultaatmail met het
-      indexgetal, de herinnering na zeven dagen, `/leider/:token` toestand a en
-      b, en het leadoverzicht. Hier hoort een aanpassing van `privacy.html` bij,
-      want dit is een nieuwe gegevensstroom.
+- [x] **Stap 2 is af en staat live.** `/leidersbeeld`, de resultaatmail, de
+      herinnering na zeven dagen (meegenomen in de bestaande dagelijkse cron),
+      `/leider/:token` in toestand a en b, en `/leads` met de opvolging.
+      `privacy.html` vermeldt de nieuwe gegevensstroom. Doorlopen op
+      15 september 2026: index 69, mail verstuurd, klik geregistreerd.
 - [ ] **Stap 3.** De koopknop met Mollie, de koppeling door een partner en de
       statusovergangen.
 - [ ] **Stap 4.** Regel R13, het Leidersbeeld op de kaart, toestand c en de

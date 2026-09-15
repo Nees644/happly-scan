@@ -76,6 +76,14 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   heeft twee bronnen, zodat hetzelfde scherm later ook de leads van de
   Zelfkracht Index toont. `opvolgreeks` is geen opvolglijst maar de
   administratie van de automatische mailreeks.
+- **Het Leidersbeeld staat live sinds 15 september 2026**, stap 1 en 2:
+  `/leidersbeeld` (gratis, zonder account), de resultaatmail met het indexgetal,
+  `/leider/:token` in toestand a en b, en `/leads` voor de opvolging. Stap 3
+  (koopknop en partnerkoppeling), 4 (regel R13 op de kaart) en 5 (hermeting)
+  liggen nog open.
+- **De vragenset staat in `items.js`**, met per item een versie over het team.
+  Hij stond alleen in `scan.html`; een test bewaakt dat beide gelijk blijven.
+  Wijzig er nooit een zonder de ander.
 - Het minimum van vijf deelnemers is op 15 september opnieuw bevestigd. Wie een
   briefing schrijft, krijgt `briefings/feiten.md` vooraf; daar staan de
   getallen die steeds verkeerd terugkomen.
