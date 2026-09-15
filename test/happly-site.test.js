@@ -134,6 +134,24 @@ test("de weg van Leidersbeeld naar teambeeld staat er als verhaal", () => {
   assert.ok(sectie.includes("vijf"), "het minimum voor een teambeeld ontbreekt in het verhaal");
 });
 
+test("de herkomst uit de URL gaat mee naar het Leidersbeeld", () => {
+  // Een post landt op happly.nl en niet rechtstreeks op de vragen. Dan moet
+  // de site de src doorgeven, anders staat elke lead uit een post in het
+  // overzicht als site_hero en is niet te zien wat de post opleverde.
+  assert.ok(HTML.includes('searchParams.set("src"'), "de site geeft de herkomst niet door");
+  assert.ok(HTML.includes('a[href*="teamkrachtindex.nl/leidersbeeld"]'),
+    "de doorgifte raakt niet de links naar het Leidersbeeld");
+  // Alleen tekens die schoonHerkomst() aan de andere kant ook toelaat.
+  assert.ok(/\^\[a-z0-9_-\]\{1,40\}\$/.test(HTML), "de src wordt niet gecontroleerd voordat hij wordt doorgegeven");
+});
+
+test("de LinkedIn-post landt op happly.nl met een herkomst", () => {
+  const post = readFileSync(new URL("../campagne/linkedin-leidersbeeld.md", import.meta.url), "utf8");
+  assert.ok(post.includes("https://happly.nl/?src=linkedin"), "de post landt niet op de voorpagina");
+  assert.ok(!post.includes("teamkrachtindex.nl/leidersbeeld?src=linkedin"),
+    "de post gaat nog rechtstreeks naar de vragen");
+});
+
 test("de links wijzen naar wat er draait", () => {
   for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
                      "https://www.teamkrachtindex.nl/register",

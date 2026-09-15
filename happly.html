@@ -386,5 +386,21 @@
   </div>
 </footer>
 
+
+<script>
+  // De herkomst uit de URL (?src=linkedin) gaat mee naar het Leidersbeeld.
+  // Zonder dit zou elke lead die via een post binnenkomt in het overzicht
+  // staan als site_hero, en dan is niet te zien wat een post heeft opgeleverd.
+  (function(){
+    var src = new URLSearchParams(location.search).get("src");
+    if (!src || !/^[a-z0-9_-]{1,40}$/i.test(src)) return;
+    var links = document.querySelectorAll('a[href*="teamkrachtindex.nl/leidersbeeld"]');
+    for (var i = 0; i < links.length; i++){
+      var url = new URL(links[i].href);
+      url.searchParams.set("src", src.toLowerCase());
+      links[i].href = url.toString();
+    }
+  })();
+</script>
 </body>
 </html>

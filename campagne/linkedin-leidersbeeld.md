@@ -1,11 +1,16 @@
 # LinkedIn · het Leidersbeeld
 
 Kaart: `assets/campagne/kaart-4-leidersbeeld.png` (1200 bij 1500)
-Link: `https://www.teamkrachtindex.nl/leidersbeeld?src=linkedin`
+Link: `https://happly.nl/?src=linkedin`
 
-De src in die link komt terug in het leadoverzicht, dus je ziet straks welke
-aanmeldingen van LinkedIn kwamen. Wijzig je hem, gebruik dan alleen kleine
-letters, cijfers en streepjes.
+De post landt op de voorpagina van happly.nl, niet rechtstreeks op de vragen.
+De hero daar is dezelfde vraag als in de post, met de knop eronder; wie wil
+begint meteen, wie eerst wil lezen heeft het hele verhaal en de twee deuren.
+
+De src in de link gaat mee: happly.nl geeft hem door aan de knop naar het
+Leidersbeeld, dus een lead die via de post binnenkwam staat in het overzicht
+als linkedin en niet als site_hero. Wijzig je de src, gebruik dan alleen
+kleine letters, cijfers en streepjes.
 
 ---
 
@@ -36,7 +41,7 @@ account.
 Begeleid je teams: stuur de link naar een opdrachtgever. De vraag hoe het team
 het zelf ziet, komt daarna vanzelf. En die kun jij beantwoorden.
 
-https://www.teamkrachtindex.nl/leidersbeeld?src=linkedin
+https://happly.nl/?src=linkedin
 
 ---
 
@@ -61,7 +66,7 @@ naam op de kaart, en wij benaderen die opdrachtgever nooit zelf.
 
 Stuur me een bericht, dan zet ik je link klaar.
 
-https://happly.nl
+https://happly.nl/?src=linkedin-coach
 
 ---
 
