@@ -11,14 +11,17 @@
 
 export const BEDRIJF = {
   naam:       "Happly",
-  handelsnaam: "Happly",
-  adres:      "",
-  postcode:   "",
-  plaats:     "",
+  toevoeging: "an Infinidea Venture",
+  adres:      "Wielkamp 8a",
+  postcode:   "5301 DB",
+  plaats:     "Zaltbommel",
   land:       "NL",
-  kvk:        "",
-  btw_nummer: "",
+  kvk:        "30141625",
+  btw_nummer: "NL806215239B01",
+  // Niet verplicht op de factuur: er is al betaald voordat hij wordt verstuurd.
+  // Staat er wel op zodra hij is ingevuld, voor wie hem wil natrekken.
   iban:       "",
+  telefoon:   "+31 85 878 5961",
   email:      "hallo@happly.nl",
   website:    "happly.nl"
 };

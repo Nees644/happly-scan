@@ -37,6 +37,15 @@ test("bedrijf.js heeft alle velden die de factuur nodig heeft", () => {
   for (const veld of VERPLICHT) assert.ok(veld in BEDRIJF, `${veld} ontbreekt in BEDRIJF`);
 });
 
+/* Deze test is het slot op de deur. Loopt bedrijf.js ooit leeg, dan valt hij om
+   voordat er een factuur zonder KvK of btw-nummer de deur uit gaat. */
+test("de gegevens van Happly staan ingevuld", () => {
+  assert.deepEqual(ontbreekt(), [], "bedrijf.js is niet compleet");
+  assert.match(BEDRIJF.btw_nummer, /^NL\d{9}B\d{2}$/, "geen geldig Nederlands btw-nummer");
+  assert.match(BEDRIJF.kvk, /^\d{8}$/, "een KvK-nummer heeft acht cijfers");
+  assert.match(BEDRIJF.postcode, /^\d{4} ?[A-Z]{2}$/, "geen geldige postcode");
+});
+
 /* ------------------------------------------------------- wie hem ontvangt */
 test("een factuur boven de honderd euro vraagt naam en adres van de klant", () => {
   assert.deepEqual(KLANTVELDEN, ["naam", "adres", "postcode", "plaats"]);

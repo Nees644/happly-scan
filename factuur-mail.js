@@ -19,7 +19,7 @@ function ontsnap(t){
 
 function adresblok(kop, r){
   const regels = [
-    r.naam, r.adres,
+    r.naam, r.toevoeging, r.adres,
     [r.postcode, r.plaats].filter(Boolean).join("  "),
     r.land && r.land !== "NL" ? r.land : null,
     r.kvk ? `KvK ${r.kvk}` : null,
@@ -97,7 +97,7 @@ export function bouwFactuurHtml(factuur, bedrijf = BEDRIJF){
     </div>
   </div>
   <p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">
-    ${ontsnap(bedrijf.naam)} &middot; ${ontsnap(bedrijf.email)}${bedrijf.iban ? ` &middot; ${ontsnap(bedrijf.iban)}` : ""}
+    ${ontsnap(bedrijf.naam)} &middot; ${ontsnap(bedrijf.email)}${bedrijf.telefoon ? ` &middot; ${ontsnap(bedrijf.telefoon)}` : ""}${bedrijf.iban ? ` &middot; ${ontsnap(bedrijf.iban)}` : ""}
   </p>
 </div>`;
 }
