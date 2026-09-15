@@ -9,32 +9,24 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const HTML = readFileSync(new URL("../happly.html", import.meta.url), "utf8");
-const MIGRATIE = readFileSync(new URL("../migratie-tarieven-v4-2026-09-14.sql", import.meta.url), "utf8");
 
-/* Het bedrag uit de producttabel, in hele euro's. Niet splitsen op komma: in
-   een productnaam staat er soms een ('Lezer, instap'). */
-function prijsVan(code){
-  const rij = MIGRATIE.split("\n").find(r => r.startsWith(`('${code}'`));
-  assert.ok(rij, `product ${code} niet gevonden`);
-  const m = rij.match(/^\('[^']+',\s*'[^']*',\s*(\d+),/);
-  assert.ok(m, `geen bedrag bij ${code}`);
-  return Number(m[1]) / 100;
-}
-
-test("de prijzen op de site komen uit de producttabel", () => {
-  for (const code of ["PAK-LOS", "HM-LOS", "LEZ-1"]){
-    const euro = prijsVan(code);
-    assert.ok(HTML.includes(`€ ${euro}`), `de site noemt niet € ${euro} voor ${code}`);
-  }
+test("er staan geen bedragen op de site", () => {
+  // Besluit 15 september 2026: de verkoop loopt in het proces, niet op de
+  // voorpagina. Een leidinggevende ziet het bedrag op zijn eigen pagina na het
+  // Leidersbeeld; een coach vraagt het per mail. Een prijslijst op de site is
+  // daar alleen maar een drempel voor, en hij veroudert.
+  assert.ok(!HTML.includes("\u20ac"), "er staat een eurobedrag op de site");
+  assert.ok(!/\b\d{2,3} (euro|per maand|per jaar)\b/.test(HTML), "er staat een bedrag in woorden op de site");
+  assert.ok(!/id="investering"/.test(HTML), "de prijssectie staat er nog");
 });
 
-test("de oude prijzen staan er niet meer", () => {
-  // De site stond tot 15 september 2026 vol met tarieven die nooit zijn
-  // gebouwd: een abonnement van 89 per maand, een praktijkvorm van 349, een
-  // Teamfoto van 395 en een hermeting van 295.
-  for (const bedrag of ["€ 89", "€ 349", "€ 395", "€ 295", "€ 890", "€ 3.490"]){
-    assert.ok(!HTML.includes(bedrag), `de site noemt nog ${bedrag}`);
-  }
+test("de vraag wat het kost wordt wel beantwoord", () => {
+  // Weglaten is iets anders dan ontwijken: er hoort te staan waar het bedrag
+  // vandaan komt en wanneer je het ziet.
+  assert.ok(HTML.includes("Wat kost een Teamfoto?"), "de vraag staat niet in de vragenlijst");
+  const antwoord = HTML.split("Wat kost een Teamfoto?")[1].split("</details>")[0];
+  assert.ok(/na je Leidersbeeld/.test(antwoord), "er staat niet wanneer je het bedrag ziet");
+  assert.ok(/hallo@happly\.nl/.test(antwoord), "er staat geen weg om het te vragen");
 });
 
 test("geen beloftes die het product niet waarmaakt", () => {
