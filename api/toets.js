@@ -36,6 +36,7 @@ export default async function handler(req, res){
       if (body.actie === "start") return await start(res, db, gebruiker);
       if (body.actie === "inleveren") return await inleveren(res, db, gebruiker, body);
       if (body.actie === "register") return await register(res, db, gebruiker, body);
+      if (body.actie === "naam") return await zetNaam(res, db, gebruiker, body);
       res.status(400).json({ error: "onbekende actie" });
       return;
     }
@@ -93,9 +94,17 @@ async function start(res, db, gebruiker){
   // De toets hoort bij de module. Wie geen toegang heeft tot hoofdstuk 3 tot en
   // met 6 kan de vragen daarover niet hebben gelezen.
   const gebr = await db.from("teamkracht_gebruikers")
-    .select("lezer_module_toegang").eq("user_id", gebruiker.user_id).maybeSingle();
+    .select("lezer_module_toegang, naam").eq("user_id", gebruiker.user_id).maybeSingle();
   if (!gebr.data?.lezer_module_toegang){
     res.status(403).json({ error: "De toets hoort bij de Lezer-module. Die staat nog niet voor je open." });
+    return;
+  }
+
+  // Zonder naam geen toets. Het certificaat bevriest de naam bij uitgifte en
+  // komt op een badge en in een openbaar register; daar hoort geen mailadres
+  // te staan omdat er niets anders bekend was.
+  if (!String(gebr.data?.naam || "").trim()){
+    res.status(400).json({ error: "Vul eerst je naam in; die komt op je certificaat te staan.", naam_nodig: true });
     return;
   }
 
@@ -228,11 +237,17 @@ async function geefCertificaat(db, gebruiker, pogingId, body){
   if ((bestaand.data || []).length) return bestaand.data[0];
 
   const gebr = await db.from("teamkracht_gebruikers")
-    .select("naam, email").eq("user_id", gebruiker.user_id).maybeSingle();
+    .select("naam").eq("user_id", gebruiker.user_id).maybeSingle();
+
+  // Geen terugval op het mailadres. Een certificaat op naam van
+  // voornaam.achternaam@gmail.com is geen certificaat, en het staat straks op
+  // een badge op LinkedIn.
+  const naam = String(gebr.data?.naam || "").trim();
+  if (!naam) return null;
 
   const ins = await db.from("certificaten").insert({
     gebruiker_id: gebruiker.user_id,
-    naam_op_certificaat: gebr.data?.naam || gebr.data?.email || null,
+    naam_op_certificaat: naam,
     niveau: "lezer",
     poging_id: pogingId
   }).select("id, uitgegeven_op, verificatiecode, status").single();
@@ -246,4 +261,16 @@ async function geefCertificaat(db, gebruiker, pogingId, body){
   await db.from("teamkracht_gebruikers").update(bij).eq("user_id", gebruiker.user_id);
 
   return ins.data;
+}
+
+/* De naam die op het certificaat komt. Wordt gevraagd voor de toets en niet
+   erna: wie net geslaagd is, wil zijn certificaat en geen formulier. */
+async function zetNaam(res, db, gebruiker, body){
+  const naam = String(body.naam || "").trim().replace(/\s+/g, " ").slice(0, 120);
+  if (naam.length < 3){ res.status(400).json({ error: "Vul je volledige naam in." }); return; }
+
+  const uit = await db.from("teamkracht_gebruikers")
+    .update({ naam }).eq("user_id", gebruiker.user_id).select("naam").single();
+  if (uit.error) throw uit.error;
+  res.status(200).json({ ok: true, naam: uit.data.naam });
 }

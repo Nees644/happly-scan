@@ -155,6 +155,10 @@ async function toonStand(){
     <h2>Klaar om te beginnen?</h2>
     <p>Je hebt nog ${over} ${over === 1 ? "poging" : "pogingen"} in deze periode. Je kunt tijdens de toets heen en weer tussen de vragen; pas als je inlevert wordt er nagekeken.</p>
     ${stand.laatste && stand.laatste.afgerond_op ? `<p class="klein" style="margin-top:8px">Je vorige poging: ${stand.laatste.score} van ${stand.aantal_vragen} goed.</p>` : ""}
+    <label for="naam" style="display:block;font-size:14px;font-weight:600;margin:18px 0 5px">Je naam, zoals hij op je certificaat komt</label>
+    <input type="text" id="naam" autocomplete="name" value="${esc(stand.naam || "")}"
+           style="width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px">
+    <p class="klein" style="margin-top:6px">Deze naam wordt bij het slagen vastgelegd en verandert daarna niet meer mee met je profiel.</p>
     <div class="rij"><button class="knop" id="starten">Start de toets</button>
     <a class="knop lijn" href="/module">Eerst nog lezen</a></div>
     <div class="melding fout" id="s-fout" hidden></div>`;
@@ -164,8 +168,19 @@ async function toonStand(){
 
 async function beginnen(){
   const knop = el("starten");
+  const naam = el("naam").value.trim();
+  if (naam.length < 3){
+    el("s-fout").textContent = "Vul je volledige naam in; die komt op je certificaat te staan.";
+    el("s-fout").hidden = false;
+    el("naam").focus();
+    return;
+  }
   knop.disabled = true; knop.textContent = "Een moment...";
   try{
+    if (naam !== (stand.naam || "")){
+      await api("/api/toets", { method:"POST", body: JSON.stringify({ actie: "naam", naam }) });
+      stand.naam = naam;
+    }
     const uit = await api("/api/toets", { method:"POST", body: JSON.stringify({ actie: "start" }) });
     vragen = uit.vragen; pogingId = uit.poging_id; plek = 0;
     el("stand").hidden = true;

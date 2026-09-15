@@ -188,6 +188,17 @@ test("de toestemming voor het register staat standaard uit", () => {
   assert.ok(!/id="register"[^>]*checked/.test(pagina), "het vinkje staat voorgevinkt aan");
 });
 
+test("zonder naam geen toets en geen certificaat", () => {
+  const route = readFileSync(new URL("../api/toets.js", import.meta.url), "utf8");
+  assert.ok(route.includes("naam_nodig"), "de toets begint zonder naam");
+  assert.ok(!/naam_op_certificaat: .*email/.test(route),
+    "een certificaat mag nooit op een mailadres komen te staan");
+  assert.ok(route.includes('naam_op_certificaat: naam'));
+
+  const pagina = readFileSync(new URL("../toets.html", import.meta.url), "utf8");
+  assert.ok(pagina.includes('id="naam"'), "de pagina vraagt de naam niet");
+});
+
 test("rol lezer mag bij de module en bij de toets", () => {
   for (const bestand of ["api/toets.js", "api/module-voortgang.js", "api/prijs.js"]){
     const route = readFileSync(new URL(`../${bestand}`, import.meta.url), "utf8");
