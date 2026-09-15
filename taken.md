@@ -97,10 +97,13 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       blok Leidersbeeld en teamlijn direct onder de kolommen, en
       `/leider/:token` kent toestand c. De spreiding wordt nu bevroren in het
       teambeeld, anders verschuift de duiding van een oude kaart mee.
-- [ ] **De printcontrole van stap 4.** De briefing vraagt een Playwright-check
-      op A4 en A1. Die is er niet in deze repo; de tests controleren nu dat
-      beide formaten renderen, niet dat het blok op een A4 past.
-- [ ] **De factuur als pdf** in Supabase Storage. De factuur gaat nu als mail.
+- [x] **A4 en A1 als pdf.** Geen Playwright en geen afdrukken via de browser:
+      `kaart-pdf.js` tekent de kaart rechtstreeks in vectoren. Een A1 is
+      dezelfde tekening op een groter vel en dus even scherp. De rechterkolom
+      krimpt vanzelf tot hij past, zodat een team met lange dynamiekteksten
+      niet van de kaart valt.
+- [x] **De factuur als pdf.** Gaat als bijlage mee met de mail en wordt bewaard
+      in Supabase Storage, in een bak die niet openbaar is.
 - [x] **Stap 5 is af.** Het tweede Leidersbeeld bij de hermeting op
       `/leidersbeeld-hermeting`, de uitnodiging op de eigen pagina zodra het
       team opnieuw meet, de eindkaart met vier punten per kolom en een
@@ -121,7 +124,7 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       factuurnummer in de omschrijving. Inclusief de herpoging na vijf dagen en
       de blokkade daarna.
 - [x] **De factuur bij een aankoop vooraf.** Nummer uit de reeks, adres
-      bevroren, en de factuur in de mail. De pdf staat hierboven nog open.
+      bevroren, de factuur in de mail en als pdf in de bijlage.
 - [ ] **Het eerste mandaat.** Bij het afsluiten van een licentie een eerste
       betaling met `sequenceType: first`, zodat er op kan worden geïncasseerd.
       Zonder mandaat geen licentie.

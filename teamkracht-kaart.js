@@ -195,15 +195,22 @@ function profielnaam(code, aantal, profielen, bevroren){
 
 /* De verdeling als één regel: 4 Zieners, 2 Aanpakkers, 1 Trekker, en zo verder.
    Alleen codes die voorkomen; middenband achteraan. */
-function verdelingZin(verdeling, profielen, bevroren){
+/* De verdeling als gegevens, zodat de kaart en de pdf uit dezelfde bron
+   tekenen en niet ieder hun eigen volgorde verzinnen. */
+export function verdelingLijst(verdeling, profielen, bevroren){
   return Object.entries(verdeling)
     .filter(([, aantal]) => aantal > 0)
     .sort((a, b) => (a[0] === "MMM") - (b[0] === "MMM") || b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([code, aantal]) => `<span><b>${aantal}</b> ${esc(profielnaam(code, aantal, profielen, bevroren))}</span>`)
+    .map(([code, aantal]) => ({ code, aantal, naam: profielnaam(code, aantal, profielen, bevroren) }));
+}
+
+function verdelingZin(verdeling, profielen, bevroren){
+  return verdelingLijst(verdeling, profielen, bevroren)
+    .map(r => `<span><b>${r.aantal}</b> ${esc(r.naam)}</span>`)
     .join('<i class="punt">&middot;</i>');
 }
 
-function verschilZin(teambeeld, landelijk = true){
+export function verschilZin(teambeeld, landelijk = true){
   const teken = x => (x > 0 ? "+" : "") + Math.round(x);
   if (landelijk){
     return `Zien ${teken(teambeeld.team_zien - teambeeld.norm_zien)}, `
@@ -248,13 +255,27 @@ function planHtml(regel){
 /* Eén dynamiek: streep, tag, kop, en daaronder de tekst als doorlopend
    verhaal met de getelde kop als aanloop, precies zoals in het voorbeeld
    teamkrachtkaart_1_startbeeld.png. */
-function dynamiekHtml(regel, teambeeld){
+/* Een dynamiek in platte tekst. De kaart maakt er html van, de pdf zet hem
+   rechtstreeks; de zinnen zelf komen uit dezelfde plek. */
+export function dynamiekTekst(regel, teambeeld){
   const aanloop = regel.titel_geteld
-    ? `${esc(vulPlaceholders(regel.titel_geteld, teambeeld.verdeling, teambeeld.n))}: `
+    ? `${vulPlaceholders(regel.titel_geteld, teambeeld.verdeling, teambeeld.n)}: `
     : "";
   const lopend = aanloop
-    ? aanloop + esc(regel.dynamiek).replace(/^([A-Z])/, (m) => m.toLowerCase())
-    : esc(regel.dynamiek);
+    ? aanloop + String(regel.dynamiek).replace(/^([A-Z])/, m => m.toLowerCase())
+    : String(regel.dynamiek);
+  return {
+    tag: `${RICHTING_LABEL[regel.richting] || ""} \u00b7 ${regel.code}`,
+    titel: regel.titel,
+    lopend,
+    interventie: regel.interventie,
+    gespreksvraag: regel.gespreksvraag
+  };
+}
+
+function dynamiekHtml(regel, teambeeld){
+  const los = dynamiekTekst(regel, teambeeld);
+  const lopend = esc(los.lopend);
   return `<article class="dyn">
     <p class="tag ${regel.richting}">${RICHTING_LABEL[regel.richting] || ""} &middot; ${esc(regel.code)}</p>
     <h4>${esc(regel.titel)}</h4>
@@ -264,7 +285,7 @@ function dynamiekHtml(regel, teambeeld){
 
 /* De volledige kaart. teambeeld komt uit bouwTeambeeld, regels en profielen
    zijn de rijen uit teamkracht_regels en teamkracht_profielen. */
-function sdVan(teambeeld, terugval = null){
+export function sdVan(teambeeld, terugval = null){
   const snap = teambeeld.config_snapshot || {};
   const pak = veld => Number(snap[veld] ?? (terugval || {})[veld] ?? 12);
   return { sd_zien: pak("sd_zien"), sd_sturen: pak("sd_sturen"), sd_doen: pak("sd_doen") };

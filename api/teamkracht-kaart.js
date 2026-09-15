@@ -5,6 +5,7 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
+import { maakKaartPdf } from "../kaart-pdf.js";
 import { haalKoper } from "../koper-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -18,7 +19,7 @@ export default async function handler(req, res){
   const id = String(req.query?.teambeeld_id || "");
   const doelId = String(req.query?.doel_id || "");
   const formaat = FORMATEN.includes(req.query?.formaat) ? req.query.formaat : "a4";
-  const als = req.query?.als === "svg" ? "svg" : "html";
+  const als = ["svg", "pdf"].includes(req.query?.als) ? req.query.als : "html";
   const poster = req.query?.poster === "1";
   if (!id && !doelId){ res.status(400).json({ error: "geef teambeeld_id of doel_id" }); return; }
   if (id && !UUID.test(id)){ res.status(400).json({ error: "ongeldig teambeeld_id" }); return; }
@@ -79,6 +80,28 @@ export default async function handler(req, res){
   if (als === "svg"){
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
     res.status(200).send(tekenKaartSvg(beeld.data, { doel, landelijk_beeld, leidersbeeld }));
+    return;
+  }
+
+  // De pdf. Alles erin is vector, dus A1 is even scherp als A4; er wordt niets
+  // vergroot. Dit is wat naar de drukker gaat en wat een opdrachtgever bewaart.
+  if (als === "pdf"){
+    const [regelsPdf, profielenPdf] = await Promise.all([
+      db.from("teamkracht_regels")
+        .select("code, titel, titel_geteld, richting, dynamiek, interventie, gespreksvraag").eq("actief", true),
+      db.from("teamkracht_profielen").select("code, naam").eq("actief", true)
+    ]);
+    const pdf = await maakKaartPdf({
+      teambeeld: beeld.data,
+      regels: regelsPdf.data || [],
+      profielen: profielenPdf.data || [],
+      teamnaam: team.data.naam,
+      formaat, doel, landelijk_beeld, leidersbeeld
+    });
+    const naam = `teamkrachtkaart-${(team.data.naam || "team").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${formaat}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${naam}"`);
+    res.status(200).send(pdf);
     return;
   }
 

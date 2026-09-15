@@ -54,7 +54,8 @@
       "maxDuration": 30
     },
     "api/teamkracht-kaart.js": {
-      "maxDuration": 20
+      "maxDuration": 30,
+      "includeFiles": "assets/**"
     },
     "api/teamkracht-team.js": {
       "maxDuration": 20
@@ -84,10 +85,12 @@
       "maxDuration": 20
     },
     "api/betaling-webhook.js": {
-      "maxDuration": 20
+      "maxDuration": 20,
+      "includeFiles": "assets/**"
     },
     "api/betaling-status.js": {
-      "maxDuration": 10
+      "maxDuration": 10,
+      "includeFiles": "assets/**"
     },
     "api/module-voortgang.js": {
       "maxDuration": 10
@@ -117,6 +120,9 @@
       "maxDuration": 15
     },
     "api/factuurgegevens.js": {
+      "maxDuration": 10
+    },
+    "api/factuur.js": {
       "maxDuration": 10
     }
   },

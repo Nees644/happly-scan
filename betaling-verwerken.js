@@ -15,6 +15,7 @@ import { verderDan } from "./leidersbeeld-koppelen.js";
 import { compleet as bedrijfCompleet, ontbreekt as bedrijfOntbreekt, BEDRIJF } from "./bedrijf.js";
 import { klantUit, klantCompleet, regelsVoor, totalen, btwVerlegd } from "./factuur.js";
 import { factuurMail } from "./factuur-mail.js";
+import { maakFactuurPdf } from "./factuur-pdf.js";
 import { Resend } from "resend";
 
 const MOLLIE_NAAR_ONS = {
@@ -303,15 +304,28 @@ export async function maakFactuur(db, bestelling, verzender = undefined){
     throw new Error(`factuur opslaan mislukt: ${ins.error.message}`);
   }
 
+  // De pdf: bijlage bij de mail en het exemplaar dat blijft. Lukt hij niet, dan
+  // gaat de mail alsnog; de factuur staat er ook gewoon in.
+  let pdf = null, pdfPad = null;
+  try{
+    pdf = await maakFactuurPdf(ins.data, BEDRIJF);
+    pdfPad = `${new Date().getFullYear()}/${ins.data.nummer}.pdf`;
+    const opslag = await db.storage.from("facturen")
+      .upload(pdfPad, pdf, { contentType: "application/pdf", upsert: true });
+    if (opslag.error) pdfPad = null;
+    else await db.from("facturen").update({ pdf_pad: pdfPad }).eq("id", ins.data.id);
+  }catch(e){ pdf = pdf || null; }
+
   const naar = klant.email || g.data?.email;
   if (verzender && naar){
     const mail = factuurMail(ins.data, BEDRIJF);
     const uit = await verzender.emails.send({
-      from: `${BEDRIJF.naam} <${BEDRIJF.email}>`, to: naar, subject: mail.subject, html: mail.html
+      from: `${BEDRIJF.naam} <${BEDRIJF.email}>`, to: naar, subject: mail.subject, html: mail.html,
+      ...(pdf ? { attachments: [{ filename: `factuur-${ins.data.nummer}.pdf`, content: pdf.toString("base64") }] } : {})
     });
     if (!(uit && uit.error)){
       await db.from("facturen").update({ verstuurd_op: new Date().toISOString() }).eq("id", ins.data.id);
-      return `factuur ${ins.data.nummer} verstuurd`;
+      return `factuur ${ins.data.nummer} verstuurd${pdf ? " met pdf" : " zonder pdf"}`;
     }
     return `factuur ${ins.data.nummer} gemaakt, mail mislukt`;
   }

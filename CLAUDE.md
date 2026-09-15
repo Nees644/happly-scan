@@ -98,6 +98,14 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   briefing schrijft, krijgt `briefings/feiten.md` vooraf; daar staan de
   getallen die steeds verkeerd terugkomen.
 
+- **Pdf's worden getekend, niet afgedrukt.** `kaart-pdf.js` en
+  `factuur-pdf.js` zetten met pdfkit rechtstreeks vectoren op papier. Er komt
+  geen headless browser aan te pas en er is geen Playwright: een A1 is dezelfde
+  tekening op een groter vel en dus even scherp als een A4. De huisletters en
+  het beeldmerk staan in `assets/`; routes die een pdf maken hebben
+  `includeFiles: "assets/**"` in `vercel.json` nodig, anders valt het op
+  productie om.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen
