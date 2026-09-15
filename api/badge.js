@@ -41,7 +41,9 @@ export default async function handler(req, res){
       naam: rij.naam, niveau: rij.niveau, datum: rij.sinds, verificatiecode: rij.verificatiecode
     });
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=300");
+    // Zelfde reden als bij het register: wie zijn toestemming intrekt, hoort
+    // zijn badge meteen kwijt te zijn.
+    res.setHeader("Cache-Control", "no-store");
     res.status(200).send(svg);
   }catch(e){
     res.status(500).json({ error: "badge maken mislukt" });

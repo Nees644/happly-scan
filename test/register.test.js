@@ -176,6 +176,15 @@ test("de openbare routes staan in vercel.json", () => {
   }
 });
 
+test("het register wordt niet bewaard, zodat intrekken direct werkt", () => {
+  for (const bestand of ["api/register.js", "api/badge.js"]){
+    const route = readFileSync(new URL(`../${bestand}`, import.meta.url), "utf8");
+    assert.ok(route.includes('"Cache-Control", "no-store"'), `${bestand} bewaart de pagina`);
+    assert.ok(!/max-age=\d+/.test(route),
+      `${bestand} houdt een oude vermelding vast nadat iemand hem heeft ingetrokken`);
+  }
+});
+
 test("het register vraagt geen inlog", () => {
   const route = readFileSync(new URL("../api/register.js", import.meta.url), "utf8");
   assert.ok(!route.includes("eisGebruiker"), "een register achter een inlog is geen register");

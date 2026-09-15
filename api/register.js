@@ -23,8 +23,11 @@ const GEBRUIKERVELDEN = "user_id, naam, organisatie, website, register_toestemmi
 
 function stuur(res, html, code = 200){
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  // Het register verandert zelden en wordt vaak vanaf LinkedIn geopend.
-  res.setHeader("Cache-Control", code === 200 ? "public, max-age=300" : "no-store");
+  // Niet bewaren. Er stond hier vijf minuten cache, want het register verandert
+  // zelden; maar wie zijn vermelding intrekt hoort hem meteen weg te zien, en
+  // niet pas na vijf minuten. Zo stond het ook in de briefing, en zo moet het:
+  // een openbare pagina met iemands naam erop bewaar je niet tegen zijn zin.
+  res.setHeader("Cache-Control", "no-store");
   res.status(code).send(html);
 }
 
