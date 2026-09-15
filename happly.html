@@ -150,6 +150,15 @@
     th:nth-child(3),td:nth-child(3){display:none}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.leidersstrook{background:var(--inkt,#1A0B2E);color:#fff;padding:26px 0}
+.leidersstrook .wrap{display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap}
+.leidersstrook .eyebrow{color:#D6026F;margin-bottom:6px}
+.leidersstrook h2{font-size:1.7rem;margin-bottom:.25em}
+.leidersstrook p{max-width:56ch;opacity:.86;font-size:1rem}
+.leidersstrook .ls-knop{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.leidersstrook .ls-klein{font-size:.85rem;opacity:.7}
+@media(max-width:720px){.leidersstrook .wrap{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
@@ -160,6 +169,7 @@
     <a href="#top"><img src="logo.png" alt="Happly"></a>
     <nav>
       <a class="hide" href="#professionals">Voor professionals</a>
+      <a class="hide" href="#leidersbeeld">Leidersbeeld</a>
       <a class="hide" href="#certificering">Certificering</a>
       <a class="hide" href="#organisaties">Voor organisaties</a>
       <a class="hide" href="onderzoek.html">Onderzoek</a>
@@ -175,11 +185,26 @@
     <p class="lead">Markers voor teamsucces meetbaar gemaakt. Happly voor professionals is <b>het meetinstrument onder je eigen teamtrajecten</b>: de Zelfkracht Index voor iedere deelnemer, de Teamkracht Index voor het team. De Teamfoto opent je traject, de hermeting levert het bewijs. Voor coaches, adviseurs en bureaus.</p>
     <div class="cta-row">
       <a class="btn" href="https://cal.com/maarten-neeskens-aoijqe?src=site_hero">Plan een kennismaking</a>
-      <span class="meta">Het Leidersbeeld is kosteloos en vraagt geen account · <a class="link" href="#organisaties">leidinggevende? Voor organisaties</a></span>
+      <span class="meta">Leidinggevende? <a class="link" href="#leidersbeeld">Geef je Leidersbeeld</a>, kosteloos en zonder account</span>
     </div>
   </div>
 </main>
 </div>
+
+
+<section class="leidersstrook" id="leidersbeeld">
+  <div class="wrap">
+    <div class="ls-tekst">
+      <p class="eyebrow">Voor leidinggevenden</p>
+      <h2>Hoe doet jouw team het?</h2>
+      <p>Twaalf vragen over zien, sturen en doen. Drie minuten, kosteloos, geen account en geen betaalgegevens. Je krijgt je Leidersbeeld in je mail.</p>
+    </div>
+    <div class="ls-knop">
+      <a class="btn" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_strook">Begin met de eerste vraag</a>
+      <span class="ls-klein">Je hoeft vooraf niets in te vullen</span>
+    </div>
+  </div>
+</section>
 
 <section id="professionals">
   <div class="wrap">
@@ -287,6 +312,7 @@
       <a class="btn" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_org">Geef je Leidersbeeld</a>
       <a class="btn ghost" href="https://www.teamkrachtindex.nl/teamkracht-demo-interactief?src=site_org" style="margin-left:10px">Probeer de Teamkrachtkaart</a>
     </p>
+    <p class="small" style="margin-top:12px">Het Leidersbeeld kost niets en verplicht tot niets. Wat je ermee doet, bepaal je daarna.</p>
     <p style="margin-top:16px">Wil je rechtstreeks aan de slag, dan kan dat ook zonder begeleider. Je vraagt zelf een Teamfoto aan, deelt de meetlink met je team, en krijgt de kaart zodra er vijf mensen hebben ingevuld. Wat je daarna met het gesprek doet, is aan jou; de gespreksvragen staan op de kaart.</p>
   </div>
 </section>

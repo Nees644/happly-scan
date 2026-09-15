@@ -84,6 +84,22 @@ test("er staat niets op de site dat niet bestaat", () => {
   }
 });
 
+test("een leidinggevende hoeft niet te zoeken naar het Leidersbeeld", () => {
+  // De strook staat boven het verhaal voor professionals, zodat een
+  // leidinggevende hem ziet zonder te scrollen.
+  const strook = HTML.indexOf('id="leidersbeeld"');
+  const professionals = HTML.indexOf('id="professionals"');
+  assert.ok(strook > 0, "de strook voor leidinggevenden ontbreekt");
+  assert.ok(strook < professionals, "de strook staat onder het verhaal voor professionals");
+
+  assert.ok(HTML.includes('href="#leidersbeeld"'), "het Leidersbeeld staat niet in de navigatie");
+
+  // En de drempel staat er expliciet niet: geen account, geen betaalgegevens.
+  for (const belofte of ["geen account", "Drie minuten"]){
+    assert.ok(HTML.includes(belofte), `de strook mist: ${belofte}`);
+  }
+});
+
 test("de links wijzen naar wat er draait", () => {
   for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
                      "https://www.teamkrachtindex.nl/register",
