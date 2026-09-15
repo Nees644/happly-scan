@@ -16,8 +16,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happly · Markers voor teamsucces meetbaar gemaakt</title>
-<meta name="description" content="Happly voor professionals is het meetinstrument onder je eigen teamtrajecten: de Zelfkracht Index voor de deelnemer, de Teamkracht Index voor het team. De Teamfoto opent je traject, de hermeting levert het bewijs. Het Leidersbeeld van de leidinggevende is kosteloos.">
+<title>Hoe goed ken je je team? · Happly</title>
+<meta name="description" content="Twaalf vragen, drie minuten, en je weet hoe jij vindt dat je team het doet op zien, sturen en doen. Het Leidersbeeld is kosteloos. De andere helft van het antwoord komt van het team zelf.">
 <meta property="og:title" content="Happly · Markers voor teamsucces meetbaar gemaakt">
 <meta property="og:description" content="Het meetinstrument onder de teamtrajecten van coaches, adviseurs en bureaus. De Teamfoto opent je traject, de hermeting levert het bewijs.">
 <meta property="og:image" content="https://happly.nl/og.png">
@@ -151,14 +151,18 @@
   }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
-.leidersstrook{background:var(--inkt,#1A0B2E);color:#fff;padding:26px 0}
-.leidersstrook .wrap{display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap}
+.leidersstrook{background:var(--inkt,#1A0B2E);color:#fff;padding:36px 0}
+.leidersstrook .wrap{display:grid;grid-template-columns:1fr 1fr;gap:38px}
+.leidersstrook .deur{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.leidersstrook .deur p{margin-bottom:6px}
+.leidersstrook .btn.licht{border-color:rgba(255,255,255,.45);color:#fff}
+.leidersstrook .btn.licht:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 .leidersstrook .eyebrow{color:#D6026F;margin-bottom:6px}
 .leidersstrook h2{font-size:1.7rem;margin-bottom:.25em}
 .leidersstrook p{max-width:56ch;opacity:.86;font-size:1rem}
 .leidersstrook .ls-knop{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .leidersstrook .ls-klein{font-size:.85rem;opacity:.7}
-@media(max-width:720px){.leidersstrook .wrap{flex-direction:column;align-items:flex-start}}
+@media(max-width:720px){.leidersstrook .wrap{grid-template-columns:1fr;gap:30px}}
 </style>
 </head>
 <body>
@@ -180,12 +184,12 @@
 
 <main class="hero" id="top">
   <div class="wrap">
-    <p class="eyebrow">Happly voor professionals</p>
-    <h1>Teams die het <em>zelf</em> oplossen.</h1>
-    <p class="lead">Markers voor teamsucces meetbaar gemaakt. Happly voor professionals is <b>het meetinstrument onder je eigen teamtrajecten</b>: de Zelfkracht Index voor iedere deelnemer, de Teamkracht Index voor het team. De Teamfoto opent je traject, de hermeting levert het bewijs. Voor coaches, adviseurs en bureaus.</p>
+    <p class="eyebrow">Happly &middot; Teamkracht Index</p>
+    <h1>Hoe goed ken je <em>je team?</em></h1>
+    <p class="lead">Twaalf vragen, drie minuten, en je weet hoe jij vindt dat je team het doet op zien, sturen en doen. Dat is je <b>Leidersbeeld</b>, en het kost niets. De andere helft van het antwoord komt van het team zelf: dezelfde vragen, ieder over zichzelf. Waar die twee beelden uiteenlopen, ligt het gesprek dat nog niet is gevoerd.</p>
     <div class="cta-row">
-      <a class="btn" href="https://cal.com/maarten-neeskens-aoijqe?src=site_hero">Plan een kennismaking</a>
-      <span class="meta">Leidinggevende? <a class="link" href="#leidersbeeld">Geef je Leidersbeeld</a>, kosteloos en zonder account</span>
+      <a class="btn" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_hero">Geef je Leidersbeeld</a>
+      <span class="meta">Kosteloos, geen account &middot; coach of adviseur? <a class="link" href="#professionals">zo zet je het in bij je klanten</a></span>
     </div>
   </div>
 </main>
@@ -194,14 +198,19 @@
 
 <section class="leidersstrook" id="leidersbeeld">
   <div class="wrap">
-    <div class="ls-tekst">
-      <p class="eyebrow">Voor leidinggevenden</p>
-      <h2>Hoe doet jouw team het?</h2>
-      <p>Twaalf vragen over zien, sturen en doen. Drie minuten, kosteloos, geen account en geen betaalgegevens. Je krijgt je Leidersbeeld in je mail. Daarna kun je je team dezelfde vragen laten invullen en de twee beelden naast elkaar leggen. <a class="link" href="#organisaties" style="color:#fff">Zo werkt dat</a>.</p>
+    <div class="deur">
+      <p class="eyebrow">Je leidt een team</p>
+      <h2>Begin bij je eigen beeld</h2>
+      <p>Je krijgt je Leidersbeeld in je mail, met een eigen pagina waar het blijft staan. Wil je verder, dan laat je je team dezelfde vragen invullen en leg je de twee naast elkaar.</p>
+      <a class="btn" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_leider">Geef je Leidersbeeld</a>
+      <span class="ls-klein">Drie minuten &middot; geen account &middot; geen betaalgegevens</span>
     </div>
-    <div class="ls-knop">
-      <a class="btn" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_strook">Begin met de eerste vraag</a>
-      <span class="ls-klein">Je hoeft vooraf niets in te vullen</span>
+    <div class="deur">
+      <p class="eyebrow">Je begeleidt teams</p>
+      <h2>Gebruik het om het gesprek te openen</h2>
+      <p>Stuur je eigen link naar een opdrachtgever. Hij meet zijn team in drie minuten, jij ziet wie het invulde, en de Teamfoto die erop volgt gaat via jou.</p>
+      <a class="btn ghost licht" href="#professionals">Zo werkt dat voor jou</a>
+      <span class="ls-klein">Je eigen link &middot; je eigen klant &middot; jouw naam op de kaart</span>
     </div>
   </div>
 </section>
@@ -209,10 +218,20 @@
 <section id="professionals">
   <div class="wrap">
     <p class="eyebrow">Voor coaches, adviseurs en bureaus</p>
-    <h2>Wat je traject oplevert, kun je nu laten zien</h2>
+    <h2>Het Leidersbeeld opent het gesprek. Jij voert het.</h2>
+    <p>Een leidinggevende die twaalf vragen over zijn team heeft beantwoord, wil weten hoe het team het zelf ziet. Dat is de natuurlijkste aanleiding voor een gesprek die er is, en hij kost jou niets.</p>
+    <p style="margin-top:16px">Je krijgt een eigen link. Stuur hem naar een opdrachtgever, zet hem onder je nieuwsbrief of in een post. Wie hem invult komt bij jou in beeld: je ziet wie het was, van welke organisatie, en hoe groot zijn team is. De Teamfoto die erop volgt gaat via jou, tegen het partnertarief, en met jouw naam op de kaart.</p>
+    <p style="margin-top:16px"><b>Wij benaderen die opdrachtgever nooit zelf.</b> Dat staat verderop bij wat wij bewust niet doen, en het is de reden dat je dit onder je eigen naam kunt zetten.</p>
+
+    <h2 style="margin-top:44px">En wat je traject oplevert, kun je laten zien</h2>
     <p>Je opdrachtgever wil een team dat het zelf oplost: mensen die eigenaarschap nemen, initiatief tonen en verantwoordelijkheid pakken. Daar bouw jij in je traject aan, samen met het team en de leidinggevende. Aan het eind is er een evaluatie: hoe hebben de deelnemers het ervaren, wat vonden ze van de sessies.</p>
     <p style="margin-top:16px">Wat er in het gedrag van het team is veranderd, staat daar nog niet in. Precies dat maak je met Happly zichtbaar: een meting vooraf en een meting achteraf, op hetzelfde instrument. Dat verschil neem je mee naar de directie van je opdrachtgever, en naar je volgende offerte.</p>
     <p style="margin-top:16px">Wat een opdrachtgever wil zien, is gedrag: een probleem dat gemeld wordt mét een voorstel erbij, iemand die zegt "dat pak ik op", het gesprek dat in het overleg wordt gevoerd in plaats van daarna op de gang. Dat gedrag komt uit drie vaardigheden, en die drie zijn te meten en te ontwikkelen. <b>Wij meten ze. Jij ontwikkelt ze.</b></p>
+    <p style="margin-top:26px">
+      <a class="btn" href="https://cal.com/maarten-neeskens-aoijqe?src=site_pro">Vraag je eigen link aan</a>
+      <a class="btn ghost" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_pro_zelf" style="margin-left:10px">Doe hem eerst zelf</a>
+    </p>
+    <p class="small" style="margin-top:12px">In een kennismaking van een half uur zetten we je link klaar en lopen we de kaart door. Daarna kun je hem meteen sturen.</p>
   </div>
 </section>
 

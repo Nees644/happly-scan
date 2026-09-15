@@ -84,6 +84,35 @@ test("er staat niets op de site dat niet bestaat", () => {
   }
 });
 
+test("de pagina stelt een vraag die voor allebei de lezers werkt", () => {
+  // De pagina sprak afwisselend een coach en een leidinggevende aan, met een
+  // kop die alleen voor de coach klopte. Nu een vraag die voor allebei geldt,
+  // met twee deuren eronder.
+  const hero = HTML.split('class="hero"')[1].split("</main>")[0];
+  assert.ok(/Hoe goed ken je/.test(hero), "de hero stelt de vraag niet");
+  assert.ok(hero.includes("Leidersbeeld"), "het Leidersbeeld staat niet in de hero");
+  assert.ok(hero.includes("/leidersbeeld?src="), "de knop in de hero gaat niet naar het Leidersbeeld");
+  assert.ok(!/Happly voor professionals/.test(hero),
+    "de hero kiest weer partij voor een van de twee lezers");
+});
+
+test("er zijn twee deuren, een voor de leider en een voor de coach", () => {
+  const strook = HTML.split('id="leidersbeeld"')[1].split("</section>")[0];
+  assert.ok(strook.includes("Je leidt een team"), "de deur voor de leidinggevende ontbreekt");
+  assert.ok(strook.includes("Je begeleidt teams"), "de deur voor de coach ontbreekt");
+  assert.equal((strook.match(/class="deur"/g) || []).length, 2, "het zijn er geen twee");
+  // De leider gaat rechtstreeks naar de vragen, de coach naar zijn eigen
+  // verhaal; dat zijn twee verschillende volgende stappen.
+  assert.ok(strook.includes("/leidersbeeld?src=site_leider"));
+  assert.ok(strook.includes('href="#professionals"'));
+});
+
+test("de coach krijgt het Leidersbeeld als eigen aanleiding aangeboden", () => {
+  const sectie = HTML.split('id="professionals"')[1].split("</section>")[0];
+  assert.ok(sectie.includes("eigen link"), "de partnerlink staat er niet in");
+  assert.ok(/Vraag je eigen link aan/.test(sectie), "de coach heeft geen knop");
+});
+
 test("een leidinggevende hoeft niet te zoeken naar het Leidersbeeld", () => {
   // De strook staat boven het verhaal voor professionals, zodat een
   // leidinggevende hem ziet zonder te scrollen.
@@ -96,7 +125,7 @@ test("een leidinggevende hoeft niet te zoeken naar het Leidersbeeld", () => {
 
   // En de drempel staat er expliciet niet: geen account, geen betaalgegevens.
   for (const belofte of ["geen account", "Drie minuten"]){
-    assert.ok(HTML.includes(belofte), `de strook mist: ${belofte}`);
+    assert.ok(HTML.includes(belofte), `de drempelvrije belofte mist: ${belofte}`);
   }
 });
 
