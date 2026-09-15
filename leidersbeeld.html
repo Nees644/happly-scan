@@ -57,11 +57,29 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
 
 <main class="wrap">
 
-  <!-- ============================ stap 1 · gegevens ============================ -->
-  <section id="stap-gegevens">
+  <!-- ============================== stap 1 · start ============================= -->
+  <section id="stap-start">
     <div class="eyebrow">Gratis</div>
     <h1>Het Leidersbeeld van je team</h1>
-    <p class="lead">Jij meet in drie minuten hoe jouw team het nu doet op zien, sturen en doen. Je krijgt het resultaat in je mail. Wat het team er zelf van vindt, weet je pas als het team meet.</p>
+    <p class="lead">Twaalf vragen over hoe jouw team het nu doet op zien, sturen en doen. Drie minuten, en je hoeft eerst niets in te vullen. Aan het eind vragen we waar we je Leidersbeeld naartoe mogen sturen.</p>
+    <button type="button" class="knop" id="start">Start de twaalf vragen</button>
+  </section>
+
+  <!-- ============================= stap 2 · vragen ============================= -->
+  <section id="stap-vragen" hidden>
+    <div class="balk"><i id="voortgang"></i></div>
+    <div class="teller" id="teller"></div>
+    <div class="instructie">Beoordeel hoe je team dit nu doet, niet hoe jij het zelf doet. Er zijn geen goede of foute antwoorden. Antwoord zoals het meestal is, niet zoals je het zou willen.</div>
+    <p class="vraag" id="vraag"></p>
+    <div class="schaal" id="schaal"></div>
+    <button type="button" class="terug" id="terug">Vorige vraag</button>
+  </section>
+
+  <!-- ============================ stap 3 · gegevens ============================ -->
+  <section id="stap-gegevens" hidden>
+    <div class="eyebrow">Bijna klaar</div>
+    <h1>Waar sturen we je Leidersbeeld naartoe?</h1>
+    <p class="lead">Je antwoorden staan klaar. We rekenen ze uit en sturen je de uitkomst, met een link naar je eigen pagina.</p>
 
     <div class="kaart">
       <form id="gegevens" novalidate>
@@ -94,23 +112,13 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
         </div>
 
         <div id="fout-gegevens" class="fout" hidden></div>
-        <button type="submit" class="knop">Naar de vragen</button>
+        <button type="submit" class="knop" id="verstuur">Stuur mij mijn Leidersbeeld</button>
+        <button type="button" class="terug" id="terug-vragen">Terug naar de laatste vraag</button>
       </form>
     </div>
   </section>
 
-  <!-- ============================= stap 2 · vragen ============================= -->
-  <section id="stap-vragen" hidden>
-    <div class="balk"><i id="voortgang"></i></div>
-    <div class="teller" id="teller"></div>
-    <div class="instructie">Beoordeel hoe je team dit nu doet, niet hoe jij het zelf doet. Er zijn geen goede of foute antwoorden. Antwoord zoals het meestal is, niet zoals je het zou willen.</div>
-    <p class="vraag" id="vraag"></p>
-    <div class="schaal" id="schaal"></div>
-    <button type="button" class="terug" id="terug">Vorige vraag</button>
-    <div id="fout-vragen" class="fout" hidden></div>
-  </section>
-
-  <!-- =========================== stap 3 · bevestiging ========================== -->
+  <!-- =========================== stap 4 · bevestiging ========================== -->
   <section id="stap-klaar" hidden>
     <div class="eyebrow">Verstuurd</div>
     <h1>Je Leidersbeeld staat in je mail.</h1>
@@ -130,8 +138,61 @@ const params = new URLSearchParams(location.search);
 const antwoorden = [];
 let plek = 0;
 
-/* ------------------------------------------------------------ stap 1 */
-el("gegevens").addEventListener("submit", e => {
+/* De vragen komen eerst en de gegevens daarna. Wie twaalf vragen heeft
+   beantwoord, geeft zijn adres eerder dan wie er nog aan moet beginnen. Tot het
+   versturen staat er niets op de server: de antwoorden leven in deze pagina. */
+
+el("start").addEventListener("click", () => {
+  el("stap-start").hidden = true;
+  el("stap-vragen").hidden = false;
+  toonVraag();
+  window.scrollTo(0, 0);
+});
+
+/* ------------------------------------------------------------ de vragen */
+function toonVraag(){
+  const item = ITEMS[plek];
+  el("teller").textContent = `Vraag ${plek + 1} van ${ITEMS.length}`;
+  el("voortgang").style.width = (plek / ITEMS.length * 100) + "%";
+  el("vraag").textContent = item.tekst_team;
+  el("terug").hidden = plek === 0;
+
+  el("schaal").innerHTML = "";
+  SCHAAL.forEach((label, waarde) => {
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.textContent = label;
+    if (antwoorden[plek] === waarde) knop.style.borderColor = "var(--magenta)";
+    knop.addEventListener("click", () => kies(waarde));
+    el("schaal").appendChild(knop);
+  });
+}
+
+function kies(waarde){
+  antwoorden[plek] = waarde;
+  if (plek < ITEMS.length - 1){ plek++; toonVraag(); return; }
+  naarGegevens();
+}
+
+el("terug").addEventListener("click", () => { if (plek > 0){ plek--; toonVraag(); } });
+
+function naarGegevens(){
+  el("stap-vragen").hidden = true;
+  el("stap-gegevens").hidden = false;
+  window.scrollTo(0, 0);
+  el("naam").focus();
+}
+
+el("terug-vragen").addEventListener("click", () => {
+  el("stap-gegevens").hidden = true;
+  el("stap-vragen").hidden = false;
+  plek = ITEMS.length - 1;
+  toonVraag();
+  window.scrollTo(0, 0);
+});
+
+/* ---------------------------------------------------------- de gegevens */
+el("gegevens").addEventListener("submit", async e => {
   e.preventDefault();
   const fouten = [];
   if (el("naam").value.trim().length < 2) fouten.push("je naam");
@@ -146,46 +207,13 @@ el("gegevens").addEventListener("submit", e => {
     return;
   }
   el("fout-gegevens").hidden = true;
-  el("stap-gegevens").hidden = true;
-  el("stap-vragen").hidden = false;
-  toonVraag();
-  window.scrollTo(0, 0);
+  await verstuur();
 });
 
-/* ------------------------------------------------------------ stap 2 */
-function toonVraag(){
-  const item = ITEMS[plek];
-  el("teller").textContent = `Vraag ${plek + 1} van ${ITEMS.length}`;
-  el("voortgang").style.width = (plek / ITEMS.length * 100) + "%";
-  el("vraag").textContent = item.tekst_team;
-  el("terug").hidden = plek === 0;
-
-  el("schaal").innerHTML = "";
-  SCHAAL.forEach((label, waarde) => {
-    const knop = document.createElement("button");
-    knop.type = "button";
-    knop.textContent = label;
-    knop.addEventListener("click", () => kies(waarde));
-    el("schaal").appendChild(knop);
-  });
-}
-
-function kies(waarde){
-  antwoorden[plek] = waarde;
-  if (plek < ITEMS.length - 1){ plek++; toonVraag(); return; }
-  verstuur();
-}
-
-el("terug").addEventListener("click", () => { if (plek > 0){ plek--; toonVraag(); } });
-
-/* ------------------------------------------------------------ stap 3 */
 async function verstuur(){
-  el("schaal").innerHTML = "";
-  el("vraag").textContent = "Een moment, we sturen je Leidersbeeld naar je toe.";
-  el("terug").hidden = true;
-  el("voortgang").style.width = "100%";
-  el("fout-vragen").hidden = true;
-
+  const knop = el("verstuur");
+  knop.disabled = true;
+  knop.textContent = "Een moment...";
   try{
     const uit = await fetch("/api/leidersbeeld", {
       method: "POST",
@@ -203,19 +231,14 @@ async function verstuur(){
       })
     });
     if (!uit.ok) throw new Error("verzenden mislukt");
-    el("stap-vragen").hidden = true;
+    el("stap-gegevens").hidden = true;
     el("stap-klaar").hidden = false;
     window.scrollTo(0, 0);
   }catch(e){
-    el("vraag").textContent = "Je antwoorden staan nog hier.";
-    el("fout-vragen").textContent = "Het versturen lukte niet. Probeer het zo nog eens, of mail hallo@happly.nl.";
-    el("fout-vragen").hidden = false;
-    const opnieuw = document.createElement("button");
-    opnieuw.type = "button";
-    opnieuw.className = "knop";
-    opnieuw.textContent = "Opnieuw versturen";
-    opnieuw.addEventListener("click", verstuur);
-    el("schaal").appendChild(opnieuw);
+    knop.disabled = false;
+    knop.textContent = "Probeer het nog een keer";
+    el("fout-gegevens").textContent = "Het versturen lukte niet. Je antwoorden staan er nog. Probeer het zo nog eens, of mail hallo@happly.nl.";
+    el("fout-gegevens").hidden = false;
   }
 }
 </script>
