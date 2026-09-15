@@ -11,6 +11,7 @@ import { haalBetaling, maakAbonnement } from "./mollie.js";
 import { groepVanCode } from "./toegang.js";
 import { zetHermetingTegoed } from "./koper-db.js";
 import { vervolgAbonnement } from "./betalen.js";
+import { verderDan } from "./leidersbeeld-koppelen.js";
 
 const MOLLIE_NAAR_ONS = {
   paid: "betaald",
@@ -33,7 +34,8 @@ async function pasToe(db, bestelling){
   if (groep === "PAK"){
     if (!bestelling.team_id) return "pakket betaald, nog geen team gekozen";
     const tot = await zetHermetingTegoed(db, bestelling.team_id, bestelling.id, new Date());
-    return `pakket vastgelegd, hermeting tot ${tot}`;
+    const leider = await zetLeidersbeeldBetaald(db, bestelling.team_id);
+    return `pakket vastgelegd, hermeting tot ${tot}${leider}`;
   }
 
   // Een losse hermeting wordt pas verbruikt als de kaart wordt gemaakt. Het
@@ -62,6 +64,25 @@ async function pasToe(db, bestelling){
   }
 
   return "geen actie";
+}
+
+/* Hangt er een Leidersbeeld aan dit team, dan gaat dat mee naar 'betaald'. De
+   status gaat alleen vooruit, dus een tweede melding over dezelfde betaling
+   verandert niets. Stil bij een fout: een betaling is verwerkt of niet, en dat
+   hoort niet af te hangen van een lead. */
+async function zetLeidersbeeldBetaald(db, teamId){
+  try{
+    const q = await db.from("teamkracht_leidersbeeld")
+      .select("id, status").eq("team_id", teamId);
+    let geraakt = 0;
+    for (const rij of (q.data || [])){
+      const nieuw = verderDan(rij.status, "betaald");
+      if (nieuw === rij.status) continue;
+      await db.from("teamkracht_leidersbeeld").update({ status: nieuw }).eq("id", rij.id);
+      geraakt++;
+    }
+    return geraakt ? ", Leidersbeeld op betaald" : "";
+  }catch(e){ return ""; }
 }
 
 const STAFFEL = { "ORG-1": "klein", "ORG-2": "midden", "ORG-3": "groot" };

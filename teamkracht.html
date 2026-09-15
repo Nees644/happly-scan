@@ -89,6 +89,7 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
         <div><label for="n-naam">Teamnaam</label><input class="inp" id="n-naam" placeholder="Team Noord"></div>
         <div><label for="n-org">Organisatie</label><input class="inp" id="n-org" placeholder="optioneel"></div>
         <div><label for="n-coach">Coach</label><input class="inp" id="n-coach" placeholder="optioneel"></div>
+        <div><label for="n-leider">E-mail teamleider</label><input class="inp" id="n-leider" type="email" placeholder="optioneel"></div>
         <button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button>
       </div>
       <p class="melding" id="n-prijs"></p>
@@ -409,11 +410,27 @@ async function maakTeam(){
   if (!naam){ melding.textContent = "Vul een teamnaam in."; melding.className = "melding fout"; return; }
   el("n-btn").disabled = true; melding.textContent = "Bezig...";
   try{
-    await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify({
-      naam, organisatie: el("n-org").value.trim() || null, coach_naam: el("n-coach").value.trim() || null
-    })});
-    el("n-naam").value = el("n-org").value = el("n-coach").value = "";
-    melding.textContent = "Team aangemaakt. De link staat hieronder.";
+    const basis = {
+      naam,
+      organisatie: el("n-org").value.trim() || null,
+      coach_naam: el("n-coach").value.trim() || null,
+      leider_email: el("n-leider").value.trim() || null
+    };
+    let uit = await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify(basis) });
+
+    // Staat er een Leidersbeeld klaar op dit adres, dan wordt er eerst gevraagd.
+    // Zonder ja gaat het team gewoon door, zonder koppeling.
+    if (uit.koppelvraag){
+      const ja = confirm(uit.koppelvraag.tekst);
+      uit = await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify(
+        ja ? { ...basis, leidersbeeld_id: uit.koppelvraag.leidersbeeld_id } : { ...basis, koppelen: false }
+      )});
+    }
+
+    el("n-naam").value = el("n-org").value = el("n-coach").value = el("n-leider").value = "";
+    melding.textContent = uit.leidersbeeld === "gekoppeld"
+      ? "Team aangemaakt en het Leidersbeeld is eraan gekoppeld. De link staat hieronder."
+      : "Team aangemaakt. De link staat hieronder.";
     await laadTeams();
   }catch(e){
     melding.textContent = `Aanmaken mislukt: ${e.message}`; melding.className = "melding fout";

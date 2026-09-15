@@ -11,6 +11,7 @@ import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { rechtOpKaart } from "../betalen.js";
 import { haalKoper, legAfnameVast } from "../koper-db.js";
+import { verderDan } from "../leidersbeeld-koppelen.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -133,6 +134,22 @@ export default async function handler(req, res){
     ins = await db.from("teamkracht_teambeeld").insert({ ...zonderTeksten, team_id }).select("id").single();
   }
   if (ins.error){ await logFout("teamkracht-bereken", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
+
+  // De kaart bestaat nu, en daarmee is het Leidersbeeld van dit meetmoment
+  // gesloten (K2): het beeld van de leider hoort van voor de kaart te zijn, of
+  // het is geen onafhankelijk beeld meer. Stil bij een fout, want de kaart is
+  // er al en die is belangrijker dan deze status.
+  try{
+    const moment = soort === "hermeting" ? "eind" : "start";
+    const lb = await db.from("teamkracht_leidersbeeld")
+      .select("id, status").eq("team_id", team_id).eq("meetmoment", moment);
+    for (const rij of (lb.data || [])){
+      const nieuw = verderDan(rij.status, "gesloten");
+      if (nieuw === rij.status) continue;
+      await db.from("teamkracht_leidersbeeld")
+        .update({ status: nieuw, gesloten_op: new Date().toISOString() }).eq("id", rij.id);
+    }
+  }catch(e){ /* stil */ }
 
   // De bestelling is nu verbruikt. Pas na het opslaan van het beeld, zodat een
   // mislukte berekening geen aankoop opsoupeert.

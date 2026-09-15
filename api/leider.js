@@ -61,7 +61,7 @@ export default async function handler(req, res){
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
-    res.status(200).send(bouwLeiderPagina({ rij, team, deelnemers, partnernaam }));
+    res.status(200).send(bouwLeiderPagina({ rij, team, deelnemers, partnernaam, token }));
   }catch(e){
     nietGevonden(res);
   }

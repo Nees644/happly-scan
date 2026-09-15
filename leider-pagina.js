@@ -52,14 +52,17 @@ function deelname({ ingevuld, uitgenodigd }){
 }
 
 /* Toestand a: nog geen team. */
-function nogGeenTeam({ organisatie, teamomvang, partnernaam }){
+function nogGeenTeam({ organisatie, teamomvang, partnernaam, token }){
   const klein = !kanKaartKrijgen(teamomvang);
   const vervolg = klein
     ? `<p>Een Teamfoto vraagt minimaal ${MINIMUM_DEELNEMERS} deelnemers. Groeit je team, dan staat je Leidersbeeld klaar.</p>`
     : partnernaam
+      // Wie via een partner binnenkwam, koopt niet zelf. Die partner heeft een
+      // eigen tarief en factureert zelf aan zijn klant.
       ? `<p>Je werkt met ${ontsnap(partnernaam)}. Die regelt de meting met je.</p>`
       : `<p>Bij een Teamfoto vult het team dezelfde vragen in. Je ziet dan op een kaart waar jouw beeld en het beeld van het team gelijk lopen, en waar niet.</p>
-         <p style="margin-top:14px"><a class="knop" href="/teamkrachtindex">Wat een Teamfoto is</a></p>`;
+         <p style="margin-top:16px"><a class="knop" href="/leidersbeeld-kopen?t=${ontsnap(token)}">Vraag de Teamfoto aan</a></p>
+         <p class="klein">Teamfoto plus een hermeting binnen zes maanden. Wat het kost staat op de volgende pagina.</p>`;
 
   return `<div class="blok">
     <p class="groot">Dit is jouw beeld van ${ontsnap(organisatie)}. Hoe het team het zelf doet, weet je na de meting.</p>
@@ -67,11 +70,11 @@ function nogGeenTeam({ organisatie, teamomvang, partnernaam }){
   </div>`;
 }
 
-export function bouwLeiderPagina({ rij, team = null, deelnemers = null, partnernaam = null }){
+export function bouwLeiderPagina({ rij, team = null, deelnemers = null, partnernaam = null, token = "" }){
   const stand = team ? "b" : "a";
   const inhoud = stand === "b"
     ? deelname(deelnemers || {})
-    : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam });
+    : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam, token });
 
   return `<!DOCTYPE html>
 <html lang="nl">
@@ -98,6 +101,7 @@ p+p{margin-top:1em}
 .legenda{font-size:13.5px;color:${GRIJS};margin-top:16px;display:flex;align-items:center;gap:9px}
 .legenda span{width:15px;height:15px;border-radius:50%;border:2.5px solid ${MAGENTA};background:#fff;flex:none}
 footer{font-size:13.5px;color:${GRIJS};margin-top:44px;border-top:1px solid ${LIJN};padding-top:22px}
+.klein{font-size:13.5px;color:${GRIJS};margin-top:9px}
 </style>
 </head>
 <body>

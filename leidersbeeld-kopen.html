@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Teamfoto van je team &middot; Teamkracht Index</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:17px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(1.8rem,4.2vw,2.5rem);line-height:1.15;margin-bottom:.35em}
+h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.3rem;margin-bottom:.4em}
+a{color:var(--magenta)}
+.wrap{max-width:620px;margin:0 auto;padding:44px 22px 80px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px}
+.lead{color:var(--grijs);margin-bottom:24px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:24px;margin-bottom:22px}
+.prijs{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-top:1px solid var(--lijn);margin-top:14px;padding-top:14px}
+.prijs b{font-size:24px}
+ul{margin:10px 0 0 18px}
+li{margin-bottom:5px}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 5px}
+input{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+input:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+input[readonly]{background:#F4F0F6;color:var(--grijs)}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;margin-top:20px}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.wissel{background:none;border:0;font:inherit;font-size:14px;color:var(--grijs);text-decoration:underline;cursor:pointer;margin-top:14px;padding:0;display:block}
+.melding{border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:16px}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044}
+.rustig{background:#F2ECF5;color:var(--grijs)}
+.klein{font-size:13.5px;color:var(--grijs)}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Teamfoto</div>
+  <h1 id="kop">De Teamfoto van je team</h1>
+  <p class="lead" id="lead">Je team vult dezelfde vragen in. Daarna zie je op een kaart waar jouw beeld en het beeld van je team gelijk lopen, en waar niet.</p>
+
+  <div class="kaart">
+    <h2>Wat je krijgt</h2>
+    <ul>
+      <li>De Teamkrachtkaart van je team op zien, sturen en doen</li>
+      <li>Jouw Leidersbeeld ernaast, per dimensie</li>
+      <li>Een hermeting binnen zes maanden, om het verschil te laten zien</li>
+      <li>De eigen uitslag voor elk teamlid, alleen voor hemzelf</li>
+    </ul>
+    <div class="prijs">
+      <span class="klein" id="prijs-uitleg">Prijs wordt opgehaald</span>
+      <b id="prijs">&nbsp;</b>
+    </div>
+  </div>
+
+  <div class="kaart" id="account">
+    <h2 id="account-kop">Maak je account aan</h2>
+    <p class="klein" id="account-uitleg">Je hebt een account nodig om de meetlink te delen en de kaart te bekijken. Je Leidersbeeld gaat er automatisch aan vast.</p>
+
+    <label for="mail">E-mailadres</label>
+    <input type="email" id="mail" autocomplete="email">
+
+    <label for="ww">Wachtwoord</label>
+    <input type="password" id="ww" autocomplete="new-password" placeholder="Minstens acht tekens">
+
+    <button type="button" class="knop" id="verder">Verder naar betalen</button>
+    <button type="button" class="wissel" id="wissel">Ik heb al een account</button>
+    <div class="melding fout" id="fout" hidden></div>
+  </div>
+
+  <p class="klein">Je betaalt via Mollie. Bedragen zijn exclusief btw tenzij anders vermeld.</p>
+</div>
+
+<script type="module">
+const db = window.supabase.createClient('https://uqulkznqcqpbagbvtqdr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxdWxrem5xY3FwYmFnYnZ0cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTAxMzAsImV4cCI6MjA5Nzg4NjEzMH0.3fkaYjn67zsCIdl53n9N5D3638iKPciqk5sgxNwaDS8');
+
+const el = id => document.getElementById(id);
+const token = new URLSearchParams(location.search).get("t") || "";
+let aanmelden = true;
+
+function meld(tekst, rustig){
+  el("fout").className = "melding " + (rustig ? "rustig" : "fout");
+  el("fout").textContent = tekst;
+  el("fout").hidden = false;
+}
+
+/* De prijs komt van de server. De frontend rekent nooit zelf een bedrag uit. */
+fetch("/api/prijslijst?code=PAK-LOS").then(r => r.json()).then(uit => {
+  if (!uit.product) return;
+  const euro = c => (c / 100).toLocaleString("nl-NL", { style: "currency", currency: "EUR" });
+  el("prijs").textContent = euro(uit.product.ex);
+  el("prijs-uitleg").textContent = `Teamfoto plus hermeting, exclusief btw. Inclusief btw ${euro(uit.product.totaal)}.`;
+});
+
+/* Wie hier komt heeft een week geleden zijn naam en adres al gegeven. */
+fetch(`/api/leidersbeeld-kopen?t=${encodeURIComponent(token)}`).then(r => r.json()).then(uit => {
+  if (uit.error){ meld("Deze link klopt niet. Open hem opnieuw vanuit je mail."); el("verder").disabled = true; return; }
+  el("mail").value = uit.leider_email || "";
+  el("mail").readOnly = true;
+  el("kop").textContent = `De Teamfoto van ${uit.organisatie}`;
+  if (uit.al_gekoppeld){
+    meld("Aan dit Leidersbeeld hangt al een team. Log in om verder te gaan.", true);
+    aanmelden = false; zetWissel();
+  }
+}).catch(() => {});
+
+function zetWissel(){
+  el("account-kop").textContent = aanmelden ? "Maak je account aan" : "Log in";
+  el("ww").setAttribute("autocomplete", aanmelden ? "new-password" : "current-password");
+  el("ww").placeholder = aanmelden ? "Minstens acht tekens" : "Je wachtwoord";
+  el("wissel").textContent = aanmelden ? "Ik heb al een account" : "Ik heb nog geen account";
+}
+el("wissel").addEventListener("click", () => { aanmelden = !aanmelden; zetWissel(); el("fout").hidden = true; });
+
+el("verder").addEventListener("click", async () => {
+  el("fout").hidden = true;
+  const mail = el("mail").value.trim(), ww = el("ww").value;
+  if (!mail || ww.length < 8){ meld("Vul een wachtwoord van minstens acht tekens in."); return; }
+
+  el("verder").disabled = true;
+  el("verder").textContent = "Een moment...";
+  try{
+    const { error } = aanmelden
+      ? await db.auth.signUp({ email: mail, password: ww, options: { emailRedirectTo: location.href } })
+      : await db.auth.signInWithPassword({ email: mail, password: ww });
+    if (error) throw new Error(aanmelden
+      ? "Aanmelden lukte niet. Bestaat dit adres al, kies dan inloggen."
+      : "Inloggen lukte niet. Controleer je wachtwoord.");
+
+    const { data:{ session } } = await db.auth.getSession();
+    if (!session){
+      meld("Je account is aangemaakt. We hebben je een mail gestuurd; klik op de link daarin en je komt hier terug.", true);
+      el("verder").disabled = false; el("verder").textContent = "Verder naar betalen";
+      return;
+    }
+
+    const kop = { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` };
+
+    // Eerst het team en de koppeling, dan pas de betaling. Een betaling zonder
+    // team is een bedrag zonder bestemming.
+    const koppel = await (await fetch("/api/leidersbeeld-kopen", {
+      method: "POST", headers: kop, body: JSON.stringify({ token })
+    })).json();
+
+    if (!koppel.team_id) throw new Error(koppel.error || "koppelen mislukt");
+    const teamId = koppel.team_id;
+
+    const betaling = await (await fetch("/api/betaling-start", {
+      method: "POST", headers: kop, body: JSON.stringify({ groep: "PAK", team_id: teamId })
+    })).json();
+    if (!betaling.betaalpagina) throw new Error(betaling.error || "betaling starten mislukt");
+
+    location.href = betaling.betaalpagina;
+  }catch(e){
+    meld(e.message);
+    el("verder").disabled = false;
+    el("verder").textContent = "Verder naar betalen";
+  }
+});
+
+zetWissel();
+</script>
+</body>
+</html>

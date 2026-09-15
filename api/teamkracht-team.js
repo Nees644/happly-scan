@@ -13,6 +13,7 @@ import { rechtOpKaart, prijskaart, prijsVoor, bedragMetBtw } from "../betalen.js
    noemen waar het om draait: wat een pakket dan gaat kosten. */
 const NIVEAU_BIJ_STAFFEL = { "ORG-1": "org1", "ORG-2": "org2", "ORG-3": "org3" };
 import { haalKoper, haalProducten } from "../koper-db.js";
+import { koppelvraag, verderDan } from "../leidersbeeld-koppelen.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -148,6 +149,21 @@ export default async function handler(req, res){
     const naam = tekst(body.naam);
     if (!naam){ res.status(400).json({ error: "naam is verplicht" }); return; }
 
+    // Staat er een Leidersbeeld klaar op het adres van de teamleider, dan wordt
+    // dat gevraagd en nooit vanzelf gekoppeld. Het antwoord komt terug als een
+    // tweede aanroep, met of zonder leidersbeeld_id.
+    const leiderEmail = tekst(body.leider_email, 200);
+    const bevestigd = body.leidersbeeld_id ? String(body.leidersbeeld_id) : null;
+    if (leiderEmail && !bevestigd && body.koppelen !== false){
+      const open = await db.from("teamkracht_leidersbeeld")
+        .select("id, leider_naam, organisatie, team_id, status")
+        .ilike("leider_email", leiderEmail)
+        .is("team_id", null).eq("status", "ingevuld")
+        .order("created_at", { ascending: false }).limit(1);
+      const vraag = koppelvraag((open.data || [])[0]);
+      if (vraag){ res.status(200).json({ koppelvraag: vraag }); return; }
+    }
+
     // Botsingen zijn zeldzaam maar niet onmogelijk; tien pogingen is ruim.
     for (let poging = 0; poging < 10; poging++){
       const ins = await db.from("teamkracht_teams").insert({
@@ -158,7 +174,13 @@ export default async function handler(req, res){
         token: maakToken()
       }).select("id, naam, token").single();
 
-      if (!ins.error){ res.status(200).json(ins.data); return; }
+      if (!ins.error){
+        const gekoppeld = bevestigd
+          ? await koppelLeidersbeeld(db, bevestigd, ins.data.id, gebruiker.user_id)
+          : null;
+        res.status(200).json({ ...ins.data, leidersbeeld: gekoppeld });
+        return;
+      }
       if (!/duplicate|unique/i.test(ins.error.message || "")){
         await logFout("teamkracht-team", "aanmaken mislukt"); res.status(500).json({ error: "aanmaken mislukt" }); return;
       }
@@ -168,4 +190,26 @@ export default async function handler(req, res){
   }
 
   res.status(405).json({ error: "method" });
+}
+
+/* Het Leidersbeeld aan het zojuist gemaakte team hangen. Alleen als het nog
+   vrij is; wie te laat is krijgt geen koppeling en ook geen foutmelding die de
+   teamaanmaak onderuit haalt, want het team is er al.
+
+   Is er nog geen partner op de lead, dan wordt dat deze coach: hij heeft het
+   gesprek gevoerd en de verrekening loopt straks langs hem. */
+async function koppelLeidersbeeld(db, leidersbeeldId, teamId, userId){
+  try{
+    const q = await db.from("teamkracht_leidersbeeld")
+      .select("id, status, partner_id, team_id").eq("id", leidersbeeldId).maybeSingle();
+    if (q.error || !q.data || q.data.team_id) return null;
+
+    const bij = { team_id: teamId, status: verderDan(q.data.status, "gekoppeld") };
+    if (!q.data.partner_id) bij.partner_id = userId;
+
+    const uit = await db.from("teamkracht_leidersbeeld")
+      .update(bij).eq("id", leidersbeeldId).is("team_id", null)
+      .select("id").maybeSingle();
+    return uit.data ? "gekoppeld" : null;
+  }catch(e){ return null; }
 }

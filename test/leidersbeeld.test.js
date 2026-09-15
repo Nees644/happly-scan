@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 
 import { ITEMS, SCHAAL, scores, index } from "../items.js";
+import { verderDan, magKoppelen, koppelvraag, teamnaamVoor } from "../leidersbeeld-koppelen.js";
 import {
   MINIMUM_DEELNEMERS, TEAMOMVANG, kanKaartKrijgen, controleerGegevens,
   maakInzending, schoonHerkomst, uuidOfNull, voornaam, mailOnderwerp,
@@ -170,11 +171,66 @@ test("geen gedachtestreepjes en geen uitroeptekens in de nieuwe teksten", () => 
   }
 });
 
+/* ------------------------------------------ A5 en A6 · van lead naar team */
+test("een status gaat alleen vooruit", () => {
+  assert.equal(verderDan("ingevuld", "gekoppeld"), "gekoppeld");
+  assert.equal(verderDan("gekoppeld", "betaald"), "betaald");
+  assert.equal(verderDan("betaald", "gekoppeld"), "betaald", "een tweede melding zet niets terug");
+  assert.equal(verderDan("gesloten", "betaald"), "gesloten");
+  assert.equal(verderDan("betaald", "onzin"), "betaald");
+});
+
+test("A5 · koppelen mag alleen met het eigen adres, als partner of als beheerder", () => {
+  const rij = { status: "ingevuld", team_id: null, leider_email: "leider@test.happly.nl", partner_id: "p-1" };
+  assert.equal(magKoppelen(rij, { email: "leider@test.happly.nl" }), null);
+  assert.equal(magKoppelen(rij, { email: "LEIDER@TEST.HAPPLY.NL" }), null, "hoofdletters doen er niet toe");
+  assert.equal(magKoppelen(rij, { email: "iemand@anders.nl", userId: "p-1" }), null, "de partner mag");
+  assert.equal(magKoppelen(rij, { email: "iemand@anders.nl", beheerder: true }), null);
+  assert.ok(magKoppelen(rij, { email: "iemand@anders.nl" }), "een vreemde mag niet");
+  assert.ok(magKoppelen({ ...rij, team_id: "t-1" }, { email: "leider@test.happly.nl" }), "er hangt al een team aan");
+  assert.ok(magKoppelen({ ...rij, status: "gesloten" }, { email: "leider@test.happly.nl" }), "de kaart is al gemaakt");
+  assert.ok(magKoppelen(null, {}));
+});
+
+test("A6 · de koppelvraag komt alleen bij een openstaand Leidersbeeld", () => {
+  const rij = { id: "l-1", status: "ingevuld", team_id: null, leider_naam: "Test Leider", organisatie: "Testorganisatie Noord" };
+  const vraag = koppelvraag(rij);
+  assert.equal(vraag.leidersbeeld_id, "l-1");
+  assert.equal(vraag.tekst, "Er staat een Leidersbeeld klaar van Test Leider, Testorganisatie Noord. Koppelen?");
+  assert.equal(koppelvraag({ ...rij, team_id: "t-1" }), null, "hangt al aan een team");
+  assert.equal(koppelvraag({ ...rij, status: "betaald" }), null, "niet meer open");
+  assert.equal(koppelvraag(null), null);
+});
+
+test("het team van een leider krijgt de naam van zijn organisatie", () => {
+  assert.equal(teamnaamVoor({ organisatie: "Testorganisatie Noord" }), "Team Testorganisatie Noord");
+  assert.equal(teamnaamVoor({ organisatie: "  " }), "Mijn team");
+  assert.equal(teamnaamVoor(null), "Mijn team");
+});
+
+test("de koopknop staat er alleen als er iets te kopen valt", async () => {
+  const { bouwLeiderPagina } = await import("../leider-pagina.js");
+  const basis = { index_score: 69, zien: 75, sturen: 75, doen: 56, organisatie: "Testorganisatie Noord" };
+
+  const groot = bouwLeiderPagina({ rij: { ...basis, teamomvang: "10-20" }, token: "abc" });
+  assert.ok(groot.includes("/leidersbeeld-kopen?t=abc"), "een team van tien koopt zelf");
+
+  const klein = bouwLeiderPagina({ rij: { ...basis, teamomvang: "2-4" }, token: "abc" });
+  assert.ok(!klein.includes("leidersbeeld-kopen"), "onder het minimum geen koopknop");
+  assert.ok(klein.includes(`minimaal ${MINIMUM_DEELNEMERS} deelnemers`));
+
+  const viaPartner = bouwLeiderPagina({ rij: { ...basis, teamomvang: "10-20" }, token: "abc", partnernaam: "Bureau Noord" });
+  assert.ok(!viaPartner.includes("leidersbeeld-kopen"), "wie via een partner kwam, koopt niet zelf");
+  assert.ok(viaPartner.includes("Bureau Noord"));
+});
+
 /* -------------------------------------------- de bestanden staan ook in git */
 test("de nieuwe bestanden staan in git en komen dus op productie", () => {
   const inGit = execSync("git ls-files", { encoding: "utf8" }).split("\n");
   for (const bestand of ["items.js", "leidersbeeld.js", "leidersbeeld.html",
-                         "leider-pagina.js", "api/leidersbeeld.js", "api/leider.js"]){
+                         "leider-pagina.js", "api/leidersbeeld.js", "api/leider.js",
+                         "leidersbeeld-koppelen.js", "leidersbeeld-kopen.html",
+                         "api/leidersbeeld-kopen.js", "leads.html", "api/leads.js"]){
     assert.ok(inGit.includes(bestand), `${bestand} staat niet in git`);
   }
 });
