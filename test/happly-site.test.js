@@ -100,6 +100,19 @@ test("een leidinggevende hoeft niet te zoeken naar het Leidersbeeld", () => {
   }
 });
 
+test("de weg van Leidersbeeld naar teambeeld staat er als verhaal", () => {
+  const sectie = HTML.split('id="organisaties"')[1].split("</section>")[0];
+  // Vier stappen, in volgorde: jouw beeld, het team, de twee naast elkaar,
+  // opnieuw meten. Zonder die volgorde is het Leidersbeeld een losse meting
+  // in plaats van de eerste stap naar een Teamfoto.
+  for (const stap of ["Jouw Leidersbeeld", "Het team meet", "De twee naast elkaar", "Opnieuw meten"]){
+    assert.ok(sectie.includes(stap), `de stap ontbreekt: ${stap}`);
+  }
+  assert.ok(sectie.indexOf("Jouw Leidersbeeld") < sectie.indexOf("Het team meet"),
+    "de stappen staan niet op volgorde");
+  assert.ok(sectie.includes("vijf"), "het minimum voor een teambeeld ontbreekt in het verhaal");
+});
+
 test("de links wijzen naar wat er draait", () => {
   for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
                      "https://www.teamkrachtindex.nl/register",
