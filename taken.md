@@ -148,9 +148,12 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       toestemming, en een pagina blijft bestaan als het certificaat niet meer
       actief is: een badge van vorig jaar hoort te blijven werken en dan
       eerlijk te zijn.
-- [ ] **De licentie.** `licentie_actief` hangt nu nergens aan een abonnement.
-      Het register leest hem al, dus zodra de Lezer-licentie bij Mollie loopt,
-      klopt de status vanzelf.
+- [ ] **De licentie van de Begeleider.** `licentie_actief` wordt nergens op
+      true gezet; alleen blok-z zet hem op false. Voor een Lezer maakt dat niets
+      uit (die heeft geen licentie), maar zodra PRO-M of PRO-J wordt verkocht
+      moet de betaling dat veld zetten, anders staat een betalende Professional
+      in het register op niet actief en betaalt hij de prijs van een partner
+      zonder licentie. Fase B.
 
 - [ ] Controleren of `migratie-certificering-2026-09-09.sql` echt is gedraaid.
       `controle/staat-v4-erin.sql` kijkt alleen naar de tarieven.

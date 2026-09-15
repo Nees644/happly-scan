@@ -6,6 +6,18 @@
 > Stripe noemt staat hier Mollie, want dat is wat er is gebouwd. Waar de briefing
 > acht deelnemers noemt staat hier vijf, het besluit van 7, 8 en 9 september 2026.
 
+> **Correctie van 15 september 2026.** Punt 5 hieronder beschrijft een
+> Lezer-licentie van 29 euro per maand. Die bestaat niet meer: tarieven v4 van
+> 14 september kent geen licentie op Lezer-niveau. Wie gecertificeerd is zonder
+> abonnement heet partner zonder licentie en koopt per pakket; de licentie die
+> wel bestaat, PRO-M en PRO-J, vraagt certificaat Begeleider.
+>
+> Daarmee vervalt ook een stuk van acceptatiecriterium 3. Het register toont de
+> status van het **certificaat**; een abonnement dat even niet loopt zet een
+> Lezer niet op niet actief. Bij Begeleider en Opleider telt de licentie wel
+> mee, want daar staat het register voor iemand die op dat moment als partner
+> werkt.
+
 # Briefing Claude Code · Certificering fase A (Lezer-module, register, licentie)
 
 Datum: 9 september 2026. Bron van waarheid voor model en regels: `briefing_code_teamkracht.md`. Deze briefing bouwt daarop en verandert niets aan het meetmodel.

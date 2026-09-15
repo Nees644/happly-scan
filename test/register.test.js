@@ -39,12 +39,22 @@ test("dezelfde naam levert geen botsing op", () => {
 });
 
 /* ------------------------------------------------------------ de status */
-test("actief hangt aan het certificaat en aan de licentie", () => {
-  assert.equal(statusVan(CERT, { licentie_actief: true }).actief, true);
-  assert.equal(statusVan({ ...CERT, status: "ingetrokken" }, { licentie_actief: true }).actief, false);
-  assert.equal(statusVan({ ...CERT, status: "verlopen" }, { licentie_actief: true }).actief, false);
-  assert.equal(statusVan(CERT, { licentie_actief: false }).actief, false);
-  assert.equal(statusVan(CERT, { licentie_actief: true, licentie_tot: "2020-01-01" }).actief, false);
+test("een Lezer is actief op zijn certificaat, niet op een abonnement", () => {
+  assert.equal(statusVan(CERT, {}).actief, true, "licentie_actief staat standaard op false");
+  assert.equal(statusVan(CERT, { licentie_actief: false }).actief, true,
+    "een Lezer heeft geen licentie; die mag hem niet op niet actief zetten");
+  assert.equal(statusVan({ ...CERT, status: "ingetrokken" }, {}).actief, false);
+  assert.equal(statusVan({ ...CERT, status: "ingetrokken_op_verzoek" }, {}).actief, false);
+  assert.equal(statusVan({ ...CERT, status: "verlopen" }, {}).actief, false);
+});
+
+test("bij een Begeleider telt de licentie wel mee", () => {
+  const beg = { ...CERT, niveau: "begeleider" };
+  assert.equal(statusVan(beg, { licentie_actief: true }).actief, true);
+  assert.equal(statusVan(beg, { licentie_actief: false }).actief, false);
+  assert.equal(statusVan(beg, {}).actief, false, "zonder lopende licentie geen actieve partner");
+  assert.equal(statusVan(beg, { licentie_actief: true, licentie_tot: "2020-01-01" }).actief, false);
+  assert.equal(statusVan(beg, { licentie_actief: true, licentie_tot: "2099-01-01" }).actief, true);
 });
 
 test("een niet actief certificaat houdt zijn pagina", () => {

@@ -42,8 +42,25 @@ export function uniekeSlug(naam, bezet = []){
   return null;
 }
 
-/* Wat er op de pagina staat: actief of niet actief, en waarom. Een certificaat
-   met status actief is nog niet genoeg; de licentie moet lopen. */
+/* Wat er op de pagina staat: actief of niet actief, en waarom.
+ *
+ * Het certificaat bepaalt de status, niet een abonnement. Dat is een afwijking
+ * van acceptatiecriterium 3 in briefings/certificering.md, dat certificaat en
+ * licentie op een hoop gooit. Twee redenen om ze te scheiden:
+ *
+ * 1. Een Lezer heeft geen licentie. Die bestond in de briefing van 9 september
+ *    (29 euro per maand) en is in tarieven v4 vervallen; wie gecertificeerd is
+ *    zonder abonnement heet nu partner zonder licentie en koopt per pakket. De
+ *    licentie die wel bestaat, PRO-M en PRO-J, vraagt certificaat Begeleider.
+ * 2. Een certificaat is behaald of ingetrokken. Dat iemand een maand geen
+ *    abonnement had, zegt niets over zijn kennis, en op een badge die op
+ *    LinkedIn staat is "niet actief" een beschuldiging die niet klopt.
+ *
+ * Waar wel een licentie hoort, telt hij mee: bij Begeleider en Opleider staat
+ * het register voor iemand die op dat moment als partner werkt.
+ */
+const MET_LICENTIE = ["begeleider", "opleider"];
+
 export function statusVan(certificaat = {}, gebruiker = {}, vandaag = new Date()){
   if (certificaat.status === "ingetrokken" || certificaat.status === "ingetrokken_op_verzoek"){
     return { actief: false, tekst: "Niet actief", uitleg: "Dit certificaat is ingetrokken." };
@@ -51,10 +68,14 @@ export function statusVan(certificaat = {}, gebruiker = {}, vandaag = new Date()
   if (certificaat.status === "verlopen"){
     return { actief: false, tekst: "Niet actief", uitleg: "Dit certificaat is verlopen." };
   }
-  const tot = gebruiker.licentie_tot ? new Date(gebruiker.licentie_tot) : null;
-  if (gebruiker.licentie_actief === false || (tot && tot < vandaag)){
-    return { actief: false, tekst: "Niet actief", uitleg: "De licentie bij dit certificaat loopt op dit moment niet." };
+
+  if (MET_LICENTIE.includes(certificaat.niveau)){
+    const tot = gebruiker.licentie_tot ? new Date(gebruiker.licentie_tot) : null;
+    if (gebruiker.licentie_actief !== true || (tot && tot < vandaag)){
+      return { actief: false, tekst: "Niet actief", uitleg: "De licentie bij dit certificaat loopt op dit moment niet." };
+    }
   }
+
   return { actief: true, tekst: "Actief", uitleg: null };
 }
 
