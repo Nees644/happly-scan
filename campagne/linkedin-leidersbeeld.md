@@ -13,8 +13,8 @@ letters, cijfers en streepjes.
 
 Hoe goed ken je het team?
 
-Vraag het een leidinggevende en je krijgt een helder antwoord. Vraag het het
-team zelf, en je krijgt een ander helder antwoord.
+Vraag het een leidinggevende en je krijgt een helder antwoord. Vraag het hen,
+en je krijgt een ander helder antwoord.
 
 Allebei kloppen ze. Ze kijken alleen naar iets anders.
 
