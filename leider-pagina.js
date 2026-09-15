@@ -1,13 +1,15 @@
 // leider-pagina.js — de eigen pagina van de teamleider op /leider/:token.
 //
-// Toestand a en b uit paragraaf 6 van briefings/leidersbeeld.md. Toestand c
-// (de vrijgegeven kaart met R13) komt in stap 4, toestand d in stap 5.
+// Toestand a, b en c uit paragraaf 6 van briefings/leidersbeeld.md. Toestand d
+// (de hermeting) komt in stap 5.
 //
 // Het landelijk beeld staat hier niet (K9): dat blijft het voordeel van de
 // partner met licentie. De pagina toont dus alleen de drie punten van de
 // leider zelf, zonder vergelijking.
 
 import { MINIMUM_DEELNEMERS, kanKaartKrijgen } from "./leidersbeeld.js";
+import { beoordeelLeidersbeeld } from "./leidersbeeld-regel.js";
+import { tekenKaartSvg } from "./teamkracht-kaart.js";
 
 const PAARS = "#1A0B2E", MAGENTA = "#D6026F", ROOM = "#F7F3F0", LIJN = "#E6DFE9", GRIJS = "#6B6472";
 
@@ -70,11 +72,37 @@ function nogGeenTeam({ organisatie, teamomvang, partnernaam, token }){
   </div>`;
 }
 
-export function bouwLeiderPagina({ rij, team = null, deelnemers = null, partnernaam = null, token = "" }){
-  const stand = team ? "b" : "a";
-  const inhoud = stand === "b"
-    ? deelname(deelnemers || {})
-    : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam, token });
+/* Toestand c: de kaart is er. De statusregel staat bovenaan, dan de kolommen
+   met de teamlijn en het Leidersbeeld erin, dan het R13-blok. */
+function metKaart(rij, teambeeld, oordeel, landelijk){
+  const blok = oordeel.allesGedeeld
+    ? `<p class="groot">${ontsnap(oordeel.inleiding)}</p>`
+    : oordeel.blokken.map(b => `<p><b>${ontsnap(b.label)}.</b> ${ontsnap(b.tekst)}</p>`).join("") +
+      `<p class="klein">${ontsnap(oordeel.slotzin)}</p>`;
+
+  return `<div class="kaart">
+    ${tekenKaartSvg(teambeeld, { landelijk_beeld: landelijk, leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen } })}
+    <div class="legenda"><span></span> De open cirkel is jouw beeld, de dikke lijn is het team</div>
+  </div>
+  <div class="blok">
+    <div class="eyebrow">Leidersbeeld en teamlijn</div>
+    ${blok}
+  </div>`;
+}
+
+export function bouwLeiderPagina({ rij, team = null, deelnemers = null, partnernaam = null, token = "", teambeeld = null, landelijk_beeld = false }){
+  const oordeel = teambeeld ? beoordeelLeidersbeeld({
+    leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen },
+    teamlijn: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
+    sd: sdVan(teambeeld)
+  }) : null;
+
+  const stand = oordeel ? "c" : (team ? "b" : "a");
+  const inhoud = stand === "c"
+    ? metKaart(rij, teambeeld, oordeel, landelijk_beeld)
+    : stand === "b"
+      ? deelname(deelnemers || {})
+      : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam, token });
 
   return `<!DOCTYPE html>
 <html lang="nl">
@@ -107,14 +135,22 @@ footer{font-size:13.5px;color:${GRIJS};margin-top:44px;border-top:1px solid ${LI
 <body>
 <div class="wrap">
   <div class="eyebrow">Leidersbeeld</div>
-  <h1>Jouw Teamkracht Index is ${rij.index_score}</h1>
-  <div class="kaart">
+  <h1>${stand === "c" ? ontsnap(oordeel.kop) : `Jouw Teamkracht Index is ${rij.index_score}`}</h1>
+  ${stand === "c" ? "" : `<div class="kaart">
     ${kolommen({ zien: rij.zien, sturen: rij.sturen, doen: rij.doen })}
     <div class="legenda"><span></span> Jouw beeld van het team</div>
-  </div>
+  </div>`}
   ${inhoud}
   <footer>Happly · Teamkracht Index</footer>
 </div>
 </body>
 </html>`;
+}
+
+/* De bevroren spreiding van dit beeld, met dezelfde terugval als op de kaart.
+   Beelden van voor regel R13 hebben hem niet in hun snapshot. */
+function sdVan(teambeeld){
+  const snap = teambeeld.config_snapshot || {};
+  const pak = veld => Number(snap[veld] ?? 12);
+  return { sd_zien: pak("sd_zien"), sd_sturen: pak("sd_sturen"), sd_doen: pak("sd_doen") };
 }

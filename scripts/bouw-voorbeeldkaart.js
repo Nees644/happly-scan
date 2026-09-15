@@ -10,6 +10,7 @@ import { writeFileSync } from "node:fs";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { bouwKaartHtml } from "../teamkracht-kaart.js";
 import { leesRegels, leesProfielen, leesInterventies, leesDoelregels, leesTestdata } from "../test/seed-lezen.js";
+import { readFileSync } from "node:fs";
 
 const { norm, deelnemers } = leesTestdata();
 const regels = leesRegels();
@@ -23,7 +24,12 @@ const teambeeld = bouwTeambeeld({ deelnemers, norm, config, regels, profielen })
 
 const formaat = process.argv[2] || "a4";
 const poster = process.argv.includes("--poster");
-const html = bouwKaartHtml({ teambeeld, regels, profielen, teamnaam: "Noord (voorbeeld)", formaat, poster });
+// Het Leidersbeeld van dezelfde fictieve leider, zodat de markering en het
+// R13-blok op de voorbeeldkaart te beoordelen zijn.
+const leidersbeeld = JSON.parse(
+  readFileSync(new URL("../testdata_leidersbeeld_noord.json", import.meta.url), "utf8")).scores;
+
+const html = bouwKaartHtml({ teambeeld, regels, profielen, teamnaam: "Noord (voorbeeld)", formaat, poster, leidersbeeld });
 
 const uit = poster ? `teamkracht-voorbeeld-poster-${formaat}.html` : "teamkracht-voorbeeld.html";
 writeFileSync(new URL(`../${uit}`, import.meta.url), html);

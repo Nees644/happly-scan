@@ -32,6 +32,8 @@ export function yVoorScore(score){
   return Math.round((BODEM - deel * (BODEM - TOP)) * 10) / 10;
 }
 
+import { beoordeelLeidersbeeld } from "./leidersbeeld-regel.js";
+
 const esc = t => String(t ?? "")
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;");
@@ -128,6 +130,21 @@ export function tekenKaartSvg(teambeeld, opties = {}){
   if (pd){
     const yDoel = pd[0][1] + (dichtbij ? -8 : 5);
     d.push(`<text x="${KOLOM.zien - 20}" y="${yDoel}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.magenta}">doel</text>`);
+  }
+
+  // Het Leidersbeeld: een open cirkel met een korte streeplijn in magenta. Geen
+  // lijn tussen de drie punten, want het is geen keten maar een tweede
+  // waarneming per dimensie. Staat er alleen als de leider hem heeft ingevuld
+  // en op_kaart aan staat.
+  const lb = opties.leidersbeeld || null;
+  if (lb){
+    for (const [v, x] of Object.entries(KOLOM)){
+      const y = yVoorScore(lb[v]);
+      d.push(`<line x1="${x - 42}" y1="${y}" x2="${x + 42}" y2="${y}" stroke="${KLEUR.magenta}" stroke-width="2.5" stroke-dasharray="7,5"/>`);
+      d.push(`<circle cx="${x}" cy="${y}" r="8" fill="#fff" stroke="${KLEUR.magenta}" stroke-width="3"/>`);
+    }
+    const yl = yVoorScore(lb.zien);
+    d.push(`<text x="${KOLOM.zien - 50}" y="${yl - 14}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="${KLEUR.magenta}">leidersbeeld</text>`);
   }
 
   // Waar de keten zakt.
@@ -227,7 +244,13 @@ function dynamiekHtml(regel, teambeeld){
 
 /* De volledige kaart. teambeeld komt uit bouwTeambeeld, regels en profielen
    zijn de rijen uit teamkracht_regels en teamkracht_profielen. */
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true }){
+function sdVan(teambeeld, terugval = null){
+  const snap = teambeeld.config_snapshot || {};
+  const pak = veld => Number(snap[veld] ?? (terugval || {})[veld] ?? 12);
+  return { sd_zien: pak("sd_zien"), sd_sturen: pak("sd_sturen"), sd_doen: pak("sd_doen") };
+}
+
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true, leidersbeeld = null }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
   const soort = doel ? "doel" : teambeeld.soort;
@@ -271,6 +294,29 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${doel.melding ? `<p class="cijfers">${esc(doel.melding)}</p>` : ""}
     </section>` : "";
 
+
+  /* De bevroren spreiding van dit beeld. Beelden van voor regel R13 hebben hem
+     niet in hun snapshot; die vallen terug op de spreiding die is meegegeven, en
+     anders op twaalf, de waarde van de vaste norm. Een kaart hoort niet leeg te
+     blijven omdat een oud beeld een veld mist. */
+  /* Het Leidersbeeld staat direct onder de kolommen, voor het breukblok. De
+     leesvolgorde van de kaart is: wat doet het team, kijken leider en team
+     hetzelfde, waar breekt de keten, wie zit waar, wat speelt er. */
+  const oordeel = leidersbeeld ? beoordeelLeidersbeeld({
+    leidersbeeld,
+    teamlijn: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
+    sd: sdVan(teambeeld)
+  }) : null;
+
+  const leidersBlok = (oordeel && !poster) ? `
+      <section class="leidersbeeld">
+        <p class="tag-licht">LEIDERSBEELD EN TEAMLIJN</p>
+        <h4>${esc(oordeel.kop)}</h4>
+        ${oordeel.allesGedeeld
+          ? `<p>${esc(oordeel.inleiding)}</p>`
+          : oordeel.blokken.map(b => `<p><b>${esc(b.label)}.</b> ${esc(b.tekst)}</p>`).join("")}
+        ${oordeel.slotzin ? `<p class="cijfers-licht">${esc(oordeel.slotzin)}</p>` : ""}
+      </section>` : "";
 
   const kernBlok = doel ? doelBlok : `<section class="breuk">
          <p class="tag-licht">DE BREUK IN DE KETEN</p>
@@ -362,6 +408,10 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
   .breuk h2{margin-bottom:.35em}
   .breuk .cijfers{margin-top:.5em;font-size:.95em;color:var(--lavendel)}
   .tag-licht{font-size:.82em;font-weight:600;letter-spacing:.2em;color:var(--magenta);margin-bottom:.5em}
+  .leidersbeeld{margin-top:.75em;border-top:1.5px solid var(--magenta);padding-top:.6em}
+  .leidersbeeld h4{margin-bottom:.3em}
+  .leidersbeeld p{font-size:1em;line-height:1.4;margin-bottom:.25em}
+  .leidersbeeld .cijfers-licht{color:var(--gedempt);font-size:.92em;margin-top:.35em}
   .vak{border:1px solid var(--lijn);border-radius:.4em;padding:.75em .9em;background:#fff}
   .verdeling{font-size:1.1em;font-weight:300;display:flex;flex-wrap:wrap;align-items:baseline}
   .verdeling b{font-weight:600}
@@ -393,7 +443,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
     </header>
     <div class="romp${poster ? " poster" : ""}${doel && !poster ? " doelbeeld" : ""}">
-      <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld })}</div>
+      <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld, leidersbeeld })}${leidersBlok}</div>
       <div class="rechts">${rechts}</div>
       ${planRij}
     </div>

@@ -21,6 +21,11 @@ jouw eigen woorden.
 
 ## Nu meteen
 
+- [ ] **Vul `bedrijf.js` in.** Adres, postcode, plaats, KvK-nummer en
+      btw-nummer van Happly. Zolang die leeg zijn gaat er geen factuur de deur
+      uit en krijg jij een bericht op hallo@happly.nl bij elke betaling zonder
+      factuur.
+
 - [ ] **Pull request #2 mergen.** github.com/Nees644/happly-scan/pull/2. Eén klik
       op Merge. Vercel deployt daarna vanzelf naar productie. Hierin zit alles:
       de tarieven v4, de kaart zonder landelijk beeld, en de website voor
@@ -91,8 +96,15 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       bestaande los-flow gebruikt, de koppelvraag bij een partner die een team
       aanmaakt, en de statussen gekoppeld, betaald en gesloten. Nog niet met een
       echte betaling doorlopen; dat kost geld en doe jij.
-- [ ] **Stap 4.** Regel R13, het Leidersbeeld op de kaart, toestand c en de
-      printcontrole.
+- [x] **Stap 4 is af.** Regel R13 staat in `leidersbeeld-regel.js` met de
+      teksten uit de briefing, de kaart toont de open cirkel per kolom en het
+      blok Leidersbeeld en teamlijn direct onder de kolommen, en
+      `/leider/:token` kent toestand c. De spreiding wordt nu bevroren in het
+      teambeeld, anders verschuift de duiding van een oude kaart mee.
+- [ ] **De printcontrole van stap 4.** De briefing vraagt een Playwright-check
+      op A4 en A1. Die is er niet in deze repo; de tests controleren nu dat
+      beide formaten renderen, niet dat het blok op een A4 past.
+- [ ] **De factuur als pdf** in Supabase Storage. De factuur gaat nu als mail.
 - [ ] **Stap 5.** Hermeting en het Sprint-label.
 - [ ] **Opvolgscherm als CRM.** De tabel `opvolging` heeft twee bronnen. Het
       scherm dat bij stap 2 wordt gebouwd voor de Leidersbeeld-leads kan daarna
@@ -108,7 +120,8 @@ Zeg welke je wilt, dan pak ik hem op. De volgorde hieronder is mijn advies.
       licentiehouder één factuur maakt en één incasso bij Mollie doet, met
       factuurnummer in de omschrijving. Inclusief de herpoging na vijf dagen en
       de blokkade daarna.
-- [ ] **De factuur-pdf** in Supabase Storage, met regels, btw en nummer.
+- [x] **De factuur bij een aankoop vooraf.** Nummer uit de reeks, adres
+      bevroren, en de factuur in de mail. De pdf staat hierboven nog open.
 - [ ] **Het eerste mandaat.** Bij het afsluiten van een licentie een eerste
       betaling met `sequenceType: first`, zodat er op kan worden geïncasseerd.
       Zonder mandaat geen licentie.

@@ -62,9 +62,23 @@ export default async function handler(req, res){
     landelijk_beeld = eigenaar.landelijk_beeld !== false;
   }catch(e){ await logFout("teamkracht-kaart", `lijn niet bepaald: ${String(e.message).slice(0, 80)}`); }
 
+  // Het Leidersbeeld van dit meetmoment, als de leider er een heeft ingevuld en
+  // op_kaart aan staat. Het hoort bij het beeld en niet bij de kijker: wie de
+  // kaart opent ziet hetzelfde.
+  let leidersbeeld = null;
+  try{
+    const moment = beeld.data.soort === "hermeting" ? "eind" : "start";
+    const lb = await db.from("teamkracht_leidersbeeld")
+      .select("zien, sturen, doen, op_kaart")
+      .eq("team_id", beeld.data.team_id).eq("meetmoment", moment).maybeSingle();
+    if (lb.data && lb.data.op_kaart !== false && lb.data.zien !== null){
+      leidersbeeld = { zien: Number(lb.data.zien), sturen: Number(lb.data.sturen), doen: Number(lb.data.doen) };
+    }
+  }catch(e){ /* zonder Leidersbeeld gewoon de kaart */ }
+
   if (als === "svg"){
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
-    res.status(200).send(tekenKaartSvg(beeld.data, { doel, landelijk_beeld }));
+    res.status(200).send(tekenKaartSvg(beeld.data, { doel, landelijk_beeld, leidersbeeld }));
     return;
   }
 
@@ -108,7 +122,8 @@ export default async function handler(req, res){
     poster,
     doel,
     plan,
-    landelijk_beeld
+    landelijk_beeld,
+    leidersbeeld
   });
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.status(200).send(html);

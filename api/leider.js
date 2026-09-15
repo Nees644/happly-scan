@@ -11,6 +11,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { bouwLeiderPagina } from "../leider-pagina.js";
+import { haalKoper } from "../koper-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -32,7 +33,7 @@ export default async function handler(req, res){
   try{
     const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, team_id, organisatie, teamomvang, zien, sturen, doen, index_score, partner_id, status")
+      .select("id, team_id, organisatie, teamomvang, zien, sturen, doen, index_score, partner_id, status, meetmoment, op_kaart")
       .eq("leider_token", token).maybeSingle();
     if (q.error || !q.data){ nietGevonden(res); return; }
     const rij = q.data;
@@ -44,14 +45,33 @@ export default async function handler(req, res){
       .eq("id", rij.id).is("mail_geopend_op", null).then(() => {}, () => {});
 
     let team = null, deelnemers = null, partnernaam = null;
+    let teambeeld = null, landelijk_beeld = false;
     if (rij.team_id){
-      const t = await db.from("teamkracht_teams").select("id, naam").eq("id", rij.team_id).maybeSingle();
+      const t = await db.from("teamkracht_teams").select("id, naam, coach_user_id").eq("id", rij.team_id).maybeSingle();
       if (!t.error && t.data){
         team = t.data;
         const tel = await db.from("index_scan_results")
           .select("id", { count: "exact", head: true })
           .eq("teamkracht_team_id", rij.team_id);
         deelnemers = { ingevuld: tel.count ?? 0, uitgenodigd: null };
+
+        // Is de kaart er, dan is dit toestand c. Het beeld van dit meetmoment,
+        // het nieuwste eerst.
+        const soort = rij.meetmoment === "eind" ? "hermeting" : "start";
+        const b = await db.from("teamkracht_teambeeld")
+          .select("team_zien, team_sturen, team_doen, norm_zien, norm_sturen, norm_doen, breuk, lijnen, config_snapshot, soort")
+          .eq("team_id", rij.team_id).eq("soort", soort)
+          .order("created_at", { ascending: false }).limit(1);
+        if (!b.error && (b.data || []).length && rij.op_kaart !== false) teambeeld = b.data[0];
+
+        // Het landelijk beeld hangt aan de lijn van de coach, net als op de
+        // kaart zelf. Zonder coach of zonder licentie staat het er niet.
+        if (teambeeld && t.data.coach_user_id){
+          try{
+            const eigenaar = await haalKoper(db, t.data.coach_user_id);
+            landelijk_beeld = eigenaar.landelijk_beeld !== false;
+          }catch(e){ landelijk_beeld = false; }
+        }
       }
     }
     if (rij.partner_id){
@@ -61,7 +81,7 @@ export default async function handler(req, res){
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
-    res.status(200).send(bouwLeiderPagina({ rij, team, deelnemers, partnernaam, token }));
+    res.status(200).send(bouwLeiderPagina({ rij, team, deelnemers, partnernaam, token, teambeeld, landelijk_beeld }));
   }catch(e){
     nietGevonden(res);
   }

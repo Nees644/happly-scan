@@ -281,7 +281,14 @@ export function bouwTeambeeld({ deelnemers, norm, config, regels, profielen = []
       // norm zonder aantal is een getal zonder gewicht.
       norm_n: config.norm_n ?? null,
       norm_gemeten_op: config.norm_gemeten_op ?? null,
-      norm_versie: config.norm_versie ?? null
+      norm_versie: config.norm_versie ?? null,
+      // De spreiding van de norm. Hoort hier sinds regel R13: de drempel
+      // waarboven het beeld van de leider afwijkt van de teamlijn is een halve
+      // standaarddeviatie, en die moet bevroren zijn bij dit beeld. Zonder deze
+      // drie zou dezelfde kaart volgend jaar een andere duiding geven.
+      sd_zien:   norm.sd_zien ?? null,
+      sd_sturen: norm.sd_sturen ?? null,
+      sd_doen:   norm.sd_doen ?? null
     },
     // Niet voor opslag: de aanroeper heeft de codes nodig om profiel_code per
     // deelnemer weg te schrijven. Zit bewust niet in teamkracht_teambeeld.

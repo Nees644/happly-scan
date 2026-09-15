@@ -1,0 +1,12 @@
+{
+  "leider_naam": "Test Leider",
+  "leider_email": "leider@test.happly.nl",
+  "organisatie": "Testorganisatie Noord",
+  "teamomvang": "10-20",
+  "herkomst_src": "professionals",
+  "partner_id": null,
+  "op_kaart": true,
+  "meetmoment": "start",
+  "toelichting": "De teamlijn van team Noord is 66,27 / 51,18 / 49,45 en de bevroren SD is 12 op alle drie. Deze scores liggen daar 0,2 SD boven, 0,8 SD boven en 0,3 SD onder. Met een drempel van 0,5 SD geeft dat gedeeld, leider_hoger en gedeeld.",
+  "scores": { "zien": 68.7, "sturen": 60.8, "doen": 45.9 }
+}

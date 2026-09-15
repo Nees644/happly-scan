@@ -144,7 +144,10 @@ export const VOORBEELD_TEAMBEELD = {
     "norm_bron": "vast",
     "norm_n": null,
     "norm_gemeten_op": null,
-    "norm_versie": null
+    "norm_versie": null,
+    "sd_zien": 12,
+    "sd_sturen": 12,
+    "sd_doen": 12
   }
 };
 

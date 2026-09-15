@@ -81,7 +81,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   `/leider/:token` in toestand a en b, `/leads` voor de opvolging, en sinds
   stap 3 de koopknop met `/leidersbeeld-kopen`. Er is geen tweede betaalweg:
   die pagina maakt een team en gebruikt daarna `/api/betaling-start`. Stap 4
-  (regel R13 op de kaart) en 5 (hermeting) liggen nog open.
+  staat er ook: regel R13 in `leidersbeeld-regel.js`, de open cirkel op de
+  kaart en toestand c. Stap 5 (hermeting) ligt nog open.
+- **Een aankoop vooraf levert een factuur op**, met een nummer uit dezelfde
+  reeks als de maandfactuur. De gegevens van Happly staan in `bedrijf.js`;
+  zolang die onvolledig zijn gaat er niets uit en komt er een bericht op
+  hallo@happly.nl. Het adres van de klant wordt bevroren op de factuur.
 - **De vragenset staat in `items.js`**, met per item een versie over het team.
   Hij stond alleen in `scan.html`; een test bewaakt dat beide gelijk blijven.
   Wijzig er nooit een zonder de ander.
