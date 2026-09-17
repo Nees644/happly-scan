@@ -44,6 +44,14 @@ export default async function handler(req, res){
     }
   }catch(e){ /* zonder Leidersbeeld gewoon het teambeeld */ }
 
+  // Het doel in woorden van het team, zodat de doelbeeldpagina het kan
+  // tonen en aanvullen (briefing doel-ruimte v1).
+  let teamdoel = null;
+  try{
+    const td = await db.from("teamkracht_teams").select("doel_tekst, doel_datum, doeltype").eq("id", q.data.team_id).maybeSingle();
+    if (td.data) teamdoel = td.data;
+  }catch(e){ /* zonder doel gewoon het teambeeld */ }
+
   const { team_id, ...beeld } = q.data;
-  res.status(200).json({ ...beeld, leidersbeeld });
+  res.status(200).json({ ...beeld, leidersbeeld, teamdoel });
 }

@@ -80,10 +80,19 @@ test("A1 · zonder naam, mail, organisatie, omvang of vinkje geen inzending", ()
   const leeg = controleerGegevens({});
   assert.equal(leeg.ok, false);
   assert.deepEqual(leeg.fouten.map(f => f.veld),
-    ["leider_naam", "leider_email", "organisatie", "teamomvang", "privacy", "doel_tekst", "doel_datum", "doeltype"]);
+    ["leider_naam", "leider_email", "organisatie", "teamomvang", "privacy"]);
+  // Het doel is overslaanbaar (besluit 17 september 2026), maar half is fout.
+  assert.equal(controleerGegevens({ ...GOED, doel_tekst: "", doel_datum: "", doeltype: null }).ok, true, "zonder doel mag");
   assert.equal(controleerGegevens({ ...GOED, doel_datum: "1 december" }).ok, false, "de termijn is een datum");
-  assert.equal(controleerGegevens({ ...GOED, doel_tekst: "" }).ok, false, "het doel is verplicht");
+  assert.equal(controleerGegevens({ ...GOED, doel_tekst: "" }).ok, false, "begonnen doel zonder zin");
   assert.equal(controleerGegevens({ ...GOED, doeltype: "sneller" }).ok, false, "alleen de vier keuzezinnen");
+  const zonder = maakInzending({ ...GOED, doel_tekst: "", doel_datum: "", doeltype: null });
+  assert.equal(zonder.ok, true);
+  assert.equal(zonder.rij.doel_tekst, null);
+  assert.equal(zonder.rij.doel_ingevuld_door, null);
+  const met = maakInzending(GOED);
+  assert.equal(met.rij.doel_datum, "2026-12-01");
+  assert.equal(met.rij.doel_ingevuld_door, "leider");
 
   assert.equal(controleerGegevens({ ...GOED, privacy: false }).ok, false, "vinkje is verplicht");
   assert.equal(controleerGegevens({ ...GOED, leider_email: "geen mailadres" }).ok, false);

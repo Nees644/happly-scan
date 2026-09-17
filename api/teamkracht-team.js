@@ -150,15 +150,17 @@ export default async function handler(req, res){
     const naam = tekst(body.naam);
     if (!naam){ res.status(400).json({ error: "naam is verplicht" }); return; }
 
-    // Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1): één zin
-    // in eigen woorden en één van de vier keuzezinnen, allebei verplicht bij
-    // een nieuw team. De keuze bepaalt het doeltype; er wordt niets
-    // geclassificeerd.
+    // Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1, besluit
+    // 17 september 2026): optioneel bij het aanmaken. Meestal wordt het in de
+    // sessie benoemd, bij de schuifjes; tot die tijd leest de kaart via de
+    // keten. Wie het al weet vult alle drie de velden; half is een vergissing.
     const doel = doelVelden({
       doel_tekst: body.doel_tekst, doeltype: body.doeltype, doel_datum: body.doel_datum,
       door: body.door === "teamleider" ? "teamleider" : "begeleider"
-    });
-    if (!doel || !doel.doel_tekst || !doel.doel_datum){ res.status(400).json({ error: "het doel van het team is verplicht: één zin, wanneer, en wat er vooral nodig is" }); return; }
+    }) || {};
+    if (Object.keys(doel).length && !(doel.doel_tekst && doel.doel_datum)){
+      res.status(400).json({ error: "vul het doel helemaal in (de zin, wanneer, en wat er nodig is) of laat het leeg" }); return;
+    }
 
     // Staat er een Leidersbeeld klaar op het adres van de teamleider, dan wordt
     // dat gevraagd en nooit vanzelf gekoppeld. Het antwoord komt terug als een

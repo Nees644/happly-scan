@@ -196,9 +196,10 @@ tweede waarheid kan ontstaan.
 
 Sinds 17 september 2026 (briefing doel-ruimte v1) heeft elk team een doel:
 één zin in eigen woorden, de datum waarop het moet staan, en één van vier
-keuzezinnen. Bij een nieuw team is
-het verplicht; een bestaand team krijgt op het dashboard en op de kaart de
-knop Doel toevoegen, en daarna Aanpassen.
+keuzezinnen. Meestal benoemt het team het in de sessie, op de
+doelbeeldpagina bij de schuifjes, onder "Het doel in woorden". Bij het
+aanmaken van een team mag het ook al, maar het hoeft niet; op het dashboard
+en op de kaart staat de knop Doel toevoegen, en daarna Aanpassen.
 
 Het doel verandert geen enkele score. Het bepaalt hoe de kaart de scores
 leest: welke dimensie bepalend is, waar de eerste stap ligt en hoeveel

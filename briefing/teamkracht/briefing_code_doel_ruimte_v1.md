@@ -8,6 +8,16 @@
 > zijn daarop aangepast en gemarkeerd met [17-09]; blok 1 toont "Voor [datum]."
 > en de mailregel wordt "Je doel: [doel_tekst], voor [datum]. Waar de winst
 > zit: [eerste_stap_dimensie]."
+>
+> **Tweede wijziging, besluit Maarten 17 september 2026 (na de preview):** het
+> teamdoel wordt niet vóór de meting afgedwongen. Een doel vooraf kan de
+> deelname remmen, want dan moet er eerst een ei gelegd worden. Het doel wordt
+> in de sessie benoemd, bij de schuifjes van het doelbeeld, waar het team erbij
+> zit. Daarom: 7.1 optioneel bij het aanmaken (wie het al weet vult alle drie de
+> velden), de drie velden erbij op de doelbeeldpagina, en de knop Doel
+> toevoegen blijft. Tot het doel er is leest de kaart via de keten (L1). Het
+> doel bij het Leidersbeeld (7.3) is om dezelfde reden overslaanbaar. Besluit 2
+> in paragraaf 11 ("doel verplicht bij nieuwe teams") is daarmee vervallen.
 
 # Briefing Code · Doel-intake en Ruimteblok (v1)
 
@@ -263,7 +273,7 @@ Op de Leidersbeeld-resultaatpagina en in de resultaatmail: het label uit L5 dire
 
 ### 7.1 Team (teamleider of begeleider, bij aanmaken team of voor de eerste uitnodiging)
 
-Stap 1 [17-09]: "Waar moet dit team staan? Eén zin, in jullie eigen woorden." Tekstveld, 200 tekens, en daaronder "Wanneer moet dat staan?" met een datumveld. Beide verplicht bij nieuwe teams. Bestaande teams: optioneel, met dezelfde knop "Doel toevoegen" op de kaart.
+Stap 1 [17-09]: "Waar moet dit team staan? Eén zin, in jullie eigen woorden." Tekstveld, 200 tekens, en daaronder "Wanneer moet dat staan?" met een datumveld. Optioneel bij het aanmaken [17-09, tweede wijziging]: meestal benoemt het team het doel in de sessie, op de doelbeeldpagina bij de schuifjes, met dezelfde drie velden. Wie het bij het aanmaken invult, vult alle drie de velden. Bestaande teams: dezelfde knop "Doel toevoegen" op de kaart en het dashboard.
 Stap 2: "Wat is er vooral nodig om dat te halen?" Vier keuzezinnen uit L1, radio, verplicht.
 Bevestiging toont beide terug: "Doel: … Nodig: …" met knop "Aanpassen".
 
@@ -275,7 +285,7 @@ Direct na de mailflip (die blijft skippable) en voor de uitslag: één scherm me
 
 ### 7.3 Leider (Leidersbeeld)
 
-Na de registratie (naam, e-mail, organisatie, teamomvang) en voor de items: teamvariant van L1, verplicht, met dezelfde datumvraag als 7.1 [17-09]. Zelfde velden op de leidersbeeld-invulling. (Gebouwd tussen de items en de registratie, omdat de bestaande flow de registratie achteraan zet; zie oplevering A11.)
+Na de registratie (naam, e-mail, organisatie, teamomvang) en voor de items: teamvariant van L1, met dezelfde datumvraag als 7.1 [17-09], overslaanbaar met "Sla over" [17-09, tweede wijziging]. Zelfde velden op de leidersbeeld-invulling. (Gebouwd tussen de items en de registratie, omdat de bestaande flow de registratie achteraan zet; zie oplevering A11.)
 
 ## 8. Taal en woordenlijst
 
@@ -310,7 +320,7 @@ Fonts en kleuren: DM Serif Display voor koppen, DM Sans voor tekst, donkerpaars 
 ## 11. Bevestigde beslissingen (Maarten, 17 september)
 
 1. Startwaarden KETEN_DREMPEL 10 en OP_ORDE_DREMPEL 5 op de schaal 0 tot 100. Als de dimensiescores een andere schaal hebben, gelijkwaardig omrekenen en melden.
-2. Doel verplicht bij nieuwe teams, optioneel en skippable bij individuen.
+2. ~~Doel verplicht bij nieuwe teams~~, optioneel en skippable bij individuen. [17-09: vervallen, zie de tweede wijziging bovenaan; het doel wordt in de sessie benoemd.]
 3. De keuzezinnen in L1 letterlijk overnemen zoals hier geformuleerd.
 4. Referentie bij LOS zonder landelijk beeld alleen op eigen sterkste dimensie.
 5. Blok 4 en 5 nu al tonen met leeg-tekst.

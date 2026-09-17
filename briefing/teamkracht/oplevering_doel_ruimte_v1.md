@@ -247,6 +247,28 @@ datum, `doel_datum`, op de drie tabellen:
 - De briefing is bijgewerkt (paragraaf 4.1, 6.1, 6.2, 7.1, 7.2, 7.3, gemarkeerd
   met [17-09]).
 
+## Tussenpunt 4 · 17 september 2026: het doel in de sessie
+
+Besluit Maarten: een doel vooraf afdwingen remt de deelname; het team benoemt
+het doel in de sessie, bij de schuifjes, waar het in de juiste energie zit.
+
+- Bij het aanmaken van een team is het doel optioneel. Wie het invult, vult
+  alle drie de velden; half is een foutmelding.
+- De doelbeeldpagina (`teamkracht-doel.html`) heeft het vak "Het doel in
+  woorden" onder de schuifjes: de zin, de datum en de keuze, vooringevuld met
+  wat het team al had. Bij Doelbeeld vastleggen gaat het doel mee naar het
+  team en leest de kaart zich opnieuw (`api/teamkracht-doel.js`,
+  `api/teamkracht-teambeeld.js` geeft het bestaande doel mee).
+- Het doel bij het Leidersbeeld is overslaanbaar ("Sla over"); wie begint
+  maakt het af.
+- Tot er een doel is, leest de kaart via de keten en toont blok 1 "Nog geen
+  doel benoemd. De kaart leest via de keten." met de knop Doel toevoegen. Dat
+  is de opzet van L1 en 6.1 en die stond er al.
+- Wat daardoor later komt: de regel "Dit team werkt naar: …" op de uitnodiging
+  bij de eerste meting, en het L5-label op de leiderpagina tot er een teamdoel
+  is.
+- Briefing bijgewerkt: kop, 7.1, 7.3, besluit 2 in paragraaf 11.
+
 ## Wat Maarten nu doet
 
 1. De eerste migratie is gedraaid op 17 september 2026 (Maarten). De

@@ -101,9 +101,11 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
         <div><label for="n-coach">Coach</label><input class="inp" id="n-coach" placeholder="optioneel"></div>
         <div><label for="n-leider">E-mail teamleider</label><input class="inp" id="n-leider" type="email" placeholder="optioneel"></div>
       </div>
-      <!-- Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1), verplicht
-           bij een nieuw team. De keuze bepaalt het doeltype; er wordt niets
-           geclassificeerd. -->
+      <!-- Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1), optioneel
+           bij het aanmaken: meestal benoemt het team het in de sessie, bij de
+           schuifjes van het doelbeeld. De keuze bepaalt het doeltype; er wordt
+           niets geclassificeerd. -->
+      <p class="sub" style="margin-top:14px">Het doel in woorden mag nu, maar hoeft niet: meestal benoemt het team het in de sessie, bij het doelbeeld. Tot die tijd leest de kaart via de keten.</p>
       <div class="doelvak" id="n-doelvak"></div>
       <div class="nieuw" style="margin-top:12px"><button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button></div>
       <p class="melding" id="n-prijs"></p>
@@ -473,10 +475,11 @@ async function maakTeam(){
   const naam = el("n-naam").value.trim();
   const melding = el("n-melding"); melding.className = "melding";
   if (!naam){ melding.textContent = "Vul een teamnaam in."; melding.className = "melding fout"; return; }
+  // Het doel is optioneel bij het aanmaken (besluit 17 september 2026): het
+  // wordt meestal in de sessie benoemd. Wie het nu invult, vult alles in.
   const doel = leesDoel("n");
-  if (!doel.doel_tekst){ melding.textContent = "Schrijf in één zin waar dit team moet staan."; melding.className = "melding fout"; return; }
-  if (!doel.doel_datum){ melding.textContent = "Vul in wanneer dat moet staan."; melding.className = "melding fout"; return; }
-  if (!doel.doeltype){ melding.textContent = "Kies wat er vooral nodig is om dat te halen."; melding.className = "melding fout"; return; }
+  const gevuld = [doel.doel_tekst, doel.doel_datum, doel.doeltype].filter(Boolean).length;
+  if (gevuld > 0 && gevuld < 3){ melding.textContent = "Vul het doel helemaal in (de zin, de datum en de keuze), of laat het leeg voor de sessie."; melding.className = "melding fout"; return; }
   el("n-btn").disabled = true; melding.textContent = "Bezig...";
   try{
     const basis = {
@@ -484,7 +487,7 @@ async function maakTeam(){
       organisatie: el("n-org").value.trim() || null,
       coach_naam: el("n-coach").value.trim() || null,
       leider_email: el("n-leider").value.trim() || null,
-      ...doel
+      ...(gevuld === 3 ? doel : {})
     };
     let uit = await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify(basis) });
 

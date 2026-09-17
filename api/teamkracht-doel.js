@@ -11,6 +11,7 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { beoordeelDoel } from "../teamkracht-logica.js";
+import { doelVelden, herleesTeam } from "../teamkracht-ruimte-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CODES = ["sturen_doen_boven_norm", "naar_landelijk", "halverwege", "bundel"];
@@ -112,10 +113,27 @@ export default async function handler(req, res){
     if (geoogst.length) await db.from("teamkracht_coachvragen").insert(geoogst);
   }
 
+  // Het doel in woorden (briefing doel-ruimte v1, besluit 17 september 2026):
+  // in de sessie, bij de schuifjes, benoemt het team waar het naartoe werkt.
+  // Alle drie velden of niets; daarna leest de kaart zich opnieuw. Een fout
+  // hier laat het doelbeeld staan.
+  let doelVastgelegd = false;
+  const woorden = doelVelden({ doel_tekst: body.doel_tekst, doeltype: body.doeltype, doel_datum: body.doel_datum, door: "begeleider" });
+  if (woorden && woorden.doel_tekst && woorden.doel_datum){
+    try{
+      const up = await db.from("teamkracht_teams").update(woorden).eq("id", beeld.data.team_id).select("id, naam, coach_user_id, doel_tekst, doel_datum, doeltype").single();
+      if (!up.error){
+        doelVastgelegd = true;
+        await herleesTeam(db, up.data);
+      }
+    }catch(e){ await logFout("teamkracht-doel", "doel in woorden niet vastgelegd"); }
+  }
+
   res.status(200).json({
     id: doel_id,
     created_at: ins.data.created_at,
     beoordeling,
+    doel_vastgelegd: doelVastgelegd,
     plan_opgeslagen: plan.length && !planFout,
     ...(planFout ? { waarschuwing: planFout } : {})
   });

@@ -108,6 +108,19 @@
       <div class="samenvatting" id="samenvatting"></div>
       <div class="oordeel" id="oordeel"></div>
       <p class="regel" id="gevolg"></p>
+      <!-- Het doel in woorden (briefing doel-ruimte v1, besluit 17 september
+           2026): in de sessie, bij de schuifjes, benoemt het team waar het
+           naartoe werkt. Alle drie leeg is toegestaan; dan blijft het doel van
+           het team zoals het was. -->
+      <div class="doelvak">
+        <h3 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:1.3em;margin:18px 0 6px">Het doel in woorden</h3>
+        <p class="regel" style="margin-bottom:8px">Waar moet dit team staan? Eén zin, in jullie eigen woorden.</p>
+        <textarea id="doel-tekst" maxlength="200" rows="2" style="width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--lijn);border-radius:8px;resize:vertical"></textarea>
+        <p class="regel" style="margin:10px 0 4px">Wanneer moet dat staan?</p>
+        <input type="date" id="doel-datum" style="font:inherit;font-size:14px;padding:6px 9px;border:1px solid var(--lijn);border-radius:8px;max-width:220px">
+        <p class="regel" style="margin:12px 0 6px">Wat is er vooral nodig om dat te halen?</p>
+        <div id="doel-keuzes" style="display:grid;gap:7px;font-size:14px"></div>
+      </div>
       <p class="horizonrij">
         <label for="horizon">Looptijd van het traject</label>
         <select id="horizon">
@@ -167,6 +180,29 @@ let interventies = VOORBEELD_INTERVENTIES;
 let profielen = VOORBEELD_PROFIELEN;
 let doelregels = VOORBEELD_DOELREGELS;
 let horizon = 12;
+
+/* De vier keuzezinnen van het doel, letterlijk uit L1 (teamvariant) en uit
+   teamkracht-ruimte.js; een test bewaakt dat ze gelijk blijven. */
+const DOEL_ZINNEN = [
+  { doeltype: "zien",     zin: "Dat we hetzelfde beeld hebben van wat er speelt en wat er moet gebeuren" },
+  { doeltype: "sturen",   zin: "Dat we knopen doorhakken en verantwoordelijkheid nemen" },
+  { doeltype: "doen",     zin: "Dat we afmaken wat we afspreken" },
+  { doeltype: "onbekend", zin: "Weet ik nog niet" }
+];
+function bouwDoelvak(huidig = {}){
+  el("doel-tekst").value = huidig.doel_tekst || "";
+  el("doel-datum").value = huidig.doel_datum || "";
+  el("doel-keuzes").innerHTML = DOEL_ZINNEN.map(k =>
+    `<label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer"><input type="radio" name="doeltype" value="${k.doeltype}"${huidig.doeltype === k.doeltype ? " checked" : ""} style="margin-top:4px"> ${k.zin}</label>`).join("");
+}
+function leesDoelvak(){
+  const gekozen = document.querySelector('input[name="doeltype"]:checked');
+  return {
+    doel_tekst: el("doel-tekst").value.trim(),
+    doel_datum: el("doel-datum").value || null,
+    doeltype: gekozen ? gekozen.value : null
+  };
+}
 let doel = null;
 let bezig = false;
 
@@ -309,6 +345,13 @@ async function opslaan(){
     return;
   }
   if (bezig) return;
+  // Het doel in woorden: helemaal of niet. Half ingevuld is een vergissing.
+  const woorden = leesDoelvak();
+  const gevuld = [woorden.doel_tekst, woorden.doel_datum, woorden.doeltype].filter(Boolean).length;
+  if (gevuld > 0 && gevuld < 3){
+    el("melding").textContent = "Het doel in woorden vraagt alle drie: de zin, de datum en de keuze. Of laat alle drie leeg.";
+    return;
+  }
   bezig = true;
   el("opslaan").disabled = true;
   el("melding").textContent = "Bezig met vastleggen...";
@@ -318,6 +361,7 @@ async function opslaan(){
       headers: { "Content-Type": "application/json", ...(await bearer()) },
       body: JSON.stringify({
         teambeeld_id: teambeeldId,
+        ...(gevuld === 3 ? woorden : {}),
         doel_code: "sturen_doen_boven_norm",
         doel_zien: doel.zien, doel_sturen: doel.sturen, doel_doen: doel.doen,
         gekozen_door: "coach",
@@ -334,7 +378,7 @@ async function opslaan(){
     });
     const uit = await r.json().catch(() => ({}));
     el("melding").textContent = r.ok
-      ? `Doelbeeld vastgelegd${uit.plan_opgeslagen ? " met de interventies erbij" : ""}. Bij de hermeting komt het eindbeeld hierover te liggen.`
+      ? `Doelbeeld vastgelegd${uit.plan_opgeslagen ? " met de interventies erbij" : ""}${uit.doel_vastgelegd ? ", en het doel in woorden staat op het team: de kaart leest nu in het licht daarvan" : ""}. Bij de hermeting komt het eindbeeld hierover te liggen.`
       : `Vastleggen mislukt: ${uit.error || r.status}`;
     if (r.ok && uit.id) await toonAfdrukken(uit.id);
   }catch(e){
@@ -475,6 +519,7 @@ async function start(){
 
   doel = beginDoel();
   bouwSchuifjes();
+  bouwDoelvak((teambeeld && teambeeld.teamdoel) || {});
   toonStartpunt();
   teken();
 

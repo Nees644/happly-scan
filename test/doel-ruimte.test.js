@@ -622,7 +622,11 @@ test("de keuzezinnen op de schermen zijn gelijk aan die in de module", () => {
   assert.ok(scan.includes('logEvent("doel_ingevuld")') && scan.includes('logEvent("doel_overgeslagen")'), "de twee funnel-events");
   assert.ok(scan.includes("Waar wil je staan?") && scan.includes("<div class=\"qtxt\" style=\"font-size:18px\">Wanneer?</div>") && scan.includes(">Sla over<"));
   const lb = lees("leidersbeeld.html");
-  assert.ok(lb.includes("Waar moet dit team staan?") && lb.includes("Wanneer moet dat staan?") && lb.includes("Wat is er vooral nodig om dat te halen?"));
+  assert.ok(lb.includes("Waar moet dit team staan?") && lb.includes("Wanneer moet dat staan?") && lb.includes("Wat is er vooral nodig om dat te halen?") && lb.includes('id="doel-overslaan"'));
+  const doelpagina = lees("teamkracht-doel.html");
+  const uitDoel = [...doelpagina.split("const DOEL_ZINNEN = [")[1].split("];")[0].matchAll(/doeltype: "(\w+)",\s*zin: "([^"]+)"/g)].map(m => ({ doeltype: m[1], zin: m[2] }));
+  assert.deepEqual(uitDoel, KEUZEZINNEN_TEAM.map(k => ({ ...k })), "de doelbeeldpagina heeft dezelfde keuzezinnen");
+  assert.ok(doelpagina.includes("Het doel in woorden") && doelpagina.includes("Wanneer moet dat staan?"));
   const dash = lees("teamkracht.html");
   assert.ok(dash.includes("Waar moet dit team staan? Eén zin, in jullie eigen woorden.") && dash.includes("Wanneer moet dat staan?") && dash.includes("Doel toevoegen") && dash.includes("Aanpassen"));
   for (const b of ["scan.html", "leidersbeeld.html", "teamkracht.html"]) assert.ok(!lees(b).includes("tien weken") && !lees(b).includes("drie maanden"), `${b}: de termijn vult de klant in`);
