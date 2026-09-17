@@ -14,6 +14,7 @@
 
 import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { magKoppelen, teamnaamVoor, verderDan } from "../leidersbeeld-koppelen.js";
+import { neemLeiderdoelOver } from "../teamkracht-ruimte-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -36,7 +37,7 @@ export default async function handler(req, res){
   const db = serviceClient();
   try{
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, team_id, status, leider_naam, leider_email, organisatie, teamomvang, partner_id")
+      .select("id, team_id, status, leider_naam, leider_email, organisatie, teamomvang, partner_id, doel_tekst, doeltype")
       .eq("leider_token", token).maybeSingle();
     if (q.error || !q.data){ res.status(404).json({ error: "onbekende link" }); return; }
     const rij = q.data;
@@ -61,6 +62,10 @@ export default async function handler(req, res){
       if (!/duplicate|unique/i.test(ins.error.message || "")) throw ins.error;
     }
     if (!team){ res.status(500).json({ error: "geen vrij token gevonden" }); return; }
+
+    // Het doel van de leider is het voorlopige doel van het team (L5); het
+    // team bevestigt of past het aan bij de meting.
+    await neemLeiderdoelOver(db, team.id, rij);
 
     // Pas nu vast aan het Leidersbeeld. Andersom zou een mislukte teamaanmaak
     // een lead achterlaten die aan niets hangt.

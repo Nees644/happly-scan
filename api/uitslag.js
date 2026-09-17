@@ -8,6 +8,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { bouwUitslagPagina } from "../uitslag-pagina.js";
+import { ruimteVoorMeting } from "../teamkracht-ruimte-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -30,16 +31,31 @@ export default async function handler(req, res){
   }
 
   const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const q = await db.from("index_scan_results")
-    .select("index_score, zien, sturen, doen, duiding, created_at, profiel_code")
+  let q = await db.from("index_scan_results")
+    .select("id, index_score, zien, sturen, doen, duiding, created_at, profiel_code, deel_zin, doel_tekst, doeltype, doeltype_bron")
     .eq("resultaat_token", token).single();
+  if (q.error){
+    // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.
+    q = await db.from("index_scan_results")
+      .select("id, index_score, zien, sturen, doen, duiding, created_at, profiel_code, deel_zin")
+      .eq("resultaat_token", token).single();
+  }
   if (q.error || !q.data){
     melding(res, 404, "Deze uitslag bestaat niet of is verlopen. Klopt de link uit je mail?");
     return;
   }
 
-  // Het profiel hoort erbij zodra het team is doorgerekend; tot die tijd toont
-  // de pagina gewoon de eigen uitslag zonder dat blok.
+  // De ruimte (briefing doel-ruimte v1): de opgeslagen rij, of voor een meting
+  // van voor 17 september 2026 nu berekend en opgeslagen. Zet ook het profiel
+  // als dat er nog niet was.
+  let ruimte = null;
+  try{
+    ruimte = await ruimteVoorMeting(db, q.data);
+    if (ruimte && ruimte.profiel_code && !q.data.profiel_code) q.data.profiel_code = ruimte.profiel_code;
+  }catch(e){ ruimte = null; }
+
+  // Het profiel hoort erbij zodra het is bepaald; tot die tijd toont de pagina
+  // gewoon de eigen uitslag zonder dat blok.
   let profiel = null;
   if (q.data.profiel_code){
     const p = await db.from("teamkracht_profielen")
@@ -51,5 +67,5 @@ export default async function handler(req, res){
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "private, no-store");
   res.setHeader("Referrer-Policy", "no-referrer");
-  res.status(200).send(bouwUitslagPagina({ meting: q.data, profiel }));
+  res.status(200).send(bouwUitslagPagina({ meting: q.data, profiel, ruimte }));
 }

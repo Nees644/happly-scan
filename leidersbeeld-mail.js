@@ -43,12 +43,16 @@ export function leiderUrl(token, basis = BASIS_URL){
   return `${basis}/leider/${token}`;
 }
 
-export function resultaatMail({ naam, index, token, basis = BASIS_URL }){
+/* De hook krijgt er sinds de briefing doel-ruimte v1 (paragraaf 6.3) een zin
+   bij. doelvergelijking is het label uit L5, alleen als er al een team met een
+   doel aan hangt; bij de gratis voordeur is dat er nog niet. */
+export function resultaatMail({ naam, index, token, basis = BASIS_URL, doelvergelijking = null }){
   const naamregel = voornaam(naam) ? `${voornaam(naam)},` : "Hallo,";
   const inhoud =
     p(naamregel) +
     p(`Jij hebt gemeten hoe jouw team het doet op Zien, Sturen en Doen. Het Leidersbeeld van de Teamkracht Index van jouw team is <b style="color:${PK}">${index}</b>.`) +
-    p("Wat is de gemeten Teamkracht Index van jouw team?") +
+    p("Wat is de gemeten Teamkracht Index van jouw team? En zit de ruimte waar jij hem verwacht?") +
+    (doelvergelijking ? p(`<b style="color:${DP}">${doelvergelijking.label}</b>`) : "") +
     p("Dat weet je als je team het zelf invult. Drie minuten per persoon, en je ziet op een kaart waar jouw beeld en het beeld van het team gelijk lopen en waar niet.") +
     knop("Bekijk je Leidersbeeld", leiderUrl(token, basis));
   return { subject: mailOnderwerp(index), html: shell(inhoud) };

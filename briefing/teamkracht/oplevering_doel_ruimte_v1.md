@@ -142,11 +142,102 @@ B7. **De acht deelnemers uit het Leidersbeeld** raken deze briefing niet; wel
 staat in paragraaf 6.1 "pas vanaf tien deelnemers" en dat klopt met
 `min_deelnemers_lijnen`.
 
-## Nog niet gebouwd (wacht op akkoord op tussenpunt 1)
+## Tussenpunt 2 · 17 september 2026: fase A gebouwd
 
-- de serverside berekening bij afronden van een meting en bij een doelwijziging
-- de invoerflows 7.1, 7.2 en 7.3
-- blok 1, 3, 4 en 5 op de kaart, de individuele uitslag en het Leidersbeeld
-- de balkenvisual, de strip, de profielregels, de mailregels
-- de funnel-events `doel_ingevuld` en `doel_overgeslagen`
-- criterium 1 (snapshot van drie bestaande metingen voor en na), 10 en 11
+Akkoord van Maarten op tussenpunt 1 ("ok bouw rest fase a"). Gebouwd, op de
+branch, niet gedeployd, migratie niet gedraaid:
+
+| Bestand | Wat |
+|---|---|
+| `teamkracht-ruimte-blokken.js` | de vijf blokken: teksten, gegevens voor blok 1 en 3, balkenvisual als svg, html |
+| `teamkracht-ruimte-db.js` | berekenen en opslaan in `teamkracht_ruimte`, nieuwste rij lezen, doel van de leider overnemen (L5) |
+| `api/teamkracht-teamdoel.js` | nieuw: doel zetten of wijzigen (coach), doeltekst bij token (uitnodigingspagina) |
+| `api/teamkracht-bereken.js` | berekent na het beeld ook de ruimte |
+| `api/teamkracht-kaart.js` | leest de ruimterij (of berekent hem voor een oud beeld) en geeft hem aan html en pdf |
+| `api/teamkracht-team.js` | doel verplicht bij een nieuw team; koppeling neemt het leiderdoel over |
+| `api/leidersbeeld-kopen.js` | koop via het Leidersbeeld neemt het leiderdoel over |
+| `api/scan.js` | slaat het eigen doel op, berekent de ruimte, geeft blok 1 en 3 terug |
+| `api/lead.js` | de regel "Je doel: ... Waar de winst zit: ..." boven de indexwaarde |
+| `api/uitslag.js` | leest de ruimterij (of berekent hem voor een oude meting) |
+| `api/leidersbeeld.js`, `leidersbeeld.js` | doel verplicht bij het Leidersbeeld; gaat mee naar het tweede Leidersbeeld |
+| `api/leider.js`, `leider-pagina.js` | het label van L5 onder het blok gedeeld beeld / verschil in beeld |
+| `leidersbeeld-mail.js` | "En zit de ruimte waar jij hem verwacht?" achter de hook |
+| `teamkracht-kaart.js`, `kaart-pdf.js` | blok 1 bovenaan, blok 3 rechts na de breuk en de verdeling, dynamieken in L7-volgorde, blok 4 en 5 onderaan |
+| `uitslag-pagina.js` | de vijf blokken in de jij-vorm op /uitslag/:token |
+| `scan.html` | het doelscherm na de mailstap, de teamdoelregel op de uitnodiging, de vijf blokken op de uitslag, de herkenningszin met doel, de events `doel_ingevuld` en `doel_overgeslagen` |
+| `leidersbeeld.html` | het doelscherm met bevestiging en Aanpassen |
+| `teamkracht.html` | doel bij een nieuw team, Doel toevoegen en Aanpassen per team, de knop op de kaart |
+| `scripts/serveer.mjs` | statische server voor de preview (de python-server werkte niet meer op deze Mac) |
+| `test/doel-ruimte.test.js`, `test/snapshot-teambeelden.json` | 43 tests: criteria 1 tot en met 12 voor zover zonder database te toetsen |
+
+Acceptatiecriteria: 1 (momentopname van drie beelden voor en na, en de oude
+kaart blijft de oude kaart), 2, 3, 4, 5, 6, 7, 8 (op de gerenderde html, svg
+en mails van de testset), 9, 10 (pdf A4 en A1 met de blokken, één vel), 11
+(geen route schrijft in `teamkracht_maatregelen` of de hermetingsvelden) en
+12 zijn getest. Wat alleen met Supabase te toetsen is (de rij staat er echt,
+de migratie is gedraaid) staat bij Maarten.
+
+## Aannames en placeholders, aangevuld bij tussenpunt 2
+
+A11. **Het doelscherm van het Leidersbeeld staat na de twaalf vragen**, niet
+"na de registratie en voor de items" zoals 7.3 zegt. De bestaande flow doet
+bewust de vragen eerst en de gegevens daarna (wie twaalf vragen heeft
+beantwoord geeft zijn adres eerder). Het doel zit ertussen: vragen, doel,
+gegevens. Verplicht, met bevestiging en Aanpassen.
+
+A12. **Twee koppen in de individuele uitslag zijn placeholders**: "Waar jij
+naartoe werkt" (blok 1) en "Wat jij gaat doen" (blok 4). Paragraaf 6.2 geeft
+voor de individuele variant alleen de leeg-teksten, geen koppen.
+
+A13. **De eyebrow boven het L5-label** op /leider/:token heet "Leidersbeeld en
+teamdoel", naar het bestaande "Leidersbeeld en teamlijn". Niet uit de
+briefing.
+
+A14. **Het profiel voor wie zonder team meet** wordt nu bepaald bij de
+ruimteberekening, met de vaste norm uit `teamkracht_config`, en in
+`profiel_code` gezet als dat leeg was. Daardoor toont blok 3 ook voor een
+losse Zelfkracht Index het eigen profiel met één zin (de eerste zin van
+`tekst_deelnemer`). Dit was B5.
+
+A15. **Het taalmodel verwoordt de drie zinnen niet.** De zinnen uit L6 staan
+letterlijk op het scherm, uit de software. De briefing staat toe dat het
+model woordkeus en ritme aanpast; dat is niet gedaan, want de duiding wordt
+al gegenereerd voordat het doel bekend is (de duiding start op de mailstap,
+het doel komt erna). De 320-woordenlimiet van de duiding verandert dus niet.
+
+A16. **De html-kaart groeit voorbij een A4.** De kaart op het scherm heeft een
+minimumhoogte van een A4 en loopt door als de blokken meer ruimte vragen. De
+pdf is de drager voor papier (besluit 17 september): daar krimpt de
+rechterkolom tot alles op één vel past, en blok 4 en 5 staan onderaan.
+
+A17. **De deelbare herkenningszin met doel** gaat als één tekst in `deel_zin`;
+de grens in `api/scan.js` is daarvoor van 140 naar 360 tekens gegaan. De
+deelpagina /deel/:id toont die tekst ongewijzigd.
+
+A18. **De knop Doel toevoegen op de kaart** werkt via het kaartvenster in het
+dashboard (een bericht aan de bovenliggende pagina). Buiten het dashboard
+doet de knop niets; in de pdf staat hij niet.
+
+A19. **Het L5-label in de resultaatmail** van het Leidersbeeld staat er alleen
+als er op dat moment al een team met doel aan hangt. Bij de gratis voordeur
+is dat nooit zo, dus in de praktijk staat in de mail alleen de nieuwe zin
+achter de hook.
+
+A20. **doel_ingevuld_door** is "begeleider" voor wie via het dashboard een
+team aanmaakt of een doel zet, "leider" bij het Leidersbeeld en bij het
+overnemen van het leiderdoel, "deelnemer" bij de Zelfkracht Index. De waarde
+"teamleider" wordt alleen gezet als de client dat meegeeft; er is nog geen
+scherm waar een teamleider zelf inlogt.
+
+## Wat Maarten nu doet
+
+1. `migratie-doel-ruimte-2026-09-17.sql` draaien in de SQL-editor, daarna
+   `controle/staat-doel-ruimte-erin.sql`: zeven regels op `klopt = true`.
+2. Op een preview-deploy van de branch: een team aanmaken met doel, laten
+   invullen, de kaart maken, de pdf openen; een losse scan doen met en zonder
+   doel; een Leidersbeeld invullen.
+3. De placeholders A2, A12 en A13 van een formulering voorzien, of ze laten
+   staan.
+4. Besluit over B2 (maatregelen of plan) voor fase B, en over A9 (foreign key
+   op meting_id).
+5. Pas daarna: mergen en deployen.

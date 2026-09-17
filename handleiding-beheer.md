@@ -190,3 +190,23 @@ main. Het rekenwerk zit in `teamkracht-logica.js`, de kaart in
 De migratie staat onderaan `supabase.sql` met de datum erbij. Tests draai je met
 `npm test`; die lezen de regels rechtstreeks uit het seedblok, zodat er geen
 tweede waarheid kan ontstaan.
+
+
+## Het doel van een team
+
+Sinds 17 september 2026 (briefing doel-ruimte v1) heeft elk team een doel:
+één zin in eigen woorden en één van vier keuzezinnen. Bij een nieuw team is
+het verplicht; een bestaand team krijgt op het dashboard en op de kaart de
+knop Doel toevoegen, en daarna Aanpassen.
+
+Het doel verandert geen enkele score. Het bepaalt hoe de kaart de scores
+leest: welke dimensie bepalend is, waar de eerste stap ligt en hoeveel
+ruimte er is tot de referentie. Die lezing staat in blok 3 van de kaart,
+"Waar de winst zit", en wordt bij elke berekening opgeslagen in
+`teamkracht_ruimte`. Wijzig je het doel, dan komt er een nieuwe rij en toont
+de kaart de nieuwste; de oude rijen blijven staan.
+
+De drempels (ketencheck tien punten, op orde onder vijf punten, de
+landelijke grens op 0,8 standaarddeviatie) staan in
+`teamkracht-leesregels-config.js`. Bijstellen is een commit; de beheerpagina
+kent ze niet.

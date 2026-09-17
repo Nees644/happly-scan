@@ -131,6 +131,20 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   certificaat wel en de pagina niet. Een pagina wordt nooit verwijderd omdat
   een certificaat verloopt: hij zegt dan niet actief.
 
+- **Doel en ruimte, fase A, staat op de branch `doel-ruimte-v1`** (17
+  september 2026, briefing in `briefing/teamkracht/`). Elke meting krijgt een
+  doel van de klant en de uitslag leest de scores in het licht daarvan:
+  leesregels L1 tot en met L7 in `teamkracht-ruimte.js`, drempels in
+  `teamkracht-leesregels-config.js`, opslag in `teamkracht_ruimte` via
+  `teamkracht-ruimte-db.js`, de vijf blokken in `teamkracht-ruimte-blokken.js`.
+  De ruimte is een lezing, nooit een score: index, dimensies, profielen,
+  teamlijn, breuk en R1 tot en met R13 zijn niet aangeraakt en een
+  momentopname in de tests bewaakt dat. In de individuele uitslag is de
+  referentie altijd de eigen sterkste dimensie; op de kaart heet de lijn het
+  gemiddelde, nooit landelijk. Nog niet gemerged: de migratie
+  `migratie-doel-ruimte-2026-09-17.sql` moet eerst draaien. Alle aannames
+  staan in `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
+
 - **Er zijn drie sites in deze repo.** `index.html` is de Zelfkracht Index op
   scan.happly.nl, `teamkrachtindex.html` is teamkrachtindex.nl, en
   `happly.html` is de voorpagina van happly.nl. Die laatste draait niet op

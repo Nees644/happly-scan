@@ -34,6 +34,19 @@ jouw eigen woorden.
 Teamkrachtindex.nl staat live sinds 14 september. Domein, DNS en SITE_URL zijn
 klaar; de deelafbeelding maakt Claude.
 
+## Doel en ruimte, fase A (branch doel-ruimte-v1, 17 september 2026)
+
+- [ ] **`migratie-doel-ruimte-2026-09-17.sql` draaien** in de SQL-editor,
+      daarna `controle/staat-doel-ruimte-erin.sql`. Zeven regels, alle op
+      `klopt = true`. Zonder deze migratie valt de code terug op de oude
+      kolommen en blijven de blokken leeg.
+- [ ] **De branch nalopen op een preview-deploy** en dan mergen. Wat er is
+      gebouwd en welke formuleringen nog van jou moeten komen staat in
+      `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
+- [ ] **Drie placeholders van tekst voorzien**: zin 1 zonder doel (A2), de
+      koppen van blok 1 en 4 in de individuele uitslag (A12), de eyebrow
+      boven het L5-label (A13).
+
 ## Inhoud nalezen, hier staat de rest op stil
 
 - [ ] **De zes hoofdstukken nalezen.** Er staat een eerste versie in

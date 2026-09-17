@@ -10,6 +10,8 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
 import { niveau, ontwikkelruimte, PATROON, splitDuiding } from "../zelfkracht-uitslag.js";
+import { nieuwsteRuimte } from "../teamkracht-ruimte-db.js";
+import { mailDoelregel } from "../teamkracht-ruimte-blokken.js";
 
 /* Niveaubanden, plus-rekenregel en de vaste teksten: één bron, gedeeld met de
    uitslagpagina. scan.html en api/duiding.js houden hun eigen kopie; wijzig ze
@@ -49,7 +51,7 @@ function nivRow(nm, s){
   </tr>`;
 }
 
-function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl, viaTeam }){
+function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, uitslagUrl, viaTeam, doelregel = null }){
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route : null;
@@ -68,6 +70,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
         ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je startpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:${uitslagUrl ? "6px" : "22px"}`)}
         ${uitslagUrl ? p(`<a href="${uitslagUrl}" style="color:${PK}">Bekijk je uitslag online</a>. Die link is van jou alleen; deel hem niet.`, `font-size:12.5px;color:${MUT};margin-bottom:22px`) : ""}
         ${p(hi)}
+        ${doelregel ? p(`<strong style="color:${DP}">${doelregel}</strong>`, "margin-bottom:6px") : ""}
 
         <!-- Het getal -->
         <div style="text-align:center;margin:16px 0 6px">
@@ -175,7 +178,12 @@ export default async function handler(req, res){
     let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
-        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id").eq("id", id).single();
+        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,doel_tekst").eq("id", id).single();
+      if (q.error){
+        // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.
+        q = await db.from("index_scan_results")
+          .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id").eq("id", id).single();
+      }
       if (q.error){
         // Vangnet zolang de migratie 07-09-2026 (resultaat_token) nog niet draait.
         q = await db.from("index_scan_results")
@@ -229,6 +237,15 @@ export default async function handler(req, res){
     // zijn eigen traject, en drie mails van ons ertussendoor helpen niemand.
     const viaTeam = !!(row && row.teamkracht_team_id);
 
+    // Eén regel boven de indexwaarde (briefing doel-ruimte v1, paragraaf 6.2):
+    // het doel en waar de winst zit, uit de opgeslagen ruimterij. Zonder doel
+    // geen regel.
+    let doelregel = null;
+    if (row && row.doel_tekst && scanId){
+      try{ doelregel = mailDoelregel({ doel_tekst: row.doel_tekst, ruimte: await nieuwsteRuimte(db, scanId, "individu") }); }
+      catch(e){ doelregel = null; }
+    }
+
     // 2. Zet de opvolgreeks klaar (dag 3, 7 en 56 verstuurt de cron /api/opvolg).
     //    Eén reeks per meting; een nieuwe meting met hetzelfde adres vervangt een
     //    eerdere, nog lopende reeks, zodat niemand dubbele mails krijgt.
@@ -254,7 +271,8 @@ export default async function handler(req, res){
           ...m,
           afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null,
           uitslagUrl: row && row.resultaat_token ? `https://scan.happly.nl/uitslag/${row.resultaat_token}` : null,
-          viaTeam
+          viaTeam,
+          doelregel
         })
       });
     }catch(mailErr){ /* stil */ }

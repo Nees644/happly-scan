@@ -9,6 +9,9 @@
 // voor A4, A3 en A1, zodat afdrukken naar PDF via de browser gaat.
 
 import { vulPlaceholders, telwoord, VAARDIGHEDEN } from "./teamkracht-logica.js";
+import {
+  ruimteGegevens, doelBlokHtml, ruimteBlokHtml, routeBlokHtml, resultaatBlokHtml, BLOK_CSS
+} from "./teamkracht-ruimte-blokken.js";
 
 /* Huisstijl, gelijk aan de Teamfoto en de site. */
 export const KLEUR = {
@@ -291,7 +294,26 @@ export function sdVan(teambeeld, terugval = null){
   return { sd_zien: pak("sd_zien"), sd_sturen: pak("sd_sturen"), sd_doen: pak("sd_doen") };
 }
 
-export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true, leidersbeeld = null, vorig = null, leidersbeeld_vorig = null }){
+/* De gegevens voor blok 1 en 3 van de kaart (briefing doel-ruimte v1,
+   paragraaf 6.1). Alleen op een start- of eindbeeld; het doelbeeld is een
+   andere kaart. Zonder opgeslagen ruimterij blijven de blokken weg. */
+export function kaartRuimte({ teambeeld, ruimte, teamdoel, regels, profielen }){
+  if (!ruimte) return null;
+  return ruimteGegevens({
+    ruimte,
+    scores: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
+    doel_tekst: teamdoel?.doel_tekst || null,
+    doeltype: teamdoel?.doeltype || null,
+    vorm: "team",
+    verdeling: teambeeld.verdeling,
+    profielen,
+    lijnen: teambeeld.lijnen,
+    dynamieken: teambeeld.dynamieken,
+    regels
+  });
+}
+
+export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", formaat = "a4", poster = false, doel = null, plan = null, landelijk_beeld = true, leidersbeeld = null, vorig = null, leidersbeeld_vorig = null, ruimte = null, teamdoel = null }){
   const blad = PAGINA[formaat] || PAGINA.a4;
   const breuk = BREUKBLOK[teambeeld.breuk] || BREUKBLOK.geen;
   const soort = doel ? "doel" : teambeeld.soort;
@@ -311,9 +333,14 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
     ? `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team${doel ? ", de gestippelde lijn is waar het heen wil" : ""}, de dunne lijnen zijn de ${telwoord(teambeeld.n)} deelnemers, naamloos en op volgorde van Zien.${slot}`
     : `De keten van dit team: waar zien overgaat in kiezen, en kiezen in doen. De dikke lijn is het team. Onder tien deelnemers toont de kaart geen individuele lijnen.${slot}`;
 
+  /* Blok 1 en 3 (doel en ruimte), alleen op een start- of eindbeeld. De drie
+     dynamieken staan in de volgorde van L7: wat de eerste stap raakt bovenaan. */
+  const g = (!doel && !poster) ? kaartRuimte({ teambeeld, ruimte, teamdoel, regels, profielen }) : null;
+  const volgorde = g ? g.dynamieken : teambeeld.dynamieken;
+
   /* Bevroren teksten gaan voor: die horen bij dit beeld. Beelden van voor de
      migratie van 08-09-2026 hebben ze niet en vallen terug op de tabellen. */
-  const dynamieken = teambeeld.dynamieken
+  const dynamieken = volgorde
     .map(({ code }) => {
       const bevroren = teambeeld.teksten?.regels?.[code];
       return bevroren ? { code, ...bevroren } : regels.find(r => r.code === code);
@@ -388,7 +415,17 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
            <section><h3>Profielverdeling</h3>${verdelingBlok}</section>`)
     : `${kernBlok}
        <section><h3>Profielverdeling</h3>${verdelingBlok}</section>
+       ${g ? ruimteBlokHtml(g, { vorm: "team", id: "kaart" }) : ""}
        ${doel ? "" : `<section class="dynamieken"><h3>Waarschijnlijke dynamieken</h3>${dynamieken}</section>`}`;
+
+  /* Blok 1 bovenaan de kaart, blok 4 en 5 onderaan als twee lege kaders. De
+     knop "Doel toevoegen" praat met het dashboard dat de kaart toont. */
+  const doelIntakeBlok = (g || (!doel && !poster))
+    ? doelBlokHtml(g || { doel_tekst: teamdoel?.doel_tekst || null }, { vorm: "team", knop: !(teamdoel && teamdoel.doel_tekst) })
+    : "";
+  const onderaan = (!doel && !poster)
+    ? `<div class="onderaan">${routeBlokHtml({ vorm: "team" })}${resultaatBlokHtml({ vorm: "team" })}</div>`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="nl">
@@ -407,7 +444,7 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#E9E2DC;font-family:"DM Sans",system-ui,sans-serif;color:var(--inkt)}
   .kaart{
-    width:${blad.breedte}mm;height:${blad.hoogte}mm;margin:0 auto;background:var(--papier);
+    width:${blad.breedte}mm;min-height:${blad.hoogte}mm;margin:0 auto;background:var(--papier);
     font-size:calc(var(--schaal) * 7.4pt);
     display:flex;flex-direction:column;padding:2.1em 2.4em 1.2em;
   }
@@ -468,6 +505,13 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
   .tag{font-size:.82em;font-weight:600;letter-spacing:.16em;margin-bottom:.25em}
   .tag.remt{color:var(--magenta)}
   .tag.versterkt,.tag.neutraal{color:var(--gedempt)}
+  ${BLOK_CSS}
+  .kop .blok-doel{margin-top:.8em;border-top:1.5px solid var(--magenta);padding-top:.5em}
+  .kop .blok-kop{font-size:1.2em;margin-bottom:.15em}
+  .kop .doel-tekst{font-size:1.5em}
+  .blok-ruimte{border-top:1.5px solid var(--magenta);padding-top:.5em}
+  .blok-ruimte .blok-kop{font-size:2em}
+  .onderaan{display:grid;grid-template-columns:1fr 1fr;gap:1em;margin-top:1em}
   .voet{border-top:1px solid var(--lijn);margin-top:1em;padding-top:.6em;
     font-size:.82em;font-weight:300;line-height:1.45;color:var(--gedempt)}
   .logo{align-self:flex-end;margin-top:auto}
@@ -482,16 +526,25 @@ export function bouwKaartHtml({ teambeeld, regels, profielen, teamnaam = "", for
       <p class="kruimel">${kruimel}</p>
       <h1>Teamkracht <span class="punt">&middot;</span> ${beeldnaam}</h1>
       ${poster ? "" : `<p class="inleiding">${esc(inleiding)}</p>`}
+      ${doelIntakeBlok}
     </header>
     <div class="romp${poster ? " poster" : ""}${doel && !poster ? " doelbeeld" : ""}">
       <div class="tekening">${tekenKaartSvg(teambeeld, { doel, landelijk_beeld, leidersbeeld, vorig, leidersbeeld_vorig })}${leidersBlok}</div>
       <div class="rechts">${rechts}</div>
       ${planRij}
     </div>
+    ${onderaan}
     ${poster
       ? `<div class="logo">${LOGO}</div>`
       : `<p class="voet">${landelijk_beeld ? "" : esc(ZONDER_LANDELIJK) + " "}${esc(doel ? VOETNOOT_DOEL : VOETNOOT)}</p>`}
   </div>
+  <script>
+    /* De knop Doel toevoegen: de kaart staat in een venster van het dashboard;
+       dat dashboard opent het formulier. Buiten zo'n venster doet de knop niets. */
+    document.querySelectorAll("[data-doel-toevoegen]").forEach(k => k.addEventListener("click", () => {
+      try{ window.parent.postMessage({ teamkracht: "doel_toevoegen" }, "*"); }catch(e){}
+    }));
+  </script>
 </body>
 </html>`;
 }

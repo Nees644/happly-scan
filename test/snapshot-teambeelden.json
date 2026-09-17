@@ -1,0 +1,119 @@
+[
+  {
+    "n": 11,
+    "team_zien": 66.3,
+    "team_sturen": 51.2,
+    "team_doen": 49.5,
+    "verdeling": {
+      "HLL": 4,
+      "LHH": 2,
+      "HHH": 1,
+      "LLL": 2,
+      "MMM": 2
+    },
+    "breuk": "zien_sturen",
+    "dynamieken": [
+      {
+        "code": "R1",
+        "score": 0.7
+      },
+      {
+        "code": "R11",
+        "score": 0.6
+      },
+      {
+        "code": "R12",
+        "score": 0.5
+      }
+    ],
+    "profielen": [
+      "HLL",
+      "HLL",
+      "HLL",
+      "HLL",
+      "LHH",
+      "LHH",
+      "HHH",
+      "LLL",
+      "LLL",
+      "MMM",
+      "MMM"
+    ]
+  },
+  {
+    "n": 7,
+    "team_zien": 75.4,
+    "team_sturen": 55.9,
+    "team_doen": 55,
+    "verdeling": {
+      "HLL": 4,
+      "LHH": 2,
+      "HHH": 1
+    },
+    "breuk": "zien_sturen",
+    "dynamieken": [
+      {
+        "code": "R1",
+        "score": 1.01
+      },
+      {
+        "code": "R11",
+        "score": 0.86
+      },
+      {
+        "code": "R12",
+        "score": 0.5
+      }
+    ],
+    "profielen": [
+      "HLL",
+      "HLL",
+      "HLL",
+      "HLL",
+      "LHH",
+      "LHH",
+      "HHH"
+    ]
+  },
+  {
+    "n": 11,
+    "team_zien": 63.3,
+    "team_sturen": 53.2,
+    "team_doen": 49.5,
+    "verdeling": {
+      "MMM": 1,
+      "LLL": 3,
+      "HHH": 1,
+      "LHH": 2,
+      "HLL": 4
+    },
+    "breuk": "zien_sturen",
+    "dynamieken": [
+      {
+        "code": "R1",
+        "score": 0.7
+      },
+      {
+        "code": "R11",
+        "score": 0.6
+      },
+      {
+        "code": "R12",
+        "score": 0.5
+      }
+    ],
+    "profielen": [
+      "MMM",
+      "LLL",
+      "LLL",
+      "LLL",
+      "HHH",
+      "LHH",
+      "LHH",
+      "HLL",
+      "HLL",
+      "HLL",
+      "HLL"
+    ]
+  }
+]

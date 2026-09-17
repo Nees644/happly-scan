@@ -7,6 +7,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -20,6 +21,14 @@ import {
 import { LEESREGELS_CONFIG, KETEN_DREMPEL, OP_ORDE_DREMPEL } from "../teamkracht-leesregels-config.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { leesRegels, leesProfielen, leesTestdata } from "./seed-lezen.js";
+import { rijVoorTeam, rijVoorMeting, doelVelden, normUitTeambeeld } from "../teamkracht-ruimte-db.js";
+import { ruimteGegevens, TEKST, mailDoelregel, herkenningszinMetDoel, eersteZin, tekenRuimteBalken } from "../teamkracht-ruimte-blokken.js";
+import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
+import { maakKaartPdf } from "../kaart-pdf.js";
+import { bouwUitslagPagina } from "../uitslag-pagina.js";
+import { bouwLeiderPagina } from "../leider-pagina.js";
+import { resultaatMail } from "../leidersbeeld-mail.js";
+import { existsSync, writeFileSync } from "node:fs";
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 
@@ -346,4 +355,268 @@ test("de migratie legt de velden uit paragraaf 4 aan en verwijdert niets", () =>
   assert.ok(!/\bdrop (table|column)\b/i.test(sql), "er wordt niets verwijderd");
   assert.ok(!/\brename\b/i.test(sql), "er wordt niets hernoemd");
   assert.ok(!sql.includes("—"), "geen gedachtestreepje in de migratie");
+});
+
+
+/* ============================================================ rendering */
+
+const TEAMDOEL = { doel_tekst: "Dat we afmaken wat we afspreken, zonder dat de coach erachteraan moet", doeltype: "doen" };
+const BEELD_MET_ID = { id: "11111111-1111-4111-8111-111111111111", ...NOORD };
+const RUIMTE_NOORD = rijVoorTeam({ teambeeld: BEELD_MET_ID, team: TEAMDOEL, profielen: PROFIELEN });
+const RUIMTE_ZONDER = rijVoorTeam({ teambeeld: BEELD_MET_ID, team: {}, profielen: PROFIELEN });
+
+const KAART = opties => bouwKaartHtml({
+  teambeeld: NOORD, regels: REGELS, profielen: PROFIELEN, teamnaam: "Noord", ...opties
+});
+
+/* Tekst uit html, zonder tags en zonder de stijl. */
+const platteTekst = html => html
+  .replace(/<style[\s\S]*?<\/style>/g, "").replace(/<script[\s\S]*?<\/script>/g, "")
+  .replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
+
+test("de rij voor een team volgt het doel en de norm van het beeld", () => {
+  assert.equal(RUIMTE_NOORD.niveau, "team");
+  assert.equal(RUIMTE_NOORD.meting_id, BEELD_MET_ID.id);
+  assert.equal(RUIMTE_NOORD.leidende_dimensie, "doen");
+  assert.equal(RUIMTE_NOORD.doeltype_bron, "klant");
+  assert.deepEqual(normUitTeambeeld(BEELD_MET_ID), { zien: 62, sturen: 55, doen: 50, sd_zien: 12, sd_sturen: 12, sd_doen: 12 });
+  assert.ok(RUIMTE_NOORD.draagprofielen.length && RUIMTE_NOORD.bewegingsprofielen.length, "de L4-groepen gaan mee in de rij");
+  assert.equal(RUIMTE_ZONDER.doeltype_bron, "keten");
+  assert.equal(RUIMTE_ZONDER.leidende_dimensie, "doen", "zonder doel de laagste dimensie van Noord");
+});
+
+test("de rij voor een persoon vergelijkt nooit met anderen", () => {
+  const r = rijVoorMeting({ meting: { id: "m1", zien: 70, sturen: 48, doen: 62, doeltype: "doen", doel_tekst: "Afmaken" } });
+  assert.equal(r.niveau, "individu");
+  assert.equal(r.referentie_type, "eigen_sterkste");
+  assert.deepEqual(r.draagprofielen, []);
+  assert.equal(r.config_snapshot.landelijk_beeld, false);
+});
+
+test("doelVelden: overgeslagen is onbekend en leest via de keten", () => {
+  assert.equal(doelVelden({ doel_tekst: "", doeltype: null, door: "deelnemer" }), null);
+  const d = doelVelden({ doel_tekst: "  Afmaken.  ", doeltype: "doen", door: "deelnemer" });
+  assert.equal(d.doel_tekst, "Afmaken.");
+  assert.equal(d.doeltype_bron, "klant");
+  assert.equal(d.doel_ingevuld_door, "deelnemer");
+  const o = doelVelden({ doel_tekst: "Iets", doeltype: "weet ik niet", door: "teamleider" });
+  assert.equal(o.doeltype, "onbekend");
+  assert.equal(o.doeltype_bron, "keten");
+  assert.equal(doelVelden({ doel_tekst: "x".repeat(300), doeltype: "zien", door: "leider" }).doel_tekst.length, 200);
+});
+
+/* ---------------------------------------------- de kaart, blok 1 tot 5 */
+
+test("de kaart draagt de vijf blokken in de vaste volgorde", () => {
+  const html = KAART({ ruimte: RUIMTE_NOORD, teamdoel: TEAMDOEL });
+  const t = platteTekst(html);
+  const T = TEKST.team;
+  const plek = w => { const i = t.indexOf(w); assert.ok(i >= 0, `ontbreekt: ${w}`); return i; };
+  const doel = plek(T.doel_kop);
+  assert.ok(t.includes(TEAMDOEL.doel_tekst), "het doel staat er letterlijk");
+  assert.ok(t.includes("Dat we afmaken wat we afspreken"), "de keuzezin staat eronder");
+  const breuk = plek("De keten zakt tussen Zien en Sturen");
+  const ruimte = plek(T.ruimte_kop);
+  const dyn = plek("Waarschijnlijke dynamieken");
+  const route = plek(T.route_kop);
+  const res = plek(T.resultaat_kop);
+  assert.ok(doel < breuk && breuk < ruimte && ruimte < dyn && dyn < route && route < res, "volgorde doel, doen, ruimte, route, resultaat");
+  assert.ok(t.includes(T.route_leeg) && t.includes(T.resultaat_leeg), "blok 4 en 5 met de leeg-tekst");
+  assert.ok(html.includes('aria-label="Waar de winst zit'), "de balkenvisual staat erin");
+  assert.ok(html.includes("Dragen Doen nu al:") || html.includes("Dragen Sturen nu al:") || html.includes("Dragen Zien nu al:"), "de profielregel");
+  assert.ok(html.includes("Geven de meeste beweging:"));
+  assert.ok(!html.includes('class="doel-knop"'), "met doel geen knop");
+});
+
+test("criterium 1: zonder doel blijft blok 2 gelijk, blok 1 toont de fallback en blok 3 leest via de keten", () => {
+  const met = KAART({ ruimte: RUIMTE_NOORD, teamdoel: TEAMDOEL });
+  const zonder = KAART({ ruimte: RUIMTE_ZONDER, teamdoel: null });
+  const oud = KAART({});
+  assert.ok(zonder.includes("Nog geen doel benoemd. De kaart leest via de keten."));
+  assert.ok(zonder.includes('class="doel-knop"') && zonder.includes(">Doel toevoegen<"), "de knop");
+  // Blok 2: de tekening en de breuk zijn in alle drie gelijk.
+  const svg = tekenKaartSvg(NOORD);
+  for (const html of [met, zonder, oud]){
+    assert.ok(html.includes(svg), "dezelfde tekening");
+    assert.ok(html.includes("De keten zakt tussen Zien en Sturen"));
+    assert.ok(html.includes("Zieners") && html.includes("Aanpakkers"), "dezelfde profielverdeling");
+  }
+  assert.ok(zonder.includes("De kaart leest via de keten:"), "zin 1 in de keten-variant");
+  assert.ok(!oud.includes(TEKST.team.ruimte_kop), "zonder ruimterij geen blok 3, de oude kaart blijft de oude kaart");
+});
+
+test("criterium 1: de scores van drie beelden zijn gelijk aan de bevroren momentopname", () => {
+  const sets = [
+    deelnemers,
+    deelnemers.slice(0, 7),
+    [...deelnemers].reverse().map(d => ({ zien: d.zien - 3, sturen: d.sturen + 2, doen: d.doen }))
+  ];
+  const nu = sets.map(lijst => {
+    const b = bouwTeambeeld({ deelnemers: lijst, norm, config: CONFIG, regels: REGELS, profielen: PROFIELEN });
+    return { n: b.n, team_zien: b.team_zien, team_sturen: b.team_sturen, team_doen: b.team_doen,
+             verdeling: b.verdeling, breuk: b.breuk, dynamieken: b.dynamieken,
+             profielen: b.profielen.map(p => p.code) };
+  });
+  const pad = join(HIER, "snapshot-teambeelden.json");
+  if (!existsSync(pad)) writeFileSync(pad, JSON.stringify(nu, null, 2) + "\n");
+  const bevroren = JSON.parse(readFileSync(pad, "utf8"));
+  assert.deepEqual(nu, bevroren, "geen enkele score wijkt af van de momentopname");
+});
+
+test("criterium 5 op de kaart: zonder landelijk beeld nergens het woord landelijk in blok 3", () => {
+  const rij = rijVoorTeam({ teambeeld: BEELD_MET_ID, team: TEAMDOEL, profielen: PROFIELEN, landelijk_beeld: false });
+  assert.equal(rij.referentie_type, "eigen_sterkste");
+  const g = ruimteGegevens({ ruimte: rij, scores: teamlijn, ...TEAMDOEL, vorm: "team", verdeling: NOORD.verdeling, profielen: PROFIELEN });
+  for (const z of g.zinnen) assert.ok(!z.toLowerCase().includes("landelijk"), z);
+});
+
+test("criterium 6 op de kaart: de strip staat er bij elf deelnemers en niet bij negen", () => {
+  const elf = ruimteGegevens({ ruimte: RUIMTE_NOORD, scores: teamlijn, ...TEAMDOEL, vorm: "team", verdeling: NOORD.verdeling, profielen: PROFIELEN, lijnen: NOORD.lijnen });
+  assert.ok(elf.strip && elf.strip.op_of_boven + elf.strip.eronder === 11);
+  const negen = bouwTeambeeld({ deelnemers: deelnemers.slice(0, 9), norm, config: CONFIG, regels: REGELS, profielen: PROFIELEN });
+  const rij9 = rijVoorTeam({ teambeeld: { id: "b9", ...negen }, team: TEAMDOEL, profielen: PROFIELEN });
+  const g9 = ruimteGegevens({ ruimte: rij9, scores: { zien: negen.team_zien, sturen: negen.team_sturen, doen: negen.team_doen }, ...TEAMDOEL, vorm: "team", verdeling: negen.verdeling, profielen: PROFIELEN, lijnen: negen.lijnen });
+  assert.equal(g9.strip, null);
+  const html9 = bouwKaartHtml({ teambeeld: negen, regels: REGELS, profielen: PROFIELEN, ruimte: rij9, teamdoel: TEAMDOEL });
+  assert.ok(!html9.includes("al op of boven de referentie"));
+});
+
+test("L7 op de kaart: de dynamieken staan in de volgorde van de eerste stap", () => {
+  const g = ruimteGegevens({ ruimte: RUIMTE_NOORD, scores: teamlijn, ...TEAMDOEL, vorm: "team", verdeling: NOORD.verdeling, profielen: PROFIELEN, dynamieken: NOORD.dynamieken, regels: REGELS });
+  assert.deepEqual(g.dynamieken.map(d => d.code).sort(), NOORD.dynamieken.map(d => d.code).sort(), "dezelfde selectie");
+  const html = KAART({ ruimte: RUIMTE_NOORD, teamdoel: TEAMDOEL });
+  const posities = g.dynamieken.map(d => html.indexOf(`&middot; ${d.code}</p>`));
+  assert.ok(posities.every((p, i) => i === 0 || p > posities[i - 1]), "de kaart volgt die volgorde");
+});
+
+test("criterium 4 in de visual: alles op orde geeft geen gearceerd segment", () => {
+  const rij = rijVoorTeam({ teambeeld: { id: "b4", ...NOORD, team_zien: 82, team_sturen: 80, team_doen: 84 }, team: TEAMDOEL, profielen: PROFIELEN });
+  assert.equal(rij.status, "op_orde");
+  const g = ruimteGegevens({ ruimte: rij, scores: { zien: 82, sturen: 80, doen: 84 }, ...TEAMDOEL, vorm: "team", verdeling: NOORD.verdeling, profielen: PROFIELEN });
+  assert.ok(g.balken.every(b => b.ruimte_tot === null));
+  assert.ok(!tekenRuimteBalken(g).includes("url(#arcering"));
+  assert.ok(tekenRuimteBalken(ruimteGegevens({ ruimte: RUIMTE_NOORD, scores: teamlijn, ...TEAMDOEL, vorm: "team", verdeling: NOORD.verdeling, profielen: PROFIELEN })).includes("url(#arcering"), "met ruimte wel");
+});
+
+/* --------------------------------------------------- criterium 10: de pdf */
+
+test("criterium 10: de pdf tekent blok 1, 3, 4 en 5 op A4 en A1", async () => {
+  for (const formaat of ["a4", "a1"]){
+    const met = await maakKaartPdf({ teambeeld: NOORD, regels: REGELS, profielen: PROFIELEN, teamnaam: "Noord", formaat, ruimte: RUIMTE_NOORD, teamdoel: TEAMDOEL });
+    const zonder = await maakKaartPdf({ teambeeld: NOORD, regels: REGELS, profielen: PROFIELEN, teamnaam: "Noord", formaat });
+    assert.ok(met.length > 1000 && zonder.length > 1000);
+    assert.ok(met.length > zonder.length, `${formaat}: de blokken staan in de pdf`);
+    assert.match(met.toString("latin1"), /MediaBox/);
+    assert.ok(!met.toString("latin1").includes("/Count 2"), "één vel");
+  }
+});
+
+/* ------------------------------------------- de individuele uitslag */
+
+test("de individuele uitslag heeft de vijf blokken in de jij-vorm", () => {
+  const meting = { id: "m1", index_score: 60, zien: 70, sturen: 48, doen: 62, duiding: null, created_at: "2026-09-17T10:00:00Z",
+                   profiel_code: "HLL", doel_tekst: "Dat ik afmaak waar ik aan begin", doeltype: "doen" };
+  const profiel = PROFIELEN.find(p => p.code === "HLL");
+  const ruimte = rijVoorMeting({ meting });
+  const html = bouwUitslagPagina({ meting, profiel, ruimte });
+  const t = platteTekst(html);
+  const I = TEKST.individu;
+  const i1 = t.indexOf(I.doel_kop), i2 = t.indexOf("Waar je nu staat"), i3 = t.indexOf(I.ruimte_kop), i4 = t.indexOf(I.route_kop), i5 = t.indexOf(I.resultaat_kop);
+  assert.ok(i1 >= 0 && i1 < i2 && i2 < i3 && i3 < i4 && i4 < i5, "volgorde doel, doen, ruimte, route, resultaat");
+  assert.ok(t.includes("Dat ik afmaak waar ik aan begin"));
+  assert.ok(t.includes("Dat ik afmaak wat ik me voorneem"), "de ik-keuzezin");
+  assert.ok(t.includes("laat je al zien") || t.includes("De eerste stap is klein"), "jij-vorm");
+  assert.ok(t.includes("je eigen sterkste dimensie"));
+  assert.ok(t.includes("Ziener."), "het eigen profiel met één zin");
+  assert.ok(!t.includes("teamleden"), "geen profielaantallen bij één persoon");
+  assert.ok(t.includes(I.route_leeg) && t.includes(I.resultaat_leeg));
+});
+
+test("criterium 9: overgeslagen doel op de individuele uitslag", () => {
+  const meting = { id: "m2", index_score: 60, zien: 70, sturen: 48, doen: 62, duiding: null, created_at: "2026-09-17T10:00:00Z", profiel_code: null, doel_tekst: null, doeltype: null };
+  const ruimte = rijVoorMeting({ meting });
+  assert.equal(ruimte.doeltype_bron, "keten");
+  const html = bouwUitslagPagina({ meting, profiel: null, ruimte });
+  assert.ok(html.includes("Nog geen doel benoemd."));
+  assert.ok(html.includes("De kaart leest via de keten:"), "blok 3 leest via de keten");
+  assert.equal(herkenningszinMetDoel("Wat je vaak genoeg doet, wordt automatisch.", null), "Wat je vaak genoeg doet, wordt automatisch.");
+  assert.equal(herkenningszinMetDoel("Wat je vaak genoeg doet, wordt automatisch.", "Afmaken waar ik aan begin"),
+    "Wat je vaak genoeg doet, wordt automatisch. Mijn doel: Afmaken waar ik aan begin.");
+});
+
+test("de mailregel boven de indexwaarde", () => {
+  const ruimte = rijVoorMeting({ meting: { id: "m3", zien: 70, sturen: 48, doen: 62, doeltype: "doen" } });
+  assert.equal(mailDoelregel({ doel_tekst: "Afmaken waar ik aan begin", ruimte }), "Je doel: Afmaken waar ik aan begin. Waar de winst zit: Sturen.");
+  assert.equal(mailDoelregel({ doel_tekst: null, ruimte }), null);
+  assert.equal(eersteZin("Ik zie scherp wat er speelt, ook wat niemand hardop zegt. Vaak zeg ik het pas na afloop."), "Ik zie scherp wat er speelt, ook wat niemand hardop zegt.");
+});
+
+/* ------------------------------------------------- het Leidersbeeld */
+
+test("criterium 7 op de leiderpagina en in de mail", () => {
+  const rij = { organisatie: "Noord", teamomvang: "10-20", zien: 70, sturen: 60, doen: 50, index_score: 60, doeltype: "zien" };
+  const anders = bouwLeiderPagina({ rij, team: { id: "t" }, deelnemers: { ingevuld: 3, uitgenodigd: null },
+    doelvergelijking: { gelijk: false, label: "Verschil in beeld over wat nodig is", team_zin: "Dat we afmaken wat we afspreken", leider_zin: "Dat we hetzelfde beeld hebben van wat er speelt en wat er moet gebeuren" } });
+  assert.ok(anders.includes("Verschil in beeld over wat nodig is"));
+  assert.ok(anders.includes("Dat we afmaken wat we afspreken") && anders.includes("Dat we hetzelfde beeld hebben"), "beide zinnen naast elkaar");
+  const gelijk = bouwLeiderPagina({ rij, team: { id: "t" }, deelnemers: { ingevuld: 3 },
+    doelvergelijking: { gelijk: true, label: "Gedeeld beeld over wat nodig is" } });
+  assert.ok(gelijk.includes("Gedeeld beeld over wat nodig is"));
+  const zonder = bouwLeiderPagina({ rij, team: { id: "t" }, deelnemers: { ingevuld: 3 } });
+  assert.ok(!zonder.includes("over wat nodig is"), "zonder teamdoel geen label");
+
+  const mail = resultaatMail({ naam: "Test Leider", index: 61, token: "abc" });
+  assert.ok(mail.html.includes("Wat is de gemeten Teamkracht Index van jouw team? En zit de ruimte waar jij hem verwacht?"));
+});
+
+/* --------------------------------------------- criterium 8: de uitvoer */
+
+test("criterium 8: de gerenderde html, svg en mail van de testset bevatten geen verboden woorden", () => {
+  const meting = { id: "m1", index_score: 60, zien: 70, sturen: 48, doen: 62, duiding: null, created_at: "2026-09-17T10:00:00Z", profiel_code: "HLL", doel_tekst: "Dat ik afmaak waar ik aan begin", doeltype: "doen" };
+  const uitvoer = {
+    "kaart met doel": KAART({ ruimte: RUIMTE_NOORD, teamdoel: TEAMDOEL }),
+    "kaart zonder doel": KAART({ ruimte: RUIMTE_ZONDER }),
+    "kaart zonder landelijk beeld": KAART({ ruimte: rijVoorTeam({ teambeeld: BEELD_MET_ID, team: TEAMDOEL, profielen: PROFIELEN, landelijk_beeld: false }), teamdoel: TEAMDOEL, landelijk_beeld: false }),
+    "individuele uitslag": bouwUitslagPagina({ meting, profiel: PROFIELEN.find(p => p.code === "HLL"), ruimte: rijVoorMeting({ meting }) }),
+    "leiderpagina": bouwLeiderPagina({ rij: { organisatie: "Noord", teamomvang: "10-20", zien: 70, sturen: 60, doen: 50, index_score: 60 }, team: { id: "t" }, deelnemers: { ingevuld: 3 },
+      doelvergelijking: { gelijk: false, label: "Verschil in beeld over wat nodig is", team_zin: "a", leider_zin: "b" } }),
+    "resultaatmail": resultaatMail({ naam: "Test", index: 61, token: "abc" }).html
+  };
+  // "training" en "cohort" horen bij de Sprint-teksten van de bestaande uitslag
+  // en vallen buiten deze briefing; de lijst hier is die van paragraaf 3 en 8
+  // voor wat deze briefing zelf op het scherm zet.
+  for (const [naam, html] of Object.entries(uitvoer)){
+    const t = platteTekst(html).toLowerCase();
+    for (const w of ["kloof", "gap", "tekort", "blinde vlek", "zwak", "achterstand", "potentieel", "samenspel", "cohort", "streak"]){
+      assert.ok(!t.includes(w), `${naam} bevat het woord ${w}`);
+    }
+    assert.ok(!platteTekst(html).includes("\u2014"), `${naam} bevat een gedachtestreepje`);
+  }
+});
+
+/* ----------------------------------------- criterium 11 en de schermen */
+
+test("criterium 11: geen route schrijft in teamkracht_maatregelen", () => {
+  const map = join(HIER, "..", "api");
+  const bestanden = execSync(`ls "${map}"`).toString().trim().split("\n");
+  for (const b of bestanden){
+    const code = readFileSync(join(map, b), "utf8");
+    assert.ok(!code.includes("teamkracht_maatregelen"), `${b} raakt teamkracht_maatregelen`);
+    assert.ok(!/doelbereik|anders_gedaan_tekst/.test(code), `${b} schrijft de hermetingsvelden`);
+  }
+});
+
+test("de keuzezinnen op de schermen zijn gelijk aan die in de module", () => {
+  const lees = pad => readFileSync(join(HIER, "..", pad), "utf8");
+  const uitScan = [...lees("scan.html").split("const DOEL_ZINNEN = [")[1].split("];")[0].matchAll(/doeltype: "(\w+)",\s*zin: "([^"]+)"/g)].map(m => ({ doeltype: m[1], zin: m[2] }));
+  assert.deepEqual(uitScan, KEUZEZINNEN_INDIVIDU.map(k => ({ ...k })));
+  const uitDash = [...lees("teamkracht.html").split("const DOEL_ZINNEN = [")[1].split("];")[0].matchAll(/doeltype: "(\w+)",\s*zin: "([^"]+)"/g)].map(m => ({ doeltype: m[1], zin: m[2] }));
+  assert.deepEqual(uitDash, KEUZEZINNEN_TEAM.map(k => ({ ...k })));
+  const scan = lees("scan.html");
+  assert.ok(scan.includes('logEvent("doel_ingevuld")') && scan.includes('logEvent("doel_overgeslagen")'), "de twee funnel-events");
+  assert.ok(scan.includes("Waar wil je over drie maanden staan?") && scan.includes(">Sla over<"));
+  const lb = lees("leidersbeeld.html");
+  assert.ok(lb.includes("Waar moet dist team over tien weken staan?".replace("dist", "dit")) && lb.includes("Wat is er vooral nodig om dat te halen?"));
+  const dash = lees("teamkracht.html");
+  assert.ok(dash.includes("Waar moet dit team over tien weken staan? Eén zin, in jullie eigen woorden.") && dash.includes("Doel toevoegen") && dash.includes("Aanpassen"));
 });

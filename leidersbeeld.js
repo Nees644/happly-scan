@@ -9,6 +9,11 @@
 // Hoort bij briefings/leidersbeeld.md.
 
 import { ITEMS, scores } from "./items.js";
+import { KEUZEZINNEN_TEAM } from "./teamkracht-ruimte.js";
+
+// De vier keuzezinnen van het doel (briefing doel-ruimte v1, L1), teamvariant:
+// de leider vult hetzelfde in als het team.
+export const DOELTYPEN = KEUZEZINNEN_TEAM.map(k => k.doeltype);
 
 // Het minimum voor een Teamkrachtkaart. Staat in
 // teamkracht_config.min_deelnemers_kaart; hier alleen om de band te kiezen.
@@ -40,6 +45,11 @@ export function controleerGegevens(g = {}){
   if (tekst(g.organisatie).length < 2) fouten.push({ veld: "organisatie", tekst: "Vul de naam van je organisatie in." });
   if (!TEAMOMVANG.includes(g.teamomvang)) fouten.push({ veld: "teamomvang", tekst: "Kies hoe groot je team is." });
   if (g.privacy !== true) fouten.push({ veld: "privacy", tekst: "Zonder akkoord op de privacyverklaring kunnen we je het resultaat niet mailen." });
+  // Het doel is verplicht (paragraaf 7.3 van briefing doel-ruimte v1): één zin
+  // over waar het team over tien weken moet staan, en wat er vooral nodig is.
+  const doel = tekst(g.doel_tekst);
+  if (doel.length < 2 || doel.length > 200) fouten.push({ veld: "doel_tekst", tekst: "Schrijf in één zin waar dit team over tien weken moet staan." });
+  if (!DOELTYPEN.includes(g.doeltype)) fouten.push({ veld: "doeltype", tekst: "Kies wat er vooral nodig is om dat te halen." });
   return { ok: fouten.length === 0, fouten };
 }
 
@@ -72,7 +82,12 @@ export function maakInzending(inzending = {}, nu = new Date()){
       opt_in_kwartaal:   inzending.kwartaal === true,
       privacy_akkoord_op: tijd,
       ingevuld_op:       tijd,
-      status:            "ingevuld"
+      status:            "ingevuld",
+      doel_tekst:        String(inzending.doel_tekst).trim().slice(0, 200),
+      doeltype:          inzending.doeltype,
+      doeltype_bron:     inzending.doeltype === "onbekend" ? "keten" : "klant",
+      doel_ingevuld_op:  tijd,
+      doel_ingevuld_door: "leider"
     },
     index: gemeten.index
   };

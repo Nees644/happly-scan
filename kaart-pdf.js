@@ -13,8 +13,9 @@ import SVGtoPDF from "svg-to-pdfkit";
 
 import {
   tekenKaartSvg, BREUKBLOK, BEELDNAAM, VOETNOOT, VOETNOOT_DOEL, ZONDER_LANDELIJK,
-  verschilZin, verdelingLijst, dynamiekTekst, sdVan
+  verschilZin, verdelingLijst, dynamiekTekst, sdVan, kaartRuimte
 } from "./teamkracht-kaart.js";
+import { profielRegels, stripRegel, TEKST } from "./teamkracht-ruimte-blokken.js";
 import { beoordeelLeidersbeeld, vergelijkMeetmomenten } from "./leidersbeeld-regel.js";
 import { kiesDynamieken } from "./teamkracht-logica.js";
 import { PAPIER, KLEUR, MM, zetLetters, alsBuffer, label } from "./pdf-basis.js";
@@ -26,7 +27,7 @@ export const FORMATEN = { a4: PAPIER.a4, a3: PAPIER.a3, a1: PAPIER.a1 };
 export async function maakKaartPdf({
   teambeeld, regels = [], profielen = [], teamnaam = "", formaat = "a4",
   doel = null, landelijk_beeld = true, leidersbeeld = null,
-  vorig = null, leidersbeeld_vorig = null
+  vorig = null, leidersbeeld_vorig = null, ruimte = null, teamdoel = null
 }){
   const blad = FORMATEN[formaat] || FORMATEN.a4;
   const [breed, hoog] = blad;
@@ -71,7 +72,31 @@ export async function maakKaartPdf({
 
   doc.font("sans").fontSize(9 * s).fillColor(KLEUR.gedempt)
      .text(inleiding, kant, y, { width: binnen * 0.72, lineGap: 1.5 * s });
-  y = doc.y + 6 * s;
+  y = doc.y + 4 * s;
+
+  /* Blok 1, het doel, bovenaan de kaart (briefing doel-ruimte v1, 6.1). Alleen
+     op een start- of eindbeeld; het doelbeeld is een andere kaart. */
+  const g = doel ? null : kaartRuimte({ teambeeld, ruimte, teamdoel, regels, profielen });
+  const T = TEKST.team;
+  if (!doel){
+    doc.moveTo(kant, y).lineTo(kant + binnen * 0.72, y).lineWidth(1 * s).strokeColor(KLEUR.magenta).stroke();
+    y += 3 * s;
+    label(doc, T.doel_kop, kant, y, { grootte: 7 * s });
+    y = doc.y + 1.5 * s;
+    if (teamdoel && teamdoel.doel_tekst){
+      doc.font("serif").fontSize(13 * s).fillColor(KLEUR.inkt)
+         .text(`\u201c${teamdoel.doel_tekst}\u201d`, kant, y, { width: binnen * 0.72 });
+      y = doc.y + 1 * s;
+      if (g && g.keuzezin){
+        doc.font("sans").fontSize(8.5 * s).fillColor(KLEUR.gedempt).text(g.keuzezin, kant, y, { width: binnen * 0.72 });
+        y = doc.y;
+      }
+    } else {
+      doc.font("sans").fontSize(9 * s).fillColor(KLEUR.gedempt).text(T.geen_doel, kant, y, { width: binnen * 0.72 });
+      y = doc.y;
+    }
+  }
+  y += 5 * s;
 
   /* -------------------------------------------------------------- romp */
   const linksBreed = binnen * 0.54;
@@ -140,9 +165,24 @@ export async function maakKaartPdf({
   const verdeling = verdelingLijst(teambeeld.verdeling, profielen, teambeeld.teksten)
     .map(r => `${r.aantal} ${r.naam}`).join("   ·   ");
 
-  const dynamieken = doel ? [] : (teambeeld.dynamieken || [])
+  // In de volgorde van L7: de dynamiek die de eerste stap raakt bovenaan.
+  const dynamieken = doel ? [] : ((g ? g.dynamieken : teambeeld.dynamieken) || [])
     .map(d => regels.find(r => r.code === d.code)).filter(Boolean)
     .map(r => dynamiekTekst(r, teambeeld));
+
+  /* Blok 3, de ruimte: de drie zinnen, de balken, de profielregels en de
+     strip. Komt in de rechterkolom na de profielverdeling en voor de
+     dynamieken. */
+  const balkHoog = 3 * 5.5 * MM * s + 5 * MM * s;
+  const ruimteRegels = g ? [...profielRegels(g), stripRegel(g)].filter(Boolean) : [];
+  function meetRuimte(t){
+    if (!g) return 0;
+    let h = hoogte("serif", 15 * s * t, T.ruimte_kop, rechtsBreed) + 2 * s;
+    for (const zin of g.zinnen) h += hoogte("sans", 9 * s * t, zin, rechtsBreed) + 1.5 * s;
+    h += balkHoog * t + 2 * s;
+    for (const r of ruimteRegels) h += hoogte("sans", 8.5 * s * t, r, rechtsBreed) + 1 * s;
+    return h + 6 * s;
+  }
 
   const hoogte = (font, grootte, tekst, breedte, gap = 1.5) => {
     doc.font(font).fontSize(grootte);
@@ -159,6 +199,7 @@ export async function maakKaartPdf({
     h += 12 * s + 6 * s;                                   // marges van het blok
     h += hoogte("serif", 15 * s * t, "Profielverdeling", rechtsBreed) + 2 * s;
     h += hoogte("sans", 9.5 * s * t, verdeling, rechtsBreed) + 6 * s;
+    h += meetRuimte(t);
     if (dynamieken.length){
       h += hoogte("serif", 15 * s * t, "Waarschijnlijke dynamieken", rechtsBreed) + 3 * s;
       for (const los of dynamieken){
@@ -174,10 +215,20 @@ export async function maakKaartPdf({
   const voetTekst = (landelijk_beeld ? "" : ZONDER_LANDELIJK + " ") + (doel ? VOETNOOT_DOEL : VOETNOOT);
   doc.font("sans").fontSize(6.8 * s);
   const voetHoog = doc.heightOfString(voetTekst, { width: binnen, lineGap: 1 * s });
-  const ruimte = hoog - kant - voetHoog - 4 * s - rompTop;
+
+  /* Blok 4 en 5 onderaan, twee lege kaders met de leeg-tekst. Hun hoogte gaat
+     van de ruimte voor de rechterkolom af. */
+  const kaderBreed = (binnen - 6 * MM * s) / 2;
+  const kaderBinnen = kaderBreed - 8 * s;
+  const kaderHoog = doel ? 0 : Math.max(
+    hoogte("sans", 8 * s, T.route_leeg, kaderBinnen),
+    hoogte("sans", 8 * s, T.resultaat_leeg, kaderBinnen)
+  ) + 7 * s + 12 * s;
+  const onderHoog = doel ? 0 : kaderHoog + 6 * s;
+  const ruimteKolom = hoog - kant - voetHoog - 4 * s - onderHoog - rompTop;
 
   let t = 1;
-  while (t > 0.62 && meet(t) > ruimte) t -= 0.03;
+  while (t > 0.55 && meet(t) > ruimteKolom) t -= 0.03;
 
   let yr = rompTop;
 
@@ -212,6 +263,24 @@ export async function maakKaartPdf({
      .text(verdeling, rechtsX, yr, { width: rechtsBreed, lineGap: 1.5 * s });
   yr = doc.y + 6 * s;
 
+  // Blok 3: waar de winst zit.
+  if (g){
+    doc.font("serif").fontSize(15 * s * t).fillColor(KLEUR.inkt).text(T.ruimte_kop, rechtsX, yr);
+    yr = doc.y + 2 * s;
+    doc.font("sans").fontSize(9 * s * t).fillColor(KLEUR.inkt);
+    for (const zin of g.zinnen){
+      doc.text(zin, rechtsX, yr, { width: rechtsBreed, lineGap: 1.5 * s });
+      yr = doc.y + 1.5 * s;
+    }
+    yr = tekenBalkenPdf(doc, g, rechtsX, yr, Math.min(rechtsBreed, 90 * MM * s), s * t) + 2 * s;
+    doc.font("sans").fontSize(8.5 * s * t).fillColor(KLEUR.inkt);
+    for (const r of ruimteRegels){
+      doc.text(r, rechtsX, yr, { width: rechtsBreed, lineGap: 1.2 * s });
+      yr = doc.y + 1 * s;
+    }
+    yr += 5 * s;
+  }
+
   // Dynamieken, alleen bij een startbeeld of eindbeeld.
   if (dynamieken.length){
     doc.font("serif").fontSize(15 * s * t).fillColor(KLEUR.inkt)
@@ -235,9 +304,59 @@ export async function maakKaartPdf({
     }
   }
 
+  /* ------------------------------------------------- blok 4 en 5 */
+  if (!doel){
+    const yk = hoog - kant - voetHoog - 4 * s - kaderHoog;
+    const kaders = [[T.route_kop, T.route_leeg], [T.resultaat_kop, T.resultaat_leeg]];
+    kaders.forEach(([kop, leeg], i) => {
+      const xk = kant + i * (kaderBreed + 6 * MM * s);
+      doc.save().dash(2 * s, { space: 2 * s })
+         .roundedRect(xk, yk, kaderBreed, kaderHoog, 3 * s).lineWidth(0.8 * s).strokeColor(KLEUR.lijn).stroke()
+         .undash().restore();
+      doc.font("serif").fontSize(11 * s).fillColor(KLEUR.inkt).text(kop, xk + 4 * s, yk + 4 * s, { width: kaderBinnen });
+      doc.font("sans").fontSize(8 * s).fillColor(KLEUR.gedempt).text(leeg, xk + 4 * s, doc.y + 1 * s, { width: kaderBinnen });
+    });
+  }
+
   /* -------------------------------------------------------------- voet */
   doc.font("sans").fontSize(6.8 * s).fillColor(KLEUR.gedempt)
      .text(voetTekst, kant, hoog - kant - voetHoog, { width: binnen, lineGap: 1 * s });
 
   return await alsBuffer(doc);
+}
+
+/* De compacte visual van blok 3 op papier: drie balken van 0 tot 100, de
+   eerste stap in magenta, de referentie als streepje, de ruimte gearceerd
+   tussen de huidige waarde en de referentie. Geen pijlen omlaag, geen rood.
+   Geeft de y terug waar het volgende begint. */
+function tekenBalkenPdf(doc, g, x, y, breed, s){
+  const rij = 5.5 * MM * s, dik = 2.6 * MM * s, labelBreed = 14 * MM * s;
+  const x0 = x + labelBreed, spoor = breed - labelBreed - 8 * MM * s;
+  const px = w => x0 + Math.max(0, Math.min(100, w)) / 100 * spoor;
+  g.balken.forEach((b, i) => {
+    const yb = y + i * rij;
+    const kleur = b.eerste_stap ? KLEUR.magenta : KLEUR.inkt;
+    doc.font("sans").fontSize(8 * s).fillColor(kleur)
+       .text(b.label, x, yb + dik / 2 - 4 * s, { width: labelBreed - 2 * s, align: "right" });
+    doc.roundedRect(x0, yb, spoor, dik, dik / 2).fill(KLEUR.lijn);
+    doc.roundedRect(x0, yb, Math.max(dik, px(b.waarde) - x0), dik, dik / 2)
+       .fillOpacity(b.eerste_stap ? 1 : 0.55).fill(kleur).fillOpacity(1);
+    if (b.ruimte_tot !== null && b.ruimte_tot > b.waarde){
+      const xa = px(b.waarde), xb = px(b.ruimte_tot);
+      doc.save().rect(xa, yb, xb - xa, dik).clip();
+      doc.lineWidth(0.6 * s).strokeColor(KLEUR.magenta).strokeOpacity(0.5);
+      for (let l = xa - dik; l < xb + dik; l += 2 * s){
+        doc.moveTo(l, yb + dik).lineTo(l + dik, yb).stroke();
+      }
+      doc.strokeOpacity(1).restore();
+    }
+    const xt = (b.ruimte_tot !== null ? px(b.ruimte_tot) : px(b.waarde)) + 2 * s;
+    doc.font("sans").fontSize(7 * s).fillColor(KLEUR.gedempt).text(String(Math.round(b.waarde)), xt, yb + dik / 2 - 3.5 * s);
+  });
+  const xr = px(g.referentie_waarde);
+  doc.save().dash(1.5 * s, { space: 1.5 * s }).lineWidth(0.8 * s).strokeColor(KLEUR.inkt)
+     .moveTo(xr, y - 1 * s).lineTo(xr, y + 2 * rij + dik + 1 * s).stroke().undash().restore();
+  doc.font("sans").fontSize(6 * s).fillColor(KLEUR.gedempt)
+     .text(`REFERENTIE ${Math.round(g.referentie_waarde)}`, xr - 15 * MM * s, y + 2 * rij + dik + 2 * s, { width: 30 * MM * s, align: "center", characterSpacing: 0.6 * s });
+  return y + 3 * rij + 3 * MM * s;
 }

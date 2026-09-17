@@ -23,6 +23,9 @@ const GOED = {
   organisatie: "Testorganisatie Noord",
   teamomvang: "10-20",
   privacy: true,
+  // Het doel is verplicht sinds briefing doel-ruimte v1 (paragraaf 7.3).
+  doel_tekst: "Dat we afspraken nakomen zonder dat ik erachteraan moet",
+  doeltype: "doen",
   antwoorden: [3,3,1,3, 3,1,3,1, 2,3,2,2]
 };
 
@@ -76,7 +79,9 @@ test("A1 · zonder naam, mail, organisatie, omvang of vinkje geen inzending", ()
   const leeg = controleerGegevens({});
   assert.equal(leeg.ok, false);
   assert.deepEqual(leeg.fouten.map(f => f.veld),
-    ["leider_naam", "leider_email", "organisatie", "teamomvang", "privacy"]);
+    ["leider_naam", "leider_email", "organisatie", "teamomvang", "privacy", "doel_tekst", "doeltype"]);
+  assert.equal(controleerGegevens({ ...GOED, doel_tekst: "" }).ok, false, "het doel is verplicht");
+  assert.equal(controleerGegevens({ ...GOED, doeltype: "sneller" }).ok, false, "alleen de vier keuzezinnen");
 
   assert.equal(controleerGegevens({ ...GOED, privacy: false }).ok, false, "vinkje is verplicht");
   assert.equal(controleerGegevens({ ...GOED, leider_email: "geen mailadres" }).ok, false);
