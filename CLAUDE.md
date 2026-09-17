@@ -131,8 +131,8 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   certificaat wel en de pagina niet. Een pagina wordt nooit verwijderd omdat
   een certificaat verloopt: hij zegt dan niet actief.
 
-- **Doel en ruimte, fase A, staat op de branch `doel-ruimte-v1`** (17
-  september 2026, briefing in `briefing/teamkracht/`). Elke meting krijgt een
+- **Doel en ruimte, fase A, staat live sinds 17 september 2026** (pull
+  request #3, briefing in `briefing/teamkracht/`). Elke meting krijgt een
   doel van de klant en de uitslag leest de scores in het licht daarvan:
   leesregels L1 tot en met L7 in `teamkracht-ruimte.js`, drempels in
   `teamkracht-leesregels-config.js`, opslag in `teamkracht_ruimte` via
@@ -141,9 +141,10 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   teamlijn, breuk en R1 tot en met R13 zijn niet aangeraakt en een
   momentopname in de tests bewaakt dat. In de individuele uitslag is de
   referentie altijd de eigen sterkste dimensie; op de kaart heet de lijn het
-  gemiddelde, nooit landelijk. De migratie
-  `migratie-doel-ruimte-2026-09-17.sql` is op 17 september 2026 gedraaid;
-  de branch is nog niet gemerged. Alle aannames
+  gemiddelde, nooit landelijk. Beide migraties
+  (`migratie-doel-ruimte-2026-09-17.sql` en `migratie-doel-datum-2026-09-17.sql`)
+  zijn op 17 september 2026 gedraaid. Het doel wordt in de sessie benoemd,
+  bij de schuifjes van het doelbeeld; vooraf is het optioneel. Alle aannames
   staan in `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
 
 - **Er zijn drie sites in deze repo.** `index.html` is de Zelfkracht Index op

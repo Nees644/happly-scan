@@ -269,6 +269,11 @@ het doel in de sessie, bij de schuifjes, waar het in de juiste energie zit.
   is.
 - Briefing bijgewerkt: kop, 7.1, 7.3, besluit 2 in paragraaf 11.
 
+## Live
+
+Gemerged en gedeployd op 17 september 2026 via pull request #3. Beide
+migraties waren al gedraaid.
+
 ## Wat Maarten nu doet
 
 1. De eerste migratie is gedraaid op 17 september 2026 (Maarten). De

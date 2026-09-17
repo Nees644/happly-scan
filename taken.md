@@ -34,20 +34,19 @@ jouw eigen woorden.
 Teamkrachtindex.nl staat live sinds 14 september. Domein, DNS en SITE_URL zijn
 klaar; de deelafbeelding maakt Claude.
 
-## Doel en ruimte, fase A (branch doel-ruimte-v1, 17 september 2026)
+## Doel en ruimte, fase A (live sinds 17 september 2026, pull request #3)
 
-- [x] **`migratie-doel-ruimte-2026-09-17.sql` is gedraaid** op 17 september
-      2026 door Maarten. Controle: `controle/staat-doel-ruimte-erin.sql`,
-      zeven regels op `klopt = true`.
-- [ ] **`migratie-doel-datum-2026-09-17.sql` draaien** in de SQL-editor: de
-      termijn van het doel als datum, één kolom op drie tabellen. Controle met
-      het laatste blok van `controle/staat-doel-ruimte-erin.sql`.
-- [ ] **De branch nalopen op een preview-deploy** en dan mergen. Wat er is
-      gebouwd en welke formuleringen nog van jou moeten komen staat in
-      `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
+- [x] Beide migraties gedraaid, branch nagelopen op de preview en gemerged
+      op 17 september 2026.
 - [ ] **Drie placeholders van tekst voorzien**: zin 1 zonder doel (A2), de
       koppen van blok 1 en 4 in de individuele uitslag (A12), de eyebrow
-      boven het L5-label (A13).
+      boven het L5-label (A13). Staan in
+      `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
+- [ ] **Fase B voorbereiden**: kiezen of de Sprint op `teamkracht_maatregelen`
+      bouwt of op `teamkracht_plan` (B2), en of `meting_id` in
+      `teamkracht_ruimte` echte verwijzingen krijgt (A9).
+- [ ] **De drempels ijken** op de eerste tien founderteams:
+      `teamkracht-leesregels-config.js`.
 
 ## Inhoud nalezen, hier staat de rest op stil
 
