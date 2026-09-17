@@ -30,10 +30,11 @@ export const MIN_DEELNEMERS_INDIVIDUELE_VERDELING = 10;
 // beeld is bevroren als gemiddelde en standaarddeviatie per dimensie
 // (teamkracht_config, config_snapshot van het teambeeld); een mediaan of een
 // verdeling is er niet. De grens wordt daarom berekend als
-// gemiddelde + LANDELIJK_BOVENSTE_HELFT_SD × sd. Op 0 is dat het gemiddelde,
-// wat bij een symmetrische verdeling de grens van de bovenste helft is.
-// AANNAME, zie de oplevering van 17 september 2026.
-export const LANDELIJK_BOVENSTE_HELFT_SD = 0;
+// gemiddelde + LANDELIJK_BOVENSTE_HELFT_SD × sd. Bij een normale verdeling
+// ligt het gemiddelde van de bovenste helft op 0,8 standaarddeviatie boven
+// het gemiddelde; dat is de streng gekozen grens (besluit Maarten,
+// 17 september 2026). Op 0 zou de grens het gemiddelde zelf zijn.
+export const LANDELIJK_BOVENSTE_HELFT_SD = 0.8;
 
 export const LEESREGELS_CONFIG = Object.freeze({
   regelversie: REGELVERSIE,

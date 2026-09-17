@@ -112,9 +112,9 @@ test("L3: de referentie is de hoogste van eigen sterkste en de landelijke grens"
   assert.deepEqual(referentieVoor("sturen", { scores, norm }), { referentie_type: "eigen_sterkste", referentie_waarde: 66 });
   const hoog = { zien: 62, sturen: 55, doen: 50, sd_zien: 12, sd_sturen: 12, sd_doen: 12 };
   assert.deepEqual(referentieVoor("zien", { scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog }),
-    { referentie_type: "landelijk_bovenste_helft", referentie_waarde: 62 }, "landelijk Zien 62 ligt boven eigen sterkste 55");
-  assert.deepEqual(referentieVoor("doen", { scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog }),
-    { referentie_type: "eigen_sterkste", referentie_waarde: 55 }, "landelijk Doen 50 ligt onder eigen sterkste 55; de grens hoort bij de dimensie zelf");
+    { referentie_type: "landelijk_bovenste_helft", referentie_waarde: 71.6 }, "grens Zien is 62 plus 0,8 maal 12 en ligt boven eigen sterkste 55");
+  assert.deepEqual(referentieVoor("doen", { scores: { zien: 62, sturen: 50, doen: 40 }, norm: hoog }),
+    { referentie_type: "eigen_sterkste", referentie_waarde: 62 }, "grens Doen is 59,6 en ligt onder eigen sterkste 62; de grens hoort bij de dimensie zelf");
 });
 
 /* ------------------------------------------------- criterium 2: ketencheck */
@@ -136,15 +136,19 @@ test("criterium 2: doeltype doen met Sturen minstens 10 onder Doen", () => {
 /* ------------------------------------- criterium 3: op orde schuift door */
 
 test("criterium 3: team Noord met doeltype zien, Zien op orde, de lezing schuift naar Sturen", () => {
-  assert.ok(teamlijn.zien > norm.zien, "Zien van Noord ligt boven de landelijke grens");
-  const r = bepaalRuimte({ doeltype: "zien", scores: teamlijn, norm });
+  // Noord heeft Zien 66,3; de strenge grens ligt op 62 plus 0,8 maal 12 is 71,6.
+  // Het criterium vraagt Zien boven de landelijke bovenste helft, dus Zien
+  // gaat hier naar 75 en Sturen en Doen blijven de teamlijn van Noord.
+  const scores = { ...teamlijn, zien: 75 };
+  assert.ok(scores.zien > norm.zien + 0.8 * norm.sd_zien, "Zien ligt boven de landelijke grens");
+  const r = bepaalRuimte({ doeltype: "zien", scores, norm });
   assert.equal(r.leidende_dimensie, "zien");
   assert.ok(r.op_orde_dimensies.includes("zien"), "Zien staat op orde");
   assert.equal(r.eerste_stap_dimensie, "sturen");
   assert.equal(r.status, "ruimte");
   assert.equal(r.ketencheck_actief, false, "Sturen komt na Zien, dus geen ketencheck-zin");
   const [, zin2] = vulZinnen(r, { doel_tekst: "Hetzelfde beeld" });
-  assert.match(zin2, /^De grootste ruimte zit in Sturen: 15 punten tot jullie eigen sterkste dimensie\.$/);
+  assert.match(zin2, /^De grootste ruimte zit in Sturen: 24 punten tot jullie eigen sterkste dimensie\.$/);
 });
 
 /* ------------------------------------------ criterium 4: alles op orde */
@@ -167,6 +171,9 @@ test("criterium 5: zonder landelijk beeld alleen de eigen sterkste, en het woord
   const hoog = { zien: 90, sturen: 90, doen: 90, sd_zien: 12, sd_sturen: 12, sd_doen: 12 };
   const met = bepaalRuimte({ doeltype: "doen", scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog });
   assert.equal(met.referentie_type, "landelijk_bovenste_helft");
+  assert.equal(met.referentie_waarde, 99.6);
+  const [, zin2] = vulZinnen(met, { doel_tekst: "Afmaken" });
+  assert.equal(zin2, "De grootste ruimte zit in Doen: 60 punten tot de bovenste helft van het gemiddelde.", "op de kaart heet het gemiddelde, niet landelijk");
   const zonder = bepaalRuimte({ doeltype: "doen", scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog, landelijk_beeld: false });
   assert.equal(zonder.referentie_type, "eigen_sterkste");
   assert.equal(zonder.referentie_waarde, 55);
@@ -215,8 +222,12 @@ test("criterium 9: zonder doel leest de lezing via de keten", () => {
 
 /* ---------------------------------------- de individuele variant van L6 */
 
-test("L6: de individuele variant staat in de jij-vorm", () => {
-  const r = bepaalRuimte({ doeltype: "doen", scores: { zien: 70, sturen: 48, doen: 62 }, norm });
+test("L6: de individuele variant staat in de jij-vorm en vergelijkt nooit met anderen", () => {
+  const hoog = { zien: 90, sturen: 90, doen: 90, sd_zien: 12, sd_sturen: 12, sd_doen: 12 };
+  const ind = bepaalRuimte({ doeltype: "doen", scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog, niveau: "individu" });
+  assert.equal(ind.referentie_type, "eigen_sterkste", "individueel altijd de eigen sterkste, ook met een hoog gemiddelde");
+  assert.equal(ind.config_snapshot.landelijk_beeld, false);
+  const r = bepaalRuimte({ doeltype: "doen", scores: { zien: 70, sturen: 48, doen: 62 }, norm, niveau: "individu" });
   const [, zin2, zin3] = vulZinnen(r, { doel_tekst: "Afmaken wat ik me voorneem", vorm: "individu" });
   assert.equal(zin2, "De grootste ruimte zit in Sturen: 22 punten tot je eigen sterkste dimensie.");
   assert.equal(zin3, "In Zien laat je al zien hoe het eruitziet als het loopt.");
@@ -246,6 +257,16 @@ test("criterium 8: geen verboden woorden in de zinnen, voor alle doeltypen en be
   }
   geenVerbodenWoorden([...KEUZEZINNEN_TEAM, ...KEUZEZINNEN_INDIVIDU].map(k => k.zin).join(" "), "de keuzezinnen");
   geenVerbodenWoorden(`${LABEL_GEDEELD_DOEL} ${LABEL_VERSCHIL_DOEL}`, "de labels van L5");
+});
+
+test("taalregels: het woord landelijk komt in geen enkele zin voor", () => {
+  const hoog = { zien: 90, sturen: 90, doen: 90, sd_zien: 12, sd_sturen: 12, sd_doen: 12 };
+  for (const niveau of ["team", "individu"]) for (const doeltype of ["zien", "sturen", "doen", null]){
+    const r = bepaalRuimte({ doeltype, scores: { zien: 55, sturen: 50, doen: 40 }, norm: hoog, niveau });
+    for (const zin of vulZinnen(r, { doel_tekst: doeltype ? "Samen verder" : null, vorm: niveau })){
+      assert.ok(!zin.toLowerCase().includes("landelijk"), zin);
+    }
+  }
 });
 
 test("de verwoording verandert nooit een score: de ruimte is rekenwerk op de teamlijn", () => {

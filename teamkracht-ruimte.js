@@ -144,11 +144,16 @@ function volgendeNietOpOrde(vanaf, per){
    scores:          {zien, sturen, doen} van deze meting (teamlijn of persoon)
    norm:            {zien, sturen, doen, sd_zien, sd_sturen, sd_doen}, bevroren
    landelijk_beeld: false bij een kaart zonder landelijk beeld
+   niveau:          "team" of "individu". In de individuele uitslag staat geen
+                    vergelijking met anderen (taalregels.md, besluit Maarten
+                    17 september 2026): daar is de referentie altijd de eigen
+                    sterkste dimensie, wat landelijk_beeld ook zegt.
    doeltype:        zien, sturen, doen, onbekend of null */
-export function bepaalRuimte({ doeltype = null, scores, norm = null, landelijk_beeld = true, config = LEESREGELS_CONFIG }){
+export function bepaalRuimte({ doeltype = null, scores, norm = null, landelijk_beeld = true, niveau = "team", config = LEESREGELS_CONFIG }){
   for (const d of KETEN){
     if (!Number.isFinite(Number(scores?.[d]))) throw new Error(`score voor ${d} ontbreekt`);
   }
+  if (niveau === "individu") landelijk_beeld = false;
 
   const { leidende_dimensie, doeltype_bron } = bepaalLeidendeDimensie({ doeltype, scores });
   const keten = ketencheck(leidende_dimensie, scores, config);
@@ -191,7 +196,7 @@ export function bepaalRuimte({ doeltype = null, scores, norm = null, landelijk_b
     op_orde_dimensies,
     per_dimensie: per,
     regelversie: config.regelversie,
-    config_snapshot: { ...config, landelijk_beeld: !!landelijk_beeld }
+    config_snapshot: { ...config, niveau, landelijk_beeld: !!landelijk_beeld }
   };
 }
 
@@ -258,14 +263,19 @@ export function verdelingIndividueleRuimte({ deelnemers, dimensie, referentie_wa
 
 /* ------------------------------------------------------------------- L6 */
 
+/* Op de kaart heet de referentielijn het gemiddelde, niet het landelijk beeld
+   (taalregels.md, besluit Maarten 17 september 2026). De briefing schrijft
+   "de bovenste helft van het landelijk beeld"; hier staat de variant met
+   gemiddelde. In de individuele uitslag komt de landelijke variant nooit voor,
+   want daar is de referentie altijd de eigen sterkste dimensie. */
 const REFERENTIE_OMSCHRIJVING = {
   team: {
     eigen_sterkste: "jullie eigen sterkste dimensie",
-    landelijk_bovenste_helft: "de bovenste helft van het landelijk beeld"
+    landelijk_bovenste_helft: "de bovenste helft van het gemiddelde"
   },
   individu: {
     eigen_sterkste: "je eigen sterkste dimensie",
-    landelijk_bovenste_helft: "de bovenste helft van het landelijk beeld"
+    landelijk_bovenste_helft: "je eigen sterkste dimensie"
   }
 };
 

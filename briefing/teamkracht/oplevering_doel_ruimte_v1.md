@@ -48,10 +48,9 @@ Twee dingen die de controlelijst niet noemt en die uit het model volgen:
 A1. **De grens van de bovenste helft van het landelijk beeld.** Het landelijk
 beeld is bevroren als gemiddelde en standaarddeviatie; een mediaan is er niet.
 De grens is berekend als gemiddelde plus `LANDELIJK_BOVENSTE_HELFT_SD` maal de
-standaarddeviatie, met startwaarde 0: bij een symmetrische verdeling is het
-gemiddelde de grens van de bovenste helft. Wil Maarten de bovenste helft
-strenger (bijvoorbeeld het gemiddelde van de bovenste helft, ongeveer 0,8 sd),
-dan is dat één getal in de config.
+standaarddeviatie. BESLIST 17 september 2026: streng, dus 0,8 sd, het
+gemiddelde van de bovenste helft bij een normale verdeling. Met de vaste norm
+van nu (74, 69, 65; sd 12, 16, 16) ligt de grens op 83,6, 81,8 en 77,8.
 
 A2. **Zin 1 zonder doel.** L6 geeft alleen een zin 1 met `[doel_tekst]`. Voor
 een meting zonder doel (keten-fallback) staat er nu: "De kaart leest via de
@@ -116,16 +115,18 @@ zoals gevraagd, leeg. Fase B kiest.
 B3. **Print en Playwright.** Paragraaf 6.1 en criterium 10 noemen "SVG met
 print-CSS" en "Playwright-screenshot, bestaande check". Er is geen Playwright;
 de kaart wordt sinds 15 september als vector getekend in `kaart-pdf.js`
-(pdfkit). Blok 1, 3, 4 en 5 komen dus in de pdf-tekening, en criterium 10
-wordt getoetst met de bestaande pdf-tests, niet met een screenshot.
+(pdfkit). BESLIST 17 september 2026: pdf blijft. Blok 1, 3, 4 en 5 komen in
+de pdf-tekening en criterium 10 wordt getoetst met de bestaande pdf-tests.
 
 B4. **"Landelijk beeld" in de zinnen tegenover `taalregels.md`.** De taalregels
 zeggen: op de kaart heet de lijn "het gemiddelde", niet landelijk, en in de
 individuele uitslag geen vergelijking met anderen. L6 zegt letterlijk "de
-bovenste helft van het landelijk beeld", ook in de individuele variant. De
-zinnen volgen nu de briefing (harde regel 9). Voorstel: op de individuele
-uitslag alleen `eigen_sterkste` als referentie, en op de kaart het woord
-gemiddelde. Wacht op Maarten.
+bovenste helft van het landelijk beeld", ook in de individuele variant.
+BESLIST 17 september 2026: in de individuele uitslag is de referentie altijd
+`eigen_sterkste` (`bepaalRuimte` met `niveau: "individu"` zet het landelijk
+beeld uit), en op de kaart staat "de bovenste helft van het gemiddelde". Die
+laatste formulering is van mij, niet uit de briefing; een test bewaakt dat het
+woord landelijk in geen enkele zin voorkomt.
 
 B5. **Het profiel van een deelnemer zonder team.** Paragraaf 6.2 toont in blok
 3 het eigen profiel. `profiel_code` wordt alleen gezet als een team is
