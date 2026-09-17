@@ -2,113 +2,119 @@
 > LinkedIn, mails en kaarten. Wijkt een tekst hiervan af, dan wordt dit
 > bestand eerst bijgewerkt. Zie CLAUDE.md.
 >
-> Status: eerste versie, 17 september 2026, geschreven uit
-> `briefing/teamkracht/briefing_code_doel_ruimte_v1.md`, `taalregels.md` en
-> `briefings/feiten.md`. Maarten redigeert; de toon is van hem.
+> Status: CONCEPT, geen bron van waarheid. Maarten schrijft de definitieve
+> versie zelf (besluit 17 september 2026: het Zelfkracht-manifest van 2026 is
+> verouderd, er zijn nieuwe inzichten). Dit is een steiger: de opbouw waarom,
+> hoe, wat, de vijf lagen en de woordenlijst. Het "Waarom" hieronder komt
+> nog uit het oude manifest en vervalt. Zodra de nieuwe tekst er is, vervangt
+> hij dit bestand en wordt de copy voor de sites en LinkedIn eruit afgeleid.
 
-# Kernverhaal · de voordeur (v1)
+# Kernverhaal · de voordeur (v2)
 
-## De drie zinnen
+## Waarom
+
+Mensen zijn niet kapot. Ze zijn ongetraind.
+
+Wie zichzelf niet aanstuurt, wordt aangestuurd: door de omstandigheden, door
+gewoonten, door wat anderen van hem verwachten. Dat geldt voor een mens en
+het geldt voor een team. Een team dat niet zelf kiest, wacht. Op de
+leidinggevende, op het plan, op het moment dat het misgaat.
+
+Wij geloven dat de kracht om te doen wat nodig is er altijd al is. Niet als
+talent, maar als vaardigheid. En een vaardigheid laat zich meten, oefenen en
+opnieuw meten. Dat is alles wat Happly doet: zichtbaar maken wat iemand al
+doet, en de eerste stap aanwijzen naar wat hij wil.
 
 Zelfkracht is wat iemand zelf doet.
 Teamkracht is wat het team samen doet.
 Succes is wat je daarmee bereikt.
 
-Deze drie staan overal, in deze volgorde en in deze woorden. Ze zijn de
-korte versie van alles hieronder.
+Die laatste zin is de reden dat wij bestaan. Niemand meet om het meten.
+Iedereen meet om ergens te komen.
 
-## Wat de klant koopt
+## Hoe
 
-Niemand koopt een meting. Een leider koopt zicht op de ruimte tussen waar
-zijn team staat en waar het naartoe moet. Een begeleider koopt een gesprek
-dat op tafel ligt in plaats van in zijn hoofd. Iemand die alleen meet, koopt
-één eerste stap die hij zelf kiest.
+**Het begint met kijken.** Doen is een keten van drie schakels. Zien wat er
+speelt, ook wat niemand hardop zegt. Kiezen wat van jou is. In beweging
+komen, en blijven, ook als het spannend wordt. De meeste teams zijn niet
+zwak op alle drie. Ze breken op één overgang: tussen zien en kiezen, of
+tussen kiezen en doen. Daar zit het verschil tussen een team dat alles ziet
+en een team dat iets doet.
 
-De meting is het middel. Het doel is van de klant. Wat wij leveren is de
-ruimte daartussen, in punten, in woorden en in één eerste stap.
+**We maken het meetbaar, zonder oordeel.** Twaalf stellingen, drie getallen
+per persoon, één lijn per team. Elk getal is een startpunt, geen cijfer op
+een rapport. We vergelijken alleen met het gemiddelde van iedereen die ooit
+meette en met de eigen vorige meting. Nooit met de buren. Een profiel
+beschrijft wat iemand nu doet in deze context, niet wie hij is.
 
-## Het verhaal in vijf lagen
+**Het doel is van jou.** Wij vertellen een team niet waar het heen moet.
+Het team zegt zelf waar het moet staan, en wanneer. Dat gebeurt in de
+sessie, als iedereen erbij zit, niet vooraf op een formulier. Vanaf dat
+moment lezen wij elke meting in het licht van dat doel: welke schakel
+bepalend is voor wat het team wil, en welke schakel daaraan voorafgaat.
 
-Dit is de opbouw van elke uitslag, elke pagina en elke reeks posts. Altijd
-in deze volgorde, want zo werkt het ook in een team.
+**We wijzen de ruimte aan, positief.** Niet de laagste score, maar de plek
+waar de winst voor dit doel het grootst is, uitgedrukt in punten tot wat het
+team zelf al laat zien op zijn sterkste schakel. Daar laten jullie al zien
+hoe het eruitziet als het loopt. Diezelfde ruimte is er hier.
 
-**1. Doel.** Waar moet het heen, en wanneer. In de eigen woorden van het
-team, één zin. Wie het nog niet weet, begint gewoon; het doel komt in de
-sessie, als het team erbij zit. Het instrument leest vanaf dat moment alles
-in het licht van dat doel.
+**Eén stap, één eigenaar, één datum.** Een voornemen zonder moment is een
+wens. Wat het team afspreekt komt bij de kaart te staan: wat, wie, wanneer.
+Klein genoeg om te zetten. Actie geeft het goede gevoel, niet andersom.
 
-**2. Doen.** Wat er nu gebeurt. Drie schakels: zien wat er speelt, kiezen
-wat van jou is, en in beweging komen. Elke schakel een getal, het team één
-lijn. Geen oordeel, een startpunt.
+**Dan meten we opnieuw.** Drie getallen naast elkaar: wat er verschoof op
+de eerste stap, wat er verschoof op de index, en of het doel is gehaald.
+Dat is wat een opdrachtgever te zien krijgt en waar een begeleider op wordt
+afgerekend. Daarna begint het opnieuw, met een volgend doel.
 
-**3. Ruimte.** Waar voor dit doel de meeste winst zit. Niet de laagste
-score, maar de schakel die bepalend is voor wat het team wil, en de schakel
-die daaraan voorafgaat. Uitgedrukt in punten tot wat het team zelf al laat
-zien op zijn sterkste schakel. De ruimte is altijd positief geformuleerd:
-hier laten jullie al zien hoe het eruitziet als het loopt, en diezelfde
-ruimte is er daar.
+Zo leest elke uitslag, elke pagina en elke post: Doel, Doen, Ruimte, Route,
+Resultaat. Altijd in die volgorde, want zo werkt het in een team ook.
 
-**4. Route.** Wat het team gaat doen. Eén stap, één eigenaar, één datum.
-Afgesproken in de sessie, bewaard bij de kaart, zodat over vijf weken te
-zien is of hij is gezet.
+## Wat
 
-**5. Resultaat.** Wat het opleverde. Bij de hermeting drie getallen naast
-elkaar: de verschuiving op de eerste stap, de verschuiving op de index, en
-in hoeverre het doel is gehaald. Dat is waar de opdrachtgever voor betaalt
-en wat de begeleider laat zien.
+**Voor wie zelf wil weten waar hij staat: de Zelfkracht Index.** Twaalf
+stellingen, drie tot vier minuten, je uitslag in je mail. Drie deelscores,
+gelezen in het licht van waar jij wilt staan, en één stap die klein genoeg
+is om vandaag te zetten.
 
-## Per deur één belofte
+**Voor wie een team leidt: het Leidersbeeld.** Twaalf vragen over je team,
+drie minuten, gratis. Je ziet hoe jij je team ziet. Laat je team daarna
+dezelfde vragen over zichzelf beantwoorden, dan staan de twee beelden naast
+elkaar op één kaart: waar ze gelijk lopen, waar niet, en waar de winst zit
+voor wat jij wilt bereiken.
 
-**De leider** (happly.nl, gratis, drie minuten). Hij wil weten of zijn
-team gaat brengen wat hij ervan verwacht. Belofte: je ziet op één kaart
-waar jouw beeld en het beeld van je team gelijk lopen, waar niet, en waar
-de winst zit voor wat jij wilt bereiken. Eerste stap: twaalf vragen over je
-team, het Leidersbeeld in je mail.
+**Voor wie teams begeleidt: de Teamfoto.** De Teamkrachtkaart van het team,
+het doel van het team ernaast, de sessie waarin het team zijn eerste stap
+kiest, en de hermeting die laat zien wat het opleverde. Met jouw naam op de
+kaart, via jouw link, en de opdrachtgever blijft van jou. Wie het
+instrument wil kennen voordat hij ermee werkt, leest de module en wordt
+Lezer.
 
-**De begeleider** (teamkrachtindex.nl, eigen link, eigen naam op de kaart).
-Hij wil een gesprek dat begint bij een gegeven en eindigt bij een afspraak.
-Belofte: de Teamfoto legt de keten van het team op tafel, het doel van het
-team ernaast, en één eerste stap die jij begeleidt. Bij de hermeting laat
-je zien wat het opleverde. Eerste stap: stuur je opdrachtgever de link naar
-het Leidersbeeld; de vraag hoe het team het zelf doet komt daarna vanzelf.
+## De woorden
 
-**Het individu** (scan.happly.nl, gratis, drie tot vier minuten). Hij wil
-weten waar hij staat en wat hij als eerste doet. Belofte: je Zelfkracht
-Index met drie deelscores, gelezen in het licht van waar jij wilt staan, en
-één stap die klein genoeg is om te zetten. Eerste stap: twaalf stellingen,
-je uitslag in je mail.
-
-## Wat we altijd zeggen, en wat nooit
-
-Altijd: doel, ruimte, winst, op orde, eerste stap, bepalend, dragen,
+We zeggen: doel, ruimte, winst, op orde, eerste stap, bepalend, dragen,
 beweging, gedeeld beeld, verschil in beeld, startpunt, hermeting,
-gemiddelde. Over een team altijd waarschijnlijk, nooit "dit team is". Een
-profiel beschrijft gedrag in deze context, niet de persoon. Dimensies met
-een hoofdletter: Zien, Sturen, Doen.
+gemiddelde. Over een team altijd waarschijnlijk, nooit "dit team is".
+Zien, Sturen, Doen met een hoofdletter.
 
-Nooit: kloof, gap, tekort, blinde vlek, zwak, achterstand, potentieel,
-nulpunt, nameting, landelijk gemiddelde, referentie, Samenspel, cohort,
-streak, training, test, quiz. Nooit "kan" in de zin van vermogen; altijd
-doet, gebeurt, laat zien. Geen gedachtestreepjes, geen uitroeptekens, geen
-garantie of geld terug.
-
-Vergelijken doen we alleen met het gemiddelde van alle metingen en met de
-eigen vorige meting. Nooit teams naast elkaar, nooit leiders naast elkaar,
-nooit een individu naast anderen.
+We zeggen niet: kloof, gap, tekort, blinde vlek, zwak, achterstand,
+potentieel, nulpunt, nameting, landelijk gemiddelde, referentie, Samenspel,
+cohort, streak, training, test, quiz. Geen "kan" als het om vermogen gaat;
+altijd doet, gebeurt, laat zien. Geen gedachtestreepjes, geen
+uitroeptekens, geen garantie of geld terug.
 
 ## Wat hieruit volgt
 
-- **happly.nl** houdt de vraag als hero (hoe goed ken je het team) en krijgt
-  als tweede beweging het doel: en waar moet het heen. Het blok "wat het
-  oplevert" wordt laag 3 tot en met 5 in de taal van winst en ruimte.
+- **happly.nl** opent met de vraag hoe goed je je team kent, en zet
+  daaronder de vraag waar het heen moet. Het blok "wat het oplevert" wordt
+  ruimte, route en resultaat.
 - **teamkrachtindex.nl** krijgt de vijf lagen als paginaopbouw, met de
   voorbeeldkaart van een team met doel.
 - **scan.happly.nl** zet naast het getal de vraag waar je wilt staan.
-- **LinkedIn** wordt een reeks van vijf, één post per laag, een week
-  ertussen, link in de reacties. De vijfde post wacht op het eerste team
-  dat zijn doel heeft gehaald.
-- **Mails** en kaarten volgen dezelfde vijf koppen als de uitslag.
+- **LinkedIn**: eerst het waarom als manifest-post, daarna een reeks van
+  vijf, één per laag, een week ertussen, link in de reacties. De vijfde post
+  wacht op het eerste team dat zijn doel heeft gehaald.
+- **Mails en kaarten** volgen dezelfde vijf koppen als de uitslag.
 
-De harde getallen komen uit `briefings/feiten.md` en de tabel `producten`;
-ze staan hier bewust niet, zodat dit verhaal niet veroudert als een prijs
-verandert.
+De getallen en prijzen staan hier bewust niet; die komen uit
+`briefings/feiten.md` en de tabel `producten`.
