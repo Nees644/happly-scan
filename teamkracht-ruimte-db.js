@@ -15,7 +15,8 @@
 // lezing via de keten (criterium 1) zonder dat er een migratie van data nodig
 // is.
 
-import { bepaalRuimte, profielkoppeling } from "./teamkracht-ruimte.js";
+import { bepaalRuimte, profielkoppeling, doelDatum } from "./teamkracht-ruimte.js";
+export { doelDatum };
 import { bepaalProfiel } from "./teamkracht-logica.js";
 import { haalKoper } from "./koper-db.js";
 
@@ -61,7 +62,7 @@ export function rijVoorTeam({ teambeeld, team = {}, landelijk_beeld = true, prof
     ...zonderRekenwerk(r),
     draagprofielen: k.draag_codes,
     bewegingsprofielen: k.beweging_codes,
-    config_snapshot: { ...r.config_snapshot, doeltype: r.doeltype, doeltype_bron: r.doeltype_bron, doel_tekst: team.doel_tekst || null }
+    config_snapshot: { ...r.config_snapshot, doeltype: r.doeltype, doeltype_bron: r.doeltype_bron, doel_tekst: team.doel_tekst || null, doel_datum: team.doel_datum || null }
   };
 }
 
@@ -77,7 +78,7 @@ export function rijVoorMeting({ meting }){
     ...zonderRekenwerk(r),
     draagprofielen: [],
     bewegingsprofielen: [],
-    config_snapshot: { ...r.config_snapshot, doeltype: r.doeltype, doeltype_bron: r.doeltype_bron, doel_tekst: meting.doel_tekst || null }
+    config_snapshot: { ...r.config_snapshot, doeltype: r.doeltype, doeltype_bron: r.doeltype_bron, doel_tekst: meting.doel_tekst || null, doel_datum: meting.doel_datum || null }
   };
 }
 
@@ -222,6 +223,7 @@ export async function neemLeiderdoelOver(db, teamId, leidersbeeld){
     if (t.error || !t.data || t.data.doeltype) return false;
     const up = await db.from("teamkracht_teams").update({
       doel_tekst: leidersbeeld.doel_tekst || null,
+      doel_datum: leidersbeeld.doel_datum || null,
       doeltype: leidersbeeld.doeltype,
       doeltype_bron: leidersbeeld.doeltype === "onbekend" ? "keten" : "klant",
       doel_ingevuld_op: new Date().toISOString(),
@@ -236,12 +238,14 @@ export async function neemLeiderdoelOver(db, teamId, leidersbeeld){
 export const DOELTYPEN = ["zien", "sturen", "doen", "onbekend"];
 export const DOEL_INGEVULD_DOOR = ["teamleider", "begeleider", "deelnemer", "leider"];
 
-export function doelVelden({ doel_tekst, doeltype, door }, nu = new Date()){
+export function doelVelden({ doel_tekst, doeltype, doel_datum, door }, nu = new Date()){
   const tekst = typeof doel_tekst === "string" ? doel_tekst.trim().slice(0, 200) : "";
   const type = DOELTYPEN.includes(doeltype) ? doeltype : "onbekend";
-  if (!tekst && type === "onbekend") return null;
+  const datum = doelDatum(doel_datum);
+  if (!tekst && type === "onbekend" && !datum) return null;
   return {
     doel_tekst: tekst || null,
+    doel_datum: datum,
     doeltype: type,
     doeltype_bron: type === "onbekend" ? "keten" : "klant",
     doel_ingevuld_op: nu.toISOString(),

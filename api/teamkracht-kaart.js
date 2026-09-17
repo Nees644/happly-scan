@@ -50,7 +50,7 @@ export default async function handler(req, res){
   if (beeld.error || !beeld.data){ await logFout("teamkracht-kaart", "onbekend teambeeld"); res.status(404).json({ error: "onbekend teambeeld" }); return; }
 
   const team = await db.from("teamkracht_teams")
-    .select("naam, coach_user_id, doel_tekst, doeltype").eq("id", beeld.data.team_id).single();
+    .select("naam, coach_user_id, doel_tekst, doel_datum, doeltype").eq("id", beeld.data.team_id).single();
   if (team.error){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;
@@ -89,7 +89,7 @@ export default async function handler(req, res){
       });
     }catch(e){ await logFout("teamkracht-kaart", "ruimte niet leesbaar"); }
   }
-  const teamdoel = { doel_tekst: team.data.doel_tekst || null, doeltype: team.data.doeltype || null };
+  const teamdoel = { doel_tekst: team.data.doel_tekst || null, doel_datum: team.data.doel_datum || null, doeltype: team.data.doeltype || null };
 
   if (als === "svg"){
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");

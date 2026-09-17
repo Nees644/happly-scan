@@ -229,10 +229,29 @@ overnemen van het leiderdoel, "deelnemer" bij de Zelfkracht Index. De waarde
 "teamleider" wordt alleen gezet als de client dat meegeeft; er is nog geen
 scherm waar een teamleider zelf inlogt.
 
+## Tussenpunt 3 · 17 september 2026: de termijn als datum
+
+Besluit Maarten na het zien van de preview: de tien weken in de vraagzin was
+geen voorbeeld maar stond letterlijk in de briefing; bij een
+implementatie-intentie vult de klant de termijn zelf in. Gebouwd als een
+datum, `doel_datum`, op de drie tabellen:
+
+- `migratie-doel-datum-2026-09-17.sql`, één kolom per tabel, nullable.
+- Team en Leidersbeeld: "Waar moet dit team staan?" plus "Wanneer moet dat
+  staan?", allebei verplicht. Individu: "Waar wil je staan?" plus "Wanneer?",
+  overslaanbaar.
+- Blok 1 toont "Voor 1 december 2026." onder het doel, op kaart, pdf en
+  uitslag; de mailregel wordt "Je doel: …, voor 1 december 2026. Waar de winst
+  zit: …". De uitnodigingsregel wordt "Dit team werkt naar: …, voor 1 december
+  2026".
+- De briefing is bijgewerkt (paragraaf 4.1, 6.1, 6.2, 7.1, 7.2, 7.3, gemarkeerd
+  met [17-09]).
+
 ## Wat Maarten nu doet
 
-1. De migratie is gedraaid op 17 september 2026 (Maarten). Controle:
-   `controle/staat-doel-ruimte-erin.sql`, zeven regels op `klopt = true`.
+1. De eerste migratie is gedraaid op 17 september 2026 (Maarten). De
+   aanvulling `migratie-doel-datum-2026-09-17.sql` moet nog; controle daarna
+   met het laatste blok van `controle/staat-doel-ruimte-erin.sql`.
 2. Op een preview-deploy van de branch: een team aanmaken met doel, laten
    invullen, de kaart maken, de pdf openen; een losse scan doen met en zonder
    doel; een Leidersbeeld invullen.

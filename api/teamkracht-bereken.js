@@ -29,7 +29,7 @@ export default async function handler(req, res){
   const db = serviceClient();
 
   const team = await db.from("teamkracht_teams")
-    .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot, doel_tekst, doeltype").eq("id", team_id).single();
+    .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot, doel_tekst, doel_datum, doeltype").eq("id", team_id).single();
   if (team.error || !team.data){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;

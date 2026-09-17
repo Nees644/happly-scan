@@ -303,6 +303,7 @@ export function kaartRuimte({ teambeeld, ruimte, teamdoel, regels, profielen }){
     ruimte,
     scores: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
     doel_tekst: teamdoel?.doel_tekst || null,
+    doel_datum: teamdoel?.doel_datum || null,
     doeltype: teamdoel?.doeltype || null,
     vorm: "team",
     verdeling: teambeeld.verdeling,

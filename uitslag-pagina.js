@@ -49,11 +49,12 @@ export function bouwUitslagPagina({ meting, profiel, ruimte = null }){
     ruimte,
     scores: { zien: meting.zien, sturen: meting.sturen, doen: meting.doen },
     doel_tekst: meting.doel_tekst || null,
+    doel_datum: meting.doel_datum || null,
     doeltype: meting.doeltype || null,
     vorm: "individu",
     profiel
   }) : null;
-  const doelBlok = doelBlokHtml(g || { doel_tekst: meting.doel_tekst || null }, { vorm: "individu" });
+  const doelBlok = doelBlokHtml(g || { doel_tekst: meting.doel_tekst || null, doel_datum: meting.doel_datum || null }, { vorm: "individu" });
   const ruimteBlok = g ? ruimteBlokHtml(g, { vorm: "individu", id: "uitslag" }) : "";
 
   const datum = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Amsterdam" })

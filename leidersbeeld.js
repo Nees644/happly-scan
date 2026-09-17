@@ -9,7 +9,7 @@
 // Hoort bij briefings/leidersbeeld.md.
 
 import { ITEMS, scores } from "./items.js";
-import { KEUZEZINNEN_TEAM } from "./teamkracht-ruimte.js";
+import { KEUZEZINNEN_TEAM, doelDatum } from "./teamkracht-ruimte.js";
 
 // De vier keuzezinnen van het doel (briefing doel-ruimte v1, L1), teamvariant:
 // de leider vult hetzelfde in als het team.
@@ -48,7 +48,8 @@ export function controleerGegevens(g = {}){
   // Het doel is verplicht (paragraaf 7.3 van briefing doel-ruimte v1): één zin
   // over waar het team over tien weken moet staan, en wat er vooral nodig is.
   const doel = tekst(g.doel_tekst);
-  if (doel.length < 2 || doel.length > 200) fouten.push({ veld: "doel_tekst", tekst: "Schrijf in één zin waar dit team over tien weken moet staan." });
+  if (doel.length < 2 || doel.length > 200) fouten.push({ veld: "doel_tekst", tekst: "Schrijf in één zin waar dit team moet staan." });
+  if (!doelDatum(g.doel_datum)) fouten.push({ veld: "doel_datum", tekst: "Vul in wanneer dat moet staan." });
   if (!DOELTYPEN.includes(g.doeltype)) fouten.push({ veld: "doeltype", tekst: "Kies wat er vooral nodig is om dat te halen." });
   return { ok: fouten.length === 0, fouten };
 }
@@ -84,6 +85,7 @@ export function maakInzending(inzending = {}, nu = new Date()){
       ingevuld_op:       tijd,
       status:            "ingevuld",
       doel_tekst:        String(inzending.doel_tekst).trim().slice(0, 200),
+      doel_datum:        doelDatum(inzending.doel_datum),
       doeltype:          inzending.doeltype,
       doeltype_bron:     inzending.doeltype === "onbekend" ? "keten" : "klant",
       doel_ingevuld_op:  tijd,

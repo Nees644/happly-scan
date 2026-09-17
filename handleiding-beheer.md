@@ -195,7 +195,8 @@ tweede waarheid kan ontstaan.
 ## Het doel van een team
 
 Sinds 17 september 2026 (briefing doel-ruimte v1) heeft elk team een doel:
-één zin in eigen woorden en één van vier keuzezinnen. Bij een nieuw team is
+één zin in eigen woorden, de datum waarop het moet staan, en één van vier
+keuzezinnen. Bij een nieuw team is
 het verplicht; een bestaand team krijgt op het dashboard en op de kaart de
 knop Doel toevoegen, en daarna Aanpassen.
 

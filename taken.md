@@ -39,6 +39,9 @@ klaar; de deelafbeelding maakt Claude.
 - [x] **`migratie-doel-ruimte-2026-09-17.sql` is gedraaid** op 17 september
       2026 door Maarten. Controle: `controle/staat-doel-ruimte-erin.sql`,
       zeven regels op `klopt = true`.
+- [ ] **`migratie-doel-datum-2026-09-17.sql` draaien** in de SQL-editor: de
+      termijn van het doel als datum, één kolom op drie tabellen. Controle met
+      het laatste blok van `controle/staat-doel-ruimte-erin.sql`.
 - [ ] **De branch nalopen op een preview-deploy** en dan mergen. Wat er is
       gebouwd en welke formuleringen nog van jou moeten komen staat in
       `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.

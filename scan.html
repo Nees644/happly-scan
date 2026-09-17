@@ -130,6 +130,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .blok-kop{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.55rem;line-height:1.2;color:var(--dp);margin-bottom:.35em}
 .blok-doel{background:var(--rt);border-radius:10px;padding:20px 24px}
 .doel-tekst{font-family:"DM Serif Display",serif;font-size:1.3rem;line-height:1.3;color:var(--dp);margin-bottom:.2em}
+.doel-datum{color:var(--dp);font-size:14px;font-weight:500;margin-bottom:.15em}
 .doel-zin,.doel-leeg{color:var(--mut);font-size:14px;font-weight:300}
 .blok-ruimte{border-top:1px solid var(--bd);padding-top:18px}
 .ruimte-zin{font-size:14.5px;line-height:1.55;margin-bottom:.4em;font-weight:300}
@@ -217,10 +218,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
   <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Nog één ding</span></div>
   <div class="body">
     <div class="eye">Jouw doel</div>
-    <div class="qtxt">Waar wil je over drie maanden staan?</div>
+    <div class="qtxt">Waar wil je staan?</div>
     <div class="instr" style="margin-bottom:14px">Eén zin, in je eigen woorden. Je uitslag leest je scores straks in het licht van dit doel. Je mag het ook overslaan.</div>
     <textarea class="doel-ta" id="d-tekst" maxlength="200" rows="3" oninput="document.getElementById('d-teller').textContent=this.value.length"></textarea>
     <div class="doel-teller"><span id="d-teller">0</span> van 200 tekens</div>
+    <div class="qtxt" style="font-size:18px">Wanneer?</div>
+    <input class="lead-inp" id="d-datum" type="date" style="max-width:220px;margin-bottom:22px">
     <div class="qtxt" style="font-size:18px">Wat is er vooral nodig om dat te halen?</div>
     <div class="opts" id="d-opts"></div>
   </div>
@@ -384,8 +387,10 @@ const DOEL_ZINNEN = [
   { doeltype: "onbekend", zin: "Weet ik nog niet" }
 ];
 let doelTekst = null;
+let doelDatum = null;         // jjjj-mm-dd, of null
 let doelType = null;          // null = overgeslagen
 let teamDoelTekst = null;     // het doel van het team, op de uitnodigingspagina
+const datumInWoorden = d => { try{ return new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(d+"T00:00:00Z")); }catch(e){ return d; } };
 const escHtml = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 /* Teamtoken uit de link van de coach (scan?team=ABC123). De vragen, de scoring
    en de duiding zijn identiek aan een gewone meting; de deelnemer ziet zijn
@@ -508,14 +513,16 @@ function toDoel(){
 function pickDoel(t){ doelType = (doelType === t ? null : t); toDoel(); }
 function doelSubmit(){
   const tekst = document.getElementById("d-tekst").value.trim().slice(0, 200);
-  if (!tekst && !doelType){ doelSkip(); return; }
+  const datum = document.getElementById("d-datum").value || null;
+  if (!tekst && !doelType && !datum){ doelSkip(); return; }
   doelTekst = tekst || null;
+  doelDatum = datum;
   if (!doelType) doelType = "onbekend";
   logEvent("doel_ingevuld");      // na mail_ingevuld of mail_overgeslagen, vóór uitslag_getoond
   toResults();
 }
 function doelSkip(){
-  doelTekst = null; doelType = null;
+  doelTekst = null; doelType = null; doelDatum = null;
   logEvent("doel_overgeslagen");
   toResults();
 }
@@ -528,7 +535,7 @@ async function haalTeamDoel(){
     if (!r.ok) return;
     const d = await r.json();
     if (!d.doel_tekst) return;
-    teamDoelTekst = d.doel_tekst;
+    teamDoelTekst = d.doel_tekst + (d.doel_datum ? `, voor ${datumInWoorden(d.doel_datum)}` : "");
     const w = document.getElementById("w-teamdoel");
     if (w){ w.textContent = "Dit team werkt naar: " + teamDoelTekst; w.style.display = "block"; }
   }catch(e){/* stil */}
@@ -657,7 +664,7 @@ function renderResults(){
 function doelBlokHtml(){
   const zin = doelType ? (DOEL_ZINNEN.find(k => k.doeltype === doelType) || {}).zin : null;
   const inhoud = doelTekst
-    ? `<p class="doel-tekst">&ldquo;${escHtml(doelTekst)}&rdquo;</p>${zin ? `<p class="doel-zin">${escHtml(zin)}</p>` : ""}`
+    ? `<p class="doel-tekst">&ldquo;${escHtml(doelTekst)}&rdquo;</p>${doelDatum ? `<p class="doel-datum">Voor ${escHtml(datumInWoorden(doelDatum))}.</p>` : ""}${zin ? `<p class="doel-zin">${escHtml(zin)}</p>` : ""}`
     : `<p class="doel-leeg">Nog geen doel benoemd.</p>`;
   return `<section class="blok blok-doel"><div class="blok-kop">Waar jij naartoe werkt</div>${inhoud}</section>`;
 }
@@ -963,7 +970,7 @@ async function saveScan(){
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
         duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,
-        doel_tekst:doelTekst,doeltype:doelType})});
+        doel_tekst:doelTekst,doeltype:doelType,doel_datum:doelDatum})});
     if(r.ok){
       const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null;
       toonBlokken(d.blokken);

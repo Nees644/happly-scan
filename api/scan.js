@@ -12,7 +12,7 @@ export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({error:"method"}); return; }
   try{
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype } = body;
+    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype, doel_datum } = body;
     if ([index,zien,sturen,doen].some(v => typeof v !== "number")){
       res.status(400).json({error:"ongeldige invoer"}); return;
     }
@@ -51,7 +51,7 @@ export default async function handler(req, res){
     // mailstap en voor de uitslag. Overgeslagen is doeltype onbekend, en dan
     // leest de uitslag via de keten. De herkenningszin mag langer zijn sinds
     // het doel erachter kan staan.
-    const doel = doelVelden({ doel_tekst, doeltype, door: "deelnemer" }) || {};
+    const doel = doelVelden({ doel_tekst, doeltype, doel_datum, door: "deelnemer" }) || {};
     const metDoel = { ...metDuiding, ...doel };
     const volledig = {
       ...metDoel,
@@ -63,7 +63,7 @@ export default async function handler(req, res){
     }
     if (r.error){
       // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.
-      const { doel_tekst: _d, doeltype: _t, doeltype_bron: _b, doel_ingevuld_op: _o, doel_ingevuld_door: _r, ...zonderDoel } = volledig;
+      const { doel_tekst: _d, doel_datum: _dd, doeltype: _t, doeltype_bron: _b, doel_ingevuld_op: _o, doel_ingevuld_door: _r, ...zonderDoel } = volledig;
       r = await db.from("index_scan_results").insert(zonderDoel).select("id,deel_id").single();
     }
     if (r.error){
@@ -89,7 +89,7 @@ export default async function handler(req, res){
         profiel = pq.data || null;
       }
       const g = ruimteGegevens({ ruimte, scores: { zien, sturen, doen }, doel_tekst: doel.doel_tekst || null,
-                                 doeltype: doel.doeltype || null, vorm: "individu", profiel });
+                                 doel_datum: doel.doel_datum || null, doeltype: doel.doeltype || null, vorm: "individu", profiel });
       blokken = { doel: doelBlokHtml(g, { vorm: "individu" }), ruimte: ruimteBlokHtml(g, { vorm: "individu", id: "scan" }) };
     }catch(e){ blokken = null; }
 

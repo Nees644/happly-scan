@@ -1,3 +1,14 @@
+> **Bron van waarheid.** Dit bestand in de repo is leidend. Zie CLAUDE.md.
+>
+> **Eén wijziging op de aangeleverde versie, besluit Maarten 17 september 2026:**
+> de termijn van het doel is geen vaste "tien weken" of "drie maanden" in de
+> vraagzin, maar een datum die de klant zelf invult, zoals bij een
+> implementatie-intentie. Kolom `doel_datum date` op dezelfde drie tabellen
+> (`migratie-doel-datum-2026-09-17.sql`). De vraagzinnen in 7.1, 7.2 en 7.3
+> zijn daarop aangepast en gemarkeerd met [17-09]; blok 1 toont "Voor [datum]."
+> en de mailregel wordt "Je doel: [doel_tekst], voor [datum]. Waar de winst
+> zit: [eerste_stap_dimensie]."
+
 # Briefing Code · Doel-intake en Ruimteblok (v1)
 
 Voor: Claude Code · Van: Maarten · 17 september 2026
@@ -62,6 +73,7 @@ Voeg toe aan de bestaande tabellen; verwijder of hernoem niets. Alle nieuwe veld
 Op teamkracht_teams (team) en op de individuele scan-resultaten (deelnemer) en op de leidersbeeld-invulling:
 
 - doel_tekst text, vrije tekst, maximaal 200 tekens
+- doel_datum date, de termijn die de klant invult [17-09]
 - doeltype text, enum: zien, sturen, doen, onbekend
 - doeltype_bron text, enum: klant (zelf gekozen), keten (afgeleid via L1 fallback)
 - doel_ingevuld_op timestamptz
@@ -211,7 +223,7 @@ Individu, team en (later) organisatie krijgen dezelfde vijf blokken in dezelfde 
 
 Blok 1 · Doel
 Kop: "Waar dit team naartoe werkt"
-Inhoud: doel_tekst letterlijk, in aanhalingstekens, met eronder de gekozen keuzezin. Bij keten-fallback: "Nog geen doel benoemd. De kaart leest via de keten." plus knop "Doel toevoegen".
+Inhoud: doel_tekst letterlijk, in aanhalingstekens, met eronder "Voor [doel_datum]." [17-09] en de gekozen keuzezin. Bij keten-fallback: "Nog geen doel benoemd. De kaart leest via de keten." plus knop "Doel toevoegen".
 
 Blok 2 · Doen
 Bestaande inhoud, ongewijzigd: index, teamlijn, anonieme individuele lijnen, breuk, profielverdeling.
@@ -241,7 +253,7 @@ Zelfde vijf blokken, jij-vorm. Blok 1 toont het eigen doel. Blok 3 toont de drie
 
 De bestaande deelbare herkenningszin blijft, en krijgt het doel erbij als het is ingevuld: "[herkenningszin] Mijn doel: [doel_tekst]."
 
-Resultaatmail (Resend, bestaande flow): voeg één regel toe boven de indexwaarde: "Je doel: [doel_tekst]. Waar de winst zit: [eerste_stap_dimensie]."
+Resultaatmail (Resend, bestaande flow): voeg één regel toe boven de indexwaarde: "Je doel: [doel_tekst], voor [doel_datum]. Waar de winst zit: [eerste_stap_dimensie]." [17-09]
 
 ### 6.3 Leidersbeeld
 
@@ -251,7 +263,7 @@ Op de Leidersbeeld-resultaatpagina en in de resultaatmail: het label uit L5 dire
 
 ### 7.1 Team (teamleider of begeleider, bij aanmaken team of voor de eerste uitnodiging)
 
-Stap 1: "Waar moet dit team over tien weken staan? Eén zin, in jullie eigen woorden." Tekstveld, 200 tekens, verplicht bij nieuwe teams. Bestaande teams: optioneel, met dezelfde knop "Doel toevoegen" op de kaart.
+Stap 1 [17-09]: "Waar moet dit team staan? Eén zin, in jullie eigen woorden." Tekstveld, 200 tekens, en daaronder "Wanneer moet dat staan?" met een datumveld. Beide verplicht bij nieuwe teams. Bestaande teams: optioneel, met dezelfde knop "Doel toevoegen" op de kaart.
 Stap 2: "Wat is er vooral nodig om dat te halen?" Vier keuzezinnen uit L1, radio, verplicht.
 Bevestiging toont beide terug: "Doel: … Nodig: …" met knop "Aanpassen".
 
@@ -259,11 +271,11 @@ Het doel is zichtbaar voor alle deelnemers op de uitnodigingspagina, boven de vr
 
 ### 7.2 Individu (Zelfkracht Index)
 
-Direct na de mailflip (die blijft skippable) en voor de uitslag: één scherm met de ik-variant van L1. Stap 1 tekstveld "Waar wil je over drie maanden staan?" (optioneel, skip-knop "Sla over"). Stap 2 vier keuzezinnen (optioneel, zelfde skip). Skip = doeltype onbekend, fallback via keten. Log een funnel_event doel_ingevuld of doel_overgeslagen (voeg deze twee toe aan de bestaande zes eventtypes).
+Direct na de mailflip (die blijft skippable) en voor de uitslag: één scherm met de ik-variant van L1. Stap 1 [17-09] tekstveld "Waar wil je staan?" en datumveld "Wanneer?" (optioneel, skip-knop "Sla over"). Stap 2 vier keuzezinnen (optioneel, zelfde skip). Skip = doeltype onbekend, fallback via keten. Log een funnel_event doel_ingevuld of doel_overgeslagen (voeg deze twee toe aan de bestaande zes eventtypes).
 
 ### 7.3 Leider (Leidersbeeld)
 
-Na de registratie (naam, e-mail, organisatie, teamomvang) en voor de items: teamvariant van L1, verplicht. Zelfde velden op de leidersbeeld-invulling.
+Na de registratie (naam, e-mail, organisatie, teamomvang) en voor de items: teamvariant van L1, verplicht, met dezelfde datumvraag als 7.1 [17-09]. Zelfde velden op de leidersbeeld-invulling. (Gebouwd tussen de items en de registratie, omdat de bestaande flow de registratie achteraan zet; zie oplevering A11.)
 
 ## 8. Taal en woordenlijst
 

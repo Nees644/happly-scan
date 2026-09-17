@@ -32,7 +32,7 @@ export default async function handler(req, res){
 
   const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   let q = await db.from("index_scan_results")
-    .select("id, index_score, zien, sturen, doen, duiding, created_at, profiel_code, deel_zin, doel_tekst, doeltype, doeltype_bron")
+    .select("id, index_score, zien, sturen, doen, duiding, created_at, profiel_code, deel_zin, doel_tekst, doel_datum, doeltype, doeltype_bron")
     .eq("resultaat_token", token).single();
   if (q.error){
     // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.

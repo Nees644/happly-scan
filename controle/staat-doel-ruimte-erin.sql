@@ -40,3 +40,12 @@ select 'policies op de twee nieuwe tabellen',
   from pg_policies
  where schemaname = 'public'
    and tablename in ('teamkracht_ruimte','teamkracht_maatregelen');
+
+-- Na migratie-doel-datum-2026-09-17.sql: de termijn van het doel.
+-- Verwacht: 1 regel met klopt = true.
+select 'kolom doel_datum op drie tabellen' as wat,
+       count(*) as gevonden, 3 as verwacht, count(*) = 3 as klopt
+  from information_schema.columns
+ where table_schema = 'public'
+   and table_name in ('teamkracht_teams','index_scan_results','teamkracht_leidersbeeld')
+   and column_name = 'doel_datum';

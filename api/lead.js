@@ -178,7 +178,7 @@ export default async function handler(req, res){
     let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
-        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,doel_tekst").eq("id", id).single();
+        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,doel_tekst,doel_datum").eq("id", id).single();
       if (q.error){
         // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.
         q = await db.from("index_scan_results")
@@ -242,7 +242,7 @@ export default async function handler(req, res){
     // geen regel.
     let doelregel = null;
     if (row && row.doel_tekst && scanId){
-      try{ doelregel = mailDoelregel({ doel_tekst: row.doel_tekst, ruimte: await nieuwsteRuimte(db, scanId, "individu") }); }
+      try{ doelregel = mailDoelregel({ doel_tekst: row.doel_tekst, doel_datum: row.doel_datum, ruimte: await nieuwsteRuimte(db, scanId, "individu") }); }
       catch(e){ doelregel = null; }
     }
 

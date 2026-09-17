@@ -186,21 +186,24 @@ const DOEL_ZINNEN = [
   { doeltype: "onbekend", zin: "Weet ik nog niet" }
 ];
 const keuzezinVan = t => (DOEL_ZINNEN.find(k => k.doeltype === t) || {}).zin || "";
+const datumInWoorden = d => { try{ return new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(d+"T00:00:00Z")); }catch(e){ return d; } };
 
 /* Het invulvak voor het doel: stap 1 de zin, stap 2 de keuze. Zelfde vak bij
    een nieuw team en bij Doel toevoegen of Aanpassen op een bestaand team. */
 function doelVak(prefix, huidig = {}){
   return `
-    <label for="${prefix}-doel">Waar moet dit team over tien weken staan? Eén zin, in jullie eigen woorden.</label>
+    <label for="${prefix}-doel">Waar moet dit team staan? Eén zin, in jullie eigen woorden.</label>
     <textarea id="${prefix}-doel" maxlength="200" oninput="el('${prefix}-teller').textContent=this.value.length">${esc(huidig.doel_tekst || "")}</textarea>
     <div class="teller"><span id="${prefix}-teller">${(huidig.doel_tekst || "").length}</span> van 200 tekens</div>
+    <label for="${prefix}-datum">Wanneer moet dat staan?</label>
+    <input class="inp" id="${prefix}-datum" type="date" value="${esc(huidig.doel_datum || "")}" style="max-width:220px;margin-bottom:12px">
     <label>Wat is er vooral nodig om dat te halen?</label>
     <div class="keuzes">${DOEL_ZINNEN.map(k => `<label><input type="radio" name="${prefix}-doeltype" value="${k.doeltype}"${huidig.doeltype === k.doeltype ? " checked" : ""}> ${esc(k.zin)}</label>`).join("")}</div>`;
 }
 function leesDoel(prefix){
   const doel_tekst = (el(`${prefix}-doel`)?.value || "").trim();
   const gekozen = document.querySelector(`input[name="${prefix}-doeltype"]:checked`);
-  return { doel_tekst, doeltype: gekozen ? gekozen.value : null };
+  return { doel_tekst, doel_datum: el(`${prefix}-datum`)?.value || null, doeltype: gekozen ? gekozen.value : null };
 }
 
 function render(){
@@ -248,7 +251,7 @@ function render(){
     // Het doel van dit team (blok 1 van de kaart). Zonder doel de vaste zin en
     // de knop; met doel de bevestiging en Aanpassen.
     const doelregel = t.doel_tekst
-      ? `<div class="teamdoel"><b>Doel:</b> &ldquo;${esc(t.doel_tekst)}&rdquo; <b>Nodig:</b> <span class="zin">${esc(keuzezinVan(t.doeltype))}</span>
+      ? `<div class="teamdoel"><b>Doel:</b> &ldquo;${esc(t.doel_tekst)}&rdquo;${t.doel_datum ? ` <b>Wanneer:</b> ${esc(datumInWoorden(t.doel_datum))}` : ""} <b>Nodig:</b> <span class="zin">${esc(keuzezinVan(t.doeltype))}</span>
            <button class="btn lijn klein" onclick="doelFormulier('${t.id}')">Aanpassen</button></div>`
       : `<div class="teamdoel"><span class="zin">Nog geen doel benoemd. De kaart leest via de keten.</span>
            <button class="btn lijn klein" onclick="doelFormulier('${t.id}')">Doel toevoegen</button></div>`;
@@ -471,7 +474,8 @@ async function maakTeam(){
   const melding = el("n-melding"); melding.className = "melding";
   if (!naam){ melding.textContent = "Vul een teamnaam in."; melding.className = "melding fout"; return; }
   const doel = leesDoel("n");
-  if (!doel.doel_tekst){ melding.textContent = "Schrijf in één zin waar dit team over tien weken moet staan."; melding.className = "melding fout"; return; }
+  if (!doel.doel_tekst){ melding.textContent = "Schrijf in één zin waar dit team moet staan."; melding.className = "melding fout"; return; }
+  if (!doel.doel_datum){ melding.textContent = "Vul in wanneer dat moet staan."; melding.className = "melding fout"; return; }
   if (!doel.doeltype){ melding.textContent = "Kies wat er vooral nodig is om dat te halen."; melding.className = "melding fout"; return; }
   el("n-btn").disabled = true; melding.textContent = "Bezig...";
   try{
@@ -538,8 +542,8 @@ function doelFormulier(teamId){
 async function bewaarDoel(teamId){
   const melding = el(`m-${teamId}`); melding.className = "melding";
   const doel = leesDoel(`d${teamId}`);
-  if (!doel.doel_tekst || !doel.doeltype){
-    melding.textContent = "Het doel vraagt één zin en één keuze."; melding.className = "melding fout"; return;
+  if (!doel.doel_tekst || !doel.doel_datum || !doel.doeltype){
+    melding.textContent = "Het doel vraagt één zin, een datum en één keuze."; melding.className = "melding fout"; return;
   }
   melding.textContent = "Bezig...";
   try{

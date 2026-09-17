@@ -15,7 +15,7 @@ import {
   tekenKaartSvg, BREUKBLOK, BEELDNAAM, VOETNOOT, VOETNOOT_DOEL, ZONDER_LANDELIJK,
   verschilZin, verdelingLijst, dynamiekTekst, sdVan, kaartRuimte
 } from "./teamkracht-kaart.js";
-import { profielRegels, stripRegel, TEKST } from "./teamkracht-ruimte-blokken.js";
+import { profielRegels, stripRegel, TEKST, formatteerDatum } from "./teamkracht-ruimte-blokken.js";
 import { beoordeelLeidersbeeld, vergelijkMeetmomenten } from "./leidersbeeld-regel.js";
 import { kiesDynamieken } from "./teamkracht-logica.js";
 import { PAPIER, KLEUR, MM, zetLetters, alsBuffer, label } from "./pdf-basis.js";
@@ -87,6 +87,11 @@ export async function maakKaartPdf({
       doc.font("serif").fontSize(13 * s).fillColor(KLEUR.inkt)
          .text(`\u201c${teamdoel.doel_tekst}\u201d`, kant, y, { width: binnen * 0.72 });
       y = doc.y + 1 * s;
+      const datum = formatteerDatum(teamdoel.doel_datum);
+      if (datum){
+        doc.font("sans").fontSize(9 * s).fillColor(KLEUR.inkt).text(`Voor ${datum}.`, kant, y, { width: binnen * 0.72 });
+        y = doc.y + 0.5 * s;
+      }
       if (g && g.keuzezin){
         doc.font("sans").fontSize(8.5 * s).fillColor(KLEUR.gedempt).text(g.keuzezin, kant, y, { width: binnen * 0.72 });
         y = doc.y;

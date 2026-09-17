@@ -30,10 +30,10 @@ export default async function handler(req, res){
   if (!UUID.test(teamId)){ res.status(400).json({ error: "ongeldig team_id" }); return; }
 
   const doel = doelVelden({
-    doel_tekst: body.doel_tekst, doeltype: body.doeltype,
+    doel_tekst: body.doel_tekst, doeltype: body.doeltype, doel_datum: body.doel_datum,
     door: body.door === "teamleider" ? "teamleider" : "begeleider"
   });
-  if (!doel || !doel.doel_tekst){ res.status(400).json({ error: "geef het doel in één zin en kies wat er vooral nodig is" }); return; }
+  if (!doel || !doel.doel_tekst || !doel.doel_datum){ res.status(400).json({ error: "geef het doel in één zin, wanneer het moet staan, en wat er vooral nodig is" }); return; }
 
   const db = serviceClient();
   const team = await db.from("teamkracht_teams").select("id, naam, coach_user_id").eq("id", teamId).single();
@@ -43,7 +43,7 @@ export default async function handler(req, res){
   }
 
   const up = await db.from("teamkracht_teams").update(doel).eq("id", teamId)
-    .select("id, doel_tekst, doeltype, doeltype_bron, doel_ingevuld_op, doel_ingevuld_door").single();
+    .select("id, doel_tekst, doel_datum, doeltype, doeltype_bron, doel_ingevuld_op, doel_ingevuld_door").single();
   if (up.error){ await logFout("teamkracht-teamdoel", "doel niet opgeslagen"); res.status(500).json({ error: "doel niet opgeslagen" }); return; }
 
   // De lezing van de bestaande beelden volgt het nieuwe doel.
@@ -64,8 +64,8 @@ async function doelBijToken(req, res){
   if (!/^[A-HJ-NP-Z2-9]{6}$/.test(token)){ res.status(200).json({ doel_tekst: null }); return; }
   try{
     const db = serviceClient();
-    const t = await db.from("teamkracht_teams").select("doel_tekst").eq("token", token).eq("actief", true).maybeSingle();
-    res.status(200).json({ doel_tekst: (t.data && t.data.doel_tekst) || null });
+    const t = await db.from("teamkracht_teams").select("doel_tekst, doel_datum").eq("token", token).eq("actief", true).maybeSingle();
+    res.status(200).json({ doel_tekst: (t.data && t.data.doel_tekst) || null, doel_datum: (t.data && t.data.doel_datum) || null });
   }catch(e){
     res.status(200).json({ doel_tekst: null });
   }

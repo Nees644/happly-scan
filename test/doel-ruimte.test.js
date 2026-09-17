@@ -21,7 +21,7 @@ import {
 import { LEESREGELS_CONFIG, KETEN_DREMPEL, OP_ORDE_DREMPEL } from "../teamkracht-leesregels-config.js";
 import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { leesRegels, leesProfielen, leesTestdata } from "./seed-lezen.js";
-import { rijVoorTeam, rijVoorMeting, doelVelden, normUitTeambeeld } from "../teamkracht-ruimte-db.js";
+import { rijVoorTeam, rijVoorMeting, doelVelden, normUitTeambeeld, doelDatum } from "../teamkracht-ruimte-db.js";
 import { ruimteGegevens, TEKST, mailDoelregel, herkenningszinMetDoel, eersteZin, tekenRuimteBalken } from "../teamkracht-ruimte-blokken.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
 import { maakKaartPdf } from "../kaart-pdf.js";
@@ -360,7 +360,7 @@ test("de migratie legt de velden uit paragraaf 4 aan en verwijdert niets", () =>
 
 /* ============================================================ rendering */
 
-const TEAMDOEL = { doel_tekst: "Dat we afmaken wat we afspreken, zonder dat de coach erachteraan moet", doeltype: "doen" };
+const TEAMDOEL = { doel_tekst: "Dat we afmaken wat we afspreken, zonder dat de coach erachteraan moet", doeltype: "doen", doel_datum: "2026-12-01" };
 const BEELD_MET_ID = { id: "11111111-1111-4111-8111-111111111111", ...NOORD };
 const RUIMTE_NOORD = rijVoorTeam({ teambeeld: BEELD_MET_ID, team: TEAMDOEL, profielen: PROFIELEN });
 const RUIMTE_ZONDER = rijVoorTeam({ teambeeld: BEELD_MET_ID, team: {}, profielen: PROFIELEN });
@@ -403,6 +403,10 @@ test("doelVelden: overgeslagen is onbekend en leest via de keten", () => {
   assert.equal(o.doeltype, "onbekend");
   assert.equal(o.doeltype_bron, "keten");
   assert.equal(doelVelden({ doel_tekst: "x".repeat(300), doeltype: "zien", door: "leider" }).doel_tekst.length, 200);
+  assert.equal(doelVelden({ doel_tekst: "Afmaken", doeltype: "doen", doel_datum: "2026-12-01", door: "deelnemer" }).doel_datum, "2026-12-01");
+  assert.equal(doelVelden({ doel_tekst: "Afmaken", doeltype: "doen", doel_datum: "2026-13-01", door: "deelnemer" }).doel_datum, null, "geen dertiende maand");
+  assert.equal(doelDatum("2026-02-30"), null);
+  assert.equal(doelDatum("2026-02-28"), "2026-02-28");
 });
 
 /* ---------------------------------------------- de kaart, blok 1 tot 5 */
@@ -414,6 +418,7 @@ test("de kaart draagt de vijf blokken in de vaste volgorde", () => {
   const plek = w => { const i = t.indexOf(w); assert.ok(i >= 0, `ontbreekt: ${w}`); return i; };
   const doel = plek(T.doel_kop);
   assert.ok(t.includes(TEAMDOEL.doel_tekst), "het doel staat er letterlijk");
+  assert.ok(t.includes("Voor 1 december 2026."), "de termijn staat onder het doel");
   assert.ok(t.includes("Dat we afmaken wat we afspreken"), "de keuzezin staat eronder");
   const breuk = plek("De keten zakt tussen Zien en Sturen");
   const ruimte = plek(T.ruimte_kop);
@@ -547,6 +552,7 @@ test("criterium 9: overgeslagen doel op de individuele uitslag", () => {
 test("de mailregel boven de indexwaarde", () => {
   const ruimte = rijVoorMeting({ meting: { id: "m3", zien: 70, sturen: 48, doen: 62, doeltype: "doen" } });
   assert.equal(mailDoelregel({ doel_tekst: "Afmaken waar ik aan begin", ruimte }), "Je doel: Afmaken waar ik aan begin. Waar de winst zit: Sturen.");
+  assert.equal(mailDoelregel({ doel_tekst: "Afmaken waar ik aan begin.", doel_datum: "2026-12-01", ruimte }), "Je doel: Afmaken waar ik aan begin, voor 1 december 2026. Waar de winst zit: Sturen.");
   assert.equal(mailDoelregel({ doel_tekst: null, ruimte }), null);
   assert.equal(eersteZin("Ik zie scherp wat er speelt, ook wat niemand hardop zegt. Vaak zeg ik het pas na afloop."), "Ik zie scherp wat er speelt, ook wat niemand hardop zegt.");
 });
@@ -614,9 +620,10 @@ test("de keuzezinnen op de schermen zijn gelijk aan die in de module", () => {
   assert.deepEqual(uitDash, KEUZEZINNEN_TEAM.map(k => ({ ...k })));
   const scan = lees("scan.html");
   assert.ok(scan.includes('logEvent("doel_ingevuld")') && scan.includes('logEvent("doel_overgeslagen")'), "de twee funnel-events");
-  assert.ok(scan.includes("Waar wil je over drie maanden staan?") && scan.includes(">Sla over<"));
+  assert.ok(scan.includes("Waar wil je staan?") && scan.includes("<div class=\"qtxt\" style=\"font-size:18px\">Wanneer?</div>") && scan.includes(">Sla over<"));
   const lb = lees("leidersbeeld.html");
-  assert.ok(lb.includes("Waar moet dist team over tien weken staan?".replace("dist", "dit")) && lb.includes("Wat is er vooral nodig om dat te halen?"));
+  assert.ok(lb.includes("Waar moet dit team staan?") && lb.includes("Wanneer moet dat staan?") && lb.includes("Wat is er vooral nodig om dat te halen?"));
   const dash = lees("teamkracht.html");
-  assert.ok(dash.includes("Waar moet dit team over tien weken staan? Eén zin, in jullie eigen woorden.") && dash.includes("Doel toevoegen") && dash.includes("Aanpassen"));
+  assert.ok(dash.includes("Waar moet dit team staan? Eén zin, in jullie eigen woorden.") && dash.includes("Wanneer moet dat staan?") && dash.includes("Doel toevoegen") && dash.includes("Aanpassen"));
+  for (const b of ["scan.html", "leidersbeeld.html", "teamkracht.html"]) assert.ok(!lees(b).includes("tien weken") && !lees(b).includes("drie maanden"), `${b}: de termijn vult de klant in`);
 });

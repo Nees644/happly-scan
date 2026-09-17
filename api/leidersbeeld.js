@@ -90,7 +90,7 @@ async function hermeting(req, res, body){
   const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   const q = await db.from("teamkracht_leidersbeeld")
-    .select("id, team_id, leider_naam, leider_email, organisatie, teamomvang, herkomst_src, partner_id, op_kaart, norm_bron, opt_in_kwartaal, meetmoment, doel_tekst, doeltype, doeltype_bron, doel_ingevuld_op, doel_ingevuld_door")
+    .select("id, team_id, leider_naam, leider_email, organisatie, teamomvang, herkomst_src, partner_id, op_kaart, norm_bron, opt_in_kwartaal, meetmoment, doel_tekst, doel_datum, doeltype, doeltype_bron, doel_ingevuld_op, doel_ingevuld_door")
     .eq("leider_token", token).maybeSingle();
   if (q.error || !q.data){ res.status(404).json({ error: "onbekende link" }); return; }
   const start = q.data;
@@ -124,7 +124,7 @@ async function hermeting(req, res, body){
     opt_in_kwartaal: start.opt_in_kwartaal,
     // Het doel van de eerste keer gaat mee: het tweede Leidersbeeld is dezelfde
     // leider over hetzelfde team.
-    doel_tekst: start.doel_tekst, doeltype: start.doeltype, doeltype_bron: start.doeltype_bron,
+    doel_tekst: start.doel_tekst, doel_datum: start.doel_datum, doeltype: start.doeltype, doeltype_bron: start.doeltype_bron,
     doel_ingevuld_op: start.doel_ingevuld_op, doel_ingevuld_door: start.doel_ingevuld_door,
     // Het akkoord van de eerste keer geldt nog; dit is dezelfde persoon en
     // dezelfde verwerking. Het moment van deze invulling leggen we wel vast.

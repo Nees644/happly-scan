@@ -49,11 +49,21 @@ export const TEKST = {
   }
 };
 
+/* De termijn van het doel als datum in woorden: "1 december 2026". */
+export function formatteerDatum(d){
+  if (!d) return null;
+  const dag = new Date(`${String(d).slice(0, 10)}T00:00:00Z`);
+  if (!Number.isFinite(dag.getTime())) return null;
+  return new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(dag);
+}
+
 /* De regel in de uitslagmail, boven de indexwaarde (paragraaf 6.2). Alleen
    als er een doel is; zonder doel is er geen regel. */
-export function mailDoelregel({ doel_tekst, ruimte }){
+export function mailDoelregel({ doel_tekst, doel_datum = null, ruimte }){
   if (!doel_tekst || !ruimte) return null;
-  return `Je doel: ${String(doel_tekst).trim()}. Waar de winst zit: ${LABEL[ruimte.eerste_stap_dimensie]}.`;
+  const tekst = String(doel_tekst).trim().replace(/[.!?]+$/, "");
+  const datum = formatteerDatum(doel_datum);
+  return `Je doel: ${tekst}${datum ? `, voor ${datum}` : ""}. Waar de winst zit: ${LABEL[ruimte.eerste_stap_dimensie]}.`;
 }
 
 /* De deelbare herkenningszin met het doel erbij (paragraaf 6.2). */
@@ -87,7 +97,7 @@ export function eersteZin(tekst){
    dynamieken: de gekozen dynamieken van het teambeeld, met regels voor L7
    profiel:    de profielrij van deze persoon (alleen individu) */
 export function ruimteGegevens({
-  ruimte, scores, doel_tekst = null, doeltype = null, vorm = "team",
+  ruimte, scores, doel_tekst = null, doeltype = null, doel_datum = null, vorm = "team",
   verdeling = null, profielen = [], lijnen = null, dynamieken = null, regels = null,
   profiel = null, config = LEESREGELS_CONFIG
 }){
@@ -131,6 +141,7 @@ export function ruimteGegevens({
   return {
     vorm,
     doel_tekst: doel_tekst ? String(doel_tekst).trim() : null,
+    doel_datum: doel_datum || null,
     doeltype: doeltype || ruimte.doeltype || "onbekend",
     keuzezin: doel_tekst ? keuzezin(doeltype, vorm) : null,
     via_keten: ruimte.doeltype_bron === "keten" || !doel_tekst,
@@ -205,8 +216,9 @@ export function tekenRuimteBalken(g, { id = "r" } = {}){
    keuzezin. Zonder doel de vaste zin, en op de kaart de knop. */
 export function doelBlokHtml(g, { vorm = "team", knop = false } = {}){
   const t = TEKST[vorm] || TEKST.team;
+  const datum = g ? formatteerDatum(g.doel_datum) : null;
   const inhoud = (g && g.doel_tekst)
-    ? `<p class="doel-tekst">&ldquo;${esc(g.doel_tekst)}&rdquo;</p>${g.keuzezin ? `<p class="doel-zin">${esc(g.keuzezin)}</p>` : ""}`
+    ? `<p class="doel-tekst">&ldquo;${esc(g.doel_tekst)}&rdquo;</p>${datum ? `<p class="doel-datum">Voor ${esc(datum)}.</p>` : ""}${g.keuzezin ? `<p class="doel-zin">${esc(g.keuzezin)}</p>` : ""}`
     : `<p class="doel-leeg">${esc(t.geen_doel)}</p>${knop && t.doel_knop ? `<button type="button" class="doel-knop" data-doel-toevoegen>${esc(t.doel_knop)}</button>` : ""}`;
   return `<section class="blok blok-doel"><h3 class="blok-kop">${esc(t.doel_kop)}</h3>${inhoud}</section>`;
 }
@@ -248,6 +260,7 @@ export const BLOK_CSS = `
   .blok{margin-top:1.1em}
   .blok-kop{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.55em;line-height:1.2;color:${INKT};margin-bottom:.35em}
   .doel-tekst{font-family:"DM Serif Display",serif;font-size:1.35em;line-height:1.3;color:${INKT};margin-bottom:.2em}
+  .doel-datum{color:${INKT};font-size:1em;font-weight:500;margin-bottom:.15em}
   .doel-zin,.doel-leeg{color:${GEDEMPT};font-size:1em;font-weight:300}
   .doel-knop{margin-top:.5em;font:inherit;font-weight:600;font-size:.9em;color:#fff;background:${MAGENTA};border:0;border-radius:999px;padding:.45em 1.1em;cursor:pointer}
   .ruimte-zin{font-size:1.05em;line-height:1.5;margin-bottom:.35em}

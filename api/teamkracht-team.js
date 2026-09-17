@@ -32,7 +32,7 @@ export default async function handler(req, res){
 
   if (req.method === "GET"){
     let q = db.from("teamkracht_teams")
-      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot, doel_tekst, doeltype, doeltype_bron, doel_ingevuld_door")
+      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot, doel_tekst, doel_datum, doeltype, doeltype_bron, doel_ingevuld_door")
       .order("created_at", { ascending: false });
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
@@ -155,10 +155,10 @@ export default async function handler(req, res){
     // een nieuw team. De keuze bepaalt het doeltype; er wordt niets
     // geclassificeerd.
     const doel = doelVelden({
-      doel_tekst: body.doel_tekst, doeltype: body.doeltype,
+      doel_tekst: body.doel_tekst, doeltype: body.doeltype, doel_datum: body.doel_datum,
       door: body.door === "teamleider" ? "teamleider" : "begeleider"
     });
-    if (!doel || !doel.doel_tekst){ res.status(400).json({ error: "het doel van het team is verplicht: één zin, en wat er vooral nodig is" }); return; }
+    if (!doel || !doel.doel_tekst || !doel.doel_datum){ res.status(400).json({ error: "het doel van het team is verplicht: één zin, wanneer, en wat er vooral nodig is" }); return; }
 
     // Staat er een Leidersbeeld klaar op het adres van de teamleider, dan wordt
     // dat gevraagd en nooit vanzelf gekoppeld. Het antwoord komt terug als een
@@ -213,7 +213,7 @@ export default async function handler(req, res){
 async function koppelLeidersbeeld(db, leidersbeeldId, teamId, userId){
   try{
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, status, partner_id, team_id, doel_tekst, doeltype").eq("id", leidersbeeldId).maybeSingle();
+      .select("id, status, partner_id, team_id, doel_tekst, doel_datum, doeltype").eq("id", leidersbeeldId).maybeSingle();
     if (q.error || !q.data || q.data.team_id) return null;
 
     const bij = { team_id: teamId, status: verderDan(q.data.status, "gekoppeld") };

@@ -37,7 +37,7 @@ export default async function handler(req, res){
   const db = serviceClient();
   try{
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, team_id, status, leider_naam, leider_email, organisatie, teamomvang, partner_id, doel_tekst, doeltype")
+      .select("id, team_id, status, leider_naam, leider_email, organisatie, teamomvang, partner_id, doel_tekst, doel_datum, doeltype")
       .eq("leider_token", token).maybeSingle();
     if (q.error || !q.data){ res.status(404).json({ error: "onbekende link" }); return; }
     const rij = q.data;

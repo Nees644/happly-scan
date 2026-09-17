@@ -20,6 +20,16 @@ export const LABEL = { zien: "Zien", sturen: "Sturen", doen: "Doen" };
 
 export const DOELTYPEN = ["zien", "sturen", "doen", "onbekend"];
 
+/* De termijn van het doel (besluit 17 september 2026: een datum die de klant
+   zelf invult, geen vaste tien weken). Uit het formulier komt jjjj-mm-dd; het
+   moet een echte dag zijn, anders null. */
+export function doelDatum(waarde){
+  const t = String(waarde ?? "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return null;
+  const d = new Date(`${t}T00:00:00Z`);
+  return (Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === t) ? t : null;
+}
+
 /* ------------------------------------------------------------------- L1 */
 
 /* De keuzezinnen, letterlijk uit de briefing en in deze volgorde. De klant
