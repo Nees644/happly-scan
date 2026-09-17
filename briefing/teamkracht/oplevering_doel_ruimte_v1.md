@@ -231,8 +231,8 @@ scherm waar een teamleider zelf inlogt.
 
 ## Wat Maarten nu doet
 
-1. `migratie-doel-ruimte-2026-09-17.sql` draaien in de SQL-editor, daarna
-   `controle/staat-doel-ruimte-erin.sql`: zeven regels op `klopt = true`.
+1. De migratie is gedraaid op 17 september 2026 (Maarten). Controle:
+   `controle/staat-doel-ruimte-erin.sql`, zeven regels op `klopt = true`.
 2. Op een preview-deploy van de branch: een team aanmaken met doel, laten
    invullen, de kaart maken, de pdf openen; een losse scan doen met en zonder
    doel; een Leidersbeeld invullen.

@@ -36,10 +36,9 @@ klaar; de deelafbeelding maakt Claude.
 
 ## Doel en ruimte, fase A (branch doel-ruimte-v1, 17 september 2026)
 
-- [ ] **`migratie-doel-ruimte-2026-09-17.sql` draaien** in de SQL-editor,
-      daarna `controle/staat-doel-ruimte-erin.sql`. Zeven regels, alle op
-      `klopt = true`. Zonder deze migratie valt de code terug op de oude
-      kolommen en blijven de blokken leeg.
+- [x] **`migratie-doel-ruimte-2026-09-17.sql` is gedraaid** op 17 september
+      2026 door Maarten. Controle: `controle/staat-doel-ruimte-erin.sql`,
+      zeven regels op `klopt = true`.
 - [ ] **De branch nalopen op een preview-deploy** en dan mergen. Wat er is
       gebouwd en welke formuleringen nog van jou moeten komen staat in
       `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
