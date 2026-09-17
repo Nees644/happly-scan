@@ -12,6 +12,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { bouwLeiderPagina } from "../leider-pagina.js";
 import { haalKoper } from "../koper-db.js";
+import { vergelijkDoeltype } from "../teamkracht-ruimte.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -33,7 +34,7 @@ export default async function handler(req, res){
   try{
     const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, team_id, organisatie, teamomvang, zien, sturen, doen, index_score, partner_id, status, meetmoment, op_kaart")
+      .select("id, team_id, organisatie, teamomvang, zien, sturen, doen, index_score, partner_id, status, meetmoment, op_kaart, doel_tekst, doeltype")
       .eq("leider_token", token).maybeSingle();
     if (q.error || !q.data){ nietGevonden(res); return; }
     const rij = q.data;
@@ -47,10 +48,13 @@ export default async function handler(req, res){
     let team = null, deelnemers = null, partnernaam = null;
     let teambeeld = null, landelijk_beeld = false;
     let eindRij = null, eindBeeld = null, hermetingLoopt = false;
+    let doelvergelijking = null;
     if (rij.team_id){
-      const t = await db.from("teamkracht_teams").select("id, naam, coach_user_id").eq("id", rij.team_id).maybeSingle();
+      const t = await db.from("teamkracht_teams").select("id, naam, coach_user_id, doel_tekst, doeltype").eq("id", rij.team_id).maybeSingle();
       if (!t.error && t.data){
         team = t.data;
+        // L5: koos de leider hetzelfde als het team over wat er nodig is.
+        doelvergelijking = vergelijkDoeltype(t.data.doeltype, rij.doeltype);
         const tel = await db.from("index_scan_results")
           .select("id", { count: "exact", head: true })
           .eq("teamkracht_team_id", rij.team_id);
@@ -103,7 +107,7 @@ export default async function handler(req, res){
     res.setHeader("Cache-Control", "no-store");
     res.status(200).send(bouwLeiderPagina({
       rij, team, deelnemers, partnernaam, token,
-      teambeeld, landelijk_beeld, eindRij, eindBeeld, hermetingLoopt
+      teambeeld, landelijk_beeld, eindRij, eindBeeld, hermetingLoopt, doelvergelijking
     }));
   }catch(e){
     nietGevonden(res);

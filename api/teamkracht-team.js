@@ -14,6 +14,7 @@ import { rechtOpKaart, prijskaart, prijsVoor, bedragMetBtw } from "../betalen.js
 const NIVEAU_BIJ_STAFFEL = { "ORG-1": "org1", "ORG-2": "org2", "ORG-3": "org3" };
 import { haalKoper, haalProducten } from "../koper-db.js";
 import { koppelvraag, verderDan } from "../leidersbeeld-koppelen.js";
+import { doelVelden, neemLeiderdoelOver } from "../teamkracht-ruimte-db.js";
 
 /* Zelfde alfabet als campaigns.token: geen I, O, nul of één, zodat een token
    telefonisch door te geven is. */
@@ -31,7 +32,7 @@ export default async function handler(req, res){
 
   if (req.method === "GET"){
     let q = db.from("teamkracht_teams")
-      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot")
+      .select("id, created_at, naam, organisatie, coach_naam, token, actief, hermeting_tegoed, hermeting_tot, doel_tekst, doel_datum, doeltype, doeltype_bron, doel_ingevuld_door")
       .order("created_at", { ascending: false });
     if (gebruiker.rol !== "beheerder") q = q.eq("coach_user_id", gebruiker.user_id);
     const teams = await q;
@@ -149,6 +150,18 @@ export default async function handler(req, res){
     const naam = tekst(body.naam);
     if (!naam){ res.status(400).json({ error: "naam is verplicht" }); return; }
 
+    // Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1, besluit
+    // 17 september 2026): optioneel bij het aanmaken. Meestal wordt het in de
+    // sessie benoemd, bij de schuifjes; tot die tijd leest de kaart via de
+    // keten. Wie het al weet vult alle drie de velden; half is een vergissing.
+    const doel = doelVelden({
+      doel_tekst: body.doel_tekst, doeltype: body.doeltype, doel_datum: body.doel_datum,
+      door: body.door === "teamleider" ? "teamleider" : "begeleider"
+    }) || {};
+    if (Object.keys(doel).length && !(doel.doel_tekst && doel.doel_datum)){
+      res.status(400).json({ error: "vul het doel helemaal in (de zin, wanneer, en wat er nodig is) of laat het leeg" }); return;
+    }
+
     // Staat er een Leidersbeeld klaar op het adres van de teamleider, dan wordt
     // dat gevraagd en nooit vanzelf gekoppeld. Het antwoord komt terug als een
     // tweede aanroep, met of zonder leidersbeeld_id.
@@ -171,7 +184,8 @@ export default async function handler(req, res){
         organisatie: tekst(body.organisatie),
         coach_naam: tekst(body.coach_naam),
         coach_user_id: gebruiker.user_id,
-        token: maakToken()
+        token: maakToken(),
+        ...doel
       }).select("id, naam, token").single();
 
       if (!ins.error){
@@ -201,7 +215,7 @@ export default async function handler(req, res){
 async function koppelLeidersbeeld(db, leidersbeeldId, teamId, userId){
   try{
     const q = await db.from("teamkracht_leidersbeeld")
-      .select("id, status, partner_id, team_id").eq("id", leidersbeeldId).maybeSingle();
+      .select("id, status, partner_id, team_id, doel_tekst, doel_datum, doeltype").eq("id", leidersbeeldId).maybeSingle();
     if (q.error || !q.data || q.data.team_id) return null;
 
     const bij = { team_id: teamId, status: verderDan(q.data.status, "gekoppeld") };
@@ -210,6 +224,8 @@ async function koppelLeidersbeeld(db, leidersbeeldId, teamId, userId){
     const uit = await db.from("teamkracht_leidersbeeld")
       .update(bij).eq("id", leidersbeeldId).is("team_id", null)
       .select("id").maybeSingle();
+    // Heeft het team nog geen doel, dan geldt dat van de leider voorlopig (L5).
+    if (uit.data) await neemLeiderdoelOver(db, teamId, q.data);
     return uit.data ? "gekoppeld" : null;
   }catch(e){ return null; }
 }

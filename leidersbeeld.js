@@ -9,6 +9,11 @@
 // Hoort bij briefings/leidersbeeld.md.
 
 import { ITEMS, scores } from "./items.js";
+import { KEUZEZINNEN_TEAM, doelDatum } from "./teamkracht-ruimte.js";
+
+// De vier keuzezinnen van het doel (briefing doel-ruimte v1, L1), teamvariant:
+// de leider vult hetzelfde in als het team.
+export const DOELTYPEN = KEUZEZINNEN_TEAM.map(k => k.doeltype);
 
 // Het minimum voor een Teamkrachtkaart. Staat in
 // teamkracht_config.min_deelnemers_kaart; hier alleen om de band te kiezen.
@@ -40,7 +45,21 @@ export function controleerGegevens(g = {}){
   if (tekst(g.organisatie).length < 2) fouten.push({ veld: "organisatie", tekst: "Vul de naam van je organisatie in." });
   if (!TEAMOMVANG.includes(g.teamomvang)) fouten.push({ veld: "teamomvang", tekst: "Kies hoe groot je team is." });
   if (g.privacy !== true) fouten.push({ veld: "privacy", tekst: "Zonder akkoord op de privacyverklaring kunnen we je het resultaat niet mailen." });
+  // Het doel (paragraaf 7.3 van briefing doel-ruimte v1) is sinds het besluit
+  // van 17 september 2026 overslaanbaar: de gratis voordeur mag er niet op
+  // remmen. Wie begint, maakt het af: half ingevuld is een vergissing.
+  const doel = tekst(g.doel_tekst);
+  const begonnen = doel.length > 0 || tekst(g.doel_datum).length > 0 || g.doeltype;
+  if (begonnen){
+    if (doel.length < 2 || doel.length > 200) fouten.push({ veld: "doel_tekst", tekst: "Schrijf in één zin waar dit team moet staan." });
+    if (!doelDatum(g.doel_datum)) fouten.push({ veld: "doel_datum", tekst: "Vul in wanneer dat moet staan." });
+    if (!DOELTYPEN.includes(g.doeltype)) fouten.push({ veld: "doeltype", tekst: "Kies wat er vooral nodig is om dat te halen." });
+  }
   return { ok: fouten.length === 0, fouten };
+}
+
+export function heeftDoel(g = {}){
+  return String(g.doel_tekst ?? "").trim().length > 0;
 }
 
 // De volledige inzending: gegevens plus antwoorden. Geeft bij goedkeuring de
@@ -72,7 +91,13 @@ export function maakInzending(inzending = {}, nu = new Date()){
       opt_in_kwartaal:   inzending.kwartaal === true,
       privacy_akkoord_op: tijd,
       ingevuld_op:       tijd,
-      status:            "ingevuld"
+      status:            "ingevuld",
+      doel_tekst:        heeftDoel(inzending) ? String(inzending.doel_tekst).trim().slice(0, 200) : null,
+      doel_datum:        heeftDoel(inzending) ? doelDatum(inzending.doel_datum) : null,
+      doeltype:          heeftDoel(inzending) ? inzending.doeltype : null,
+      doeltype_bron:     heeftDoel(inzending) ? (inzending.doeltype === "onbekend" ? "keten" : "klant") : null,
+      doel_ingevuld_op:  heeftDoel(inzending) ? tijd : null,
+      doel_ingevuld_door: heeftDoel(inzending) ? "leider" : null
     },
     index: gemeten.index
   };

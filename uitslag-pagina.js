@@ -8,6 +8,9 @@
 // hier alleen over deze persoon.
 
 import { niveau, ontwikkelruimte, PATROON, PATROON_VOORBEHOUD, splitDuiding } from "./zelfkracht-uitslag.js";
+import {
+  ruimteGegevens, doelBlokHtml, ruimteBlokHtml, routeBlokHtml, resultaatBlokHtml, BLOK_CSS
+} from "./teamkracht-ruimte-blokken.js";
 
 const esc = t => String(t ?? "")
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -33,10 +36,26 @@ function niveauRij(naam, score){
 }
 
 /* meting: rij uit index_scan_results. profiel: rij uit teamkracht_profielen,
-   of null als deze deelnemer nog geen teamberekening heeft gehad. */
-export function bouwUitslagPagina({ meting, profiel }){
+   of null als het profiel nog niet is bepaald. ruimte: de rij uit
+   teamkracht_ruimte voor deze meting, of null.
+
+   Vijf blokken in vaste volgorde (briefing doel-ruimte v1, paragraaf 6.2):
+   Doel, Doen (de bestaande inhoud), Ruimte, Route en Resultaat. */
+export function bouwUitslagPagina({ meting, profiel, ruimte = null }){
   const delen = meting.duiding ? splitDuiding(meting.duiding) : { duiding: null, route: null };
   const routeTekst = delen.route || null;
+
+  const g = ruimte ? ruimteGegevens({
+    ruimte,
+    scores: { zien: meting.zien, sturen: meting.sturen, doen: meting.doen },
+    doel_tekst: meting.doel_tekst || null,
+    doel_datum: meting.doel_datum || null,
+    doeltype: meting.doeltype || null,
+    vorm: "individu",
+    profiel
+  }) : null;
+  const doelBlok = doelBlokHtml(g || { doel_tekst: meting.doel_tekst || null, doel_datum: meting.doel_datum || null }, { vorm: "individu" });
+  const ruimteBlok = g ? ruimteBlokHtml(g, { vorm: "individu", id: "uitslag" }) : "";
 
   const datum = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Amsterdam" })
     .format(new Date(meting.created_at));
@@ -97,6 +116,10 @@ export function bouwUitslagPagina({ meting, profiel }){
   .patroon .voorbehoud{font-size:12.5px;color:var(--mut);margin-top:14px}
   .venster{background:var(--pap);border-left:3px solid var(--lav);padding:16px 20px;font-style:italic}
   .voet{border-top:1px solid var(--bd);padding-top:16px;font-size:12px;color:var(--mut)}
+  ${BLOK_CSS}
+  .blok{margin-bottom:34px;font-size:14.5px}
+  .blok-doel{background:var(--rt);border-radius:10px;padding:20px 24px}
+  .blok-ruimte{border-top:1px solid var(--bd);padding-top:18px}
   @media(max-width:600px){.body{padding:24px 20px 50px}.kop{padding:18px 20px}}
 </style>
 </head>
@@ -105,6 +128,8 @@ export function bouwUitslagPagina({ meting, profiel }){
   <div class="kop">Zelfkracht Index</div>
   <div class="body">
     <p class="datum">Jouw meting van ${esc(datum)}. Deze pagina is alleen van jou.</p>
+
+    ${doelBlok}
 
     <div class="getal">
       <div class="n">${meting.index_score}</div>
@@ -142,6 +167,10 @@ export function bouwUitslagPagina({ meting, profiel }){
     <section class="sec" style="margin-top:34px">
       <div class="venster"><p>${esc(PATROON)}</p></div>
     </section>
+
+    ${ruimteBlok}
+    ${routeBlokHtml({ vorm: "individu" })}
+    ${resultaatBlokHtml({ vorm: "individu" })}
 
     <p class="voet">Deze link is persoonlijk. Wie hem heeft, ziet jouw uitslag; deel hem dus niet. Je coach en je werkgever krijgen deze pagina niet te zien.</p>
   </div>

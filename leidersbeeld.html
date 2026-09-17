@@ -75,11 +75,46 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
     <button type="button" class="terug" id="terug">Vorige vraag</button>
   </section>
 
+  <!-- ============================ stap 2b · het doel ============================
+       Briefing doel-ruimte v1, paragraaf 7.3: de leider vult hetzelfde in als
+       het team. Verplicht. De keuze bepaalt het doeltype; er wordt niets
+       geclassificeerd. -->
+  <section id="stap-doel" hidden>
+    <div class="eyebrow">Het doel</div>
+    <h1>Waar moet dit team staan?</h1>
+    <p class="lead">Eén zin, in jullie eigen woorden. Weet je het nog niet, dan sla je dit over.</p>
+    <div class="kaart">
+      <form id="doelform" novalidate>
+        <label for="doel-tekst">Het doel</label>
+        <textarea id="doel-tekst" name="doel_tekst" maxlength="200" rows="3" style="width:100%;font:inherit;padding:12px;border:1.5px solid var(--lijn,#E6DFE9);border-radius:10px;resize:vertical"></textarea>
+        <p class="klein" style="font-size:13px;color:#6B6472;margin:6px 0 18px"><span id="doel-teller">0</span> van 200 tekens</p>
+
+        <label for="doel-datum">Wanneer moet dat staan?</label>
+        <input type="date" id="doel-datum" name="doel_datum" style="max-width:220px">
+
+        <label>Wat is er vooral nodig om dat te halen?</label>
+        <div id="doel-keuzes" style="display:grid;gap:10px;margin:8px 0 18px"></div>
+
+        <div id="fout-doel" class="fout" hidden></div>
+        <button type="submit" class="knop">Verder</button>
+        <button type="button" class="terug" id="doel-overslaan">Sla over</button>
+        <button type="button" class="terug" id="terug-naar-vragen">Vorige vraag</button>
+      </form>
+    </div>
+  </section>
+
   <!-- ============================ stap 3 · gegevens ============================ -->
   <section id="stap-gegevens" hidden>
     <div class="eyebrow">Bijna klaar</div>
     <h1>Waar sturen we je Leidersbeeld naartoe?</h1>
     <p class="lead">Je antwoorden staan klaar. We rekenen ze uit en sturen je de uitkomst, met een link naar je eigen pagina.</p>
+
+    <div class="kaart" id="doel-samenvatting" style="margin-bottom:18px">
+      <p><b>Doel:</b> <span id="sam-doel"></span></p>
+      <p><b>Wanneer:</b> <span id="sam-datum"></span></p>
+      <p><b>Nodig:</b> <span id="sam-nodig"></span></p>
+      <button type="button" class="terug" id="doel-aanpassen">Aanpassen</button>
+    </div>
 
     <div class="kaart">
       <form id="gegevens" novalidate>
@@ -131,6 +166,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
 
 <script type="module">
 import { ITEMS, SCHAAL } from "/items.js";
+import { KEUZEZINNEN_TEAM } from "/teamkracht-ruimte.js";
 
 const el = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -171,8 +207,77 @@ function toonVraag(){
 function kies(waarde){
   antwoorden[plek] = waarde;
   if (plek < ITEMS.length - 1){ plek++; toonVraag(); return; }
-  naarGegevens();
+  naarDoel();
 }
+
+/* ------------------------------------------------------------- het doel */
+let doeltype = null;
+
+function naarDoel(){
+  el("stap-vragen").hidden = true;
+  el("stap-gegevens").hidden = true;
+  el("stap-doel").hidden = false;
+  if (!el("doel-keuzes").children.length){
+    KEUZEZINNEN_TEAM.forEach(k => {
+      const lab = document.createElement("label");
+      lab.style.cssText = "display:flex;gap:10px;align-items:flex-start;font-weight:400;cursor:pointer;margin:0";
+      const inp = document.createElement("input");
+      inp.type = "radio"; inp.name = "doeltype"; inp.value = k.doeltype; inp.style.marginTop = "5px";
+      inp.addEventListener("change", () => { doeltype = k.doeltype; });
+      lab.appendChild(inp);
+      lab.appendChild(document.createTextNode(k.zin));
+      el("doel-keuzes").appendChild(lab);
+    });
+  }
+  window.scrollTo(0, 0);
+  el("doel-tekst").focus();
+}
+
+el("doel-tekst").addEventListener("input", () => { el("doel-teller").textContent = el("doel-tekst").value.length; });
+
+el("terug-naar-vragen").addEventListener("click", () => {
+  el("stap-doel").hidden = true;
+  el("stap-vragen").hidden = false;
+  plek = ITEMS.length - 1;
+  toonVraag();
+  window.scrollTo(0, 0);
+});
+
+let doelOvergeslagen = false;
+el("doel-overslaan").addEventListener("click", () => {
+  doelOvergeslagen = true;
+  el("doel-tekst").value = ""; el("doel-datum").value = ""; doeltype = null;
+  document.querySelectorAll('input[name="doeltype"]').forEach(i => { i.checked = false; });
+  el("doel-samenvatting").hidden = true;
+  el("stap-doel").hidden = true;
+  naarGegevens();
+});
+
+el("doelform").addEventListener("submit", e => {
+  e.preventDefault();
+  const fouten = [];
+  const tekst = el("doel-tekst").value.trim();
+  const datum = el("doel-datum").value;
+  if (!tekst && !datum && !doeltype){ el("doel-overslaan").click(); return; }
+  if (tekst.length < 2) fouten.push("het doel in één zin");
+  if (!datum) fouten.push("wanneer dat moet staan");
+  if (!doeltype) fouten.push("wat er vooral nodig is");
+  if (fouten.length){
+    el("fout-doel").textContent = "We missen nog " + fouten.join(", ") + ".";
+    el("fout-doel").hidden = false;
+    return;
+  }
+  el("fout-doel").hidden = true;
+  doelOvergeslagen = false;
+  el("doel-samenvatting").hidden = false;
+  el("sam-doel").textContent = tekst;
+  el("sam-datum").textContent = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(datum + "T00:00:00Z"));
+  el("sam-nodig").textContent = (KEUZEZINNEN_TEAM.find(k => k.doeltype === doeltype) || {}).zin || "";
+  el("stap-doel").hidden = true;
+  naarGegevens();
+});
+
+el("doel-aanpassen").addEventListener("click", () => naarDoel());
 
 el("terug").addEventListener("click", () => { if (plek > 0){ plek--; toonVraag(); } });
 
@@ -225,6 +330,9 @@ async function verstuur(){
         teamomvang:   el("omvang").value,
         privacy:      el("privacy").checked,
         kwartaal:     el("kwartaal").checked,
+        doel_tekst:   doelOvergeslagen ? "" : el("doel-tekst").value.trim(),
+        doel_datum:   doelOvergeslagen ? "" : el("doel-datum").value,
+        doeltype:     doelOvergeslagen ? null : doeltype,
         antwoorden,
         src:          params.get("src"),
         partner:      params.get("partner")

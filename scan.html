@@ -122,6 +122,26 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .lead-thanks-icon{width:34px;height:34px;border-radius:50%;background:var(--pk);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;margin:0 auto 12px}
 .lead-thanks-txt{font-size:14px;font-weight:500;color:var(--dp);margin-bottom:5px}
 .lead-thanks-sub{font-size:12px;font-weight:300;color:var(--mut)}
+/* doelscherm en de blokken van de uitslag (briefing doel-ruimte v1) */
+.doel-ta{width:100%;font:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--bd);border-radius:10px;resize:vertical;min-height:84px;margin-bottom:6px}
+.doel-teller{font-size:12px;color:var(--mut);margin-bottom:22px}
+.teamdoel{font-size:13.5px;color:var(--dp);background:var(--rt);border-left:3px solid var(--pk);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:18px}
+.blok{margin:0 0 34px}
+.blok-kop{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.55rem;line-height:1.2;color:var(--dp);margin-bottom:.35em}
+.blok-doel{background:var(--rt);border-radius:10px;padding:20px 24px}
+.doel-tekst{font-family:"DM Serif Display",serif;font-size:1.3rem;line-height:1.3;color:var(--dp);margin-bottom:.2em}
+.doel-datum{color:var(--dp);font-size:14px;font-weight:500;margin-bottom:.15em}
+.doel-zin,.doel-leeg{color:var(--mut);font-size:14px;font-weight:300}
+.blok-ruimte{border-top:1px solid var(--bd);padding-top:18px}
+.ruimte-zin{font-size:14.5px;line-height:1.55;margin-bottom:.4em;font-weight:300}
+.ruimte-balken{margin:.6em 0 .5em;max-width:30em}
+.ruimte-balken svg{width:100%;height:auto;display:block}
+.ruimte-profiel,.ruimte-strip{font-size:13.5px;font-weight:300;line-height:1.45;margin-bottom:.25em}
+.blok-leeg{border:1px dashed var(--bd);border-radius:10px;padding:14px 18px}
+.blok-leeg .blok-kop{font-size:1.2rem;margin-bottom:.2em}
+.blok-leegtekst{font-size:13.5px;font-weight:300;color:var(--mut);line-height:1.45}
+.blok-laden{font-size:13px;color:var(--mut)}
+
 /* deelvenster (deelbare herkenningszin) */
 .deel-overlay{position:fixed;inset:0;background:rgba(26,11,46,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
 .deel-overlay.open{display:flex}
@@ -159,6 +179,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
   <div class="body">
     <div class="eye">Zelfkracht Index</div>
     <div class="lead-h">Zelfkracht heeft<br>nu een eigen getal.</div>
+    <p class="teamdoel" id="w-teamdoel" style="display:none"></p>
     <p class="lead-p">De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
     <p class="lead-p">Twaalf stellingen, één schaal. Aan het eind krijg je je Index met drie deelscores en een persoonlijke duiding.</p>
     <p class="lead-p">De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen.</p>
@@ -189,6 +210,26 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
       <button class="btn" style="width:100%;justify-content:center" onclick="mailSubmit()">Stuur mijn uitslag &rarr;</button>
       <div class="lead-skip"><button class="linkbtn" onclick="mailSkip()">liever direct bekijken zonder mail</button></div>
     </div>
+  </div>
+</div>
+
+<!-- DOEL (na de mailstap, vóór de uitslag; overslaanbaar) -->
+<div class="screen" id="s-d">
+  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Nog één ding</span></div>
+  <div class="body">
+    <div class="eye">Jouw doel</div>
+    <div class="qtxt">Waar wil je staan?</div>
+    <div class="instr" style="margin-bottom:14px">Eén zin, in je eigen woorden. Je uitslag leest je scores straks in het licht van dit doel. Je mag het ook overslaan.</div>
+    <textarea class="doel-ta" id="d-tekst" maxlength="200" rows="3" oninput="document.getElementById('d-teller').textContent=this.value.length"></textarea>
+    <div class="doel-teller"><span id="d-teller">0</span> van 200 tekens</div>
+    <div class="qtxt" style="font-size:18px">Wanneer?</div>
+    <input class="lead-inp" id="d-datum" type="date" style="max-width:220px;margin-bottom:22px">
+    <div class="qtxt" style="font-size:18px">Wat is er vooral nodig om dat te halen?</div>
+    <div class="opts" id="d-opts"></div>
+  </div>
+  <div class="foot">
+    <button class="linkbtn" onclick="doelSkip()">Sla over</button>
+    <button class="btn" onclick="doelSubmit()">Verder &rarr;</button>
   </div>
 </div>
 
@@ -334,6 +375,23 @@ let savePromise = null;       // de ene insert (scores + duiding) via /api/scan
 let deelZin = null;           // meest markante zin uit de duiding (/api/deelzin)
 let deelzinPromise = null;    // loopt parallel aan de duiding-render
 let deelId = null;            // publiek id van de deelpagina (/deel/[id]); nooit het scan-id
+/* Het eigen doel (briefing doel-ruimte v1, paragraaf 7.2): één zin en één van
+   vier keuzezinnen, na de mailstap en vóór de uitslag. Beide overslaanbaar;
+   overgeslagen betekent doeltype onbekend en een lezing via de keten. De vier
+   zinnen staan letterlijk in L1 (individuele variant) en in
+   teamkracht-ruimte.js; een test bewaakt dat ze gelijk blijven. */
+const DOEL_ZINNEN = [
+  { doeltype: "zien",     zin: "Dat ik scherp heb wat er speelt en wat er moet gebeuren" },
+  { doeltype: "sturen",   zin: "Dat ik knopen doorhak en verantwoordelijkheid neem" },
+  { doeltype: "doen",     zin: "Dat ik afmaak wat ik me voorneem" },
+  { doeltype: "onbekend", zin: "Weet ik nog niet" }
+];
+let doelTekst = null;
+let doelDatum = null;         // jjjj-mm-dd, of null
+let doelType = null;          // null = overgeslagen
+let teamDoelTekst = null;     // het doel van het team, op de uitnodigingspagina
+const datumInWoorden = d => { try{ return new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(d+"T00:00:00Z")); }catch(e){ return d; } };
+const escHtml = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 /* Teamtoken uit de link van de coach (scan?team=ABC123). De vragen, de scoring
    en de duiding zijn identiek aan een gewone meting; de deelnemer ziet zijn
    eigen uitslag zoals altijd en de coach ziet nooit meer dan de
@@ -355,6 +413,7 @@ function renderQ(qi){
   document.getElementById("s-q").innerHTML = `
     <div class="hdr"><img src="happly-logo.svg" alt="Happly"><div style="display:flex;align-items:center"><div class="dots">${dots}</div><span class="ptxt">${qi+1} / ${N}</span></div></div>
     <div class="body">
+      ${teamDoelTekst ? `<p class="teamdoel">Dit team werkt naar: ${escHtml(teamDoelTekst)}</p>` : ""}
       <div class="eye">${it.eye}</div>
       <div class="qtxt">${it.text}</div>
       <div class="instr">${INSTR}</div>
@@ -411,7 +470,7 @@ function mailSubmit(){
   leadCompany = document.getElementById("m-company").value.trim() || null;
   logEvent("mail_ingevuld");      // na scan_afgerond, vóór uitslag_getoond
   checkHermeting(email);          // fire-and-forget; vult de melding zodra bekend
-  toResults();
+  toDoel();
 }
 
 /* Hermetingdetectie (briefing 12-08-2026): checkt op de mailstap of dit adres al
@@ -441,8 +500,47 @@ function toonHermeting(){
 function mailSkip(){
   leadEmail = null; leadName = null; leadCompany = null;
   logEvent("mail_overgeslagen");  // na scan_afgerond, vóór uitslag_getoond
+  toDoel();
+}
+
+/* ======================= DOELSCHERM (vóór de uitslag) ======================= */
+function toDoel(){
+  const opts = document.getElementById("d-opts");
+  opts.innerHTML = DOEL_ZINNEN.map(k =>
+    `<div class="opt${doelType===k.doeltype?" sel":""}" onclick="pickDoel('${k.doeltype}')"><div class="ol"></div><div class="ot">${k.zin}</div></div>`).join("");
+  show("s-d");
+}
+function pickDoel(t){ doelType = (doelType === t ? null : t); toDoel(); }
+function doelSubmit(){
+  const tekst = document.getElementById("d-tekst").value.trim().slice(0, 200);
+  const datum = document.getElementById("d-datum").value || null;
+  if (!tekst && !doelType && !datum){ doelSkip(); return; }
+  doelTekst = tekst || null;
+  doelDatum = datum;
+  if (!doelType) doelType = "onbekend";
+  logEvent("doel_ingevuld");      // na mail_ingevuld of mail_overgeslagen, vóór uitslag_getoond
   toResults();
 }
+function doelSkip(){
+  doelTekst = null; doelType = null; doelDatum = null;
+  logEvent("doel_overgeslagen");
+  toResults();
+}
+/* Het doel van het team op de uitnodigingspagina, boven de vragen. Alleen de
+   tekst; niets anders komt mee. */
+async function haalTeamDoel(){
+  if (!teamToken) return;
+  try{
+    const r = await fetch("/api/teamkracht-teamdoel?team=" + encodeURIComponent(teamToken));
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.doel_tekst) return;
+    teamDoelTekst = d.doel_tekst + (d.doel_datum ? `, voor ${datumInWoorden(d.doel_datum)}` : "");
+    const w = document.getElementById("w-teamdoel");
+    if (w){ w.textContent = "Dit team werkt naar: " + teamDoelTekst; w.style.display = "block"; }
+  }catch(e){/* stil */}
+}
+haalTeamDoel();
 
 /* ======================= UITSLAG ======================= */
 function toResults(){
@@ -472,6 +570,9 @@ function renderResults(){
     <div class="herm" id="hermeting-melding"></div>
 
     <div class="r-eye">Jouw Zelfkracht Index</div>
+
+    <!-- Blok 1 (doel-ruimte v1): het eigen doel. Zonder doel de vaste zin. -->
+    <div id="blok-doel">${doelBlokHtml()}</div>
 
     <!-- Blok 1: het getal -->
     <div class="score-hero">
@@ -530,6 +631,13 @@ function renderResults(){
       </div>`}
     </div>
 
+    <!-- Blok 3, 4 en 5 (doel-ruimte v1): waar de winst zit, wat je gaat doen,
+         wat het opleverde. Blok 3 komt van de server zodra de meting is
+         opgeslagen: dezelfde rij als de mail en /uitslag/:token. -->
+    <div id="blok-ruimte" class="blok blok-ruimte"><div class="blok-kop">Waar de winst zit</div><p class="blok-laden"><span class="spin"></span> Wordt berekend zodra je meting is opgeslagen…</p></div>
+    <section class="blok blok-route blok-leeg"><div class="blok-kop">Wat jij gaat doen</div><p class="blok-leegtekst">Hier komt straks je eigen eerste stap.</p></section>
+    <section class="blok blok-resultaat blok-leeg"><div class="blok-kop">Wat het opleverde</div><p class="blok-leegtekst">Bij je volgende meting zie je hier wat er is veranderd.</p></section>
+
     <!-- Blok 7: delen, bewust ná het Sprint-blok zodat de route naar de
          Sprint-CTA vrij blijft; verschijnt zodra de duiding er staat.
          Bij een teammeting blijft dit blok weg: die deelnemer komt via zijn
@@ -550,6 +658,15 @@ function renderResults(){
     </div>
     <div class="foot-links" style="padding:26px 0 6px;border-top:none"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a><a href="privacy">Privacy</a></div>
   `;
+}
+
+/* Blok 1 van de uitslag: het eigen doel, letterlijk, met de gekozen keuzezin. */
+function doelBlokHtml(){
+  const zin = doelType ? (DOEL_ZINNEN.find(k => k.doeltype === doelType) || {}).zin : null;
+  const inhoud = doelTekst
+    ? `<p class="doel-tekst">&ldquo;${escHtml(doelTekst)}&rdquo;</p>${doelDatum ? `<p class="doel-datum">Voor ${escHtml(datumInWoorden(doelDatum))}.</p>` : ""}${zin ? `<p class="doel-zin">${escHtml(zin)}</p>` : ""}`
+    : `<p class="doel-leeg">Nog geen doel benoemd.</p>`;
+  return `<section class="blok blok-doel"><div class="blok-kop">Waar jij naartoe werkt</div>${inhoud}</section>`;
 }
 
 /* Routeblok: prioriteit (grootste ontwikkelruimte), Sprint-koppeling per laagste dimensie. */
@@ -698,7 +815,11 @@ const DEEL_CANON = "Wat je vaak genoeg doet, wordt automatisch, en wat automatis
 const DEEL_BRON = "Uit mijn Zelfkracht Index · scan.happly.nl";
 let deelLogo = null;
 
-function huidigeDeelzin(){ return deelZin || DEEL_CANON; }
+/* De herkenningszin krijgt het doel erbij als het is ingevuld (paragraaf 6.2). */
+function huidigeDeelzin(){
+  const zin = deelZin || DEEL_CANON;
+  return doelTekst ? `${zin} Mijn doel: ${doelTekst.replace(/[.!?]+$/, "")}.` : zin;
+}
 
 /* De zin ligt vast (besluit Maarten 05-08-2026, na media-advies): de deelnemer
    kiest alleen óf hij deelt, niet wat er staat. Geen tekstveld, geen aanpassing. */
@@ -848,9 +969,24 @@ async function saveScan(){
   try{
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
-        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:deelZin,team:teamToken})});
-    if(r.ok){ const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null; }
+        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,
+        doel_tekst:doelTekst,doeltype:doelType,doel_datum:doelDatum})});
+    if(r.ok){
+      const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null;
+      toonBlokken(d.blokken);
+    } else toonBlokken(null);
   }catch(e){/* stil: opslag mag de uitslag niet blokkeren */}
+}
+
+/* Blok 1 en 3 zoals de server ze uit de opgeslagen ruimterij heeft gebouwd.
+   Blijft de server in gebreke, dan verdwijnt het laadbericht en staat er de
+   kop met de vaste zin. */
+function toonBlokken(blokken){
+  const rb = document.getElementById("blok-ruimte");
+  const db = document.getElementById("blok-doel");
+  if (blokken && blokken.ruimte && rb) rb.outerHTML = blokken.ruimte;
+  else if (rb) rb.innerHTML = `<div class="blok-kop">Waar de winst zit</div><p class="blok-leegtekst">Je vindt dit blok terug via de link in je mail.</p>`;
+  if (blokken && blokken.doel && db) db.innerHTML = blokken.doel;
 }
 
 /* Mailadres komt van het mailscherm vóór de uitslag; dit draait op de achtergrond

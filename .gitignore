@@ -11,3 +11,4 @@ migratie-teamkracht-*.sql
 # Verversen na een wijziging aan de kaart: npm run voorbeeld
 teamkracht-voorbeeld-poster-*.html
 .DS_Store
+voorbeelden-doel-ruimte/

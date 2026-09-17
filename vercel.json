@@ -75,6 +75,9 @@
     "api/teamkracht-doel.js": {
       "maxDuration": 15
     },
+    "api/teamkracht-teamdoel.js": {
+      "maxDuration": 15
+    },
     "api/teamkracht-teambeeld.js": {
       "maxDuration": 10
     },

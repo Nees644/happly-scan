@@ -61,6 +61,16 @@ label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-tr
 .prijsregel{color:var(--mut)}
 .keuze{font-size:12.5px;font-weight:300;color:var(--mut);margin-top:10px;line-height:1.5;max-width:70ch}
 iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;background:#fff;margin-top:14px}
+.doelvak{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.doelvak label{display:block;font-weight:600;margin-bottom:6px}
+.doelvak textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;resize:vertical;min-height:64px}
+.doelvak .teller{font-size:12px;color:var(--mut);margin:4px 0 12px}
+.doelvak .keuzes{display:grid;gap:8px;margin-bottom:6px}
+.doelvak .keuzes label{display:flex;gap:10px;align-items:flex-start;font-weight:400;cursor:pointer;margin:0}
+.doelvak .keuzes input{margin-top:4px}
+.teamdoel{margin:10px 0 4px;font-size:14px}
+.teamdoel b{font-weight:600}
+.teamdoel .zin{color:var(--mut)}
 </style>
 </head>
 <body>
@@ -90,8 +100,14 @@ iframe{width:100%;height:640px;border:1px solid var(--bd);border-radius:10px;bac
         <div><label for="n-org">Organisatie</label><input class="inp" id="n-org" placeholder="optioneel"></div>
         <div><label for="n-coach">Coach</label><input class="inp" id="n-coach" placeholder="optioneel"></div>
         <div><label for="n-leider">E-mail teamleider</label><input class="inp" id="n-leider" type="email" placeholder="optioneel"></div>
-        <button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button>
       </div>
+      <!-- Het doel van het team (briefing doel-ruimte v1, paragraaf 7.1), optioneel
+           bij het aanmaken: meestal benoemt het team het in de sessie, bij de
+           schuifjes van het doelbeeld. De keuze bepaalt het doeltype; er wordt
+           niets geclassificeerd. -->
+      <p class="sub" style="margin-top:14px">Het doel in woorden mag nu, maar hoeft niet: meestal benoemt het team het in de sessie, bij het doelbeeld. Tot die tijd leest de kaart via de keten.</p>
+      <div class="doelvak" id="n-doelvak"></div>
+      <div class="nieuw" style="margin-top:12px"><button class="btn" id="n-btn" onclick="maakTeam()">Team aanmaken</button></div>
       <p class="melding" id="n-prijs"></p>
       <p class="melding" id="n-melding"></p>
     </div>
@@ -163,8 +179,38 @@ async function laadTeams(){
   }
 }
 
+/* De vier keuzezinnen van het doel, letterlijk uit L1 (teamvariant) en uit
+   teamkracht-ruimte.js; een test bewaakt dat ze gelijk blijven. */
+const DOEL_ZINNEN = [
+  { doeltype: "zien",     zin: "Dat we hetzelfde beeld hebben van wat er speelt en wat er moet gebeuren" },
+  { doeltype: "sturen",   zin: "Dat we knopen doorhakken en verantwoordelijkheid nemen" },
+  { doeltype: "doen",     zin: "Dat we afmaken wat we afspreken" },
+  { doeltype: "onbekend", zin: "Weet ik nog niet" }
+];
+const keuzezinVan = t => (DOEL_ZINNEN.find(k => k.doeltype === t) || {}).zin || "";
+const datumInWoorden = d => { try{ return new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(d+"T00:00:00Z")); }catch(e){ return d; } };
+
+/* Het invulvak voor het doel: stap 1 de zin, stap 2 de keuze. Zelfde vak bij
+   een nieuw team en bij Doel toevoegen of Aanpassen op een bestaand team. */
+function doelVak(prefix, huidig = {}){
+  return `
+    <label for="${prefix}-doel">Waar moet dit team staan? Eén zin, in jullie eigen woorden.</label>
+    <textarea id="${prefix}-doel" maxlength="200" oninput="el('${prefix}-teller').textContent=this.value.length">${esc(huidig.doel_tekst || "")}</textarea>
+    <div class="teller"><span id="${prefix}-teller">${(huidig.doel_tekst || "").length}</span> van 200 tekens</div>
+    <label for="${prefix}-datum">Wanneer moet dat staan?</label>
+    <input class="inp" id="${prefix}-datum" type="date" value="${esc(huidig.doel_datum || "")}" style="max-width:220px;margin-bottom:12px">
+    <label>Wat is er vooral nodig om dat te halen?</label>
+    <div class="keuzes">${DOEL_ZINNEN.map(k => `<label><input type="radio" name="${prefix}-doeltype" value="${k.doeltype}"${huidig.doeltype === k.doeltype ? " checked" : ""}> ${esc(k.zin)}</label>`).join("")}</div>`;
+}
+function leesDoel(prefix){
+  const doel_tekst = (el(`${prefix}-doel`)?.value || "").trim();
+  const gekozen = document.querySelector(`input[name="${prefix}-doeltype"]:checked`);
+  return { doel_tekst, doel_datum: el(`${prefix}-datum`)?.value || null, doeltype: gekozen ? gekozen.value : null };
+}
+
 function render(){
   const lr = el("licentieregel");
+  if (el("n-doelvak") && !el("n-doel")) el("n-doelvak").innerHTML = doelVak("n");
   if (lr){
     const basis = "Onder de vijf deelnemers maakt het instrument geen kaart. Onder de tien toont de kaart alleen de teamlijn en de verdeling, geen individuele lijnen.";
     lr.textContent = `${basis} ${lijnregel()}`;
@@ -193,7 +239,7 @@ function render(){
 
     const knoppen = [];
     for (const b of beelden){
-      knoppen.push(`<button class="btn lijn klein" onclick="toonKaart('${b.id}','${esc(t.naam)}')">
+      knoppen.push(`<button class="btn lijn klein" onclick="toonKaart('${b.id}','${esc(t.naam)}','${t.id}')">
         ${b.soort === "start" ? "Startbeeld" : "Eindbeeld"} van ${new Date(b.created_at).toLocaleDateString("nl-NL")}, ${b.n} deelnemers
       </button>`);
       for (const d of b.doelen || []){
@@ -203,6 +249,14 @@ function render(){
       }
     }
     const eerder = knoppen.length ? `<div class="eerder">${knoppen.join("")}</div>` : "";
+
+    // Het doel van dit team (blok 1 van de kaart). Zonder doel de vaste zin en
+    // de knop; met doel de bevestiging en Aanpassen.
+    const doelregel = t.doel_tekst
+      ? `<div class="teamdoel"><b>Doel:</b> &ldquo;${esc(t.doel_tekst)}&rdquo;${t.doel_datum ? ` <b>Wanneer:</b> ${esc(datumInWoorden(t.doel_datum))}` : ""} <b>Nodig:</b> <span class="zin">${esc(keuzezinVan(t.doeltype))}</span>
+           <button class="btn lijn klein" onclick="doelFormulier('${t.id}')">Aanpassen</button></div>`
+      : `<div class="teamdoel"><span class="zin">Nog geen doel benoemd. De kaart leest via de keten.</span>
+           <button class="btn lijn klein" onclick="doelFormulier('${t.id}')">Doel toevoegen</button></div>`;
 
     return `<div class="kaart">
       <div class="teamrij">
@@ -217,6 +271,8 @@ function render(){
           ${knopVoor(t, genoeg, soort, knoptekst)}
         </div>
       </div>
+      ${doelregel}
+      <div class="doelvak" id="doelvak-${t.id}" style="display:none"></div>
       ${eerder}
       <div class="link">
         <code>${basis}/scan?team=${esc(t.token)}</code>
@@ -419,13 +475,19 @@ async function maakTeam(){
   const naam = el("n-naam").value.trim();
   const melding = el("n-melding"); melding.className = "melding";
   if (!naam){ melding.textContent = "Vul een teamnaam in."; melding.className = "melding fout"; return; }
+  // Het doel is optioneel bij het aanmaken (besluit 17 september 2026): het
+  // wordt meestal in de sessie benoemd. Wie het nu invult, vult alles in.
+  const doel = leesDoel("n");
+  const gevuld = [doel.doel_tekst, doel.doel_datum, doel.doeltype].filter(Boolean).length;
+  if (gevuld > 0 && gevuld < 3){ melding.textContent = "Vul het doel helemaal in (de zin, de datum en de keuze), of laat het leeg voor de sessie."; melding.className = "melding fout"; return; }
   el("n-btn").disabled = true; melding.textContent = "Bezig...";
   try{
     const basis = {
       naam,
       organisatie: el("n-org").value.trim() || null,
       coach_naam: el("n-coach").value.trim() || null,
-      leider_email: el("n-leider").value.trim() || null
+      leider_email: el("n-leider").value.trim() || null,
+      ...(gevuld === 3 ? doel : {})
     };
     let uit = await api("/api/teamkracht-team", { method:"POST", body: JSON.stringify(basis) });
 
@@ -439,6 +501,7 @@ async function maakTeam(){
     }
 
     el("n-naam").value = el("n-org").value = el("n-coach").value = el("n-leider").value = "";
+    el("n-doelvak").innerHTML = doelVak("n");
     melding.textContent = uit.leidersbeeld === "gekoppeld"
       ? "Team aangemaakt en het Leidersbeeld is eraan gekoppeld. De link staat hieronder."
       : "Team aangemaakt. De link staat hieronder.";
@@ -458,11 +521,50 @@ async function maakKaart(teamId, naam, soort){
     const naamBeeld = soort === "hermeting" ? "Eindbeeld" : "Startbeeld";
     melding.textContent = `${naamBeeld} berekend over ${beeld.n} deelnemers. Breuk: ${beeld.breuk.replace("_"," en ")}.`;
     await laadTeams();
-    toonKaart(beeld.id, naam);
+    toonKaart(beeld.id, naam, teamId);
   }catch(e){
     melding.textContent = e.message; melding.className = "melding fout";
   }
 }
+
+/* Doel toevoegen of aanpassen op een bestaand team. Na het opslaan worden de
+   beelden van het team opnieuw gelezen; geen enkele score verandert. */
+function doelFormulier(teamId){
+  const t = TEAMS.find(x => x.id === teamId);
+  const vak = el(`doelvak-${teamId}`);
+  if (!vak) return;
+  vak.style.display = "block";
+  vak.innerHTML = doelVak(`d${teamId}`, t || {}) +
+    `<div class="acties" style="margin-top:8px">
+       <button class="btn klein" onclick="bewaarDoel('${teamId}')">Doel opslaan</button>
+       <button class="btn lijn klein" onclick="el('doelvak-${teamId}').style.display='none'">Annuleren</button>
+     </div>`;
+  vak.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function bewaarDoel(teamId){
+  const melding = el(`m-${teamId}`); melding.className = "melding";
+  const doel = leesDoel(`d${teamId}`);
+  if (!doel.doel_tekst || !doel.doel_datum || !doel.doeltype){
+    melding.textContent = "Het doel vraagt één zin, een datum en één keuze."; melding.className = "melding fout"; return;
+  }
+  melding.textContent = "Bezig...";
+  try{
+    const uit = await api("/api/teamkracht-teamdoel", { method: "POST", body: JSON.stringify({ team_id: teamId, ...doel }) });
+    melding.textContent = uit.herlezen && uit.herlezen.length
+      ? "Doel opgeslagen. De kaart leest nu in het licht van dit doel; de scores zijn niet veranderd."
+      : "Doel opgeslagen.";
+    await laadTeams();
+  }catch(e){
+    melding.textContent = `Opslaan mislukt: ${e.message}`; melding.className = "melding fout";
+  }
+}
+
+/* De knop Doel toevoegen op de kaart zelf praat via het kaartvenster. */
+let kaartTeamId = null;
+window.addEventListener("message", e => {
+  if (e.data && e.data.teamkracht === "doel_toevoegen" && kaartTeamId) doelFormulier(kaartTeamId);
+});
 
 /* De kaartroute zit achter dezelfde authenticatie als de rest, en een iframe
    of een gewone link stuurt geen Authorization-header mee. Daarom halen we de
@@ -482,7 +584,8 @@ async function toonDoel(doelId, naam){
   return toonBeeld(`doel_id=${doelId}`, `Doelbeeld ${naam}`, `/teamkracht-doel?teambeeld=`);
 }
 
-async function toonKaart(id, naam){
+async function toonKaart(id, naam, teamId = null){
+  kaartTeamId = teamId;
   return toonBeeld(`teambeeld_id=${id}`, `Teamkrachtkaart ${naam}`, `/teamkracht-doel?teambeeld=${id}`);
 }
 

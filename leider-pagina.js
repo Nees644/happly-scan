@@ -113,10 +113,24 @@ function hermetingUitnodiging(token){
   </div>`;
 }
 
+/* L5 uit briefing doel-ruimte v1: koos de leider hetzelfde als het team over
+   wat er nodig is. Staat direct onder het blok gedeeld beeld / verschil in
+   beeld op de scores. Zonder teamdoel is er geen label. */
+function doelBlok(v){
+  if (!v) return "";
+  const zinnen = v.gelijk ? "" :
+    `<p><b>Jij:</b> ${ontsnap(v.leider_zin || "")}</p><p><b>Het team:</b> ${ontsnap(v.team_zin || "")}</p>`;
+  return `<div class="blok">
+    <div class="eyebrow">Leidersbeeld en teamdoel</div>
+    <p class="groot">${ontsnap(v.label)}</p>
+    ${zinnen}
+  </div>`;
+}
+
 export function bouwLeiderPagina({
   rij, team = null, deelnemers = null, partnernaam = null, token = "",
   teambeeld = null, landelijk_beeld = false,
-  eindRij = null, eindBeeld = null, hermetingLoopt = false
+  eindRij = null, eindBeeld = null, hermetingLoopt = false, doelvergelijking = null
 }){
   const meet = (beeld, leidersbeeld) => (beeld && leidersbeeld) ? beoordeelLeidersbeeld({
     leidersbeeld: { zien: leidersbeeld.zien, sturen: leidersbeeld.sturen, doen: leidersbeeld.doen },
@@ -144,9 +158,9 @@ export function bouwLeiderPagina({
           teamlijn: { zien: teambeeld.team_zien, sturen: teambeeld.team_sturen, doen: teambeeld.team_doen },
           leidersbeeld: { zien: rij.zien, sturen: rij.sturen, doen: rij.doen }
         } : null
-      ) + uitnodiging
+      ) + doelBlok(doelvergelijking) + uitnodiging
     : stand === "b"
-      ? deelname(deelnemers || {}) + uitnodiging
+      ? deelname(deelnemers || {}) + doelBlok(doelvergelijking) + uitnodiging
       : nogGeenTeam({ organisatie: rij.organisatie, teamomvang: rij.teamomvang, partnernaam, token });
 
   return `<!DOCTYPE html>

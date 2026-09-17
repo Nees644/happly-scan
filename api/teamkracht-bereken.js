@@ -12,6 +12,7 @@ import { bouwTeambeeld } from "../teamkracht-logica.js";
 import { rechtOpKaart } from "../betalen.js";
 import { haalKoper, legAfnameVast } from "../koper-db.js";
 import { verderDan } from "../leidersbeeld-koppelen.js";
+import { berekenTeamRuimte } from "../teamkracht-ruimte-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -28,7 +29,7 @@ export default async function handler(req, res){
   const db = serviceClient();
 
   const team = await db.from("teamkracht_teams")
-    .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot").eq("id", team_id).single();
+    .select("id, naam, coach_user_id, hermeting_tegoed, hermeting_tot, doel_tekst, doel_datum, doeltype").eq("id", team_id).single();
   if (team.error || !team.data){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;
@@ -135,6 +136,19 @@ export default async function handler(req, res){
   }
   if (ins.error){ await logFout("teamkracht-bereken", "opslaan mislukt"); res.status(500).json({ error: "opslaan mislukt" }); return; }
 
+  // De ruimte hoort bij dit beeld (briefing doel-ruimte v1, paragraaf 10): nu
+  // berekend en opgeslagen in teamkracht_ruimte, zodat de kaart de rij leest
+  // en niet opnieuw rekent. Het doel van het team stuurt de lezing; de scores
+  // hierboven veranderen er niet door. Stil bij een fout: de kaart is er al.
+  let ruimte = null;
+  try{
+    ruimte = await berekenTeamRuimte(db, {
+      teambeeld: { id: ins.data.id, ...opslag },
+      team: team.data,
+      profielen: profielrijen.data || []
+    });
+  }catch(e){ await logFout("teamkracht-bereken", "ruimte niet berekend"); }
+
   // De kaart bestaat nu, en daarmee is het Leidersbeeld van dit meetmoment
   // gesloten (K2): het beeld van de leider hoort van voor de kaart te zijn, of
   // het is geen onafhankelijk beeld meer. Stil bij een fout, want de kaart is
@@ -189,5 +203,5 @@ export default async function handler(req, res){
     db.from("index_scan_results").update({ profiel_code: profielen[i].code }).eq("id", r.id)
   ));
 
-  res.status(200).json({ id: ins.data.id, ...opslag, team_naam: team.data.naam });
+  res.status(200).json({ id: ins.data.id, ...opslag, team_naam: team.data.naam, ruimte });
 }

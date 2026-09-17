@@ -7,6 +7,7 @@ import { eisGebruiker, serviceClient, logFout } from "../teamkracht-auth.js";
 import { bouwKaartHtml, tekenKaartSvg } from "../teamkracht-kaart.js";
 import { maakKaartPdf } from "../kaart-pdf.js";
 import { haalKoper } from "../koper-db.js";
+import { ruimteVoorTeambeeld } from "../teamkracht-ruimte-db.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FORMATEN = ["a4", "a3", "a1"];
@@ -49,7 +50,7 @@ export default async function handler(req, res){
   if (beeld.error || !beeld.data){ await logFout("teamkracht-kaart", "onbekend teambeeld"); res.status(404).json({ error: "onbekend teambeeld" }); return; }
 
   const team = await db.from("teamkracht_teams")
-    .select("naam, coach_user_id").eq("id", beeld.data.team_id).single();
+    .select("naam, coach_user_id, doel_tekst, doel_datum, doeltype").eq("id", beeld.data.team_id).single();
   if (team.error){ res.status(404).json({ error: "onbekend team" }); return; }
   if (gebruiker.rol !== "beheerder" && team.data.coach_user_id !== gebruiker.user_id){
     res.status(403).json({ error: "geen toegang" }); return;
@@ -77,6 +78,19 @@ export default async function handler(req, res){
     }
   }catch(e){ /* zonder Leidersbeeld gewoon de kaart */ }
 
+  // De ruimte van dit beeld (briefing doel-ruimte v1): de opgeslagen rij, of
+  // voor een beeld van voor 17 september 2026 nu berekend en opgeslagen. Het
+  // doelbeeld (doel_id) is een andere kaart en krijgt de blokken niet.
+  let ruimte = null;
+  if (!doelId){
+    try{
+      ruimte = await ruimteVoorTeambeeld(db, {
+        teambeeld: beeld.data, team: { id: beeld.data.team_id, ...team.data }, landelijk_beeld
+      });
+    }catch(e){ await logFout("teamkracht-kaart", "ruimte niet leesbaar"); }
+  }
+  const teamdoel = { doel_tekst: team.data.doel_tekst || null, doel_datum: team.data.doel_datum || null, doeltype: team.data.doeltype || null };
+
   if (als === "svg"){
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
     res.status(200).send(tekenKaartSvg(beeld.data, { doel, landelijk_beeld, leidersbeeld }));
@@ -96,7 +110,7 @@ export default async function handler(req, res){
       regels: regelsPdf.data || [],
       profielen: profielenPdf.data || [],
       teamnaam: team.data.naam,
-      formaat, doel, landelijk_beeld, leidersbeeld
+      formaat, doel, landelijk_beeld, leidersbeeld, ruimte, teamdoel
     });
     const naam = `teamkrachtkaart-${(team.data.naam || "team").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${formaat}.pdf`;
     res.setHeader("Content-Type", "application/pdf");
@@ -146,7 +160,9 @@ export default async function handler(req, res){
     doel,
     plan,
     landelijk_beeld,
-    leidersbeeld
+    leidersbeeld,
+    ruimte,
+    teamdoel
   });
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.status(200).send(html);
