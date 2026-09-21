@@ -18,33 +18,20 @@ kleine letters, cijfers en streepjes.
 
 Hoe goed ken je het team?
 
-Vraag het een leidinggevende en je krijgt een helder antwoord. Vraag het hen,
-en je krijgt een ander helder antwoord.
+Elk team komt langs drie schakels tot resultaat:
+zien wat er speelt, kiezen wat van jou is, in beweging komen.
 
-Allebei kloppen ze. Ze kijken alleen naar iets anders.
+De meeste teams haperen op één overgang.
+Wie weet welke, weet waar hij invloed heeft.
 
-De leider ziet wat er langskomt: wat gemeld wordt, wat er in het overleg
-gebeurt, wat er blijft liggen. Het team ziet wat het zelf doet, elke dag, ook
-wat niemand hardop zegt.
+Dat is nu te meten. Twaalf vragen, drie minuten per persoon. Ieder houdt zijn
+eigen uitslag; opgeteld ontstaat het beeld van het team: waar de keten loopt,
+waar hij stokt, en wat de eerste stap is.
 
-Waar die twee beelden uiteenlopen, zit bijna altijd het gesprek dat nog niet is
-gevoerd. Niet omdat iemand iets verbergt, maar omdat niemand het verschil kan
-zien.
+Leid je een team? Begin vandaag met je eigen beeld. Gratis, geen account.
 
-Maar het verschil is pas het begin. Waar het om gaat is hoe een team werkt.
-Elk team komt langs drie schakels tot resultaat: zien wat er speelt, kiezen wat
-van jou is, in beweging komen. De meeste teams haperen op een overgang. Wie
-weet welke, weet waar hij invloed heeft.
-
-Wij hebben dat meetbaar gemaakt. Twaalf vragen, per persoon gemeten en opgeteld
-tot het team. Op een kaart staat waar de keten loopt, waar hij stokt, en waar
-jij als leider of coach het verschil maakt.
-
-Leid je een team: de eerste helft doe je vandaag. Drie minuten, gratis, geen
-account.
-
-Begeleid je teams: stuur de link naar een opdrachtgever. De vraag hoe het team
-het zelf ziet, komt daarna vanzelf. En die kun jij beantwoorden.
+Begeleid je teams? Dit is de opening van het gesprek met je opdrachtgever, en
+de meting onder je traject.
 
 https://happly.nl/?src=linkedin
 
@@ -52,24 +39,24 @@ https://happly.nl/?src=linkedin
 
 ## Post 2 · voor coaches, adviseurs en bureaus
 
-Je weet hoe het gaat. Je zit bij een opdrachtgever, hij zegt dat zijn team meer
-eigenaarschap moet nemen, en je knikt. Want wat moet je anders? Er ligt geen
-enkel gegeven op tafel. Alleen zijn indruk.
+Jij weet hoe je een team in beweging krijgt. Dat is je vak.
 
-Vraag hem eens twaalf vragen te beantwoorden over hoe zijn team het doet op
-zien, sturen en doen. Drie minuten, kosteloos. Hij krijgt zijn Leidersbeeld in
-zijn mail.
+Lastiger is het om te laten zien wat het opleverde. Een evaluatie zegt hoe de
+sessies bevielen, niet wat er in het team veranderde.
 
-En dan komt de vraag vanzelf: hoe ziet het team het zelf?
+Happly is de meting onder jouw traject.
 
-Dat is geen verkooppraatje meer. Dat is zijn eigen nieuwsgierigheid, en jij bent
-degene die het antwoord kan leveren.
+Drie markers: zien, kiezen, doen. Per persoon gemeten, opgeteld tot het team.
+Vooraf zie je op welke overgang het stokt. Achteraf zie je wat er verschoof,
+en je opdrachtgever ziet het ook.
 
-Je krijgt een eigen link. Wie hem invult komt bij jou in beeld, met naam,
-organisatie en teamomvang. De Teamfoto die erop volgt gaat via jou, met jouw
-naam op de kaart, en wij benaderen die opdrachtgever nooit zelf.
+Jouw aanpak, jouw klant, jouw naam op de kaart. Wij benaderen je opdrachtgever
+nooit zelf.
 
-Stuur me een bericht, dan zet ik je link klaar.
+De opening kost niets: je opdrachtgever meet in drie minuten hoe hij zijn team
+ziet. De vraag hoe het team het zelf ziet, volgt vanzelf.
+
+Stuur me een bericht, dan zet ik je eigen link klaar.
 
 https://happly.nl/?src=linkedin-coach
 

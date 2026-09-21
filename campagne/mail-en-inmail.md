@@ -102,21 +102,21 @@ Benieuwd wat je ziet.
 
 ### E-mail 1
 
-**Onderwerp:** Waar begin jij bij een nieuw team?
-*Alternatief:* Op wiens indruk begin jij een traject?
+**Onderwerp:** Wat leverde je laatste traject op?
+*Alternatief:* De meting onder jouw traject
 
 [Voornaam],
 
-Hoe weet jij bij een nieuw team waar je moet beginnen?
+Als een opdrachtgever vraagt wat je traject heeft opgeleverd, wat laat je dan
+zien?
 
-Meestal op de indruk van de opdrachtgever. Hij zegt dat het team meer
-eigenaarschap moet nemen, en daar ga je mee aan het werk.
+Jij weet dat het team is veranderd. Je hebt het zien gebeuren. Maar in de
+evaluatie staat hoe de sessies bevielen, niet wat er in het team verschoof.
 
-Het kan preciezer. Een team komt langs drie schakels tot resultaat: zien,
-kiezen, doen. Happly meet die drie markers per persoon en telt ze op tot het
-beeld van het team. Je ziet op welke overgang het stokt, welke patronen elkaar
-in de weg zitten, en waar jouw interventie het meeste doet. Na je traject laat
-de hermeting zien wat er verschoof.
+Happly is de meting onder jouw traject. Drie markers: zien, kiezen, doen. Per
+persoon gemeten, opgeteld tot het team. Vooraf zie je op welke overgang het
+stokt, achteraf wat er verschoof. Jouw aanpak, jouw klant, jouw naam op de
+kaart.
 
 De opening is gratis: de leidinggevende meet in drie minuten hoe hij zijn team
 ziet. Probeer hem eerst zelf: https://happly.nl/?src=mail-coach
@@ -126,9 +126,10 @@ Happly
 
 PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
-> **De prime:** de openingsvraag laat hem zijn eigen intakes nalopen. Het
-> eerlijke antwoord is meestal "op gevoel", en dan is het probleem van hemzelf
-> voordat de oplossing komt.
+> **De prime:** de openingsvraag gaat over bewijs, niet over kunde. Hij laat de
+> coach denken aan het moment dat hij zijn werk moest verantwoorden; het aanbod
+> is dan het antwoord op die vraag. De tekst zegt met zoveel woorden dat hij
+> zijn vak verstaat: wij meten, hij ontwikkelt.
 
 ### E-mail 2 · opvolging na vijf tot zeven dagen
 
@@ -137,7 +138,8 @@ PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
 [Voornaam],
 
-Vorige week vroeg ik hoe jij bij een nieuw team weet waar je moet beginnen.
+Vorige week vroeg ik wat je laat zien als een opdrachtgever vraagt wat je
+traject heeft opgeleverd.
 
 Als je het Leidersbeeld hebt geprobeerd, weet je hoe het werkt. Het volgende is
 een eigen link: wie hem invult komt bij jou in beeld, met naam, organisatie en
@@ -153,19 +155,19 @@ Maarten
 
 ### InMail
 
-**Onderwerp:** Waar begin jij bij een nieuw team?
+**Onderwerp:** De meting onder jouw traject
 
-[Voornaam], hoe weet jij bij een nieuw team waar je moet beginnen?
+[Voornaam], als een opdrachtgever vraagt wat je traject heeft opgeleverd, wat
+laat je dan zien?
 
-Ik heb een meting gebouwd die laat zien op welke schakel een team stokt: zien,
-kiezen of doen. Per persoon gemeten, opgeteld tot het team, en na je traject
-opnieuw, zodat je laat zien wat er verschoof. De opening is gratis: de
-leidinggevende meet eerst zelf, in drie minuten.
+Ik heb een meting gebouwd die onder jouw aanpak past: zien, kiezen, doen, per
+persoon gemeten en opgeteld tot het team. Vooraf zie je waar het stokt,
+achteraf wat er verschoof. Jouw klant, jouw naam op de kaart.
 
-Probeer het zelf: happly.nl/?src=inmail-coach
+Probeer het zelf, drie minuten: happly.nl/?src=inmail-coach
 
-> **De prime:** dezelfde vraag als de mail. Hij raakt aan vakmanschap: een
-> coach wil weten waar hij begint, niet gokken.
+> **De prime:** dezelfde vraag als de mail. Hij gaat over het resultaat van
+> zijn werk laten zien, niet over hoe hij werkt.
 
 ---
 
@@ -178,6 +180,9 @@ Probeer het zelf: happly.nl/?src=inmail-coach
   het niet, en een derde bericht kost je meer dan het oplevert.
 - **De afmeldregel hoort erin** bij koude e-mail, ook zakelijk. Bij een InMail
   hoeft hij niet; daar regelt LinkedIn het.
+- **Respect voor het vak van de coach.** Geen zin die suggereert dat hij op
+  gevoel werkt of maar wat doet. Hij ontwikkelt, wij meten; wat wij toevoegen is
+  bewijs en een scherp startpunt, geen kunde die hem zou ontbreken.
 - **Geen cijfers of ervaringen van anderen** in deze teksten, met opzet: er zijn
   nog geen leidinggevenden die het hebben ingevuld. Zodra die er zijn, is een
   zin als "de meesten hadden het anders verwacht" de sterkste toevoeging, maar
