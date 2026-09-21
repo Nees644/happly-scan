@@ -31,9 +31,14 @@ Waar die twee beelden uiteenlopen, zit bijna altijd het gesprek dat nog niet is
 gevoerd. Niet omdat iemand iets verbergt, maar omdat niemand het verschil kan
 zien.
 
-Wij hebben dat meetbaar gemaakt. Twaalf vragen over zien, sturen en doen. De
-leider beantwoordt ze over het team, het team beantwoordt ze over zichzelf, en
-de twee beelden komen naast elkaar te staan.
+Maar het verschil is pas het begin. Waar het om gaat is hoe een team werkt.
+Elk team komt langs drie schakels tot resultaat: zien wat er speelt, kiezen wat
+van jou is, in beweging komen. De meeste teams haperen op een overgang. Wie
+weet welke, weet waar hij invloed heeft.
+
+Wij hebben dat meetbaar gemaakt. Twaalf vragen, per persoon gemeten en opgeteld
+tot het team. Op een kaart staat waar de keten loopt, waar hij stokt, en waar
+jij als leider of coach het verschil maakt.
 
 Leid je een team: de eerste helft doe je vandaag. Drie minuten, gratis, geen
 account.

@@ -4,6 +4,13 @@ Kort, prikkelend, een duidelijke CTA per bericht, en elk bericht opent met een
 prime: een vraag die de lezer eerst zelf laat antwoorden, zodat het aanbod
 daarna het antwoord is op iets wat hij al denkt.
 
+**De kern onder elk bericht** (21 september 2026): het gaat niet om het
+verschil in beeld, dat is de haak. Het gaat om inzicht in hoe een team werkt.
+Een team komt langs drie schakels tot resultaat: zien wat er speelt, kiezen wat
+van jou is, in beweging komen. De meeste teams haperen op een overgang. Wie
+weet welke, weet waar hij als leider of coach invloed heeft. Happly meet die
+drie markers per persoon en telt ze op tot het beeld van het team.
+
 Alle links landen op happly.nl en dragen een eigen herkomst. Die gaat mee naar
 het Leidersbeeld, dus in `/leads` zie je per kanaal wat het opleverde.
 
@@ -23,19 +30,21 @@ als een advertentie.
 
 ### E-mail 1
 
-**Onderwerp:** Zou je team hetzelfde zeggen?
-*Alternatief:* Hoe goed ken jij je team?
+**Onderwerp:** Waar stokt het in je team?
+*Alternatief:* Zou je team hetzelfde zeggen?
 
 [Voornaam],
 
-Stel dat ik je team morgen één vraag stel: waar blijven jullie hangen? Krijg ik
-dan hetzelfde antwoord als van jou?
+Elk team komt langs dezelfde drie schakels tot resultaat: zien wat er speelt,
+kiezen wat van jou is, in beweging komen. Waar hapert het in jouw team?
 
-De meeste leidinggevenden denken van wel. Zeker weten doe je het pas als je de
-twee antwoorden naast elkaar legt.
+De meeste leidinggevenden hebben daar een vermoeden van. Wie het weet, weet ook
+waar hij invloed heeft. Harder trekken aan de uitvoering helpt niet als het
+stokt bij het kiezen.
 
-De eerste helft kost je drie minuten. Twaalf vragen over hoe jij je team ziet,
-gratis, geen account. Je krijgt je Leidersbeeld in je mail.
+Begin met je eigen beeld: twaalf vragen, drie minuten, gratis. Laat daarna je
+team dezelfde vragen invullen, en je ziet op een kaart waar de keten loopt,
+waar hij stokt, en wat de eerste stap is.
 
 Begin hier: https://happly.nl/?src=mail-leider
 
@@ -44,9 +53,9 @@ Happly
 
 PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
-> **De prime:** de openingsvraag laat hem in gedachten zijn eigen antwoord en dat
-> van zijn team vergelijken. Daarna is twijfel al aanwezig voordat het aanbod
-> komt.
+> **De prime:** de openingsvraag laat hem zijn eigen team langs de drie
+> schakels leggen. Hij stelt zelf de diagnose voordat het aanbod komt, en het
+> aanbod is dan de manier om te toetsen of hij gelijk heeft.
 
 ### E-mail 2 · opvolging na vijf tot zeven dagen
 
@@ -55,10 +64,11 @@ PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
 [Voornaam],
 
-Vorige week vroeg ik je of je team hetzelfde zou zeggen als jij.
+Vorige week vroeg ik je waar het stokt in je team: bij zien, bij kiezen, of bij
+in beweging komen.
 
-Je kunt die vraag laten liggen. Of je kunt over drie minuten weten wat je nu
-alleen vermoedt.
+Je kunt die vraag laten liggen. Of je weet over drie minuten meer dan je nu
+vermoedt, en weet je waar je als leider het verschil maakt.
 
 https://happly.nl/?src=mail-leider
 
@@ -71,19 +81,20 @@ Maarten
 
 **Onderwerp:** Hoe goed ken jij je team?
 
-[Voornaam], een snelle vraag. Als jij en je team los van elkaar aangeven waar
-het team staat, komt daar dan hetzelfde beeld uit?
+[Voornaam], een snelle vraag. Waar stokt het in je team: bij zien wat er
+speelt, bij kiezen, of bij in beweging komen?
 
-Ik heb er een meting van drie minuten voor gemaakt. Gratis, en je krijgt je
-Leidersbeeld in je mail.
+Wie dat weet, weet waar hij invloed heeft. Ik heb er een meting van drie
+minuten voor gemaakt: eerst jouw beeld, daarna dat van het team, samen op een
+kaart. Gratis.
 
 happly.nl/?src=inmail-leider
 
 Benieuwd wat je ziet.
 
-> **De prime:** dezelfde als de LinkedIn-kaart, zodat wie de post zag de vraag
-> herkent. Onder de vierhonderd tekens; korte InMails worden het vaakst
-> beantwoord.
+> **De prime:** het onderwerp is de vraag van de LinkedIn-kaart, de eerste zin
+> maakt hem concreet met de drie schakels. Onder de vierhonderd tekens; korte
+> InMails worden het vaakst beantwoord.
 
 ---
 
@@ -91,21 +102,24 @@ Benieuwd wat je ziet.
 
 ### E-mail 1
 
-**Onderwerp:** Op wiens indruk begin jij een traject?
-*Alternatief:* Wat weet je opdrachtgever eigenlijk van zijn team?
+**Onderwerp:** Waar begin jij bij een nieuw team?
+*Alternatief:* Op wiens indruk begin jij een traject?
 
 [Voornaam],
 
-Hoe vaak begin jij een traject op de indruk van één persoon?
+Hoe weet jij bij een nieuw team waar je moet beginnen?
 
-De opdrachtgever zegt dat zijn team meer eigenaarschap moet nemen. Jij knikt,
-want er ligt verder niets op tafel.
+Meestal op de indruk van de opdrachtgever. Hij zegt dat het team meer
+eigenaarschap moet nemen, en daar ga je mee aan het werk.
 
-Dat kan anders. Hij beantwoordt twaalf vragen over zijn team: drie minuten,
-gratis. Hij krijgt zijn Leidersbeeld, en daarna wil hij weten hoe het team het
-zelf ziet. Die vraag beantwoord jij, met jouw naam op de kaart.
+Het kan preciezer. Een team komt langs drie schakels tot resultaat: zien,
+kiezen, doen. Happly meet die drie markers per persoon en telt ze op tot het
+beeld van het team. Je ziet op welke overgang het stokt, welke patronen elkaar
+in de weg zitten, en waar jouw interventie het meeste doet. Na je traject laat
+de hermeting zien wat er verschoof.
 
-Probeer hem eerst zelf: https://happly.nl/?src=mail-coach
+De opening is gratis: de leidinggevende meet in drie minuten hoe hij zijn team
+ziet. Probeer hem eerst zelf: https://happly.nl/?src=mail-coach
 
 Maarten Neeskens
 Happly
@@ -113,8 +127,8 @@ Happly
 PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
 > **De prime:** de openingsvraag laat hem zijn eigen intakes nalopen. Het
-> antwoord is bijna altijd "vaak", en dan is het probleem van hemzelf voordat
-> de oplossing komt.
+> eerlijke antwoord is meestal "op gevoel", en dan is het probleem van hemzelf
+> voordat de oplossing komt.
 
 ### E-mail 2 · opvolging na vijf tot zeven dagen
 
@@ -123,7 +137,7 @@ PS Liever geen mail meer van mij? Antwoord met "stop" en je hoort niets meer.
 
 [Voornaam],
 
-Vorige week vroeg ik op wiens indruk jij een traject begint.
+Vorige week vroeg ik hoe jij bij een nieuw team weet waar je moet beginnen.
 
 Als je het Leidersbeeld hebt geprobeerd, weet je hoe het werkt. Het volgende is
 een eigen link: wie hem invult komt bij jou in beeld, met naam, organisatie en
@@ -139,18 +153,19 @@ Maarten
 
 ### InMail
 
-**Onderwerp:** Een opening bij je volgende opdrachtgever
+**Onderwerp:** Waar begin jij bij een nieuw team?
 
-[Voornaam], begin jij een traject ook weleens op de indruk van één persoon?
+[Voornaam], hoe weet jij bij een nieuw team waar je moet beginnen?
 
-Ik heb iets gebouwd dat dat omdraait. De leidinggevende meet in drie minuten
-hoe hij zijn team ziet, gratis. Daarna wil hij weten hoe het team het zelf
-ziet, en daar kom jij in beeld.
+Ik heb een meting gebouwd die laat zien op welke schakel een team stokt: zien,
+kiezen of doen. Per persoon gemeten, opgeteld tot het team, en na je traject
+opnieuw, zodat je laat zien wat er verschoof. De opening is gratis: de
+leidinggevende meet eerst zelf, in drie minuten.
 
 Probeer het zelf: happly.nl/?src=inmail-coach
 
-> **De prime:** dezelfde vraag als de mail, korter. "Ook weleens" maakt het
-> veilig om ja te denken.
+> **De prime:** dezelfde vraag als de mail. Hij raakt aan vakmanschap: een
+> coach wil weten waar hij begint, niet gokken.
 
 ---
 

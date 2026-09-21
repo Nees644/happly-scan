@@ -126,12 +126,19 @@ test("de weg van Leidersbeeld naar teambeeld staat er als verhaal", () => {
   // Vier stappen, in volgorde: jouw beeld, het team, de twee naast elkaar,
   // opnieuw meten. Zonder die volgorde is het Leidersbeeld een losse meting
   // in plaats van de eerste stap naar een Teamfoto.
-  for (const stap of ["Jouw Leidersbeeld", "Het team meet", "De twee naast elkaar", "Opnieuw meten"]){
+  for (const stap of ["Jouw Leidersbeeld", "Het team meet", "Zo werkt je team", "Opnieuw meten"]){
     assert.ok(sectie.includes(stap), `de stap ontbreekt: ${stap}`);
   }
   assert.ok(sectie.indexOf("Jouw Leidersbeeld") < sectie.indexOf("Het team meet"),
     "de stappen staan niet op volgorde");
   assert.ok(sectie.includes("vijf"), "het minimum voor een teambeeld ontbreekt in het verhaal");
+
+  // Het verschil in beeld is de haak, niet het verhaal. De sectie hoort te
+  // zeggen hoe een team tot resultaat komt en waar de leider invloed heeft
+  // (feedback Maarten, 21 september 2026).
+  assert.ok(/drie schakels/.test(sectie), "de keten van zien naar kiezen naar doen ontbreekt");
+  assert.ok(/invloed/.test(sectie), "er staat niet waar de leider invloed heeft");
+  assert.ok(/opgeteld/.test(sectie), "individueel en opgeteld tot het team ontbreekt");
 });
 
 test("de herkomst uit de URL gaat mee naar het Leidersbeeld", () => {
