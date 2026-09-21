@@ -49,6 +49,7 @@ input:focus,select:focus{outline:2px solid var(--magenta);outline-offset:1px;bor
 .klein{font-size:14px;color:var(--grijs);margin-top:22px}
 footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:var(--grijs)}
 [hidden]{display:none}
+#doel-tekst::placeholder{color:#B5ADBC;opacity:1}
 </style>
 </head>
 <body>
@@ -82,7 +83,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
   <section id="stap-doel" hidden>
     <div class="eyebrow">Het doel</div>
     <h1>Waar moet dit team staan?</h1>
-    <p class="lead">Eén zin, in jullie eigen woorden. Weet je het nog niet, dan sla je dit over.</p>
+    <p class="lead">Eén zin, in je eigen woorden: wat wil je over een paar maanden anders zien? Weet je het nog niet, dan sla je dit over.</p>
     <div class="kaart">
       <form id="doelform" novalidate>
         <label for="doel-tekst">Het doel</label>
@@ -165,8 +166,8 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
 <footer><div class="wrap">Happly · Teamkracht Index</div></footer>
 
 <script type="module">
-import { ITEMS, SCHAAL } from "/items.js";
-import { KEUZEZINNEN_TEAM } from "/teamkracht-ruimte.js";
+import { ITEMS, SCHAAL, scores } from "/items.js";
+import { KEUZEZINNEN_TEAM, voorbeelddoel } from "/teamkracht-ruimte.js";
 
 const el = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -229,6 +230,14 @@ function naarDoel(){
       el("doel-keuzes").appendChild(lab);
     });
   }
+  // Een voorbeeld in lichtgrijs, passend bij wat hij net heeft ingevuld. De
+  // vraag waar het team moet staan is anders een leeg vel. Het blijft een
+  // voorbeeld: een placeholder wordt niet verstuurd, en het doeltype kiest hij
+  // zelf met de zinnen eronder.
+  const gemeten = scores(antwoorden);
+  el("doel-tekst").placeholder = voorbeelddoel(gemeten
+    ? { zien: gemeten.zien, sturen: gemeten.sturen, doen: gemeten.doen } : null);
+
   window.scrollTo(0, 0);
   el("doel-tekst").focus();
 }

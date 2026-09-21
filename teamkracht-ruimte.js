@@ -53,6 +53,28 @@ export function keuzezin(doeltype, vorm = "team"){
   return (lijst.find(k => k.doeltype === doeltype) || {}).zin ?? null;
 }
 
+/* Een voorbeeld van een doel, per dimensie. Komt lichtgrijs in het lege
+   tekstvak te staan, zodat "waar moet dit team staan" geen leeg vel is. Het
+   is een voorbeeld en geen invulling: een placeholder wordt nooit verstuurd,
+   en het doeltype kiest de klant nog steeds zelf met de keuzezinnen. Zo blijft
+   regel L1 overeind: er is geen classificatie op de vrije tekst.
+
+   Elke zin is een doel zoals het bedoeld is: gedrag dat je kunt zien, in de
+   woorden van een team, met een moment erin. */
+export const VOORBEELDDOEL = Object.freeze({
+  zien:   "Bijvoorbeeld: over drie maanden benoemen we in elk overleg wat er speelt, voordat het een probleem is.",
+  sturen: "Bijvoorbeeld: over drie maanden heeft elk besluit in ons overleg een eigenaar en een datum.",
+  doen:   "Bijvoorbeeld: over drie maanden ronden we af wat we afspreken, zonder dat iemand erachteraan hoeft."
+});
+
+/* Welk voorbeeld past bij deze meting: dat van de dimensie met de meeste
+   ruimte, volgens dezelfde fallback als de leesregels. Zonder bruikbare scores
+   het voorbeeld van Sturen; daar zit volgens het onderzoek meestal de ruimte. */
+export function voorbeelddoel(scores){
+  const bruikbaar = scores && KETEN.every(d => Number.isFinite(Number(scores[d])));
+  return VOORBEELDDOEL[bruikbaar ? ketenFallback(scores) : "sturen"];
+}
+
 /* Fallback bij onbekend of zonder doel: de laagste dimensiescore in de
    volgorde Zien, Sturen, Doen. Bij gelijke stand wint de vroegste in de keten;
    daarom een strikte vergelijking en de keten van voor naar achter. */

@@ -631,3 +631,38 @@ test("de keuzezinnen op de schermen zijn gelijk aan die in de module", () => {
   assert.ok(dash.includes("Waar moet dit team staan? Eén zin, in jullie eigen woorden.") && dash.includes("Wanneer moet dat staan?") && dash.includes("Doel toevoegen") && dash.includes("Aanpassen"));
   for (const b of ["scan.html", "leidersbeeld.html", "teamkracht.html"]) assert.ok(!lees(b).includes("tien weken") && !lees(b).includes("drie maanden"), `${b}: de termijn vult de klant in`);
 });
+
+/* ------------------------------------------- het voorbeeld in het lege vak */
+test("het voorbeelddoel past bij de dimensie met de meeste ruimte", async () => {
+  const { voorbeelddoel, VOORBEELDDOEL } = await import("../teamkracht-ruimte.js");
+  assert.equal(voorbeelddoel({ zien: 75, sturen: 50, doen: 60 }), VOORBEELDDOEL.sturen);
+  assert.equal(voorbeelddoel({ zien: 40, sturen: 50, doen: 60 }), VOORBEELDDOEL.zien);
+  assert.equal(voorbeelddoel({ zien: 70, sturen: 70, doen: 45 }), VOORBEELDDOEL.doen);
+  // Gelijke stand: de vroegste in de keten, zoals overal in de leesregels.
+  assert.equal(voorbeelddoel({ zien: 50, sturen: 50, doen: 50 }), VOORBEELDDOEL.zien);
+  // Zonder scores geen gok op de meting, maar een vast voorbeeld.
+  assert.equal(voorbeelddoel(null), VOORBEELDDOEL.sturen);
+  assert.equal(voorbeelddoel({ zien: "x" }), VOORBEELDDOEL.sturen);
+});
+
+test("een voorbeelddoel is een voorbeeld en volgt de taalregels", async () => {
+  const { VOORBEELDDOEL } = await import("../teamkracht-ruimte.js");
+  for (const [dim, zin] of Object.entries(VOORBEELDDOEL)){
+    assert.ok(zin.startsWith("Bijvoorbeeld: "), `${dim} zegt niet dat het een voorbeeld is`);
+    assert.ok(zin.length <= 200, `${dim} past niet in het vak van tweehonderd tekens`);
+    assert.ok(!zin.includes("\u2014") && !zin.includes("!"), `${dim} breekt de taalregels`);
+    // Tijdloos: een voorbeeld met een feestdag erin leest in januari vreemd.
+    assert.ok(!/kerst|zomer|pasen|jaarwisseling/i.test(zin), `${dim} hangt aan een seizoen`);
+  }
+});
+
+test("het Leidersbeeld vraagt het doel in je eigen woorden en geeft een voorbeeld", () => {
+  const lb = readFileSync(new URL("../leidersbeeld.html", import.meta.url), "utf8");
+  // De leider vult dit alleen in; jullie hoort bij de sessie in het dashboard.
+  assert.ok(lb.includes("in je eigen woorden"), "de leider wordt met jullie aangesproken");
+  assert.ok(!lb.includes("in jullie eigen woorden"));
+  assert.ok(lb.includes("voorbeelddoel("), "het lege vak krijgt geen voorbeeld");
+  // Een placeholder, geen waarde: het voorbeeld mag nooit als doel worden verstuurd.
+  assert.ok(lb.includes('.placeholder = voorbeelddoel'), "het voorbeeld wordt als waarde gezet");
+  assert.ok(!/el\("doel-tekst"\)\.value\s*=\s*voorbeelddoel/.test(lb));
+});
