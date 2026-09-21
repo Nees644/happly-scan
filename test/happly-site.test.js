@@ -152,6 +152,18 @@ test("de LinkedIn-post landt op happly.nl met een herkomst", () => {
     "de post gaat nog rechtstreeks naar de vragen");
 });
 
+test("de site belooft geen kwartaalbeeld dat er nog niet is", () => {
+  // Besluit 21 september 2026: geen datum en geen kwartaalritme beloven zolang
+  // de eerste editie niet bestaat en er geen verzending is gebouwd. De
+  // toestemming wordt wel gevraagd, in woorden die nu al kloppen.
+  assert.ok(!/eind september 2026|Ieder kwartaal publiceren/.test(HTML), "de site belooft nog een editie met een datum");
+  const lb = readFileSync(new URL("../leidersbeeld.html", import.meta.url), "utf8");
+  assert.ok(lb.includes("Houd mij op de hoogte van wat we uit alle metingen samen leren."));
+  assert.ok(!lb.includes("Stuur mij het kwartaalbeeld"), "het vinkje belooft nog een kwartaalbeeld");
+  // Het vinkje blijft standaard uit: toestemming is een uitdrukkelijke ja.
+  assert.ok(!/id="kwartaal"[^>]*checked/.test(lb));
+});
+
 test("de links wijzen naar wat er draait", () => {
   for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
                      "https://www.teamkrachtindex.nl/register",
