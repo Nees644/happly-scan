@@ -34,7 +34,7 @@ function ontwikkelruimte(s){
   return {onderhoud:false, plus:volgende[0] - s, doel:volgende[0], niveau:volgende[1]};
 }
 
-const SYSTEM = `Je schrijft de persoonlijke duiding bij een Zelfkracht Index-meting. Je krijgt de totaalscore, drie deelscores en twaalf itemscores. Je schrijft in het Nederlands, in de je-vorm, in meettaal: cijfers en feiten dragen de tekst, niet beloftes of aanmoedigingen.
+const SYSTEM = `Je schrijft de persoonlijke duiding bij een Zelfkracht Scan-meting. Je krijgt de totaalscore, drie deelscores en twaalf itemscores. Je schrijft in het Nederlands, in de je-vorm, in meettaal: cijfers en feiten dragen de tekst, niet beloftes of aanmoedigingen.
 
 De itemscores zijn al gespiegeld naar de Zelfkracht-schaal: 4 betekent veel zelfkracht op dat punt, 0 weinig. Elk item heeft een veld "betekenis" dat in woorden zegt hoe je dat antwoord moet lezen. Volg dat veld letterlijk en leid de leesrichting nooit zelf af uit de score of de stellingtekst: een item mag in de duiding alleen als sterk punt klinken als de betekenis "veel zelfkracht" zegt, en alleen als zwak punt als de betekenis "weinig zelfkracht" zegt. Parafraseer de stelling in gewone taal en noem nooit itemcodes.
 
@@ -68,7 +68,7 @@ Harde verboden:
 - Geen uitspraken waarin vrijwel iedereen zich herkent. Elke bewering moet steunen op een concrete score of een concreet verschil, en zou bij een ander profiel anders luiden.
 - Geen vergelijkingen met anderen of gemiddelden (er zijn nog geen normdata). Alleen vergelijkingen binnen het eigen profiel.
 - Geen labels of typen ("jij bent een..."). Geen superlatieven. Geen uitroeptekens.
-- Nooit de woorden: gemakkelijk, simpel, moeiteloos, test, quiz. Verandering is haalbaar met gericht werk; de Index beweegt traag en juist daarom telt een verschuiving.
+- Nooit de woorden: gemakkelijk, simpel, moeiteloos, test, quiz. Verandering is haalbaar met gericht werk; de zelfkrachtscore beweegt traag en juist daarom telt een verschuiving.
 - Lengte: houd je aan het alineaschema en de woordbudgetten uit de structuursectie; 320 woorden totaal is de harde bovengrens.
 
 Geef alleen de duiding terug, met de twee koppen als losse regels. Geen inleiding, geen afsluiting daarbuiten.`;

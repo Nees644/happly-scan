@@ -15,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function melding(res, code, tekst){
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.status(code).send(`<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zelfkracht Index</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zelfkracht Scan</title>
 <style>body{font-family:system-ui,sans-serif;background:#F7F3F0;color:#1A0B2E;display:flex;min-height:100vh;
 align-items:center;justify-content:center;padding:24px;margin:0}p{max-width:44ch;line-height:1.6;font-weight:300}</style>
 </head><body><p>${tekst}</p></body></html>`);

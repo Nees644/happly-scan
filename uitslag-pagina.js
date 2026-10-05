@@ -74,7 +74,7 @@ export function bouwUitslagPagina({ meting, profiel, ruimte = null }){
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Jouw Zelfkracht Index</title>
+<title>Jouw zelfkrachtscore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -125,7 +125,7 @@ export function bouwUitslagPagina({ meting, profiel, ruimte = null }){
 </head>
 <body>
 <div class="blad">
-  <div class="kop">Zelfkracht Index</div>
+  <div class="kop">Zelfkracht Scan</div>
   <div class="body">
     <p class="datum">Jouw meting van ${esc(datum)}. Deze pagina is alleen van jou.</p>
 
@@ -133,7 +133,7 @@ export function bouwUitslagPagina({ meting, profiel, ruimte = null }){
 
     <div class="getal">
       <div class="n">${meting.index_score}</div>
-      <div class="cap">Zelfkracht Index</div>
+      <div class="cap">Zelfkrachtscore</div>
     </div>
     <div class="subs">
       <div class="sub"><div class="n">${meting.zien}</div><div class="l">Zien</div></div>

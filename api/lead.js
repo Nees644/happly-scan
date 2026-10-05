@@ -64,7 +64,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
 
   return `<div style="background:${RT};padding:32px 16px">
     <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Index</div>
+      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Scan</div>
       <div style="padding:30px 32px 36px">
 
         ${p(`Dit is jouw meting van ${datum}. Bewaar deze mail, dit is je startpunt.`, `font-size:12.5px;color:${MUT};margin-bottom:${uitslagUrl ? "6px" : "22px"}`)}
@@ -75,7 +75,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
         <!-- Het getal -->
         <div style="text-align:center;margin:16px 0 6px">
           <div style="font-family:${FONT};font-size:64px;color:${DP};line-height:1;font-weight:700">${index}</div>
-          <div style="font-family:${FONT};font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:${MUT};margin-top:6px">Zelfkracht Index</div>
+          <div style="font-family:${FONT};font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:${MUT};margin-top:6px">Zelfkrachtscore</div>
         </div>
         <table style="width:100%;border-collapse:collapse;margin:18px 0 6px;border-top:1px solid ${BD}">
           <tr>
@@ -88,8 +88,8 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
         <!-- Canonieke inleiding -->
         <div style="background:${RT};border-radius:10px;padding:20px 22px;margin:24px 0 0">
           ${p(`<strong style="color:${DP}">Zelfkracht heeft nu een eigen getal.</strong>`, "margin-bottom:10px")}
-          ${p("De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.", "font-size:13px;margin-bottom:10px")}
-          ${p("De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: wat gevormd is, kun je bijstellen.", "font-size:13px;margin-bottom:10px")}
+          ${p("De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.", "font-size:13px;margin-bottom:10px")}
+          ${p("De eigenschappen die de Scan meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: wat gevormd is, kun je bijstellen.", "font-size:13px;margin-bottom:10px")}
           ${p("Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.", "font-size:13px;margin-bottom:0")}
         </div>
 
@@ -124,7 +124,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
              deelnemer is geen lead, en verkoop in andermans traject hoort niet. -->
         ${viaTeam ? "" : `<div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">
           ${kop("Over de Zelfkracht Sprint").replace("margin:30px 0 12px","margin:0 0 12px")}
-          ${p("De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.")}
+          ${p("De Scan wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.")}
           ${p(`In een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
 Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een hermeting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
 Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.<br>
@@ -266,7 +266,7 @@ export default async function handler(req, res){
       await resend.emails.send({
         from: "Happly <hallo@happly.nl>",
         to: email,
-        subject: `Jouw Zelfkracht Index: ${m.index}`,
+        subject: `Jouw zelfkrachtscore: ${m.index}`,
         html: mailHtml({
           ...m,
           afmeldUrl: reeksId ? `https://scan.happly.nl/api/afmelden?r=${reeksId}` : null,

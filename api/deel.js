@@ -47,18 +47,18 @@ export default async function handler(req, res){
 
     if (!zin){
       res.status(404).send(pagina({
-        titel: "Zelfkracht Index",
-        inhoud: `<p class="mis">Deze deelpagina bestaat niet. De Zelfkracht Index zelf staat gewoon klaar.</p>
-                 <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Index &rarr;</a>`
+        titel: "Zelfkracht Scan",
+        inhoud: `<p class="mis">Deze deelpagina bestaat niet. De Zelfkracht Scan zelf staat gewoon klaar.</p>
+                 <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Scan &rarr;</a>`
       }));
       return;
     }
 
-    const tekst = `Deed net de Zelfkracht Index. Dit herkende ik: '${zin}'.`;
+    const tekst = `Deed net de Zelfkracht Scan. Dit herkende ik: '${zin}'.`;
     const beeldUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/deelbeelden/${d}.png`;
     const og = `<meta property="og:type" content="website">
 <meta property="og:url" content="${BASE}/deel/${d}">
-<meta property="og:site_name" content="Zelfkracht Index">
+<meta property="og:site_name" content="Zelfkracht Scan">
 <meta property="og:title" content="${esc(tekst)}">
 <meta property="og:description" content="${esc(tekst)}">
 <meta property="og:image" content="${esc(beeldUrl)}">
@@ -73,13 +73,13 @@ export default async function handler(req, res){
       titel: tekst,
       og,
       inhoud: `<img class="kaart" src="${esc(beeldUrl)}" alt="${esc(tekst)}">
-               <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Index zelf &rarr;</a>`
+               <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Scan zelf &rarr;</a>`
     }));
   }catch(e){
     res.status(500).send(pagina({
-      titel: "Zelfkracht Index",
+      titel: "Zelfkracht Scan",
       inhoud: `<p class="mis">Er ging iets mis bij het laden van deze pagina. Probeer het later nog eens.</p>
-               <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Index &rarr;</a>`
+               <a class="cta" href="${BASE}/scan?src=deel">Doe de Zelfkracht Scan &rarr;</a>`
     }));
   }
 }

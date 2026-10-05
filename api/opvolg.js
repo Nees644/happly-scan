@@ -25,7 +25,7 @@ import { herinneringMail } from "../leidersbeeld-mail.js";
 const BASE = "https://scan.happly.nl";
 
 /* Vaste teksten, gelijk aan de uitslagpagina en sprint.html. */
-const ROLVERDELING = "De Index wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.";
+const ROLVERDELING = "De Scan wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.";
 const BESLISMOMENT = "Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.";
 const SPRINT_WEKEN = { Zien: "week 1 en 2", Sturen: "week 3 en 4", Doen: "week 5 en 6" };
 
@@ -58,10 +58,10 @@ function p(t, extra){ return `<p style="font-family:${FONT};font-size:14px;color
 function shell(inhoud, afmeldUrl){
   return `<div style="background:${RT};padding:32px 16px">
     <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Index</div>
+      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Zelfkracht Scan</div>
       <div style="padding:30px 32px 36px">${inhoud}</div>
     </div>
-    <p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Je ontvangt dit als vervolg op je Zelfkracht Index.
+    <p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Je ontvangt dit als vervolg op je Zelfkracht Scan.
       <a href="${afmeldUrl}" style="color:${MUT}">Geen mail meer ontvangen</a></p>
   </div>`;
 }
@@ -71,7 +71,7 @@ function mailVerdieping({ name, laagste, afmeldUrl }){
   const sc = SCENES[laagste] || SCENES.Sturen;
   const inhoud = `
     ${p(name ? `Hallo ${name},` : "Hallo,")}
-    ${p(`Een paar dagen geleden kreeg je je Zelfkracht Index. Van je drie deelscores liet <strong style="color:${DP}">${laagste}</strong> de meeste ruimte zien. Zo'n score is abstract, tot je hem tegenkomt in een gewoon moment. Zoals dit:`)}
+    ${p(`Een paar dagen geleden kreeg je je zelfkrachtscore. Van je drie deelscores liet <strong style="color:${DP}">${laagste}</strong> de meeste ruimte zien. Zo'n score is abstract, tot je hem tegenkomt in een gewoon moment. Zoals dit:`)}
     <div style="border-left:3px solid ${PK};padding:2px 0 2px 18px;margin:20px 0">
       ${p(`<em>${sc.scene}</em>`, "margin-bottom:0;font-size:14.5px")}
     </div>
@@ -98,9 +98,9 @@ function mailHermeting({ name, index, afmeldUrl }){
   const getal = typeof index === "number" ? `: ${index}` : "";
   const inhoud = `
     ${p(name ? `Hallo ${name},` : "Hallo,")}
-    ${p(`Acht weken geleden mat je je Zelfkracht Index${getal}. Dat getal was je startpunt.`)}
+    ${p(`Acht weken geleden mat je je zelfkrachtscore${getal}. Dat getal was je startpunt.`)}
     ${p("Een Index is een momentopname. Wie er in de tussentijd aan gewerkt heeft, ziet dat terug in het getal. Opnieuw meten duurt drie tot vier minuten.")}
-    ${p(`<a href="${BASE}/scan?src=hermeting" style="color:${PK};font-weight:700;text-decoration:none">Meet je Index opnieuw &rarr;</a>`, "margin:22px 0 0")}`;
+    ${p(`<a href="${BASE}/scan?src=hermeting" style="color:${PK};font-weight:700;text-decoration:none">Meet je zelfkrachtscore opnieuw &rarr;</a>`, "margin:22px 0 0")}`;
   return { subject: "Tijd om opnieuw te meten", html: shell(inhoud, afmeldUrl) };
 }
 

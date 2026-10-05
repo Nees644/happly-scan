@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Zelfkracht Index</title>
-<meta name="description" content="Zelfkracht heeft nu een eigen getal. De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt.">
+<title>Zelfkracht Scan</title>
+<meta name="description" content="Zelfkracht heeft nu een eigen getal. De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -175,14 +175,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 
 <!-- WELCOME -->
 <div class="screen active" id="s-w">
-  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="htag">Zelfkracht Index</span></div>
+  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="htag">Zelfkracht Scan</span></div>
   <div class="body">
-    <div class="eye">Zelfkracht Index</div>
+    <div class="eye">Zelfkracht Scan</div>
     <div class="lead-h">Zelfkracht heeft<br>nu een eigen getal.</div>
     <p class="teamdoel" id="w-teamdoel" style="display:none"></p>
-    <p class="lead-p">De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
-    <p class="lead-p">Twaalf stellingen, één schaal. Aan het eind krijg je je Index met drie deelscores en een persoonlijke duiding.</p>
-    <p class="lead-p">De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen.</p>
+    <p class="lead-p">De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
+    <p class="lead-p">Twaalf stellingen, één schaal. Aan het eind krijg je je zelfkrachtscore met drie deelscores en een persoonlijke duiding.</p>
+    <p class="lead-p">De eigenschappen die de Scan meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen.</p>
     <div class="tags"><span class="tag">12 stellingen</span><span class="tag">3 tot 4 minuten</span><span class="tag">Direct je score</span></div>
     <button class="btn" onclick="start()">Begin de meting &rarr;</button>
   </div>
@@ -569,7 +569,7 @@ function renderResults(){
          als /api/hermeting dit adres eerder zag; gevuld door toonHermeting() -->
     <div class="herm" id="hermeting-melding"></div>
 
-    <div class="r-eye">Jouw Zelfkracht Index</div>
+    <div class="r-eye">Jouw zelfkrachtscore</div>
 
     <!-- Blok 1 (doel-ruimte v1): het eigen doel. Zonder doel de vaste zin. -->
     <div id="blok-doel">${doelBlokHtml()}</div>
@@ -577,7 +577,7 @@ function renderResults(){
     <!-- Blok 1: het getal -->
     <div class="score-hero">
       <div class="score-num">${s.index}</div>
-      <div class="score-cap">Zelfkracht Index</div>
+      <div class="score-cap">Zelfkrachtscore</div>
       <div class="subs">
         <div class="sub"><div class="sub-num">${s.zien}</div><div class="sub-lab">Zien</div></div>
         <div class="sub"><div class="sub-num">${s.sturen}</div><div class="sub-lab">Sturen</div></div>
@@ -588,8 +588,8 @@ function renderResults(){
     <!-- Blok 2: canonieke inleiding -->
     <div class="canon">
       <div class="op">Zelfkracht heeft nu een eigen getal.</div>
-      <p>De Zelfkracht Index brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
-      <p>De eigenschappen die de Index meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: wat gevormd is, kun je bijstellen.</p>
+      <p>De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
+      <p>De eigenschappen die de Scan meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: wat gevormd is, kun je bijstellen.</p>
       <p>Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
     </div>
 
@@ -626,7 +626,7 @@ function renderResults(){
       <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
       ${teamToken ? "" : `<div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
-        <p>De Index wijst aan waar jouw ruimte om te groeien zit. De Sprint, onze training van zes weken, onderzoekt wat en hoe je kunt veranderen: wekelijkse calls, één cohort tegelijk.</p>
+        <p>De Scan wijst aan waar jouw ruimte om te groeien zit. De Sprint, onze training van zes weken, onderzoekt wat en hoe je kunt veranderen: wekelijkse calls, één startgroep tegelijk.</p>
         <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
       </div>`}
     </div>
@@ -812,7 +812,7 @@ function fallbackDuiding(){
    Display, vaste bronregel en het logo onderin. Nooit het getal, nooit een
    dimensienaam met getal: het sjabloon bevat alleen de zin en de bronregel. */
 const DEEL_CANON = "Wat je vaak genoeg doet, wordt automatisch, en wat automatisch is, zie je niet meer.";
-const DEEL_BRON = "Uit mijn Zelfkracht Index · scan.happly.nl";
+const DEEL_BRON = "Uit mijn Zelfkracht Scan · scan.happly.nl";
 let deelLogo = null;
 
 /* De herkenningszin krijgt het doel erbij als het is ingevuld (paragraaf 6.2). */
