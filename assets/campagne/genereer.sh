@@ -25,4 +25,5 @@ render "5&thema=zand" kaart-5-succeskrachtformule-zand.png
 render 6 kaart-6-tot-maandag-zand.png
 render 7 kaart-7-tot-maandag.png
 render 8 kaart-8-payoff-zand.png
+render 9 kaart-9-ook-na-maandag-zand.png
 echo "Klaar."
