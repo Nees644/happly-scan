@@ -66,7 +66,7 @@ Inhoud:
     <div style="background:#1A0B2E;padding:20px 30px;color:#fff;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Happly</div>
     <div style="padding:28px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
       <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 14px">Welkom bij Happly.</p>
-      <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Klik op de knop hieronder om je aanmelding te bevestigen. Daarna staat de Lezer-module voor je klaar en kun je meteen beginnen met de eerste twee hoofdstukken.</p>
+      <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Klik op de knop hieronder om je aanmelding te bevestigen. Daarna staat de Practitioner-module voor je klaar en kun je meteen beginnen met de eerste twee hoofdstukken.</p>
       <p style="margin:0 0 22px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#D6026F;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 26px;border-radius:999px">Bevestig je aanmelding</a></p>
       <p style="font-size:12.5px;color:#6A5A78;line-height:1.6;margin:0 0 8px">Werkt de knop niet, plak dan deze link in je browser:</p>
       <p style="font-size:12px;color:#6A5A78;line-height:1.6;margin:0 0 20px;word-break:break-all">{{ .ConfirmationURL }}</p>

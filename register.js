@@ -11,7 +11,7 @@
 export const NIVEAUS = ["lezer", "begeleider", "opleider"];
 
 export const NIVEAU_LABEL = {
-  lezer: "Lezer",
+  lezer: "Gecertificeerde Practitioner",
   begeleider: "Begeleider",
   opleider: "Opleider"
 };

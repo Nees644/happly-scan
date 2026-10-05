@@ -147,10 +147,21 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   bij de schuifjes van het doelbeeld; vooraf is het optioneel. Alle aannames
   staan in `briefing/teamkracht/oplevering_doel_ruimte_v1.md`.
 
+- **Naamgeving sinds 5 oktober 2026.** Het meetinstrument heet Zelfkracht Scan
+  en Teamkracht Scan, de persoonlijke uitslag zelfkrachtscore en
+  teamkrachtscore, en Zelfkracht Index en Teamkracht Index zijn het merk en het
+  landelijke getal. Het niveau lezer heet naar buiten Gecertificeerde
+  Practitioner en de module Practitioner-module. Codes en kolommen (lezer,
+  LEZ-1, index_score) blijven: daar hangen betalingen en rechten aan.
+  Productnamen in de database worden bijgewerkt met
+  `migratie-practitioner-2026-10-05.sql`.
+
 - **Er zijn drie sites in deze repo.** `index.html` is de Zelfkracht Index op
   scan.happly.nl, `teamkrachtindex.html` is teamkrachtindex.nl, en
   `happly.html` is de voorpagina van happly.nl. Die laatste draait niet op
-  Vercel maar op nginx en wordt met de hand geupload, daar als `index.html`.
+  Vercel maar bij TransIP en wordt met de hand geupload, daar als `index.html`.
+  Sinds 5 oktober 2026 is het de Happly-merksite (pay-off Klein zetje. Grote
+  beweging.), met de knop naar het gratis Leidersbeeld in het werkgeversblok.
   Verwar de twee voorpagina's niet.
 
 ## Werkregels

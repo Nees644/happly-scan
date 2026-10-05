@@ -84,7 +84,7 @@ export function bouwRegisterLijst({ rijen = [], basis = "https://www.teamkrachti
     inhoud: `
       <div class="eyebrow">Register</div>
       <h1>Wie is gecertificeerd</h1>
-      <p class="lead">Iedereen die de Lezer-module heeft afgerond, de toets heeft gehaald en er toestemming voor gaf. Een vermelding zegt wat iemand heeft gedaan, niet hoe goed hij is.</p>
+      <p class="lead">Iedereen die de Practitioner-module heeft afgerond, de toets heeft gehaald en er toestemming voor gaf. Een vermelding zegt wat iemand heeft gedaan, niet hoe goed hij is.</p>
       <input class="zoek" id="zoek" type="search" placeholder="Zoek op naam of organisatie" aria-label="Zoeken in het register">
       <div id="lijst">${kaarten}</div>
       <script>

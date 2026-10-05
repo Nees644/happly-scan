@@ -94,7 +94,7 @@ test("een website van een gebruiker komt niet als code op de pagina", () => {
 test("de persoonspagina toont naam, niveau, status en datum", () => {
   const rij = registerRij({ certificaat: CERT, gebruiker: GEBRUIKER });
   const html = bouwRegisterPagina({ rij });
-  for (const wat of ["Maarten Neeskens", "Lezer", "Actief", "15 september 2026", CERT.verificatiecode]){
+  for (const wat of ["Maarten Neeskens", "Gecertificeerde Practitioner", "Actief", "15 september 2026", CERT.verificatiecode]){
     assert.ok(html.includes(wat), `de pagina mist ${wat}`);
   }
   assert.ok(html.includes("index,follow"), "de persoonspagina hoort vindbaar te zijn");
@@ -134,7 +134,7 @@ test("een lege pagina zegt niet of de code bestaat", () => {
 test("op de badge staan naam, niveau, jaar en de verificatie", () => {
   const svg = bouwBadgeSvg({ naam: "Maarten Neeskens", niveau: "lezer", datum: "2026-09-15", verificatiecode: CERT.verificatiecode });
   assert.ok(svg.startsWith("<svg"));
-  for (const wat of ["Maarten Neeskens", "Lezer", "2026", "teamkrachtindex.nl/verificatie", CERT.verificatiecode]){
+  for (const wat of ["Maarten Neeskens", "Gecertificeerde Practitioner", "2026", "teamkrachtindex.nl/verificatie", CERT.verificatiecode]){
     assert.ok(svg.includes(wat), `de badge mist ${wat}`);
   }
   assert.ok(svg.includes(`viewBox="0 0 ${BREEDTE} ${HOOGTE}"`), "de badge is niet vierkant");

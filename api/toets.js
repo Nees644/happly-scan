@@ -96,7 +96,7 @@ async function start(res, db, gebruiker){
   const gebr = await db.from("teamkracht_gebruikers")
     .select("lezer_module_toegang, naam").eq("user_id", gebruiker.user_id).maybeSingle();
   if (!gebr.data?.lezer_module_toegang){
-    res.status(403).json({ error: "De toets hoort bij de Lezer-module. Die staat nog niet voor je open." });
+    res.status(403).json({ error: "De toets hoort bij de Practitioner-module. Die staat nog niet voor je open." });
     return;
   }
 

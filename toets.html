@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>De toets &middot; Lezer-module</title>
+<title>De toets &middot; Practitioner-module</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@ td:last-child{text-align:right;font-variant-numeric:tabular-nums}
   </div>
 
   <section id="stand" hidden>
-    <div class="eyebrow">Lezer-module</div>
+    <div class="eyebrow">Practitioner-module</div>
     <h1>De toets</h1>
     <p class="lead" id="uitleg"></p>
     <div class="kaart" id="standkaart"></div>
@@ -127,7 +127,7 @@ async function toonStand(){
 
   if (stand.certificaat){
     el("standkaart").innerHTML = `
-      <h2>Je bent Lezer</h2>
+      <h2>Je bent Gecertificeerde Practitioner</h2>
       <p>Je hebt de toets gehaald op ${esc(new Date(stand.certificaat.uitgegeven_op).toLocaleDateString("nl-NL", { day:"numeric", month:"long", year:"numeric" }))}.</p>
       <p class="klein" style="margin-top:8px">Je certificaat staat op je naam en blijft geldig zolang je licentie loopt.</p>`;
     return;
@@ -136,7 +136,7 @@ async function toonStand(){
   if (!stand.module_toegang){
     el("standkaart").innerHTML = `
       <h2>De module staat nog niet open</h2>
-      <p>De toets hoort bij de Lezer-module. Zodra je die hebt, kun je de toets doen.</p>
+      <p>De toets hoort bij de Practitioner-module. Zodra je die hebt, kun je de toets doen.</p>
       <p style="margin-top:14px"><a class="knop" href="/module">Naar de module</a></p>`;
     return;
   }
@@ -254,7 +254,7 @@ function toonUitslag(uit){
 
   el("uitslag").innerHTML = uit.geslaagd
     ? `<div class="eyebrow">Geslaagd</div>
-       <h1>Je bent Lezer</h1>
+       <h1>Je bent Gecertificeerde Practitioner</h1>
        <p class="score">${uit.score} van ${uit.totaal}</p>
        <div class="kaart" style="margin-top:20px">
          <p>Je certificaat staat op je naam. Je mag vanaf nu Teamfoto's lezen en bespreken met de kennis die daarbij hoort.</p>

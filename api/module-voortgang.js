@@ -48,7 +48,7 @@ export default async function handler(req, res){
       res.status(400).json({ error: "ongeldig hoofdstuk" }); return;
     }
     if (!isGratis(hoofdstuk) && !(await heeftModule(db, gebruiker.user_id))){
-      res.status(402).json({ error: "Dit hoofdstuk hoort bij de Lezer-module.", betalen: "LEZ-1" });
+      res.status(402).json({ error: "Dit hoofdstuk hoort bij de Practitioner-module.", betalen: "LEZ-1" });
       return;
     }
 

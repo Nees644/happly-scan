@@ -55,7 +55,7 @@ async function start(){
   if (!session){
     el("kop").textContent = "Je bent niet ingelogd";
     el("tekst").textContent = "Meld je aan of log in om verder te gaan.";
-    el("keuzes").innerHTML = keuze("/module", "Naar de Lezer-module", "Aanmelden of inloggen, en de eerste twee hoofdstukken lezen", true);
+    el("keuzes").innerHTML = keuze("/module", "Naar de Practitioner-module", "Aanmelden of inloggen, en de eerste twee hoofdstukken lezen", true);
     return;
   }
 
@@ -80,7 +80,7 @@ async function start(){
 
   el("keuzes").innerHTML = [
     keuze("/teamkracht", "Teams en Teamkrachtkaarten", teams ? `${teams} ${teams === 1 ? "team" : "teams"}` : "Een team aanmaken en de scanlink delen", true),
-    keuze("/module", "De Lezer-module", gelezen ? "Terug naar de hoofdstukken" : "Hoofdstuk 1 en 2 zijn gratis en duren een kwartier", false),
+    keuze("/module", "De Practitioner-module", gelezen ? "Terug naar de hoofdstukken" : "Hoofdstuk 1 en 2 zijn gratis en duren een kwartier", false),
     keuze("/teamkracht-handleiding", "Werkinstructie", "Hoe je de kaart in een sessie gebruikt", false)
   ].join("");
 

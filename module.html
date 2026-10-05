@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Lezer-module &middot; Teamkracht</title>
+<title>Practitioner-module &middot; Teamkracht</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -188,7 +188,7 @@ function teken(){
           (gedaan
             ? '<p class="klaar">Gelezen</p>'
             : `<button class="knop lijn" data-h="${h.nummer}">Ik heb dit gelezen</button>`)
-        : `<div class="slot">Dit hoofdstuk hoort bij de <b>Lezer-module</b>. Die opent alle zes de hoofdstukken en leidt naar de toets, het certificaat en het register. Beheer je een organisatie met een abonnement, dan zit hij er al bij.</div>`}
+        : `<div class="slot">Dit hoofdstuk hoort bij de <b>Practitioner-module</b>. Die opent alle zes de hoofdstukken en leidt naar de toets, het certificaat en het register. Beheer je een organisatie met een abonnement, dan zit hij er al bij.</div>`}
     </section>`;
   }).join("");
 
@@ -232,7 +232,7 @@ function tekenToets(){
   const klaar = stand.afgerond.length;
   vak.innerHTML = `<div class="koopvak">
     <h2>De toets</h2>
-    <p>Twintig meerkeuzevragen uit de zes hoofdstukken. Bij zestien goed ben je Lezer en krijg je je certificaat.
+    <p>Twintig meerkeuzevragen uit de zes hoofdstukken. Bij zestien goed ben je Gecertificeerde Practitioner en krijg je je certificaat.
     ${klaar < 6 ? `Je hebt ${klaar} van de zes hoofdstukken afgerond; de vragen gaan over alle zes.` : "Je hebt alle zes de hoofdstukken afgerond."}</p>
     <p><a class="knop" href="/toets">Naar de toets</a></p>
   </div>`;
@@ -245,7 +245,7 @@ function tekenKoop(){
     <h2>De hele module</h2>
     <p>Vier hoofdstukken erbij, de toets, en bij een voldoende het certificaat, de badge en je vermelding in het register.</p>
     <p class="bedrag"><b>${euro(prijs.ex)} euro</b> <span>excl. btw, ${euro(prijs.totaal)} inclusief</span></p>
-    <button class="knop" id="koopknop">De Lezer-module kopen</button>
+    <button class="knop" id="koopknop">De Practitioner-module kopen</button>
     <p class="melding" id="koopmelding"></p>
   </div>`;
   el("koopknop").addEventListener("click", koop);
