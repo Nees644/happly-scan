@@ -21,4 +21,8 @@ render 2 kaart-2-uitslag.png
 render 3 kaart-3-eigenaarschap.png
 render 4 kaart-4-leidersbeeld.png
 render 5 kaart-5-succeskrachtformule.png
+render "5&thema=zand" kaart-5-succeskrachtformule-zand.png
+render 6 kaart-6-tot-maandag-zand.png
+render 7 kaart-7-tot-maandag.png
+render 8 kaart-8-payoff-zand.png
 echo "Klaar."

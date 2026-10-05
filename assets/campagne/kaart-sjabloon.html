@@ -8,7 +8,7 @@
   Huisstijl volgt de Happly designstandaard en scan.happly.nl.
   Renderen: ./genereer.sh (headless Chrome, exacte pixelmaat).
   Kaartkeuze via query: ?kaart=1 (introductie), ?kaart=2 (uitslagmock),
-  ?kaart=3 (eigenaarschap, outside-in), ?kaart=4 (Leidersbeeld), ?kaart=5 (succeskrachtformule). Nieuwe kaarten: voeg een sectie toe
+  ?kaart=3 (eigenaarschap, outside-in), ?kaart=4 (Leidersbeeld), ?kaart=5 (succeskrachtformule), ?kaart=6 en 7 (Tot maandag, zand en donker), ?kaart=8 (pay-off, zand). Elke kaart zandkleurig met &thema=zand. Nieuwe kaarten: voeg een sectie toe
   in KAARTEN onderaan en een regel in genereer.sh.
 -->
 <link rel="stylesheet" href="fonts.css">
@@ -91,6 +91,27 @@
     width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
   }
   #kaart5 .landing b{display:block;color:#fff;font-weight:500;font-size:36px;margin-bottom:6px}
+
+  /* Zandkleurige variant (5 oktober 2026): licht en rustig, zoals happly.nl.
+     De body krijgt class zand via ?thema=zand of via de kaart zelf. */
+  body.zand{background:#F7F3F0;color:#1A0B2E}
+  body.zand::before{background:radial-gradient(circle 860px at 76% 86%,rgba(214,2,111,.08),rgba(214,2,111,0) 68%)}
+  body.zand .landing{color:#6B6472}
+  body.zand .kaart .landing b{color:#1A0B2E !important}
+  body.zand .kaart .landing{color:#6B6472 !important}
+  body.zand #kaart5 h1, body.zand .kaart h1{color:#1A0B2E}
+
+  /* Kaart 6 en 7: de haak uit de post. Kaart 8: de pay-off. */
+  #kaart6,#kaart7,#kaart8{justify-content:center;padding-bottom:140px}
+  #kaart6 h1,#kaart7 h1,#kaart8 h1{font-size:110px;max-width:960px}
+  #kaart6 h1 em,#kaart7 h1 em,#kaart8 h1 em{display:block}
+  #kaart6 .onder,#kaart7 .onder,#kaart8 .onder{font-size:34px;max-width:820px;margin-top:44px;line-height:1.45;color:var(--lavendel)}
+  body.zand #kaart6 .onder, body.zand #kaart8 .onder{color:#6B6472}
+  #kaart6 .landing,#kaart7 .landing,#kaart8 .landing{
+    position:absolute;bottom:200px;left:50%;transform:translateX(-50%);
+    width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
+  }
+  #kaart6 .landing b,#kaart7 .landing b,#kaart8 .landing b{display:block;color:#fff;font-weight:500;font-size:36px;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -111,6 +132,24 @@
   <div class="landing">Eigenaarschap heeft nu een getal. De Zelfkracht Index.</div>
 </section>
 
+<section class="kaart" id="kaart6" data-thema="zand">
+  <h1>Trainingen werken. <em>Tot maandag.</em></h1>
+  <div class="onder">Nieuw gedrag zakt binnen weken weg. Niet omdat mensen niet willen.</div>
+  <div class="landing"><b>Leid je een team? Doe het gratis Leidersbeeld.</b>Drie minuten, geen account.</div>
+</section>
+
+<section class="kaart" id="kaart7">
+  <h1>Trainingen werken. <em>Tot maandag.</em></h1>
+  <div class="onder">Nieuw gedrag zakt binnen weken weg. Niet omdat mensen niet willen.</div>
+  <div class="landing"><b>Leid je een team? Doe het gratis Leidersbeeld.</b>Drie minuten, geen account.</div>
+</section>
+
+<section class="kaart" id="kaart8" data-thema="zand">
+  <h1>Klein zetje. <em>Grote beweging.</em></h1>
+  <div class="onder">Zelfkracht + Volhouden = Succes</div>
+  <div class="landing"><b>Leid je een team? Doe het gratis Leidersbeeld.</b>Drie minuten, geen account.</div>
+</section>
+
 <section class="kaart" id="kaart5">
   <div class="eyebrow">Succeskrachtformule</div>
   <h1><span>Zelfkracht</span><span>+ Volhouden</span><span>= Succes</span></h1>
@@ -129,7 +168,12 @@
 <script>
   const n = new URLSearchParams(location.search).get("kaart") || "1";
   const el = document.getElementById("kaart" + n);
-  (el || document.getElementById("kaart1")).classList.add("actief");
+  const actief = el || document.getElementById("kaart1");
+  actief.classList.add("actief");
+  // Zandkleurig: via de kaart zelf (data-thema) of via ?thema=zand.
+  if (actief.dataset.thema === "zand" || new URLSearchParams(location.search).get("thema") === "zand"){
+    document.body.classList.add("zand");
+  }
 </script>
 </body>
 </html>
