@@ -55,7 +55,7 @@ footer{margin-top:40px;border-top:1px solid ${LIJN};padding-top:20px;font-size:1
 </style>
 </head>
 <body><div class="wrap">${inhoud}
-<footer>Happly &middot; Teamkracht Index. Vragen over een vermelding? <a href="mailto:hallo@happly.nl">hallo@happly.nl</a></footer>
+<footer>Happly &middot; Teamkracht Scan. Vragen over een vermelding? <a href="mailto:hallo@happly.nl">hallo@happly.nl</a></footer>
 </div></body>
 </html>`;
 }
@@ -78,8 +78,8 @@ export function bouwRegisterLijst({ rijen = [], basis = "https://www.teamkrachti
     : `<p class="leeg">Er staat nog niemand in het register.</p>`;
 
   return schil({
-    titel: "Register · Teamkracht Index",
-    beschrijving: "Wie is gecertificeerd om met de Teamkracht Index te werken.",
+    titel: "Register · Teamkracht Scan",
+    beschrijving: "Wie is gecertificeerd om met de Teamkracht Scan te werken.",
     canoniek: `${basis}/register`,
     inhoud: `
       <div class="eyebrow">Register</div>
@@ -104,9 +104,9 @@ export function bouwRegisterLijst({ rijen = [], basis = "https://www.teamkrachti
    het certificaat niet meer actief is: een badge die iemand vorig jaar op
    LinkedIn zette hoort te blijven werken en dan eerlijk te zijn. */
 export function bouwRegisterPagina({ rij, basis = "https://www.teamkrachtindex.nl", viaCode = false }){
-  const beschrijving = `${rij.naam} is ${rij.niveau_label} van de Teamkracht Index sinds ${nederlandseDatum(rij.sinds)}.`;
+  const beschrijving = `${rij.naam} is ${rij.niveau_label} van de Teamkracht Scan sinds ${nederlandseDatum(rij.sinds)}.`;
   return schil({
-    titel: `${rij.naam} · ${rij.niveau_label} · Teamkracht Index`,
+    titel: `${rij.naam} · ${rij.niveau_label} · Teamkracht Scan`,
     beschrijving,
     canoniek: `${basis}/register/${rij.slug}`,
     // Een verificatielink hoort niet in een zoekmachine; de persoonspagina wel.
@@ -116,7 +116,7 @@ export function bouwRegisterPagina({ rij, basis = "https://www.teamkrachtindex.n
       <h1>${ontsnap(rij.naam)}</h1>
       <div class="kaart">
         <div class="rij">
-          <h2>${ontsnap(rij.niveau_label)} Teamkracht Index</h2>
+          <h2>${ontsnap(rij.niveau_label)} Teamkracht Scan</h2>
           <span class="stip ${rij.actief ? "" : "uit"}"><i></i>${ontsnap(rij.status)}</span>
         </div>
         ${rij.uitleg ? `<p class="klein" style="margin-top:6px">${ontsnap(rij.uitleg)}</p>` : ""}
@@ -134,7 +134,7 @@ export function bouwRegisterPagina({ rij, basis = "https://www.teamkrachtindex.n
 
 export function bouwNietGevonden({ viaCode = false } = {}){
   return schil({
-    titel: "Niet gevonden · Teamkracht Index",
+    titel: "Niet gevonden · Teamkracht Scan",
     beschrijving: "Deze vermelding bestaat niet.",
     indexeren: false,
     inhoud: `

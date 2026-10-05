@@ -42,7 +42,7 @@ export async function maakKaartPdf({
   const doc = new PDFDocument({ size: blad, margin: 0, info: {
     Title: `Teamkrachtkaart ${teamnaam || ""}`.trim(),
     Author: "Happly",
-    Subject: "Teamkracht Index"
+    Subject: "Teamkracht Scan"
   }});
   zetLetters(doc);
   doc.rect(0, 0, breed, hoog).fill(KLEUR.papier);

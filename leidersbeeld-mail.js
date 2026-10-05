@@ -31,10 +31,10 @@ function shell(inhoud, afmeldUrl){
     : "";
   return `<div style="background:${RT};padding:32px 16px">
     <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Teamkracht Index</div>
+      <div style="background:${DP};padding:22px 32px;color:#fff;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase">Teamkracht Scan</div>
       <div style="padding:30px 32px 36px">${inhoud}</div>
     </div>
-    <p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Happly &middot; Teamkracht Index</p>
+    <p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Happly &middot; Teamkracht Scan</p>
     ${voet}
   </div>`;
 }
@@ -50,8 +50,8 @@ export function resultaatMail({ naam, index, token, basis = BASIS_URL, doelverge
   const naamregel = voornaam(naam) ? `${voornaam(naam)},` : "Hallo,";
   const inhoud =
     p(naamregel) +
-    p(`Jij hebt gemeten hoe jouw team het doet op Zien, Sturen en Doen. Het Leidersbeeld van de Teamkracht Index van jouw team is <b style="color:${PK}">${index}</b>.`) +
-    p("Wat is de gemeten Teamkracht Index van jouw team? En zit de ruimte waar jij hem verwacht?") +
+    p(`Jij hebt gemeten hoe jouw team het doet op Zien, Sturen en Doen. Jouw Leidersbeeld van de teamkrachtscore is <b style="color:${PK}">${index}</b>.`) +
+    p("Wat is de gemeten teamkrachtscore van jouw team? En zit de ruimte waar jij hem verwacht?") +
     (doelvergelijking ? p(`<b style="color:${DP}">${doelvergelijking.label}</b>`) : "") +
     p("Dat weet je als je team het zelf invult. Drie minuten per persoon, en je ziet op een kaart waar jouw beeld en het beeld van het team gelijk lopen en waar niet.") +
     knop("Bekijk je Leidersbeeld", leiderUrl(token, basis));
@@ -62,7 +62,7 @@ export function herinneringMail({ naam, index, token, afmeldUrl, basis = BASIS_U
   const naamregel = voornaam(naam) ? `${voornaam(naam)},` : "Hallo,";
   const inhoud =
     p(naamregel) +
-    p(`Jouw Leidersbeeld van de Teamkracht Index is <b style="color:${PK}">${index}</b>. Wat de gemeten Teamkracht Index van jouw team is, weet je als het team het zelf invult.`) +
+    p(`Jouw Leidersbeeld van de teamkrachtscore is <b style="color:${PK}">${index}</b>. Wat de gemeten teamkrachtscore van jouw team is, weet je als het team het zelf invult.`) +
     knop("Bekijk je Leidersbeeld", leiderUrl(token, basis));
   return { subject: herinneringOnderwerp(index), html: shell(inhoud, afmeldUrl) };
 }

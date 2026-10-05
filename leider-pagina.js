@@ -168,7 +168,7 @@ export function bouwLeiderPagina({
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jouw Leidersbeeld · Teamkracht Index</title>
+<title>Jouw Leidersbeeld · Teamkracht Scan</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -194,13 +194,13 @@ footer{font-size:13.5px;color:${GRIJS};margin-top:44px;border-top:1px solid ${LI
 <body>
 <div class="wrap">
   <div class="eyebrow">Leidersbeeld</div>
-  <h1>${stand === "c" ? ontsnap(verloop ? verloop.kop : oordeel.kop) : `Jouw Teamkracht Index is ${rij.index_score}`}</h1>
+  <h1>${stand === "c" ? ontsnap(verloop ? verloop.kop : oordeel.kop) : `Jouw teamkrachtscore is ${rij.index_score}`}</h1>
   ${stand === "c" ? "" : `<div class="kaart">
     ${kolommen({ zien: rij.zien, sturen: rij.sturen, doen: rij.doen })}
     <div class="legenda"><span></span> Jouw beeld van het team</div>
   </div>`}
   ${inhoud}
-  <footer>Happly · Teamkracht Index</footer>
+  <footer>Happly · Teamkracht Scan</footer>
 </div>
 </body>
 </html>`;

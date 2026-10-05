@@ -51,7 +51,7 @@ export function bouwBadgeSvg({ naam, niveau, datum, verificatiecode, basis = "ht
   const naamY = regels.length === 2 ? 306 : 326;
   const jaarY = naamY + (regels.length - 1) * 42 + 44;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${BREEDTE} ${HOOGTE}" width="${BREEDTE}" height="${HOOGTE}" role="img" aria-label="Badge ${ontsnap(label)} Teamkracht Index, ${ontsnap(naam)}, ${jaar}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${BREEDTE} ${HOOGTE}" width="${BREEDTE}" height="${HOOGTE}" role="img" aria-label="Badge ${ontsnap(label)} Teamkracht Scan, ${ontsnap(naam)}, ${jaar}">
   <rect width="${BREEDTE}" height="${HOOGTE}" rx="36" fill="${PAARS}"/>
   <circle cx="300" cy="300" r="250" fill="none" stroke="${MAGENTA}" stroke-width="2" opacity=".45"/>
   <circle cx="300" cy="300" r="232" fill="none" stroke="${MAGENTA}" stroke-width="6"/>

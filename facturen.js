@@ -87,7 +87,7 @@ export function telOp(afnames, { btw_verlegd = false } = {}){
 /* Wat er op het afschrift van de klant komt te staan. Het factuurnummer moet
    erin: daarmee kan hij de incasso terugvinden in zijn administratie. */
 export function incassoOmschrijving(nummer, periode){
-  return `Happly Teamkracht Index ${nummer} (${periode.van} tot ${periode.tot})`.slice(0, 100);
+  return `Happly Teamkracht Scan ${nummer} (${periode.van} tot ${periode.tot})`.slice(0, 100);
 }
 
 /* Wat er moet gebeuren als een incasso mislukt.

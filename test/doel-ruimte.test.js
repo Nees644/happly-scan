@@ -572,7 +572,7 @@ test("criterium 7 op de leiderpagina en in de mail", () => {
   assert.ok(!zonder.includes("over wat nodig is"), "zonder teamdoel geen label");
 
   const mail = resultaatMail({ naam: "Test Leider", index: 61, token: "abc" });
-  assert.ok(mail.html.includes("Wat is de gemeten Teamkracht Index van jouw team? En zit de ruimte waar jij hem verwacht?"));
+  assert.ok(mail.html.includes("Wat is de gemeten teamkrachtscore van jouw team? En zit de ruimte waar jij hem verwacht?"));
 });
 
 /* --------------------------------------------- criterium 8: de uitvoer */
