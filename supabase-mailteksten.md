@@ -4,7 +4,7 @@ De mails die Supabase stuurt bij aanmelden en wachtwoord vergeten. Standaard
 komen die van "Supabase Auth" met een Engelse tekst, en dan herkent niemand ze.
 Twee dingen zetten dat recht: de afzender via Resend, en deze teksten.
 
-Bijgewerkt 9 september 2026.
+Bijgewerkt 5 oktober 2026: logo in de kop, Practitioner-module, en het nieuwe adres via {{ .NewEmail }}.
 
 ## Stap 0, waar mensen uitkomen
 
@@ -63,8 +63,10 @@ Inhoud:
 ```html
 <div style="background:#FBEFF5;padding:32px 16px">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-    <div style="background:#1A0B2E;padding:20px 30px;color:#fff;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Happly</div>
-    <div style="padding:28px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
+    <div style="padding:26px 30px 6px">
+      <img src="https://scan.happly.nl/assets/happly-logo.png" alt="Happly" width="107" height="40" style="display:block;border:0;height:40px;width:107px">
+    </div>
+    <div style="padding:18px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
       <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 14px">Welkom bij Happly.</p>
       <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Klik op de knop hieronder om je aanmelding te bevestigen. Daarna staat de Practitioner-module voor je klaar en kun je meteen beginnen met de eerste twee hoofdstukken.</p>
       <p style="margin:0 0 22px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#D6026F;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 26px;border-radius:999px">Bevestig je aanmelding</a></p>
@@ -89,8 +91,10 @@ Inhoud:
 ```html
 <div style="background:#FBEFF5;padding:32px 16px">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-    <div style="background:#1A0B2E;padding:20px 30px;color:#fff;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Happly</div>
-    <div style="padding:28px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
+    <div style="padding:26px 30px 6px">
+      <img src="https://scan.happly.nl/assets/happly-logo.png" alt="Happly" width="107" height="40" style="display:block;border:0;height:40px;width:107px">
+    </div>
+    <div style="padding:18px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
       <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Je kunt hieronder een nieuw wachtwoord instellen voor je Happly-account.</p>
       <p style="margin:0 0 22px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#D6026F;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 26px;border-radius:999px">Nieuw wachtwoord instellen</a></p>
       <p style="font-size:12.5px;color:#6A5A78;line-height:1.6;margin:0 0 8px">Werkt de knop niet, plak dan deze link in je browser:</p>
@@ -114,9 +118,11 @@ Inhoud:
 ```html
 <div style="background:#FBEFF5;padding:32px 16px">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-    <div style="background:#1A0B2E;padding:20px 30px;color:#fff;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Happly</div>
-    <div style="padding:28px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
-      <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Je wilt het e-mailadres van je Happly-account wijzigen in {{ .Email }}. Klik op de knop om dat te bevestigen.</p>
+    <div style="padding:26px 30px 6px">
+      <img src="https://scan.happly.nl/assets/happly-logo.png" alt="Happly" width="107" height="40" style="display:block;border:0;height:40px;width:107px">
+    </div>
+    <div style="padding:18px 30px 34px;font-family:'DM Sans',Helvetica,Arial,sans-serif">
+      <p style="font-size:15px;color:#3A2E46;line-height:1.7;margin:0 0 22px">Je wilt het e-mailadres van je Happly-account wijzigen in {{ .NewEmail }}. Klik op de knop om dat te bevestigen.</p>
       <p style="margin:0 0 22px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#D6026F;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 26px;border-radius:999px">Bevestig dit adres</a></p>
       <p style="font-size:12.5px;color:#6A5A78;line-height:1.6;margin:0;border-top:1px solid #E7DCEC;padding-top:16px">Heb je dit niet aangevraagd, dan hoef je niets te doen.</p>
     </div>
