@@ -8,7 +8,7 @@
   Huisstijl volgt de Happly designstandaard en scan.happly.nl.
   Renderen: ./genereer.sh (headless Chrome, exacte pixelmaat).
   Kaartkeuze via query: ?kaart=1 (introductie), ?kaart=2 (uitslagmock),
-  ?kaart=3 (eigenaarschap, outside-in), ?kaart=4 (Leidersbeeld). Nieuwe kaarten: voeg een sectie toe
+  ?kaart=3 (eigenaarschap, outside-in), ?kaart=4 (Leidersbeeld), ?kaart=5 (succeskrachtformule). Nieuwe kaarten: voeg een sectie toe
   in KAARTEN onderaan en een regel in genereer.sh.
 -->
 <link rel="stylesheet" href="fonts.css">
@@ -77,6 +77,20 @@
     width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
   }
   #kaart4 .landing b{display:block;color:#fff;font-weight:500;font-size:36px}
+  /* Kaart 5: de succeskrachtformule (5 oktober 2026), met het Leidersbeeld als
+     eerste stap. Formule in wit, zoals op happly.nl. */
+  #kaart5{justify-content:center;padding-bottom:140px}
+  #kaart5 .eyebrow{
+    font-weight:600;text-transform:uppercase;letter-spacing:.16em;
+    font-size:30px;color:var(--accent);margin-bottom:34px;
+  }
+  #kaart5 h1{font-size:104px;max-width:980px;color:#fff}
+  #kaart5 h1 span{display:block}
+  #kaart5 .landing{
+    position:absolute;bottom:200px;left:50%;transform:translateX(-50%);
+    width:100%;font-size:31px;font-weight:400;color:var(--lavendel);
+  }
+  #kaart5 .landing b{display:block;color:#fff;font-weight:500;font-size:36px;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -86,7 +100,7 @@
 </section>
 
 <section class="kaart" id="kaart2">
-  <div class="eyebrow">Zelfkracht Index</div>
+  <div class="eyebrow">Zelfkrachtscore</div>
   <div class="getal serif">67</div>
   <div class="deelscores">Zien 69 &middot; Sturen 56 &middot; Doen 75</div>
   <div class="slotregel">Waar bij jou de ruimte zit.</div>
@@ -95,6 +109,12 @@
 <section class="kaart" id="kaart3">
   <h1><span class="wit">Iedereen vraagt om eigenaarschap.</span><em>Niemand kan zeggen waar het staat.</em></h1>
   <div class="landing">Eigenaarschap heeft nu een getal. De Zelfkracht Index.</div>
+</section>
+
+<section class="kaart" id="kaart5">
+  <div class="eyebrow">Succeskrachtformule</div>
+  <h1><span>Zelfkracht</span><span>+ Volhouden</span><span>= Succes</span></h1>
+  <div class="landing"><b>Leid je een team? Doe het gratis Leidersbeeld.</b>Drie minuten, geen account.</div>
 </section>
 
 <section class="kaart" id="kaart4">

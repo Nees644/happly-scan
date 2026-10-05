@@ -20,4 +20,5 @@ render 1 kaart-1-introductie.png
 render 2 kaart-2-uitslag.png
 render 3 kaart-3-eigenaarschap.png
 render 4 kaart-4-leidersbeeld.png
+render 5 kaart-5-succeskrachtformule.png
 echo "Klaar."
