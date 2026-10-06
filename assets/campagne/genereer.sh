@@ -26,4 +26,6 @@ render 6 kaart-6-tot-maandag-zand.png
 render 7 kaart-7-tot-maandag.png
 render 8 kaart-8-payoff-zand.png
 render 9 kaart-9-ook-na-maandag-zand.png
+render 10 kaart-10-trainers.png
+render "10&thema=zand" kaart-10-trainers-zand.png
 echo "Klaar."
