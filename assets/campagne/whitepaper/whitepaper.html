@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Gaan ze het geleerde ook echt toepassen?</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  @page { size: A4; margin: 0; }
+  :root{
+    --magenta:#D6026F; --ink:#1A0B2E; --sand:#F7F3F0; --sand2:#EFE8E4;
+    --lav:#B9AECB; --lavd:#6B6472; --line:#E2D8D2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#fff}
+  body{font-family:'DM Sans',sans-serif;color:var(--ink);font-size:10.6pt;line-height:1.55;
+       -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;
+        padding:22mm 20mm 20mm 20mm;background:#fff}
+  .page:last-child{page-break-after:auto}
+  .serif{font-family:'DM Serif Display',serif;font-weight:400}
+  h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:25pt;line-height:1.12;margin-bottom:5mm}
+  h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:15pt;line-height:1.2;margin:7mm 0 3mm}
+  .eyebrow{font-size:8.2pt;letter-spacing:.22em;font-weight:600;color:var(--magenta);text-transform:uppercase;margin-bottom:3mm}
+  p{margin-bottom:3.2mm}
+  .lead{font-size:12.4pt;line-height:1.5;color:var(--ink)}
+  .muted{color:var(--lavd)}
+  a{color:var(--magenta);text-decoration:none}
+  b,strong{font-weight:600}
+
+  /* kop en voet op binnenpagina's */
+  .run{position:absolute;left:20mm;right:20mm;bottom:11mm;display:flex;justify-content:space-between;
+       font-size:7.8pt;color:var(--lavd);border-top:1px solid var(--line);padding-top:3mm}
+  .run img{height:4.2mm}
+  .topmark{position:absolute;top:11mm;right:20mm;font-size:7.8pt;color:var(--lavd);letter-spacing:.06em}
+
+  /* omslag */
+  .cover{background:var(--sand);padding:0}
+  .cover .in{position:absolute;inset:0;padding:24mm 22mm}
+  .cover .logo{height:15mm}
+  .cover .eyebrow{margin-top:52mm;font-size:9pt}
+  .cover h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:46pt;line-height:1.04;margin:4mm 0 8mm;max-width:155mm}
+  .cover .sub{font-size:14pt;line-height:1.45;color:var(--lavd);max-width:135mm}
+  .cover .formula{position:absolute;left:22mm;right:22mm;bottom:44mm;background:var(--ink);color:#fff;
+       border-radius:5mm;padding:9mm 10mm}
+  .formula .lbl{font-size:7.8pt;letter-spacing:.22em;font-weight:600;color:var(--lav);margin-bottom:2.5mm}
+  .formula .eq{font-family:'DM Serif Display',serif;font-size:23pt;line-height:1.15}
+  .formula .eq em{font-style:normal;color:var(--magenta);font-family:'DM Sans',sans-serif;font-weight:600;padding:0 1mm}
+  .cover .foot{position:absolute;left:22mm;right:22mm;bottom:20mm;display:flex;justify-content:space-between;
+       font-size:9pt;color:var(--lavd)}
+  .cover .foot b{color:var(--ink)}
+  .cover .dot{position:absolute;right:-38mm;top:-38mm;width:120mm;height:120mm;border-radius:50%;
+       background:radial-gradient(circle at 35% 65%, rgba(214,2,111,.13), rgba(214,2,111,0) 70%)}
+
+  /* vier krachten */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:5mm}
+  .card{background:var(--sand);border-radius:3.5mm;padding:6mm 6mm 5mm}
+  .card .n{display:inline-flex;width:8mm;height:8mm;border-radius:50%;background:var(--magenta);color:#fff;
+       font-weight:600;font-size:9.5pt;align-items:center;justify-content:center;margin-bottom:3mm}
+  .card h4{font-family:'DM Serif Display',serif;font-weight:400;font-size:14pt;margin-bottom:2mm}
+  .card p{font-size:9.6pt;margin:0;line-height:1.5}
+  .quote{border-left:1.2mm solid var(--magenta);padding:2mm 0 2mm 6mm;margin:8mm 0 0;
+       font-family:'DM Serif Display',serif;font-size:16pt;line-height:1.3}
+
+  /* model */
+  .model{width:100%;border-radius:3mm;display:block;margin:2mm 0 6mm}
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:4mm 6mm}
+  .step{display:grid;grid-template-columns:9mm 1fr;gap:3mm;align-items:start}
+  .step .n{width:9mm;height:9mm;border-radius:50%;background:var(--magenta);color:#fff;font-weight:600;
+       display:flex;align-items:center;justify-content:center;font-size:10pt}
+  .step h4{font-size:11pt;font-weight:600;margin-bottom:.6mm}
+  .step h4 span{font-weight:400;color:var(--lavd)}
+  .step p{font-size:9.5pt;margin:0;line-height:1.45}
+  .note{font-size:8.6pt;color:var(--lavd);margin-top:6mm;padding-top:3mm;border-top:1px solid var(--line)}
+
+  /* tijdlijn */
+  .tl{position:relative;margin:5mm 0 2mm;padding-left:8mm}
+  .tl:before{content:"";position:absolute;left:3.2mm;top:2mm;bottom:2mm;width:.6mm;background:var(--line)}
+  .tl .row{position:relative;display:grid;grid-template-columns:44mm 1fr 34mm;gap:4mm;padding:3mm 0;border-bottom:1px solid var(--line)}
+  .tl .row:last-child{border-bottom:0}
+  .tl .row:before{content:"";position:absolute;left:-6.6mm;top:4.4mm;width:3.4mm;height:3.4mm;border-radius:50%;
+       background:#fff;border:.7mm solid var(--magenta)}
+  .tl .row.jij:before{background:var(--magenta)}
+  .tl .when{font-weight:600;font-size:9.6pt}
+  .tl .what{font-size:9.6pt}
+  .tl .who{font-size:8.6pt;color:var(--lavd);text-align:right}
+  .legend{font-size:8.2pt;color:var(--lavd);display:flex;gap:6mm;margin-top:2mm}
+  .legend i{display:inline-block;width:3mm;height:3mm;border-radius:50%;border:.6mm solid var(--magenta);margin-right:1.6mm;vertical-align:-.4mm}
+  .legend i.f{background:var(--magenta)}
+
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:4mm 7mm;margin-top:4mm}
+  .benefit{border-top:.7mm solid var(--magenta);padding-top:3mm}
+  .benefit h4{font-size:11pt;font-weight:600;margin-bottom:1mm}
+  .benefit p{font-size:9.5pt;margin:0;line-height:1.45}
+  .invest{margin-top:7mm;background:var(--ink);color:#fff;border-radius:3.5mm;padding:6mm 7mm;display:flex;gap:7mm;align-items:center}
+  .invest .big{font-family:'DM Serif Display',serif;font-size:17pt;line-height:1.2;flex:1}
+  .invest .big em{font-style:normal;color:var(--magenta)}
+
+  /* samenwerken */
+  .cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-top:4mm}
+  .box{background:var(--sand);border-radius:3.5mm;padding:5.5mm}
+  .box h4{font-family:'DM Serif Display',serif;font-weight:400;font-size:13.5pt;margin-bottom:2.5mm}
+  .box ul{list-style:none}
+  .box li{font-size:9.1pt;line-height:1.45;padding-left:4mm;position:relative;margin-bottom:2mm}
+  .box li:before{content:"";position:absolute;left:0;top:1.9mm;width:1.6mm;height:1.6mm;border-radius:50%;background:var(--magenta)}
+  .faq{margin-top:2mm}
+  .faq .q{display:grid;grid-template-columns:52mm 1fr;gap:6mm;padding:3.2mm 0;border-bottom:1px solid var(--line)}
+  .faq .q:last-child{border-bottom:0}
+  .faq .q h4{font-size:10.4pt;font-weight:600}
+  .faq .q p{font-size:9.6pt;margin:0;line-height:1.5}
+
+  /* achterkant */
+  .back{background:var(--ink);color:#fff;padding:0}
+  .back .in{position:absolute;inset:0;padding:24mm 22mm}
+  .back .logo{height:13mm}
+  .back h2{color:#fff;font-size:32pt;margin-top:46mm;max-width:150mm}
+  .back .lead{color:#E9E2EE;max-width:140mm}
+  .contact{margin-top:10mm;display:flex;gap:14mm}
+  .contact div{font-size:11pt}
+  .contact .lbl{font-size:7.8pt;letter-spacing:.22em;font-weight:600;color:var(--lav);margin-bottom:1.5mm}
+  .contact a{color:#fff}
+  .sources{position:absolute;left:22mm;right:22mm;bottom:34mm;font-size:7.6pt;line-height:1.5;color:var(--lav)}
+  .sources .lbl{letter-spacing:.22em;font-weight:600;margin-bottom:2mm}
+  .sources p{margin-bottom:1.3mm}
+  .back .payoff{position:absolute;left:22mm;right:22mm;bottom:18mm;display:flex;justify-content:space-between;
+       font-size:9pt;color:var(--lav);border-top:1px solid rgba(255,255,255,.15);padding-top:4mm}
+  .back .payoff b{color:#fff;font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- 1 omslag -->
+<section class="page cover">
+  <div class="in">
+    <img class="logo" src="logo.svg" alt="Happly">
+    <div class="eyebrow">Whitepaper voor trainers en coaches</div>
+    <h1>Gaan ze het geleerde ook echt toepassen?</h1>
+    <p class="sub">Zo vergroot je de succeskracht van je training of interventie, zonder iets aan de inhoud te veranderen.</p>
+  </div>
+  <div class="formula">
+    <div class="lbl">SUCCESKRACHT</div>
+    <div class="eq">Inzicht <em>+</em> Impuls <em>+</em> Volhouden <em>=</em> Succes</div>
+  </div>
+  <div class="foot"><span><b>Klein zetje. Grote beweging.</b></span><span>Oktober 2026</span></div>
+</section>
+
+<!-- 2 het probleem -->
+<section class="page">
+  <div class="topmark">Gaan ze het geleerde ook echt toepassen?</div>
+  <div class="eyebrow">Het gat na de training</div>
+  <h2>Een goede training geeft energie. Drie weken later is de werkvloer weer de werkvloer.</h2>
+  <p class="lead">Niet omdat de training slecht was, maar omdat nieuw gedrag weken herhaling nodig heeft. En in die weken staat de deelnemer er alleen voor.</p>
+  <p>Opdrachtgevers weten dat. Ze vragen steeds vaker niet of de training goed was, maar of mensen het geleerde ook toepassen. In het model van Kirkpatrick is dat niveau 3, gedrag: het niveau waar opdrachtgevers om vragen en dat bijna geen trainer kan laten zien.</p>
+
+  <h3>Waarom het geleerde wegzakt</h3>
+  <p>Vier krachten werken na elke training tegen je in. Geen ervan los je op met meer lesstof.</p>
+  <div class="grid2">
+    <div class="card"><div class="n">1</div><h4>Vergeten</h4>
+      <p>Wat we leren, zakt snel weg als het niet terugkomt. Ebbinghaus beschreef die vergeetcurve al in 1885; Murre en Dros (2015) lieten zien dat ze nog steeds klopt.</p></div>
+    <div class="card"><div class="n">2</div><h4>Gewoonte kost tijd</h4>
+      <p>Gemiddeld 66 dagen voordat nieuw gedrag vanzelf gaat, met uitschieters van 18 tot 254 dagen (Lally e.a., 2010). Een training duurt een dag.</p></div>
+    <div class="card"><div class="n">3</div><h4>De werkvloer trekt terug</h4>
+      <p>Steun van leidinggevende en collega's hangt sterk samen met toepassing van het geleerde, blijkt uit 89 studies (Blume e.a., 2010). Juist die omgeving valt buiten de training.</p></div>
+    <div class="card"><div class="n">4</div><h4>Persoonlijke weerstand</h4>
+      <p>Twijfel of je het wel kunt, de neiging om bij het oude te blijven, en verzet tegen verandering die van buiten komt. Ze komen pas boven als het in de praktijk lastig wordt.</p></div>
+  </div>
+  <div class="quote">Wat ontbreekt is geen betere training, maar een staart: hulp op het moment dat het lastig wordt.</div>
+  <div class="run"><span>Happly · Whitepaper voor trainers en coaches</span><span>2</span></div>
+</section>
+
+<!-- 3 het model -->
+<section class="page">
+  <div class="topmark">Gaan ze het geleerde ook echt toepassen?</div>
+  <div class="eyebrow">Succeskracht in vier stappen</div>
+  <h2>Jij levert de impuls. Wij zorgen voor het inzicht ervoor en het volhouden erna.</h2>
+  <img class="model" src="succeskracht-model.png" alt="Succeskrachtmodel">
+  <div class="steps">
+    <div class="step"><div class="n">1</div><div><h4>Inzicht <span>Zelfkracht Scan</span></h4>
+      <p>Waar staat iemand in zien, sturen en doen? Potentieel en valkuilen vooraf in beeld, voor de deelnemer en als teambeeld voor jou.</p></div></div>
+    <div class="step"><div class="n">2</div><div><h4>Impuls <span>jouw training of interventie</span></h4>
+      <p>Kennis, vaardigheden en de wil om te veranderen. De inhoud blijft van jou.</p></div></div>
+    <div class="step"><div class="n">3</div><div><h4>Volhouden <span>Zetjes</span></h4>
+      <p>Kleine zetjes die weerstand overwinnen, zodat nieuw gedrag beklijft. Met wetenschappelijk bewezen gedragstechnieken, zoals het als-dan-plan.</p></div></div>
+    <div class="step"><div class="n">4</div><div><h4>Succes <span>hermeting</span></h4>
+      <p>Het verschil zichtbaar, voor deelnemer en opdrachtgever.</p></div></div>
+  </div>
+  <p class="note">Als-dan-plannen: wie vooraf vastlegt wanneer en hoe hij iets doet, voert het vaker uit. Gollwitzer en Sheeran (2006) vonden dat effect in 94 studies.</p>
+  <div class="run"><span>Happly · Whitepaper voor trainers en coaches</span><span>3</span></div>
+</section>
+
+<!-- 4 tijdlijn en opbrengst -->
+<section class="page">
+  <div class="topmark">Gaan ze het geleerde ook echt toepassen?</div>
+  <div class="eyebrow">Zo loopt het in de tijd</div>
+  <h2>Je training krijgt een begin en een staart.</h2>
+  <div class="tl">
+    <div class="row"><div class="when">1 tot 2 weken ervoor</div><div class="what">Deelnemers doen de scan (drie minuten)</div><div class="who">Happly, namens jou</div></div>
+    <div class="row jij"><div class="when">De training</div><div class="what">Je gebruikt het teambeeld en de valkuilen als startpunt</div><div class="who">Jij</div></div>
+    <div class="row jij"><div class="when">Einde van de training</div><div class="what">Elke deelnemer zet zijn voornemen om in een als-dan-plan in Zetjes</div><div class="who">Jij en de deelnemer</div></div>
+    <div class="row"><div class="when">3 maanden erna</div><div class="what">Zetjes op het moment dat het lastig wordt</div><div class="who">Happly</div></div>
+    <div class="row"><div class="when">Na 30 dagen</div><div class="what">Hermeting en rapport voor de opdrachtgever</div><div class="who">Happly</div></div>
+    <div class="row jij"><div class="when">Na het rapport</div><div class="what">Gesprek over vervolg</div><div class="who">Jij</div></div>
+  </div>
+  <div class="legend"><span><i class="f"></i>jij</span><span><i></i>loopt vanzelf</span></div>
+
+  <h3>Wat het jou oplevert</h3>
+  <p>Je verkoopt geen training meer, maar een training die blijft werken.</p>
+  <div class="benefits">
+    <div class="benefit"><h4>Onderscheid</h4><p>Bijna geen trainer of coach kan laten zien dat deelnemers het geleerde toepassen. Jij wel.</p></div>
+    <div class="benefit"><h4>Bewijs</h4><p>Na 30 dagen een rapport voor je opdrachtgever. Je sterkste argument voor de volgende opdracht.</p></div>
+    <div class="benefit"><h4>Vervolgwerk</h4><p>De hermeting laat zien waar het team nog ruimte heeft. De aanleiding voor een vervolgsessie, door jou.</p></div>
+    <div class="benefit"><h4>Marge en geen extra tijd</h4><p>Je koopt per deelnemer in en bepaalt zelf je prijs. Uitnodigen, Zetjes en hermeting lopen vanzelf.</p></div>
+  </div>
+  <div class="invest"><div class="big">Een training kost al snel <em>duizenden euro's</em>. Het volhouden ervan enkele tientjes per deelnemer.</div></div>
+  <div class="run"><span>Happly · Whitepaper voor trainers en coaches</span><span>4</span></div>
+</section>
+
+<!-- 5 samenwerken en vragen -->
+<section class="page">
+  <div class="topmark">Gaan ze het geleerde ook echt toepassen?</div>
+  <div class="eyebrow">Hoe samenwerken werkt</div>
+  <h2>Jij blijft de afzender. Happly werkt op de achtergrond.</h2>
+  <div class="cols3">
+    <div class="box"><h4>Jouw klant blijft van jou</h4><ul>
+      <li>Onder je eigen naam, met "powered by Happly". Jij bent de contractpartij.</li>
+      <li>Happly benadert jouw klanten en deelnemers nooit zelf, ook niet na afloop.</li>
+      <li>Happly geeft bij jouw klanten zelf geen training of sessie.</li></ul></div>
+    <div class="box"><h4>Privacy</h4><ul>
+      <li>De individuele uitslag is van de deelnemer.</li>
+      <li>Jij en de leidinggevende zien alleen het teambeeld, vanaf vijf deelnemers.</li>
+      <li>Wat iemand in Zetjes invult, ziet niemand anders.</li>
+      <li>Een verwerkersovereenkomst met jou.</li></ul></div>
+    <div class="box"><h4>Geen vastigheid</h4><ul>
+      <li>Geen abonnement, geen minimumafname, geen opstartkosten.</li>
+      <li>Je betaalt per deelnemer die start.</li>
+      <li>Stop je, dan maken lopende deelnemers hun drie maanden af.</li></ul></div>
+  </div>
+
+  <h3>Veelgestelde vragen</h3>
+  <div class="faq">
+    <div class="q"><h4>Past het bij mijn programma?</h4><p>Je verandert niets aan de inhoud. Het werkt bij een eendaagse training, een traject, coaching en een leiderschapsprogramma, ook als je een handvol trainingen per jaar geeft.</p></div>
+    <div class="q"><h4>Wat kost het?</h4><p>Je betaalt per deelnemer. De prijs hangt af van je programma en aantallen; die spreken we samen af. Bij zorg en vitaliteit rekenen we per activering.</p></div>
+    <div class="q"><h4>Moet ik gecertificeerd zijn?</h4><p>Nee. Wie het teambeeld zelf met zijn klant wil bespreken, kan Gecertificeerde Practitioner worden. Aanbevolen, niet verplicht.</p></div>
+    <div class="q"><h4>Hoeveel tijd kost het mij?</h4><p>Een paar minuten in de training om het als-dan-plan te laten maken. De rest loopt vanzelf.</p></div>
+    <div class="q"><h4>Wat als mijn groep klein is?</h4><p>De scan en Zetjes werken per deelnemer. Het teambeeld verschijnt vanaf vijf deelnemers, zodat niemand herleidbaar is.</p></div>
+  </div>
+  <div class="run"><span>Happly · Whitepaper voor trainers en coaches</span><span>5</span></div>
+</section>
+
+<!-- 6 achterkant -->
+<section class="page back">
+  <div class="in">
+    <img class="logo" src="logo-wit.svg" alt="Happly">
+    <h2>Laten we kijken hoe het in jouw training past.</h2>
+    <p class="lead">Een gesprek van een halfuur over jouw training en hoe de vier stappen erin passen.</p>
+    <div class="contact">
+      <div><div class="lbl">MAIL</div><a href="mailto:maarten@happly.nl">maarten@happly.nl</a></div>
+      <div><div class="lbl">BEL</div>085-8785961</div>
+      <div><div class="lbl">WEB</div><a href="https://happly.nl">happly.nl</a></div>
+    </div>
+  </div>
+  <div class="sources">
+    <div class="lbl">BRONNEN</div>
+    <p>Blume, B.D., Ford, J.K., Baldwin, T.T. en Huang, J.L. (2010). Transfer of training: a meta-analytic review. Journal of Management, 36(4), 1065-1105.</p>
+    <p>Gollwitzer, P.M. en Sheeran, P. (2006). Implementation intentions and goal achievement: a meta-analysis of effects and processes. Advances in Experimental Social Psychology, 38, 69-119.</p>
+    <p>Lally, P., van Jaarsveld, C.H.M., Potts, H.W.W. en Wardle, J. (2010). How are habits formed: modelling habit formation in the real world. European Journal of Social Psychology, 40(6), 998-1009.</p>
+    <p>Murre, J.M.J. en Dros, J. (2015). Replication and analysis of Ebbinghaus' forgetting curve. PLOS ONE, 10(7), e0120644.</p>
+  </div>
+  <div class="payoff"><span><b>Klein zetje. Grote beweging.</b></span><span>Happly · Zaltbommel</span></div>
+</section>
+
+</body>
+</html>
