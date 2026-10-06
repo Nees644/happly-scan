@@ -106,3 +106,13 @@ test("het b2b-verdienmodel staat niet op de site", () => {
     assert.ok(!HTML.toLowerCase().includes(geheim.toLowerCase()), `de site verklapt ${geheim}`);
   }
 });
+
+test("trainers en coaches kunnen de whitepaper aanvragen", () => {
+  // Besluit 6 oktober 2026: de partnerroute loopt via de whitepaper. De
+  // founding-partnerplekken staan niet meer op de site.
+  const sectie = HTML.split('id="professionals"')[1].split("</section>")[0];
+  assert.ok(sectie.includes("Voor trainers en coaches"), "de sectie richt zich niet op trainers en coaches");
+  assert.ok(sectie.includes("happly-whitepaper-trainers.pdf"), "de link naar de whitepaper ontbreekt");
+  assert.ok(sectie.includes("formspree.io/f/mwlvkbaw"), "de aanvraag gaat niet naar het happly.nl-formulier");
+  assert.ok(!/founding/i.test(HTML), "de founding partners staan nog op de site");
+});

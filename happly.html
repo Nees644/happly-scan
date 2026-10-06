@@ -93,6 +93,12 @@ section{padding:96px 0}
 .list li{padding:12px 0 12px 30px;border-bottom:1px solid var(--line);position:relative}
 .list li::before{content:"";position:absolute;left:4px;top:21px;width:10px;height:10px;border-radius:50%;background:var(--magenta)}
 .offer{background:var(--ink);color:#fff;border-radius:20px;padding:38px}
+.wp-form{display:grid;gap:8px;margin:0 0 6px}
+.wp-form label{font-size:.85rem;color:var(--lav)}
+.wp-form input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:inherit}
+.wp-form .btn{margin-top:10px;justify-self:start}
+.wp-klaar{color:#fff !important;font-size:1.05rem}
+.wp-klaar a{color:#fff;text-decoration:underline}
 .offer h3{font-size:1.9rem;margin:4px 0 14px}
 .offer p{color:var(--lav);margin:0 0 14px}
 .offer ul{margin:0 0 26px;padding-left:20px;color:#fff}
@@ -164,7 +170,7 @@ footer a{color:var(--lav);text-decoration:none}
     <ul class="menu">
       <li><a href="#werkgevers">Werkgevers</a></li>
       <li><a href="#zorg">Zorg en vitaliteit</a></li>
-      <li><a href="#professionals">Professionals</a></li>
+      <li><a href="#professionals">Trainers en coaches</a></li>
       <li><a href="#methode">Methode</a></li>
       <li><a href="#zetjes">Zetjes</a></li>
       <li><a href="#over">Over</a></li>
@@ -297,21 +303,30 @@ footer a{color:var(--lav);text-decoration:none}
 <section id="professionals" class="alt">
   <div class="wrap split">
     <div class="fade">
-      <p class="eyebrow">Voor professionals</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Uw extra begeleiding, <em class="acc">tussen de sessies door.</em></h2>
-      <p class="pain">Coaches en teambegeleiders zien hun cliënten een uur per week of minder. Het echte werk gebeurt daartussen.</p>
+      <p class="eyebrow">Voor trainers en coaches</p>
+      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Gaan ze het geleerde <em class="acc">ook echt toepassen?</em></h2>
+      <p class="pain">Een goede training geeft energie. Drie weken later is de werkvloer weer de werkvloer. Happly geeft je training een begin en een staart, onder jouw eigen naam.</p>
       <ul class="list">
-        <li>Zelfkracht Scan Professional voor uw cliënten en teams</li>
-        <li>Zetjes als steun tussen de sessies door</li>
-        <li>Hermeting om resultaat zichtbaar te maken</li>
+        <li><b>Inzicht</b> vooraf met de Zelfkracht Scan</li>
+        <li><b>Impuls</b> uit jouw training, coaching of interventie</li>
+        <li><b>Volhouden</b> met Zetjes, op het moment dat het lastig wordt</li>
+        <li><b>Succes</b> zichtbaar met de hermeting, voor deelnemer en opdrachtgever</li>
       </ul>
+      <p style="margin:0">Jouw klant blijft van jou: je biedt het aan onder je eigen naam, powered by Happly. Geen abonnement, geen opstartkosten.</p>
     </div>
     <div class="offer fade">
-      <p class="eyebrow">Founding partners</p>
-      <h3>Tien plekken voor de eerste partners</h3>
-      <p>We starten met een kleine groep coaches en teambegeleiders, die meebouwen en als eersten werken met de volledige methode.</p>
-      <a class="btn btn-p" href="#contact">Vraag een kennismaking aan</a>
-      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a> &middot; <a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/register?src=site_pro">Bekijk het register</a></p>
+      <p class="eyebrow">Whitepaper</p>
+      <h3>Zo vergroot je de succeskracht van je training</h3>
+      <p>Waarom het geleerde wegzakt, de vier stappen en hoe samenwerken werkt. Zes pagina's, gratis.</p>
+      <form id="wp-form" class="wp-form" action="https://formspree.io/f/mwlvkbaw" method="POST">
+        <input type="hidden" name="_subject" value="Whitepaper trainers aangevraagd via happly.nl">
+        <input type="hidden" name="onderwerp" value="Whitepaper trainers en coaches">
+        <label for="wp-naam">Naam</label><input id="wp-naam" name="naam" required>
+        <label for="wp-email">E-mail</label><input id="wp-email" type="email" name="email" required>
+        <button class="btn btn-p" type="submit">Ontvang de whitepaper</button>
+      </form>
+      <p id="wp-klaar" class="wp-klaar" hidden>Dank je. <a href="https://scan.happly.nl/assets/campagne/whitepaper/happly-whitepaper-trainers.pdf" target="_blank" rel="noopener">Open de whitepaper</a>. Liever meteen sparren over jouw training? <a href="https://cal.com/maarten-neeskens-aoijqe?src=site_trainer">Plan een gesprek</a>.</p>
+      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/register?src=site_pro">Bekijk het register</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a></p>
     </div>
   </div>
 </section>
@@ -369,7 +384,7 @@ footer a{color:var(--lav);text-decoration:none}
         <select id="over" name="onderwerp">
           <option>Teamkracht-pakket</option>
           <option>Zetjes in een zorg- of vitaliteitstraject</option>
-          <option>Founding partner worden</option>
+          <option>Samenwerken als trainer of coach</option>
           <option>Iets anders</option>
         </select></div>
       <div><label for="bericht">Bericht</label><textarea id="bericht" name="bericht"></textarea></div>
@@ -403,6 +418,20 @@ footer a{color:var(--lav);text-decoration:none}
 document.querySelectorAll('.menu a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.menu').classList.remove('open')));
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.fade').forEach(el=>io.observe(el));
+</script>
+<script>
+// Whitepaper: aanvraag naar Formspree, daarna direct de link. Zonder
+// javascript post het formulier gewoon en volgt de whitepaper per mail.
+(function(){
+  var f = document.getElementById("wp-form"); if (!f || !window.fetch) return;
+  f.addEventListener("submit", function(e){
+    e.preventDefault();
+    var knop = f.querySelector("button"); knop.disabled = true;
+    fetch(f.action, {method:"POST", body:new FormData(f), headers:{Accept:"application/json"}})
+      .then(function(r){ if (!r.ok) throw new Error(); f.hidden = true; document.getElementById("wp-klaar").hidden = false; })
+      .catch(function(){ knop.disabled = false; f.submit(); });
+  });
+})();
 </script>
 </body>
 </html>
