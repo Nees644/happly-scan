@@ -55,7 +55,7 @@ section{padding:96px 0}
 .sec-head p{color:var(--lav-d);font-size:1.1rem;margin:18px 0 0}
 
 /* ingangen */
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:28px}
 .door{background:#fff;border:1px solid var(--line);border-radius:20px;padding:36px;text-decoration:none;transition:.2s;display:block}
 .door:hover{border-color:var(--magenta);transform:translateY(-3px)}
 .door h3{font-size:1.8rem;margin:6px 0 10px}
@@ -77,6 +77,8 @@ section{padding:96px 0}
 .sgrid p{margin:0;color:var(--lav-d);font-size:.92rem}
 .sgrid small{display:block;margin-top:8px;color:var(--magenta);font-weight:600;font-size:.78rem;letter-spacing:.04em}
 /* methode */
+.schema{margin:0 0 28px}
+.schema > svg{display:block;width:100%;height:auto;border-radius:20px;border:1px solid var(--line)}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
 .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;position:relative}
 .step::before{counter-increment:s;content:counter(s);font-family:'DM Serif Display',serif;font-size:2.6rem;color:var(--magenta);line-height:1;display:block;margin-bottom:12px}
@@ -169,12 +171,12 @@ footer a{color:var(--lav);text-decoration:none}
     <button class="burger" aria-label="Menu" onclick="document.querySelector('.menu').classList.toggle('open')">&#9776;</button>
     <ul class="menu">
       <li><a href="#werkgevers">Werkgevers</a></li>
-      <li><a href="#zorg">Zorg en vitaliteit</a></li>
       <li><a href="#professionals">Trainers en coaches</a></li>
+      <li><a href="#zorg">Zorg en vitaliteit</a></li>
       <li><a href="#methode">Methode</a></li>
       <li><a href="#zetjes">Zetjes</a></li>
       <li><a href="#over">Over</a></li>
-      <li><a class="btn btn-p" href="https://scan.happly.nl">Doe de gratis scan</a></li>
+      <li><a class="btn btn-p" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_nav">Gratis Leidersbeeld</a></li>
     </ul>
   </div>
 </header>
@@ -186,7 +188,7 @@ footer a{color:var(--lav);text-decoration:none}
     <h1>Klein zetje. <em class="acc">Grote beweging.</em></h1>
     <p class="lead">Happly helpt mensen en teams hun doelen te bereiken en vol te houden. Met wetenschappelijk bewezen gedragstechnieken en Zetjes: een zetje op het moment dat het erop aankomt.</p>
     <div class="ctas">
-      <a class="btn btn-p" href="https://scan.happly.nl">Doe de gratis scan</a>
+      <a class="btn btn-p" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_hero">Doe het gratis Leidersbeeld</a>
       <a class="btn btn-s" href="#contact">Neem contact op</a>
     </div>
   </div>
@@ -194,14 +196,20 @@ footer a{color:var(--lav);text-decoration:none}
 
 <div class="wrap">
   <div class="kracht fade">
-    <div><p class="eyebrow">Succeskrachtformule</p><div class="eq">Zelfkracht + Volhouden = Succes</div></div>
-    <p>Zelfkracht is je vertrouwen en regie om zelf in beweging te komen. <b>Hoe sterker je zelfkracht, hoe makkelijker je volhoudt.</b> En wie volhoudt, bereikt zijn doel. Happly meet zelfkracht, versterkt die en geeft een zetje op het moment dat het erop aankomt.</p>
+    <div><p class="eyebrow">Succeskracht</p><div class="eq">Inzicht + Impuls + Volhouden = Succes</div></div>
+    <p>Inzicht in je zelfkracht laat zien wat je drijft en wat je remt. Een training, sessie of plan geeft de impuls. <b>Het verschil zit in volhouden:</b> daar zorgt Zetjes voor, met een zetje op het moment dat het erop aankomt.</p>
   </div>
   <div class="doors">
     <a class="door fade" href="#werkgevers">
       <p class="eyebrow">Voor werkgevers</p>
       <h3>Verandering die blijft hangen</h3>
       <p>Voor teams, leiders en ondernemers die meer willen halen uit wat ze al kunnen.</p>
+      <span class="arrow">Bekijk wat we doen &rarr;</span>
+    </a>
+    <a class="door fade" href="#professionals">
+      <p class="eyebrow">Voor trainers en coaches</p>
+      <h3>Trainingen die blijven werken</h3>
+      <p>Voor trainers en coaches die willen laten zien dat deelnemers het geleerde ook toepassen.</p>
       <span class="arrow">Bekijk wat we doen &rarr;</span>
     </a>
     <a class="door fade" href="#zorg">
@@ -217,14 +225,89 @@ footer a{color:var(--lav);text-decoration:none}
   <div class="wrap">
     <div class="sec-head fade">
       <p class="eyebrow">De Happly-methode</p>
-      <h2>Van inzicht naar <em class="acc">volhouden</em></h2>
-      <p>Weten wat je wilt is stap één. Het verschil zit in wat er gebeurt als het tegenzit. Daarom werkt elke aanpak van Happly in vier stappen.</p>
+      <h2>Van inzicht naar <em class="acc">succes</em></h2>
+      <p>Na een training of goed voornemen zakt het effect meestal weg. Met Zetjes blijft het. Daarom werkt elke aanpak van Happly in vier stappen.</p>
     </div>
+    <figure class="schema fade"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 70 1600 930" role="img" aria-label="Succeskracht: het effect van een interventie, met en zonder Zetjes. Zonder Zetjes zakt het effect weg, met Zetjes blijft het hoog.">
+  <rect width="1600" height="1000" fill="#F7F3F0"/>
+  <defs>
+    <marker id="sk-pijl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A0B2E"/>
+    </marker>
+    <marker id="sk-pijlm" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D6026F"/>
+    </marker>
+  </defs>
+
+  <!-- titel -->
+  
+  <text x="120" y="182" font-family="'DM Serif Display',Georgia,serif" font-size="64" fill="#1A0B2E">Succeskracht</text>
+  <text x="120" y="226" font-family="'DM Sans',sans-serif" font-size="24" fill="#6B6472">Het effect van een interventie, met en zonder Zetjes</text>
+
+  <!-- assen -->
+  <line x1="200" y1="800" x2="200" y2="300" stroke="#1A0B2E" stroke-width="3" marker-end="url(#sk-pijl)"/>
+  <line x1="200" y1="800" x2="1380" y2="800" stroke="#1A0B2E" stroke-width="3" marker-end="url(#sk-pijl)"/>
+  <text transform="translate(160,560) rotate(-90)" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Effect</text>
+  <text x="1380" y="846" text-anchor="end" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Tijd</text>
+
+  <!-- zonder Zetjes -->
+  <path d="M200,800 C260,640 320,380 450,372 C560,366 610,500 700,590 C800,690 920,728 1060,734 L1320,736"
+        fill="none" stroke="#B9AECB" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- met Zetjes -->
+  <path d="M612,480 C650,470 680,470 712,452 C744,434 760,420 784,422 C812,424 830,470 862,474
+           C894,478 912,440 940,436 C968,432 986,478 1018,484 C1050,490 1066,452 1094,450
+           C1122,448 1140,496 1172,502 C1204,508 1222,472 1250,470 C1278,468 1296,500 1320,504"
+        fill="none" stroke="#D6026F" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Z's met pijltjes -->
+  <!-- Zetjes-beeldmerk boven elk zetje -->
+  <g transform="translate(784,372) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(940,386) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(1094,400) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(1250,420) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g>
+  <g stroke="#D6026F" stroke-width="3.5" marker-end="url(#sk-pijlm)">
+    <line x1="784" y1="512" x2="784" y2="452"/><line x1="940" y1="526" x2="940" y2="466"/>
+    <line x1="1094" y1="540" x2="1094" y2="480"/><line x1="1250" y1="560" x2="1250" y2="500"/>
+  </g>
+
+  <!-- M: scan -->
+  <circle cx="236" cy="712" r="11" fill="#1A0B2E"/>
+  <text x="258" y="722" font-family="'DM Serif Display',Georgia,serif" font-size="40" fill="#1A0B2E">M</text>
+  <!-- I: interventie -->
+  <text x="452" y="346" text-anchor="middle" font-family="'DM Serif Display',Georgia,serif" font-size="48" fill="#1A0B2E">I</text>
+  <!-- M': hermeting met het verschil -->
+  <circle cx="1320" cy="504" r="11" fill="#D6026F"/>
+  <circle cx="1320" cy="736" r="11" fill="#B9AECB"/>
+  <path d="M1352,510 L1366,510 L1366,730 L1352,730" fill="none" stroke="#1A0B2E" stroke-width="2.5"/>
+  <text x="1384" y="612" font-family="'DM Serif Display',Georgia,serif" font-size="40" fill="#1A0B2E">M&#8242;</text>
+  <text x="1384" y="644" font-family="'DM Sans',sans-serif" font-size="20" fill="#6B6472">het verschil</text>
+
+  <!-- lijnlabels -->
+  <text x="1110" y="770" font-family="'DM Sans',sans-serif" font-size="20" fill="#8E8496">zonder Zetjes</text>
+    <text x="606" y="452" font-family="'DM Sans',sans-serif" font-size="20" font-weight="600" fill="#D6026F">met Zetjes</text>
+
+  <!-- legenda -->
+  <line x1="120" y1="882" x2="1480" y2="882" stroke="#E2D8D2" stroke-width="2"/>
+  <circle cx="136" cy="923" r="16" fill="#D6026F"/><text x="136" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">1</text>
+  <text x="166" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">M</text>
+  <text x="206" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Inzicht</text>
+  <text x="166" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">Zelfkracht Scan vooraf</text>
+  <circle cx="476" cy="923" r="16" fill="#D6026F"/><text x="476" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">2</text>
+  <text x="506" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">I</text>
+  <text x="528" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Impuls</text>
+  <text x="506" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">jouw training of interventie</text>
+  <circle cx="816" cy="923" r="16" fill="#D6026F"/><text x="816" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">3</text>
+  <g transform="translate(864,923) scale(0.44)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g>
+  <text x="892" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Volhouden</text>
+  <text x="846" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">Zetjes in de praktijk</text>
+  <circle cx="1156" cy="923" r="16" fill="#D6026F"/><text x="1156" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">4</text>
+  <text x="1186" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">M&#8242;</text>
+  <text x="1234" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Succes</text>
+  <text x="1186" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">hermeting: het verschil</text>
+</svg></figure>
     <div class="steps">
       <div class="step fade"><h3>Inzicht</h3><p>Waar sta je, wat geeft je kracht en wat remt je af.</p><span class="tool">Zelfkracht Scan · Teamkracht Scan</span></div>
-      <div class="step fade"><h3>Plan</h3><p>Een helder doel met een als-dan-plan voor de lastige momenten.</p><span class="tool">Sprint · Start in Zetjes</span></div>
+      <div class="step fade"><h3>Impuls</h3><p>Een training, sessie of traject, met een als-dan-plan voor de lastige momenten.</p><span class="tool">Teamsessie · Training · Sprint</span></div>
       <div class="step fade"><h3>Volhouden</h3><p>Een zetje op het moment dat het nodig is. Jij houdt de regie.</p><span class="tool">Zetjes</span></div>
-      <div class="step fade"><h3>Meten</h3><p>Na 30 dagen hermeten. Zien wat er veranderd is geeft vertrouwen voor de volgende stap.</p><span class="tool">Hermeting</span></div>
+      <div class="step fade"><h3>Succes</h3><p>Na 30 dagen hermeten. Zien wat er veranderd is geeft vertrouwen voor de volgende stap.</p><span class="tool">Hermeting</span></div>
     </div>
     <div class="science fade">
       <p class="eyebrow">De wetenschap achter volhouden</p>
@@ -270,37 +353,7 @@ footer a{color:var(--lav);text-decoration:none}
   </div>
 </section>
 
-<section id="zorg">
-  <div class="wrap split">
-    <div class="fade">
-      <p class="eyebrow">Voor zorg en vitaliteit</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">In het traject. <em class="acc">Op het moment dat het telt.</em></h2>
-      <p class="pain">Medicatie, coaching en programma's zijn gepland. Een dip komt ongepland. Zetjes zit in het traject en is er precies op dat moment.</p>
-      <ul class="list">
-        <li><b>Apotheken en praktijken</b> die stoppers en deelnemers beter willen begeleiden</li>
-        <li><b>Leefstijlprogramma's</b> die uitval willen verminderen</li>
-        <li><b>Sport- en vitaliteitsaanbieders</b> die deelnametrouw willen verhogen</li>
-      </ul>
-      <div class="chips">
-        <span class="chip">Rookvrij</span><span class="chip">Leefstijl (GLI)</span><span class="chip">Bewegen</span><span class="chip">Therapietrouw</span>
-      </div>
-    </div>
-    <div class="offer fade">
-      <p class="eyebrow">Zo werkt het</p>
-      <h3>Uw deelnemers, uw naam, onze techniek</h3>
-      <p>U biedt Zetjes aan als onderdeel van uw traject. Wij zorgen voor de rest.</p>
-      <ul>
-        <li>Opzet voor uw context, ook in uw eigen huisstijl</li>
-        <li>Deelnemers starten via een toegangslink of QR-code</li>
-        <li>U betaalt per gestarte deelnemer</li>
-        <li>Na de proef kiest de deelnemer zelf om door te gaan</li>
-      </ul>
-      <a class="btn btn-p" href="#contact">Plan een pilotgesprek</a>
-    </div>
-  </div>
-</section>
-
-<section id="professionals" class="alt">
+<section id="professionals">
   <div class="wrap split">
     <div class="fade">
       <p class="eyebrow">Voor trainers en coaches</p>
@@ -327,6 +380,36 @@ footer a{color:var(--lav);text-decoration:none}
       </form>
       <p id="wp-klaar" class="wp-klaar" hidden>Dank je. <a href="https://scan.happly.nl/assets/campagne/whitepaper/happly-whitepaper-trainers.pdf" target="_blank" rel="noopener">Open de whitepaper</a>. Liever meteen sparren over jouw training? <a href="https://cal.com/maarten-neeskens-aoijqe?src=site_trainer">Plan een gesprek</a>.</p>
       <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/register?src=site_pro">Bekijk het register</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="zorg" class="alt">
+  <div class="wrap split">
+    <div class="fade">
+      <p class="eyebrow">Voor zorg en vitaliteit</p>
+      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">In het traject. <em class="acc">Op het moment dat het telt.</em></h2>
+      <p class="pain">Medicatie, coaching en programma's zijn gepland. Een dip komt ongepland. Zetjes zit in het traject en is er precies op dat moment.</p>
+      <ul class="list">
+        <li><b>Apotheken en praktijken</b> die stoppers en deelnemers beter willen begeleiden</li>
+        <li><b>Leefstijlprogramma's</b> die uitval willen verminderen</li>
+        <li><b>Sport- en vitaliteitsaanbieders</b> die deelnametrouw willen verhogen</li>
+      </ul>
+      <div class="chips">
+        <span class="chip">Rookvrij</span><span class="chip">Leefstijl (GLI)</span><span class="chip">Bewegen</span><span class="chip">Therapietrouw</span>
+      </div>
+    </div>
+    <div class="offer fade">
+      <p class="eyebrow">Zo werkt het</p>
+      <h3>Uw deelnemers, uw naam, onze techniek</h3>
+      <p>U biedt Zetjes aan als onderdeel van uw traject. Wij zorgen voor de rest.</p>
+      <ul>
+        <li>Opzet voor uw context, ook in uw eigen huisstijl</li>
+        <li>Deelnemers starten via een toegangslink of QR-code</li>
+        <li>U betaalt per gestarte deelnemer</li>
+        <li>Na de proef kiest de deelnemer zelf om door te gaan</li>
+      </ul>
+      <a class="btn btn-p" href="#contact">Plan een pilotgesprek</a>
     </div>
   </div>
 </section>

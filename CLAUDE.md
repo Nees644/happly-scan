@@ -164,6 +164,15 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   beweging.), met de knop naar het gratis Leidersbeeld in het werkgeversblok.
   Verwar de twee voorpagina's niet.
 
+- **Eén formule sinds 6 oktober 2026: Inzicht + Impuls + Volhouden = Succes.**
+  De oude succeskrachtformule (Zelfkracht + Volhouden = Succes) is vervallen;
+  zelfkracht is wat de stap Inzicht meet. Op happly.nl staat het
+  succeskrachtschema (de golflijn met Zetjes) inline als svg, zonder extern
+  bestand. De hoofdknop van happly.nl is het gratis Leidersbeeld, want de
+  verkoopweg loopt Leidersbeeld, Teamkracht Scan, teambeeld. De Zelfkracht Scan
+  blijft bereikbaar, niet als hoofdknop. Volgorde in menu en blokken:
+  werkgevers, trainers en coaches, zorg en vitaliteit.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

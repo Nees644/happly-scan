@@ -22,7 +22,10 @@ test("de pay-off en de succeskrachtformule staan erop", () => {
   // Strategie 5 oktober 2026: Happly is het merk naar buiten, met deze
   // pay-off, en de formule verklaart het verband tussen zelfkracht en volhouden.
   assert.ok(HTML.includes("Klein zetje. <em"), "de pay-off staat niet in de hero");
-  assert.ok(HTML.includes("Zelfkracht + Volhouden = Succes"), "de succeskrachtformule ontbreekt");
+  // Besluit 6 oktober 2026: er is één formule, dezelfde als voor partners.
+  assert.ok(HTML.includes("Inzicht + Impuls + Volhouden = Succes"), "de succeskrachtformule ontbreekt");
+  assert.ok(!HTML.includes("Zelfkracht + Volhouden = Succes"), "de oude formule staat er nog naast");
+  assert.ok(HTML.includes('aria-label="Succeskracht: het effect van een interventie'), "het succeskrachtschema ontbreekt");
   assert.ok(/<title>[^<]*Klein zetje\. Grote beweging\./.test(HTML), "de titel draagt de pay-off niet");
 });
 
@@ -115,4 +118,22 @@ test("trainers en coaches kunnen de whitepaper aanvragen", () => {
   assert.ok(sectie.includes("happly-whitepaper-trainers.pdf"), "de link naar de whitepaper ontbreekt");
   assert.ok(sectie.includes("formspree.io/f/mwlvkbaw"), "de aanvraag gaat niet naar het happly.nl-formulier");
   assert.ok(!/founding/i.test(HTML), "de founding partners staan nog op de site");
+});
+
+test("de volgorde is werkgevers, trainers en coaches, zorg en vitaliteit", () => {
+  // Besluit 6 oktober 2026, voor menu en blokken.
+  const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
+  const m = ["#werkgevers", "#professionals", "#zorg"].map(a => menu.indexOf(a));
+  assert.ok(m[0] < m[1] && m[1] < m[2], "het menu staat in de verkeerde volgorde");
+  const s = ['<section id="werkgevers"', '<section id="professionals"', '<section id="zorg"'].map(a => HTML.indexOf(a));
+  assert.ok(s[0] < s[1] && s[1] < s[2], "de blokken staan in de verkeerde volgorde");
+});
+
+test("de hoofdknop is het gratis Leidersbeeld", () => {
+  // Besluit 6 oktober 2026: de site verkoopt aan organisaties. De eerste stap
+  // is het Leidersbeeld, daarna volgt de Teamkracht Scan met het teambeeld.
+  const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
+  assert.ok(menu.includes("teamkrachtindex.nl/leidersbeeld?src=site_nav"), "de menuknop gaat niet naar het Leidersbeeld");
+  const hero = HTML.split('class="hero"')[1].split("</section>")[0];
+  assert.ok(hero.includes("teamkrachtindex.nl/leidersbeeld?src=site_hero"), "de heroknop gaat niet naar het Leidersbeeld");
 });
