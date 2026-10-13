@@ -154,3 +154,16 @@ test("de hoofdknop is het gratis Leidersbeeld", () => {
   const hero = HTML.split('class="hero"')[1].split("</section>")[0];
   assert.ok(hero.includes("teamkrachtindex.nl/leidersbeeld?src=site_hero"), "de heroknop gaat niet naar het Leidersbeeld");
 });
+
+test("de feiten over afhaken staan er met hun bron", () => {
+  // Besluit 13 oktober 2026: alleen gecontroleerde cijfers, elk met bron. De
+  // GLI-uitval komt uit RIVM-rapport 2025-0085 (41 procent stopt na de start),
+  // de 66 dagen uit Lally e.a. (2010), dezelfde bron als in de whitepaper. Voor
+  // fitness en ondernemers is geen gecontroleerd cijfer; daar staat dus niets.
+  const zorg = HTML.split('id="zorg"')[1].split("</section>")[0];
+  assert.ok(zorg.includes("4 op de 10") && zorg.includes("rivm.nl/bibliotheek/rapporten/2025-0085"), "het GLI-cijfer of de bron ontbreekt");
+  const werk = HTML.split('id="werkgevers"')[1].split("</section>")[0];
+  assert.ok(werk.includes("66 dagen") && werk.includes("Lally"), "de 66 dagen of de bron ontbreekt");
+  const ond = HTML.split('id="ondernemers"')[1].split("</section>")[0];
+  assert.ok(!ond.includes('class="feit"'), "bij ondernemers staat een cijfer zonder gecontroleerde bron");
+});
