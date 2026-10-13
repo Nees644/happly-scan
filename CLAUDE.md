@@ -173,6 +173,18 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   blijft bereikbaar, niet als hoofdknop. Volgorde in menu en blokken:
   werkgevers, trainers en coaches, zorg en vitaliteit.
 
+- **Happly.nl draait sinds 13 oktober 2026 om één stelling: Volhouden kun je
+  organiseren.** De kop is de stelling, de pay-off (Klein zetje. Grote
+  beweging.) staat erboven. Volgorde in menu en blokken: aanbieders in health
+  en vitality (anker `#zorg` blijft), werkgevers, ondernemers; trainers en
+  coaches staan onder Samenwerken. Dit vervangt de volgorde van 6 oktober. De
+  impuls is het begin en heeft twee bronnen: van een ander (programma,
+  training) of van jezelf (eigen doel). Zien, sturen en doen beschrijft de
+  volhouder, de formule beschrijft wat Happly organiseert; er komt geen derde
+  drieslag bij. Gewoonte en ritueel zijn de bestemming van volhouden, niet de
+  kop. De site spreekt als wij; alleen het blok Waarom ik dit doe is ik. De
+  hoofdknop blijft het gratis Leidersbeeld.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

@@ -21,7 +21,11 @@ test("er staan geen bedragen op de site", () => {
 test("de pay-off en de succeskrachtformule staan erop", () => {
   // Strategie 5 oktober 2026: Happly is het merk naar buiten, met deze
   // pay-off, en de formule verklaart het verband tussen zelfkracht en volhouden.
-  assert.ok(HTML.includes("Klein zetje. <em"), "de pay-off staat niet in de hero");
+  // Besluit 13 oktober 2026: de kop is de stelling (Volhouden kun je
+  // organiseren), de pay-off staat erboven.
+  const kop = HTML.split('class="hero"')[1].split("</section>")[0];
+  assert.ok(kop.includes("Klein zetje. Grote beweging."), "de pay-off staat niet in de hero");
+  assert.ok(kop.includes("Volhouden kun je <em"), "de stelling staat niet in de kop");
   // Besluit 6 oktober 2026: er is één formule, dezelfde als voor partners.
   assert.ok(HTML.includes("Inzicht + Impuls + Volhouden = Succes"), "de succeskrachtformule ontbreekt");
   assert.ok(!HTML.includes("Zelfkracht + Volhouden = Succes"), "de oude formule staat er nog naast");
@@ -120,13 +124,26 @@ test("trainers en coaches kunnen de whitepaper aanvragen", () => {
   assert.ok(!/founding/i.test(HTML), "de founding partners staan nog op de site");
 });
 
-test("de volgorde is werkgevers, trainers en coaches, zorg en vitaliteit", () => {
-  // Besluit 6 oktober 2026, voor menu en blokken.
+test("de volgorde is aanbieders, werkgevers, ondernemers, en daarna samenwerken", () => {
+  // Besluit 13 oktober 2026, voor menu en blokken: Volhouden organiseren voor
+  // aanbieders in health en vitality, werkgevers en ondernemers. Trainers en
+  // coaches staan onder Samenwerken. Het anker #zorg blijft, omdat er links
+  // van buiten naar wijzen.
   const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
-  const m = ["#werkgevers", "#professionals", "#zorg"].map(a => menu.indexOf(a));
-  assert.ok(m[0] < m[1] && m[1] < m[2], "het menu staat in de verkeerde volgorde");
-  const s = ['<section id="werkgevers"', '<section id="professionals"', '<section id="zorg"'].map(a => HTML.indexOf(a));
-  assert.ok(s[0] < s[1] && s[1] < s[2], "de blokken staan in de verkeerde volgorde");
+  const m = ["#zorg", "#werkgevers", "#ondernemers", "#professionals"].map(a => menu.indexOf(a));
+  assert.ok(m.every(i => i >= 0) && m[0] < m[1] && m[1] < m[2], "het menu staat in de verkeerde volgorde");
+  const s = ['<section id="zorg"', '<section id="werkgevers"', '<section id="ondernemers"', '<section id="professionals"'].map(a => HTML.indexOf(a));
+  assert.ok(s.every(i => i >= 0) && s[0] < s[1] && s[1] < s[2] && s[2] < s[3], "de blokken staan in de verkeerde volgorde");
+});
+
+test("de stelling en de twee bronnen van de impuls staan erop", () => {
+  // Besluit 13 oktober 2026: volhouden is geen karaktereigenschap maar te
+  // organiseren; de impuls is het begin, van een ander of van jezelf; zien,
+  // sturen en doen beschrijft de volhouder. Er komt geen derde drieslag bij.
+  assert.ok(HTML.includes("Volhouden is geen karaktereigenschap."), "de stelling ontbreekt");
+  assert.ok(HTML.includes("of je eigen doel"), "de impuls uit een eigen doel ontbreekt");
+  assert.ok(HTML.includes("zien, sturen en doen"), "zien, sturen en doen ontbreekt");
+  assert.ok(HTML.includes("Minder afhakers."), "de belofte aan aanbieders ontbreekt");
 });
 
 test("de hoofdknop is het gratis Leidersbeeld", () => {
