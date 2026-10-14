@@ -236,6 +236,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 <!-- RESULTS -->
 <div class="screen" id="s-r">
   <div class="hdr" style="padding:18px 36px"><img src="happly-logo.svg" alt="Happly"><span class="htag">Jouw uitslag</span></div>
+  <div id="reis-terug" style="display:none;padding:14px 36px 0"><a class="btn" style="width:100%;justify-content:center" href="#">Terug naar je reis &rarr;</a></div>
   <div id="r-body"></div>
 </div>
 
@@ -401,8 +402,15 @@ const escHtml = t => String(t ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").
    hoort niet. Om dezelfde reden krijgt deze deelnemer geen opvolgmails; dat
    regelt api/lead.js. */
 const teamToken = (new URLSearchParams(location.search).get("team") || "").trim().toUpperCase() || null;
+/* Reistoken uit de Volhoudreis (scan?reis=<token>&meting=start|eind). Zelfde
+   regels als bij een team: geen Sprint-blok, geen deelknop, geen opvolgreeks.
+   De uitslag krijgt bovenaan een knop terug naar de reis. */
+const reisToken = (()=>{ const r=(new URLSearchParams(location.search).get("reis")||"").trim().toLowerCase(); return /^[0-9a-f]{32}$/.test(r) ? r : null; })();
+const reisMeting = (new URLSearchParams(location.search).get("meting")==="eind") ? "eind" : "start";
+const REIS_APP = "https://happly-zetjes.vercel.app";
 
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);
+  if(id==="s-r"&&reisToken){const t=document.getElementById("reis-terug");t.querySelector("a").href=REIS_APP+"/reis/"+reisToken;t.style.display="block";}}
 function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
 
 /* ---- vragen (één per scherm) ---- */
@@ -624,7 +632,7 @@ function renderResults(){
       <div class="sec-h">De route</div>
       <div id="route-body"></div>
       <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
-      ${teamToken ? "" : `<div class="sprintbox">
+      ${(teamToken || reisToken) ? "" : `<div class="sprintbox">
         <h3>De Zelfkracht Sprint</h3>
         <p>De Scan wijst aan waar jouw ruimte om te groeien zit. De Sprint, onze training van zes weken, onderzoekt wat en hoe je kunt veranderen: wekelijkse calls, één startgroep tegelijk.</p>
         <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
@@ -722,7 +730,7 @@ async function finishDuiding(){
   duidingTekst = d.tekst; duidingFallback = d.fallback;
   // Deelzin parallel aan de render ophalen; de deelnemer wacht er nergens op.
   // Bij terugval-duiding geen AI-selectie; het deelvenster gebruikt dan de canonzin.
-  deelzinPromise = (duidingFallback || teamToken) ? Promise.resolve(null) : fetchDeelzin(duidingTekst);
+  deelzinPromise = (duidingFallback || teamToken || reisToken) ? Promise.resolve(null) : fetchDeelzin(duidingTekst);
   deelzinPromise.then(z => { if (z) deelZin = z; });
   renderDuiding(duidingTekst);
   // Kort op de deelzin wachten zodat hij in dezelfde insert mee kan; hangt de
@@ -748,7 +756,7 @@ function renderDuiding(text){
   const parts = splitDuiding(text);
   el.innerHTML = fmt(parts.duiding.replace(OUDE_SLOTZIN,"").trim());
   const dr = document.getElementById("deel-rij");
-  if (dr && !teamToken) dr.style.display = "block";
+  if (dr && !teamToken && !reisToken) dr.style.display = "block";
   const rb = document.getElementById("route-body");
   if(rb){
     if(parts.route){
@@ -969,7 +977,7 @@ async function saveScan(){
   try{
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
-        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,
+        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,reis:reisToken,meting:reisMeting,
         doel_tekst:doelTekst,doeltype:doelType,doel_datum:doelDatum})});
     if(r.ok){
       const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null;
