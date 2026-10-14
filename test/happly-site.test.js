@@ -41,7 +41,9 @@ test("de namen kloppen: Scan is het instrument, Index het landelijke getal", () 
 });
 
 test("de site volgt de taalregels", () => {
-  for (const woord of ["nulmeting", "nameting", "landelijke beeld", "landelijk gemiddelde", "Samenspel", "cohort", "streak", "hulpje", "buddy"]){
+  // Besluit 14 oktober 2026: mensen heten nooit afhakers, opgevers of stoppers.
+  // De werkwoorden afhaken, opgeven en stoppen mogen wel.
+  for (const woord of ["nulmeting", "nameting", "landelijke beeld", "landelijk gemiddelde", "Samenspel", "cohort", "streak", "hulpje", "buddy", "afhaker", "opgever", "stopper", "doorzet"]){
     assert.ok(!HTML.toLowerCase().includes(woord.toLowerCase()), `verboden woord: ${woord}`);
   }
   assert.ok(!HTML.includes("\u2014"), "gedachtestreepje");
@@ -143,7 +145,7 @@ test("de stelling en de twee bronnen van de impuls staan erop", () => {
   assert.ok(HTML.includes("Volhouden is geen karaktereigenschap."), "de stelling ontbreekt");
   assert.ok(HTML.includes("of je eigen doel"), "de impuls uit een eigen doel ontbreekt");
   assert.ok(HTML.includes("zien, sturen en doen"), "zien, sturen en doen ontbreekt");
-  assert.ok(HTML.includes("Minder afhakers."), "de belofte aan aanbieders ontbreekt");
+  assert.ok(HTML.includes("Meer deelnemers die <em"), "de belofte aan aanbieders ontbreekt");
 });
 
 test("de hoofdknop is het gratis Leidersbeeld", () => {
