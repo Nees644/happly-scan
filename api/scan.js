@@ -8,11 +8,26 @@ import { createClient } from "@supabase/supabase-js";
 import { doelVelden, berekenIndividueleRuimte } from "../teamkracht-ruimte-db.js";
 import { ruimteGegevens, doelBlokHtml, ruimteBlokHtml } from "../teamkracht-ruimte-blokken.js";
 
+async function meldAanReis({ reisToken, meting, scanId, index, zien, sturen, doen }){
+  const url = (process.env.REIS_URL || "").replace(/\/$/, "");
+  const geheim = process.env.REIS_SCAN_SECRET;
+  if (!url || !geheim){ console.error("reis: REIS_URL of REIS_SCAN_SECRET ontbreekt, melding overgeslagen"); return; }
+  try{
+    const r = await fetch(`${url}/api/reis-scan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${geheim}` },
+      body: JSON.stringify({ reisToken, meting, scanId, index, zien, sturen, doen }),
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) console.error("reis: melding geweigerd", r.status);
+  }catch(e){ console.error("reis: melding mislukt", e.message); }
+}
+
 export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({error:"method"}); return; }
   try{
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype, doel_datum } = body;
+    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype, doel_datum, reis, meting } = body;
     if ([index,zien,sturen,doen].some(v => typeof v !== "number")){
       res.status(400).json({error:"ongeldige invoer"}); return;
     }
@@ -39,6 +54,14 @@ export default async function handler(req, res){
     // Losstaand, zodat het getrapte vangnet hieronder blijft werken als de
     // migratie 07-09-2026 nog niet is gedraaid.
     if (teamId) basis.teamkracht_team_id = teamId;
+
+    // Reistoken uit de link van de Volhoudreis (scan?reis=<32 hex>&meting=start|eind).
+    // De scan weet verder niets van de reis; na de opslag gaan de vier getallen
+    // naar de reisserver (meldAanReis). Een onbekende token wordt gewoon
+    // meegeschreven: de reisserver beslist of hij bestaat.
+    const reisToken = (typeof reis === "string" && /^[0-9a-f]{32}$/.test(reis.trim())) ? reis.trim() : null;
+    const reisMeting = meting === "eind" ? "eind" : "start";
+    if (reisToken){ basis.reis_token = reisToken; basis.reis_meting = reisMeting; }
     const metDuiding = {
       ...basis,
       duiding: duiding || null,
@@ -92,6 +115,11 @@ export default async function handler(req, res){
                                  doel_datum: doel.doel_datum || null, doeltype: doel.doeltype || null, vorm: "individu", profiel });
       blokken = { doel: doelBlokHtml(g, { vorm: "individu" }), ruimte: ruimteBlokHtml(g, { vorm: "individu", id: "scan" }) };
     }catch(e){ blokken = null; }
+
+    // Melding aan de Volhoudreis, afgewacht vóór de respons (Vercel beëindigt de
+    // functie daarna). Mislukt de melding, dan staat de meting er gewoon en
+    // komt er alleen een regel in de log; de deelnemer merkt niets.
+    if (reisToken) await meldAanReis({ reisToken, meting: reisMeting, scanId: r.data.id, index, zien, sturen, doen });
 
     res.status(200).json({ id: r.data.id, deel_id: r.data.deel_id || null, blokken });
   }catch(e){

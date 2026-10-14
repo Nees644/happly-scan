@@ -178,11 +178,11 @@ export default async function handler(req, res){
     let scanId = id || null;
     if (id){
       let q = await db.from("index_scan_results")
-        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,doel_tekst,doel_datum").eq("id", id).single();
+        .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,doel_tekst,doel_datum,reis_token").eq("id", id).single();
       if (q.error){
         // Vangnet zolang migratie-doel-ruimte-2026-09-17.sql nog niet draait.
         q = await db.from("index_scan_results")
-          .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id").eq("id", id).single();
+          .select("index_score,zien,sturen,doen,duiding,created_at,resultaat_token,teamkracht_team_id,reis_token").eq("id", id).single();
       }
       if (q.error){
         // Vangnet zolang de migratie 07-09-2026 (resultaat_token) nog niet draait.
@@ -235,7 +235,8 @@ export default async function handler(req, res){
     // Meet iemand via de link van een coach, dan slaan we de verkoop over: geen
     // Sprint-blok in de mail en geen opvolgreeks. De coach doet de opvolging in
     // zijn eigen traject, en drie mails van ons ertussendoor helpen niemand.
-    const viaTeam = !!(row && row.teamkracht_team_id);
+    // Hetzelfde geldt voor een meting uit de Volhoudreis: de partner doet de opvolging.
+    const viaTeam = !!(row && (row.teamkracht_team_id || row.reis_token));
 
     // Eén regel boven de indexwaarde (briefing doel-ruimte v1, paragraaf 6.2):
     // het doel en waar de winst zit, uit de opgeslagen ruimterij. Zonder doel

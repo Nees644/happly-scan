@@ -12,6 +12,11 @@
 (function(){
   try{
     var p=new URLSearchParams(location.search);
+    var reis=(p.get("reis")||"").trim();
+    if(/^[0-9a-f]{32}$/.test(reis)){
+      location.replace("scan?reis="+reis+"&meting="+(p.get("meting")==="eind"?"eind":"start")+"&src=reis");
+      return;
+    }
     var token=(p.get("token")||"").trim();
     if(token){
       var rol=(p.get("rol")||p.get("role")||"").toLowerCase();
