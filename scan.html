@@ -155,8 +155,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 .foot-links a{font-size:11.5px;color:var(--mut);text-decoration:none;margin:0 10px}
 .foot-links a:hover{color:var(--pk)}
 @media(max-width:560px){
-  .hdr,.foot{padding-left:22px;padding-right:22px}
-  .body{padding:34px 22px 20px}
+  #app{min-height:100dvh}
+  .hdr,.foot{padding-left:18px;padding-right:18px}
+  .hdr{padding-top:14px;padding-bottom:14px}
+  .dots{gap:4px;max-width:150px}
+  .dot{width:5px;height:5px}
+  .body{padding:22px 18px 16px}
+  .instr{margin-bottom:16px}
+  .opts{gap:7px;flex:0 0 auto}
+  .opt{padding:12px 15px}
+  .foot{position:sticky;bottom:0;background:#fff;padding-top:12px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
   #r-body{padding:28px 22px 40px}
   .lead-h{font-size:27px}
   .qtxt{font-size:20px}
@@ -202,7 +210,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
     <div class="eye">Jouw uitslag</div>
     <div class="qtxt">Waar mag ik je uitslag naartoe sturen?</div>
     <div class="instr" style="margin-bottom:6px">Alleen voor je uitslag en je vervolgstappen. Verder niets.</div>
-    <div class="instr" style="margin-bottom:26px">In september ontvang je bovendien als eerste het beeld van Nederland, met waar jouw profiel in past.</div>
     <div style="max-width:420px">
       <input class="lead-inp" id="m-name" type="text" placeholder="Naam (optioneel)" autocomplete="name">
       <input class="lead-inp" id="m-company" type="text" placeholder="Organisatie (optioneel)" autocomplete="organization">
@@ -236,7 +243,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 <!-- RESULTS -->
 <div class="screen" id="s-r">
   <div class="hdr" style="padding:18px 36px"><img src="happly-logo.svg" alt="Happly"><span class="htag">Jouw uitslag</span></div>
-  <div id="reis-terug" style="display:none;padding:14px 36px 0"><a class="btn" style="width:100%;justify-content:center" href="#">Terug naar je reis &rarr;</a></div>
+  <div id="reis-terug" style="display:none;padding:14px 36px 0"><a class="btn" style="width:100%;justify-content:center;text-decoration:none" href="#">Terug naar je reis &rarr;</a></div>
   <div id="r-body"></div>
 </div>
 
@@ -408,9 +415,35 @@ const teamToken = (new URLSearchParams(location.search).get("team") || "").trim(
 const reisToken = (()=>{ const r=(new URLSearchParams(location.search).get("reis")||"").trim().toLowerCase(); return /^[0-9a-f]{32}$/.test(r) ? r : null; })();
 const reisMeting = (new URLSearchParams(location.search).get("meting")==="eind") ? "eind" : "start";
 const REIS_APP = "https://happly-zetjes.vercel.app";
+let reisDeelnemer = null;   // {voornaam, email, programma, doel, alsdan} uit de reis; null buiten een reis of bij een fout
+async function haalReisDeelnemer(){
+  if (!reisToken) return;
+  try{
+    const r = await fetch(REIS_APP + "/api/reis-deelnemer?token=" + encodeURIComponent(reisToken));
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.ok && d.email) reisDeelnemer = d;
+  }catch(e){/* stil: dan gewoon de mailstap */}
+}
+haalReisDeelnemer();
 
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.getElementById("app").scrollTop=0;window.scrollTo(0,0);
-  if(id==="s-r"&&reisToken){const t=document.getElementById("reis-terug");t.querySelector("a").href=REIS_APP+"/reis/"+reisToken;t.style.display="block";}}
+  if(id==="s-r"&&reisToken){
+    const href=REIS_APP+"/reis/"+reisToken;
+    const t=document.getElementById("reis-terug");t.querySelector("a").href=href;t.style.display="block";
+    const sub=document.getElementById("mail-conf-sub"); if(sub) sub.textContent="Bewaar de mail. Over 66 dagen meet je opnieuw, in je reis.";
+    const rb=document.getElementById("r-body");
+    if(rb && !document.getElementById("reis-terug-onder")){
+      const d=document.createElement("div"); d.id="reis-terug-onder"; d.style.marginTop="26px";
+      d.innerHTML=`<a class="btn" style="width:100%;justify-content:center;text-decoration:none" href="${href}">Terug naar je reis &rarr;</a>`;
+      rb.appendChild(d);
+    }
+    const route=rb && rb.querySelector(".blok-route");
+    if(route && reisDeelnemer && reisDeelnemer.alsdan && reisDeelnemer.alsdan.als){
+      route.classList.remove("blok-leeg");
+      route.innerHTML=`<div class="blok-kop">Wat jij gaat doen</div><p>Je als-dan-plan van je Volhoudkaart: als ${escHtml(reisDeelnemer.alsdan.als)}, dan ${escHtml(reisDeelnemer.alsdan.dan)}.</p>`;
+    }
+  }}
 function start(){answers=new Array(N).fill(null);ctxAns={age:null,work:null};renderQ(0);show("s-q");}
 
 /* ---- vragen (één per scherm) ---- */
@@ -464,6 +497,17 @@ function pickCtx(key,val){ctxAns[key]=(ctxAns[key]===val?null:val);renderCtx();}
 function toMail(){
   scores = computeScores(answers);
   duidingPromise = fetchDuiding();
+  // In een reis kennen we de deelnemer al: mailstap en doelscherm slaan we over.
+  // Het doel komt van de Volhoudkaart; zonder kaart blijft het leeg.
+  if (reisToken && reisDeelnemer){
+    leadEmail = reisDeelnemer.email; leadName = reisDeelnemer.voornaam || null; leadCompany = reisDeelnemer.programma || null;
+    logEvent("mail_ingevuld");
+    doelTekst = reisDeelnemer.doel ? String(reisDeelnemer.doel).slice(0,200) : null;
+    doelType = doelTekst ? "onbekend" : null; doelDatum = null;
+    logEvent(doelTekst ? "doel_ingevuld" : "doel_overgeslagen");
+    toResults();
+    return;
+  }
   show("s-m");
 }
 function mailSubmit(){
@@ -661,7 +705,7 @@ function renderResults(){
       <div class="lead-thanks" style="display:block">
         <div class="lead-thanks-icon">&#10003;</div>
         <div class="lead-thanks-txt">Je uitslag is onderweg naar je inbox.</div>
-        <div class="lead-thanks-sub">Bewaar de mail. Over een jaar meet je opnieuw.</div>
+        <div class="lead-thanks-sub" id="mail-conf-sub">Bewaar de mail. Over een jaar meet je opnieuw.</div>
       </div>
     </div>
     <div class="foot-links" style="padding:26px 0 6px;border-top:none"><a href="verantwoording.html">Hoe deze meting is opgebouwd</a><a href="privacy">Privacy</a></div>
@@ -783,6 +827,9 @@ function splitDuiding(text){
 }
 function fmt(t){
   if(!t) return "";
+  // Het model begint soms met een afgebroken woord op een eigen regel ("Ge").
+  // Een eerste alinea zonder leesteken en korter dan twintig tekens is nooit tekst.
+  t = t.replace(/^\s*[^\n.!?:]{1,19}\n+/, "");
   return t.split(/\n{2,}/).map(p=>{
     p = p.trim();
     if(!p) return "";
