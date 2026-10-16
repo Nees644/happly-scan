@@ -6,7 +6,7 @@
 // Prijs, doorstreepprijs, badge "nu geldig", knop en maillink volgen automatisch.
 // INSCHRIJVING_OPEN op false zet de knop uit ("Inschrijving opent begin augustus").
 
-export const INSCHRIJVING_OPEN = true;
+export const INSCHRIJVING_OPEN = false;   // gesloten op 16 oktober 2026
 export const ACTIEVE_TREDE = 1;
 
 // Mollie payment links (profiel Happly Academy), één per voorverkooptrede.

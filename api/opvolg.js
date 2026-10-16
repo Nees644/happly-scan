@@ -106,7 +106,6 @@ function mailHermeting({ name, index, afmeldUrl }){
 
 const MAILS = {
   3:  { veld: "mail3_sent_at",  bouw: mailVerdieping },
-  7:  { veld: "mail7_sent_at",  bouw: mailSprint },
   56: { veld: "mail56_sent_at", bouw: mailHermeting }
 };
 
@@ -117,7 +116,7 @@ export default async function handler(req, res){
   if (preview){
     const dag = MAILS[Number(preview)];
     const dim = ["Zien","Sturen","Doen"].includes(req.query.dim) ? req.query.dim : "Sturen";
-    if (!dag){ res.status(400).send("preview: 3, 7 of 56"); return; }
+    if (!dag){ res.status(400).send("preview: 3 of 56"); return; }
     const m = dag.bouw({ name: null, laagste: dim, index: 67, afmeldUrl: BASE + "/api/afmelden?r=voorbeeld" });
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.status(200).send(`<p style="font-family:sans-serif;font-size:13px;color:#6A5A78">Onderwerp: <b>${m.subject}</b></p>` + m.html);
@@ -142,7 +141,7 @@ export default async function handler(req, res){
       .select("id,email,name,index_score,laagste_dimensie,created_at,mail3_sent_at,mail7_sent_at,mail56_sent_at")
       .eq("afgemeld", false)
       .lte("created_at", grens(3))
-      .or("mail3_sent_at.is.null,mail7_sent_at.is.null,mail56_sent_at.is.null")
+      .or("mail3_sent_at.is.null,mail56_sent_at.is.null")
       .order("created_at", { ascending: true })
       .limit(100);
     if (error) throw error;
@@ -151,7 +150,8 @@ export default async function handler(req, res){
     for (const r of (reeksen || [])){
       const leeftijd = (nu - new Date(r.created_at).getTime()) / 86400000;
       // De vroegste mail die open staat en waarvan de dag is bereikt.
-      const dag = [3, 7, 56].find(d => leeftijd >= d && !r[MAILS[d].veld]);
+      // De Sprintmail op dag 7 is vervallen (16 oktober 2026); de reeks is 3 en 56.
+      const dag = [3, 56].find(d => leeftijd >= d && !r[MAILS[d].veld]);
       if (!dag) continue;
       const afmeldUrl = `${BASE}/api/afmelden?r=${r.id}`;
       const m = MAILS[dag].bouw({ name: r.name, laagste: r.laagste_dimensie, index: r.index_score, afmeldUrl });

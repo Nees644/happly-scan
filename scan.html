@@ -671,16 +671,11 @@ function renderResults(){
       <div class="patroon"><p>${PATROON}</p></div>
     </div>
 
-    <!-- Blok 6: route + Sprint -->
+    <!-- Blok 6: route -->
     <div class="sec route">
       <div class="sec-h">De route</div>
       <div id="route-body"></div>
       <div class="overgang"><p>Neem dit even mee. Wat je hierboven leest, mag eerst landen.</p></div>
-      ${(teamToken || reisToken) ? "" : `<div class="sprintbox">
-        <h3>De Zelfkracht Sprint</h3>
-        <p>De Scan wijst aan waar jouw ruimte om te groeien zit. De Sprint, onze training van zes weken, onderzoekt wat en hoe je kunt veranderen: wekelijkse calls, één startgroep tegelijk.</p>
-        <a href="sprint?src=uitslag" class="btn btn-wt" onclick="logEvent('sprint_link_geklikt','uitslag',false)">Meer over de Sprint &rarr;</a>
-      </div>`}
     </div>
 
     <!-- Blok 3, 4 en 5 (doel-ruimte v1): waar de winst zit, wat je gaat doen,
@@ -745,7 +740,6 @@ function renderRoute(){
   } else {
     html += `<p>Je drie deelscores staan alle drie hoog. Voor jou gaat het minder om eraan werken en meer om onderhouden: vasthouden wat er staat.</p>`;
   }
-  html += `<p>Dit profiel is precies waar <strong>${SPRINT_WEKEN[low]}</strong> van de Zelfkracht Sprint op zijn gebouwd.</p>`;
   document.getElementById("route-body").innerHTML = html;
 }
 
@@ -856,8 +850,8 @@ function fallbackDuiding(){
   let p2 = `De ruimte in je profiel zit vooral bij ${laag[0]} (${laag[1]}). Dat is geen oordeel: het is de dimensie die op dit moment het minst voor je werkt, en daarmee waar een verschuiving het meest merkbaar is.`;
   let p3 = `Deze stand is niet aangeboren. Ze is gevormd: in kleine keuzes die je bij anderen laat of laat afhangen van de omstandigheden. Wat je vaak genoeg doet, wordt automatisch. En wat automatisch is, zie je niet meer.`;
   let route = g
-    ? `De grootste ruimte zit bij ${g.n}: +${g.or.plus} tot een stevige ${g.or.doel}. Voor jouw profiel betekent werken aan ${g.n.toLowerCase()} niet harder, maar gerichter: het patroon zichtbaar maken en er anders mee omgaan. Dat is haalbaar met gericht werk; de Index beweegt traag, en juist daarom telt een verschuiving. Hoe dat bij jou is gegroeid, onderzoek je in ${SPRINT_WEKEN[low]} van de Zelfkracht Sprint.`
-    : `Je deelscores staan hoog. Voor jou gaat het om onderhouden: vasthouden wat er is, ook als het spannend wordt. Dat blijft werk. Hoe je dat volhoudt, onderzoek je in ${SPRINT_WEKEN[low]} van de Zelfkracht Sprint.`;
+    ? `De grootste ruimte zit bij ${g.n}: +${g.or.plus} tot een stevige ${g.or.doel}. Voor jouw profiel betekent werken aan ${g.n.toLowerCase()} niet harder, maar gerichter: het patroon zichtbaar maken en er anders mee omgaan. Dat is haalbaar met gericht werk; de Index beweegt traag, en juist daarom telt een verschuiving.`
+    : `Je deelscores staan hoog. Voor jou gaat het om onderhouden: vasthouden wat er is, ook als het spannend wordt. Dat blijft werk, en volhouden kun je organiseren.`;
   return `${p1}\n\n${p2}\n\n${p3}\n\nWaar het werk zit\n\n${route}`;
 }
 

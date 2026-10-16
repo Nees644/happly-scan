@@ -8,7 +8,6 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
-import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
 import { niveau, ontwikkelruimte, PATROON, splitDuiding } from "../zelfkracht-uitslag.js";
 import { nieuwsteRuimte } from "../teamkracht-ruimte-db.js";
 import { mailDoelregel } from "../teamkracht-ruimte-blokken.js";
@@ -55,8 +54,6 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
   const hi = name ? `Hallo ${name},` : "Hallo,";
   const parts = duiding ? splitDuiding(duiding) : null;
   const route = parts && parts.route ? parts.route : null;
-  const sprintUrl = "https://scan.happly.nl/sprint?src=mail";   // bron voor de funnelmeting
-  const betaalUrl = TREDES[ACTIEVE_TREDE].url;
   const afmeld = afmeldUrl
     ? `<p style="font-family:${FONT};font-size:11.5px;color:${MUT};text-align:center;margin:18px 0 0">Na deze uitslag volgen enkele vervolgstappen per mail.
         <a href="${afmeldUrl}" style="color:${MUT}">Geen mail meer ontvangen</a></p>`
@@ -120,17 +117,7 @@ function mailHtml({ index, zien, sturen, doen, name, duiding, datum, afmeldUrl, 
         ${kop("De route")}
         ${route ? fmtBlok(route) : ""}
 
-        <!-- Sprint-contextblok. Blijft weg bij een meting via een coach: die
-             deelnemer is geen lead, en verkoop in andermans traject hoort niet. -->
-        ${viaTeam ? "" : `<div style="border-top:1px solid ${BD};margin-top:30px;padding-top:24px">
-          ${kop("Over de Zelfkracht Sprint").replace("margin:30px 0 12px","margin:0 0 12px")}
-          ${p("De Scan wijst aan waar jouw ruimte om te groeien zit. In de Zelfkracht Sprint, onze training van zes weken, onderzoek je wat en hoe je kunt veranderen.")}
-          ${p(`In een kleine groep, van 18 september tot eind oktober 2026, met zes live sessies op woensdagavond 20:00.<br>
-Inbegrepen: het boek Zelfkracht (e-book), een werkboek per week en een hermeting waarmee je je verschuiving meet ten opzichte van deze meting.<br>
-Deelname 345 euro; de eerste tien plekken 245, de tien daarna 295.<br>
-Na de eerste week beslis je definitief. Past het niet, dan krijg je je inleg terug.`, "font-size:13px")}
-          ${p(`<a href="${sprintUrl}" style="color:${PK};font-weight:700;text-decoration:none">Bekijk het programma</a> &nbsp;·&nbsp; <a href="${betaalUrl}" style="color:${PK};font-weight:700;text-decoration:none">Reserveer je plek</a>`)}
-        </div>`}
+
 
       </div>
     </div>

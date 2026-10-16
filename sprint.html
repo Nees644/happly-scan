@@ -258,7 +258,7 @@ p{font-size:14.5px;font-weight:300;color:#2E2438;line-height:1.75;margin-bottom:
   if (badge) badge.hidden = false;
   document.getElementById("knopvak").innerHTML = INSCHRIJVING_OPEN
     ? '<a class="btn" href="'+t.url+'">Reserveer je plek · €'+t.prijs+'</a>'
-    : '<button class="btn off" disabled>Inschrijving opent begin augustus</button>';
+    : '<button class="btn off" disabled>Er is nu geen inschrijving</button>';
   const knop = document.querySelector("#knopvak a");
   if (knop) knop.addEventListener("click", () => logEvent("mollie_geklikt", FUNNEL_SRC));
   </script>
