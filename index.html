@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zelfkracht Scan · Happly</title>
-<meta name="description" content="Zelfkracht heeft nu een eigen getal. De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt.">
+<title>Zelfkracht Scan · Happly · Weet waar je kracht zit</title>
+<meta name="description" content="Volhouden begint met weten waar je kracht zit. De Zelfkracht Scan laat in vier minuten zien hoe jij zelf koers houdt: zien, sturen en doen. Twaalf stellingen, direct je zelfkrachtscore.">
 
 <!-- TOKEN-VANGNET (B2B-spoor, niet verwijderen): campagne-deelnemers die met ?token=...
      op de root binnenkomen, worden direct doorgestuurd naar hun diepte-scan. -->
@@ -67,7 +67,7 @@
     pointer-events:none;z-index:0;
   }
   .hero .wrap{position:relative;z-index:1}
-  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink-bright);margin-bottom:26px}
+  .eyebrow{font-size:15px;font-weight:500;color:var(--pink-bright);margin-bottom:22px}
   h1{
     font-family:"DM Serif Display",serif;font-weight:400;
     font-size:clamp(2.4rem,5.8vw,4.2rem);
@@ -78,7 +78,8 @@
   .lead b{color:var(--cream);font-weight:500}
   .lead:last-of-type{margin-bottom:40px}
 
-  .research-line{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pink-bright);margin:12px 0 32px}
+  .formule{font-family:"DM Serif Display",serif;font-size:clamp(1.15rem,1.8vw,1.4rem);color:var(--cream);margin:8px 0 34px;max-width:40ch}
+  .formule span{color:var(--pink-bright)}
   .promise{font-size:.88rem;font-weight:300;color:var(--cream-dim);margin-top:16px;max-width:56ch}
 
   .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px}
@@ -96,7 +97,16 @@
 
   .pillars{border-top:1px solid var(--line);padding:44px 0 60px}
   .pillars .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
-  .pillar .num{font-family:"DM Serif Display",serif;font-size:.95rem;color:var(--pink-bright);margin-bottom:6px}
+  .pillar .num{font-size:.85rem;color:var(--pink-bright);margin-bottom:6px}
+  .pillars .kop{grid-column:1/-1;font-family:"DM Serif Display",serif;font-size:clamp(1.5rem,2.6vw,2rem);font-weight:400;max-width:34ch;margin-bottom:6px}
+
+  .daarna{border-top:1px solid var(--line);padding:56px 0 64px}
+  .daarna .wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .daarna h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:clamp(1.6rem,2.8vw,2.1rem);line-height:1.15;margin-bottom:14px}
+  .daarna p{font-size:1rem;font-weight:300;color:var(--cream-dim);max-width:52ch}
+  .daarna p+p{margin-top:12px}
+  .daarna a.link{color:var(--cream);font-weight:500;text-decoration:none;border-bottom:1px solid var(--pink-bright)}
+  .daarna a.link:hover{color:var(--pink-bright)}
   .pillar h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.35rem;margin-bottom:8px}
   .pillar p{font-size:.97rem;font-weight:300;color:var(--cream-dim)}
 
@@ -107,7 +117,7 @@
   footer a:hover{color:var(--cream)}
 
   @media(max-width:680px){
-    .pillars .wrap{grid-template-columns:1fr;gap:26px}
+    .pillars .wrap,.daarna .wrap{grid-template-columns:1fr;gap:26px}
     .hero{padding:46px 0}
   }
   @media(prefers-reduced-motion:reduce){
@@ -129,19 +139,18 @@
 <main class="hero">
   <div class="wrap">
     <p class="eyebrow">Zelfkracht Scan</p>
-    <h1>Zelfkracht heeft nu een <em>eigen getal</em>.</h1>
-    <p class="lead">De Zelfkracht Scan brengt in één score van 0 tot 100 in kaart hoe sterk jij zelf de koers bepaalt: in je werk, je relaties, je keuzes. Ook, en juist, wanneer het spannend wordt.</p>
-    <p class="lead">De eigenschappen die de Scan meet, behoren tot de best onderzochte voorspellers van hoe leven en werk verlopen. En ze liggen niet vast: <b>wat gevormd is, kun je bijstellen.</b></p>
-    <p class="lead">Drie deelscores laten zien waar bij jou de meeste ruimte zit. Daar begint het werk.</p>
-    <p class="research-line">Onderdeel van de eerste Zelfkracht Meting van Nederland · eerste beeld in september 2026</p>
+    <h1>Volhouden begint met weten waar je kracht zit.</h1>
+    <p class="lead">Ga je iets nieuws doen? Een training, een nieuw ritme, stoppen met roken, ander werk? De Zelfkracht Scan laat in vier minuten zien hoe jij zelf koers houdt, en <b>waar het straks lastig wordt.</b></p>
+    <p class="lead">Je krijgt direct je zelfkrachtscore, met drie deelscores en één eerste stap die klein genoeg is om vandaag te zetten. De eigenschappen die de scan meet liggen niet vast: wat gevormd is, kun je bijstellen.</p>
+    <p class="formule">Inzicht + impuls + volhouden = succes. <span>De scan is het inzicht.</span></p>
     <div class="cta-row">
       <a class="cta" id="cta-scan" href="scan">
         Begin de meting
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <span class="meta"><b>12 stellingen</b> · 3 tot 4 minuten · direct je score</span>
+      <span class="meta"><b>12 stellingen</b>, 3 tot 4 minuten, direct je score</span>
     </div>
-    <p class="promise">Direct je eigen getal en duiding. In september het beeld van Nederland, als eerste in je mailbox.</p>
+    <p class="promise">Je ziet alleen je eigen getal en wat het zegt, nooit een vergelijking met anderen. Je uitslag komt ook in je mail, zodat je hem later terugvindt.</p>
   </div>
 </main>
 
@@ -158,30 +167,45 @@
 
 <section class="pillars">
   <div class="wrap">
+    <h2 class="kop">Volhouden is een keten van drie schakels. De scan laat zien welke bij jou het sterkst is, en waar de ruimte zit.</h2>
     <div class="pillar">
-      <div class="num">Deel 1</div>
+      <div class="num">Schakel 1</div>
       <h3>Zien</h3>
-      <p>Hoe scherp je doorhebt wat er in je omgaat, welke patronen je herhaalt en wat je uit balans brengt.</p>
+      <p>Weten wanneer en waarom het lastig wordt: je patronen, je moment, de stem die zegt dat het vandaag niet hoeft.</p>
     </div>
     <div class="pillar">
-      <div class="num">Deel 2</div>
+      <div class="num">Schakel 2</div>
       <h3>Sturen</h3>
-      <p>De mate waarin je zelf je richting bepaalt, ook onder druk of tegen verwachtingen in.</p>
+      <p>Zelf je richting kiezen, ook onder druk, en je dag zo inrichten dat doorgaan makkelijker is dan stoppen.</p>
     </div>
     <div class="pillar">
-      <div class="num">Deel 3</div>
+      <div class="num">Schakel 3</div>
       <h3>Doen</h3>
-      <p>Of je in beweging komt en afmaakt wat je begint, ook als de motivatie wegzakt.</p>
+      <p>In beweging komen en blijven, ook als de motivatie wegzakt. Eén kleine stap op het moment dat het telt.</p>
+    </div>
+  </div>
+</section>
+
+<section class="daarna">
+  <div class="wrap">
+    <div>
+      <h2>En dan volhouden.</h2>
+      <p>Je uitslag wijst je eerste stap aan. Wie verder wil, legt op de Volhoudkaart vast wanneer het lastig wordt en wat hij dan doet. Zetjes, de volhoudassistent van Happly, geeft je op dat moment een zetje in je eigen woorden.</p>
+      <p>Zie hoe anderen het doen op <a class="link" href="https://ikhoudvol.nl">ikhoudvol.nl</a>.</p>
+    </div>
+    <div>
+      <h2>Voor organisaties en partners.</h2>
+      <p>Trainers, werkgevers en aanbieders in health en vitality gebruiken de scan als meting vooraf en achteraf in de Volhoudreis: zo zie je wat er na je programma blijft staan. Voor teams is er de Teamkracht Scan, en voor leidinggevenden het gratis Leidersbeeld.</p>
+      <p><a class="link" href="https://happly.nl">Lees meer op happly.nl</a> of mail <a class="link" href="mailto:hallo@happly.nl?subject=Zelfkracht%20Scan%20voor%20onze%20organisatie">hallo@happly.nl</a>.</p>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>Happly · Zelfkracht in mens en organisatie</span>
+    <span>Happly. Klein zetje. Grote beweging.</span>
     <span><a href="verantwoording">Hoe deze meting is opgebouwd</a> &nbsp;·&nbsp; <a href="privacy">Privacy</a></span>
-    <span class="b2b">Zelfkracht Scan voor je team of organisatie? Mail <a href="mailto:hallo@happly.nl?subject=Zelfkracht%20Index%20voor%20teams">hallo@happly.nl</a></span>
-  </div>
+      </div>
 </footer>
 
 </body>
