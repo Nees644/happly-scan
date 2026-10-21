@@ -197,5 +197,10 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
 - Testen met `npm test` (node:test, geen framework). Prijstests lezen de bedragen
   uit de migratiebestanden, dus een prijswijziging daar laat de test meebewegen
   of omvallen.
+- Sinds 30 oktober 2026 geeft Supabase nieuwe tabellen in `public` geen Data
+  API-toegang meer vanzelf. Elke migratie die een tabel aanmaakt, geeft in
+  dezelfde migratie `grant select, insert, update, delete on public.<tabel> to
+  service_role;`. Niets aan `anon` of `authenticated`. Bestaande tabellen en
+  nieuwe kolommen zijn niet geraakt.
 - Prijswijziging: nieuwe rij, oude op `actief = false`. Bestaande abonnementen
   houden hun bedrag. Een rij waar een bestelling aan hangt gaat nooit weg.
