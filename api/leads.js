@@ -1,6 +1,9 @@
 // api/leads.js — Vercel serverless function
 // Het leadoverzicht van het Leidersbeeld (paragraaf 5 en 5a van
-// briefings/leidersbeeld.md).
+// briefings/leidersbeeld.md) en, sinds 26 oktober 2026, van de Volhoudkracht
+// Scan (briefings/volhoudkracht-scan.md). Beide staan in dezelfde lijst, met
+// een veld bron; de scan-leads ziet alleen de beheerder, want ze komen van de
+// publieke scan en horen bij geen partner.
 //
 // GET  geeft de leads met hun laatste contactmoment en de volledige
 //      geschiedenis per lead.
@@ -74,6 +77,7 @@ async function lijst(res, db, gebruiker, beheerder){
     const laatste = eigen[0] || null;
     return {
       ...r,
+      bron: "leidersbeeld",
       partnernaam: r.partner_id ? (namen[r.partner_id] || "partner") : null,
       mail_geopend: !!r.mail_geopend_op,
       opvolgstatus:   laatste ? laatste.opvolgstatus   : "nieuw",
@@ -83,15 +87,85 @@ async function lijst(res, db, gebruiker, beheerder){
     };
   });
 
+  if (beheerder) uit.push(...await volhoudkrachtLeads(db));
+
   res.status(200).json({ leads: uit, beheerder, statussen: OPVOLGSTATUS });
+}
+
+const DIMNAAM = { R: "Reden", P: "Plan", T: "Ritme", W: "Weerstand", C: "Contact", M: "Meting" };
+
+// De scan-leads in dezelfde vorm als het Leidersbeeld, zodat het scherm ze
+// zonder eigen code kan tonen: naam in leider_naam, programma in teamomvang,
+// de score in index_score.
+async function volhoudkrachtLeads(db){
+  const v = await db.from("volhoudkracht")
+    .select("id, created_at, naam, email, organisatie, programma_naam, woord, aanbieder, score, zwakste, herkomst_src, mail_geopend_op")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (v.error) throw v.error;
+  const rijen = v.data || [];
+  const ids = rijen.map(r => r.id);
+  let opvolging = [];
+  if (ids.length){
+    const o = await db.from("opvolging")
+      .select("id, created_at, volhoudkracht_id, opvolgstatus, notitie, volgende_actie, volgende_datum, door")
+      .in("volhoudkracht_id", ids)
+      .order("created_at", { ascending: false });
+    if (o.error) throw o.error;
+    opvolging = o.data || [];
+  }
+  return rijen.map(r => {
+    const eigen = opvolging.filter(o => o.volhoudkracht_id === r.id);
+    const laatste = eigen[0] || null;
+    return {
+      id: r.id,
+      bron: "volhoudkracht",
+      created_at: r.created_at,
+      leider_naam: r.naam,
+      leider_email: r.email,
+      organisatie: r.organisatie,
+      teamomvang: `${r.programma_naam} (${r.aanbieder === "keten" ? "keten" : "eigen product"}, zwakste: ${DIMNAAM[r.zwakste] || r.zwakste})`,
+      index_score: r.score,
+      herkomst_src: r.herkomst_src,
+      partner_id: null,
+      partnernaam: null,
+      status: "Volhoudkracht Scan",
+      mail_geopend: !!r.mail_geopend_op,
+      opvolgstatus:   laatste ? laatste.opvolgstatus   : "nieuw",
+      volgende_actie: laatste ? laatste.volgende_actie : null,
+      volgende_datum: laatste ? laatste.volgende_datum : null,
+      geschiedenis: eigen
+    };
+  });
 }
 
 async function vastleggen(req, res, db, gebruiker, beheerder){
   const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-  const lead = String(body.leidersbeeld_id || "");
   if (!OPVOLGSTATUS.includes(body.opvolgstatus)){
     res.status(400).json({ error: "onbekende opvolgstatus" }); return;
   }
+
+  // Een scan-lead: alleen de beheerder.
+  if (body.bron === "volhoudkracht"){
+    if (!beheerder){ res.status(403).json({ error: "geen toegang" }); return; }
+    const id = String(body.volhoudkracht_id || "");
+    const v = await db.from("volhoudkracht").select("id").eq("id", id).maybeSingle();
+    if (v.error || !v.data){ res.status(404).json({ error: "lead bestaat niet" }); return; }
+    const ins = await db.from("opvolging").insert({
+      bron: "volhoudkracht",
+      volhoudkracht_id: id,
+      opvolgstatus: body.opvolgstatus,
+      notitie: tekstOfNull(body.notitie, 2000),
+      volgende_actie: tekstOfNull(body.volgende_actie, 300),
+      volgende_datum: datumOfNull(body.volgende_datum),
+      door: gebruiker.user_id
+    }).select("id, created_at, opvolgstatus, notitie, volgende_actie, volgende_datum").single();
+    if (ins.error) throw ins.error;
+    res.status(200).json({ ok: true, contactmoment: ins.data });
+    return;
+  }
+
+  const lead = String(body.leidersbeeld_id || "");
 
   // Mag deze gebruiker bij deze lead. Een partner alleen bij de zijne.
   const l = await db.from("teamkracht_leidersbeeld").select("id, partner_id").eq("id", lead).maybeSingle();

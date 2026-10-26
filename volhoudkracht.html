@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hoeveel volhoudkracht zit er in jouw programma? · Volhoudkracht Scan</title>
+<meta name="description" content="Meet in twaalf minuten hoeveel volhoudkracht er zit in je programma, training, traject of interventie. Gratis, zonder account, de uitslag in je mail.">
+<link rel="canonical" href="https://scan.happly.nl/volhoudkracht">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--paars);background:var(--room);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.4vw,2.8rem);margin-bottom:.4em}
+h2{font-size:clamp(1.4rem,3vw,1.9rem);margin-bottom:.5em}
+a{color:var(--magenta)}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--lijn);background:var(--wit)}
+header .wrap{display:flex;align-items:center;height:64px}
+header img{height:28px;display:block}
+main{padding:44px 0 80px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:26px}
+.lead{color:var(--grijs);margin-bottom:26px}
+label{display:block;font-size:14px;font-weight:600;margin:16px 0 5px}
+input[type=text],input[type=email],select{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+input:focus,select:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+.vink{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14.5px;line-height:1.5}
+.vink input{width:19px;height:19px;margin-top:2px;accent-color:var(--magenta);flex:none}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;margin-top:24px}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.terug{background:none;border:0;font:inherit;font-size:14px;color:var(--grijs);cursor:pointer;text-decoration:underline;margin-top:18px;padding:0}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044;border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:18px}
+.balk{height:5px;background:var(--lijn);border-radius:99px;overflow:hidden;margin-bottom:22px}
+.balk i{display:block;height:100%;background:var(--magenta);width:0;transition:width .25s}
+.teller{font-size:13px;color:var(--grijs);margin-bottom:8px}
+.dimnaam{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);margin-bottom:6px}
+.vraag{font-family:var(--serif);font-size:clamp(1.25rem,3vw,1.6rem);line-height:1.25;margin-bottom:22px}
+.schaal{display:grid;gap:9px}
+.schaal button{font:inherit;font-size:15.5px;text-align:left;padding:13px 16px;border:1.5px solid var(--lijn);border-radius:10px;background:var(--wit);color:var(--paars);cursor:pointer}
+.schaal button:hover{border-color:var(--magenta)}
+.schaal button small{display:block;font-size:12.5px;color:var(--grijs);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.instructie{font-size:14.5px;color:var(--grijs);background:#F2ECF5;border-radius:10px;padding:13px 15px;margin-bottom:22px}
+.klein{font-size:14px;color:var(--grijs);margin-top:22px}
+.keuzes{display:grid;gap:10px;margin:8px 0 6px}
+.keuzes button{font:inherit;font-size:15.5px;text-align:left;padding:13px 16px;border:1.5px solid var(--lijn);border-radius:10px;background:var(--wit);color:var(--paars);cursor:pointer}
+.keuzes button[aria-pressed=true]{border-color:var(--magenta);background:#FDEEF4}
+footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:var(--grijs)}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><a href="https://happly.nl"><img src="happly-logo.svg" alt="Happly"></a></div></header>
+
+<main class="wrap">
+
+  <!-- stap 1 · start -->
+  <section id="stap-start">
+    <div class="eyebrow">Gratis · Twaalf minuten</div>
+    <h1>Hoeveel volhoudkracht zit er in jouw programma?</h1>
+    <p class="lead">Een goed programma organiseert het begin. Het resultaat ontstaat daarna, als het gedrag een gewoonte wordt. Beginnen en volhouden zijn twee verschillende processen. Deze scan laat zien hoeveel van het tweede je hebt georganiseerd, op zes dimensies: reden, plan, ritme, weerstand, contact en meting.</p>
+    <div class="kaart">
+      <label>Wat bied je aan?</label>
+      <div class="keuzes" id="woorden"></div>
+      <label for="programma-naam">Hoe heet het?</label>
+      <input type="text" id="programma-naam" maxlength="120" placeholder="Bijvoorbeeld: Leefstijlprogramma CooL, Leidinggeven voor starters, Fiets naar je werk">
+      <label>Is het een eigen product of een programma van een keten?</label>
+      <div class="keuzes" id="aanbieders">
+        <button type="button" data-aanbieder="eigen">Een eigen product</button>
+        <button type="button" data-aanbieder="keten">Een programma van een keten of organisatie met meerdere vestigingen</button>
+      </div>
+      <div id="fout-start" class="fout" hidden></div>
+      <button type="button" class="knop" id="start">Start de 24 vragen</button>
+    </div>
+    <p class="klein">Geen account. Je vult de scan in over één concreet programma; de uitslag komt per mail. Wij meten, ontwerpen, organiseren en rapporteren volhouden.</p>
+  </section>
+
+  <!-- stap 2 · vragen -->
+  <section id="stap-vragen" hidden>
+    <div class="balk"><i id="voortgang"></i></div>
+    <div class="teller" id="teller"></div>
+    <div class="instructie">Dit zijn bewijsvragen. Kies niet wat je belangrijk vindt, maar wat er voor elke deelnemer vaststaat. <b>Aantoonbaar gedaan</b> betekent dat je er gegevens van hebt.</div>
+    <div class="dimnaam" id="dimnaam"></div>
+    <p class="vraag" id="vraag"></p>
+    <div class="schaal" id="schaal"></div>
+    <button type="button" class="terug" id="terug">Vorige vraag</button>
+  </section>
+
+  <!-- stap 3 · gegevens -->
+  <section id="stap-gegevens" hidden>
+    <div class="eyebrow">Bijna klaar</div>
+    <h1>Waar sturen we je uitslag naartoe?</h1>
+    <p class="lead">Je antwoorden staan klaar. We rekenen ze uit en sturen je je volhoudkrachtscore, je zwakste schakel en een link naar de volledige uitslag.</p>
+    <div class="kaart">
+      <form id="gegevens" novalidate>
+        <label for="naam">Je naam</label>
+        <input type="text" id="naam" name="naam" autocomplete="name" required>
+        <label for="email">Je e-mailadres</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+        <label for="organisatie">Je organisatie</label>
+        <input type="text" id="organisatie" name="organisatie" autocomplete="organization" required>
+        <div class="vink">
+          <input type="checkbox" id="privacy" name="privacy">
+          <label for="privacy" style="margin:0;font-weight:400">Ik ga akkoord met de <a href="/privacy" target="_blank" rel="noopener">privacyverklaring</a>. Mijn gegevens worden gebruikt om mij deze uitslag te sturen en er eenmalig over op te volgen.</label>
+        </div>
+        <div id="fout-gegevens" class="fout" hidden></div>
+        <button type="submit" class="knop" id="verstuur">Stuur mij mijn uitslag</button>
+        <button type="button" class="terug" id="terug-vragen">Terug naar de laatste vraag</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- stap 4 · klaar -->
+  <section id="stap-klaar" hidden>
+    <div class="eyebrow">Verstuurd</div>
+    <h1>Je uitslag staat in je mail.</h1>
+    <p class="lead">Kijk ook in je ongewenste post als hij er over een minuut nog niet is. In de mail staat je score en een knop naar de volledige uitslag met de zes dimensies, je zwakste schakel en wat daar te doen is.</p>
+    <p>Wil je alvast rekenen wat één deelnemer die volhoudt je oplevert? <a href="https://scan.happly.nl/rekenhulp-gli">Open de rekenhulp</a>.</p>
+  </section>
+
+</main>
+
+<footer><div class="wrap">Happly · maarten@happly.nl · 085 878 59 61 · <a href="/privacy">Privacy</a></div></footer>
+
+<script type="module">
+import { ITEMS, WOORDEN, DIMENSIES, NIVEAUS, itemsVoor, controleerGegevens } from "/volhoudkracht-items.js";
+
+const el = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const toon = id => { for (const s of ["stap-start","stap-vragen","stap-gegevens","stap-klaar"]) el(s).hidden = s !== id; window.scrollTo(0, 0); };
+
+let woord = null, aanbieder = null, items = [], i = 0;
+const antwoorden = {};
+
+// Stap 1
+const LABELS = { programma: "Een programma", training: "Een training", traject: "Een traject", interventie: "Een interventie" };
+for (const w of WOORDEN){
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = LABELS[w]; b.dataset.woord = w; b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => { woord = w; for (const x of el("woorden").children) x.setAttribute("aria-pressed", String(x === b)); });
+  el("woorden").appendChild(b);
+}
+for (const b of el("aanbieders").children){
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => { aanbieder = b.dataset.aanbieder; for (const x of el("aanbieders").children) x.setAttribute("aria-pressed", String(x === b)); });
+}
+el("start").addEventListener("click", () => {
+  const fouten = [];
+  if (!woord) fouten.push("kies wat je aanbiedt");
+  if (el("programma-naam").value.trim().length < 2) fouten.push("vul de naam in");
+  if (!aanbieder) fouten.push("kies eigen product of keten");
+  if (fouten.length){ el("fout-start").hidden = false; el("fout-start").textContent = "Nog even: " + fouten.join(", ") + "."; return; }
+  el("fout-start").hidden = true;
+  items = itemsVoor(woord);
+  i = 0; toonVraag(); toon("stap-vragen");
+});
+
+// Stap 2
+function toonVraag(){
+  const it = items[i];
+  const dim = DIMENSIES.find(d => d.code === it.dim);
+  el("voortgang").style.width = Math.round(i / items.length * 100) + "%";
+  el("teller").textContent = `Vraag ${i + 1} van ${items.length}`;
+  el("dimnaam").textContent = dim.naam;
+  el("vraag").textContent = it.vraag;
+  el("schaal").innerHTML = "";
+  it.niveaus.forEach((tekst, n) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    const s = document.createElement("small"); s.textContent = `${n} · ${NIVEAUS[n]}`;
+    b.appendChild(s); b.appendChild(document.createTextNode(tekst));
+    b.addEventListener("click", () => { antwoorden[it.id] = n; i += 1; if (i >= items.length) toon("stap-gegevens"); else toonVraag(); });
+    el("schaal").appendChild(b);
+  });
+  el("terug").hidden = i === 0;
+}
+el("terug").addEventListener("click", () => { if (i > 0){ i -= 1; toonVraag(); } });
+el("terug-vragen").addEventListener("click", () => { i = items.length - 1; toonVraag(); toon("stap-vragen"); });
+
+// Stap 3
+el("gegevens").addEventListener("submit", async e => {
+  e.preventDefault();
+  const body = {
+    woord, aanbieder,
+    programma_naam: el("programma-naam").value.trim(),
+    naam: el("naam").value.trim(),
+    email: el("email").value.trim(),
+    organisatie: el("organisatie").value.trim(),
+    privacy: el("privacy").checked,
+    antwoorden,
+    src: params.get("src")
+  };
+  const c = controleerGegevens(body);
+  const fout = el("fout-gegevens");
+  if (!c.ok){ fout.hidden = false; fout.textContent = c.fouten.map(f => f.tekst).join(" "); return; }
+  if (Object.keys(antwoorden).length < ITEMS.length){ fout.hidden = false; fout.textContent = "Beantwoord alle 24 vragen."; return; }
+  fout.hidden = true;
+  const knop = el("verstuur"); knop.disabled = true;
+  try{
+    const r = await fetch("/api/volhoudkracht", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error === "mail mislukt" ? "Je antwoorden zijn bewaard, maar de mail lukte niet. Mail ons op maarten@happly.nl, dan sturen we de uitslag met de hand." : (d.fouten ? d.fouten.map(f => f.tekst).join(" ") : "Er ging iets mis. Probeer het nog eens."));
+    toon("stap-klaar");
+  }catch(err){
+    fout.hidden = false; fout.textContent = err.message; knop.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

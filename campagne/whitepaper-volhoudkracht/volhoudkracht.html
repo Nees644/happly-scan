@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Volhoudkracht · Happly</title>
+<style>
+@font-face{font-family:'DM Sans';src:url('file:///home/claude/happly-scan/assets/fonts/DMSans-Variable.ttf') format('truetype');font-weight:100 900}
+@font-face{font-family:'DM Serif Display';src:url('file:///home/claude/happly-scan/assets/fonts/DMSerifDisplay-Regular.ttf') format('truetype');font-weight:400}
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--roze:#FBEFF5;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',Helvetica,Arial,sans-serif}
+@page{size:A4;margin:22mm 20mm 24mm 20mm}
+@page:first{margin:0}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{font-family:var(--sans);color:var(--paars);font-size:10.6pt;line-height:1.55;background:#fff}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.12}
+p{margin:0 0 9pt}
+a{color:var(--magenta);text-decoration:none}
+
+/* Voorpagina */
+.omslag{width:210mm;height:297mm;background:var(--paars);color:#fff;position:relative;page-break-after:always;overflow:hidden}
+.omslag .logo{position:absolute;top:22mm;left:20mm;height:12mm;width:auto}
+.omslag .eyebrow{position:absolute;top:92mm;left:20mm;font-size:9pt;letter-spacing:.18em;text-transform:uppercase;color:#FF5FA8;font-weight:600}
+.omslag h1{position:absolute;top:100mm;left:20mm;width:150mm;font-size:52pt;line-height:1.02;color:#fff}
+.omslag .sub{position:absolute;top:150mm;left:20mm;width:95mm;font-size:14pt;line-height:1.4;color:#E6CCDA}
+.omslag .voet{position:absolute;bottom:22mm;left:20mm;right:20mm;display:flex;justify-content:space-between;font-size:9pt;color:#B591A4}
+.omslag .cirkel{position:absolute;right:20mm;top:186mm;width:66mm;height:66mm;border-radius:50%;background:var(--magenta);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:8mm;font-family:var(--serif);font-size:19pt;line-height:1.18;transform:rotate(8deg)}
+.omslag .lijst{position:absolute;top:184mm;left:20mm;list-style:disc;margin:0 0 0 5mm;padding:0;color:#fff;font-size:12.5pt;line-height:1.75}
+.omslag .lijst li::marker{color:#FF5FA8}
+.omslag .merk{position:absolute;right:20mm;top:22mm;width:14mm;height:14mm}
+
+/* Binnenwerk */
+.eyebrow{font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;color:var(--magenta);font-weight:600;margin:0 0 6pt}
+section.deel{page-break-inside:auto}
+section.deel + section.deel{margin-top:16pt}
+h2{font-size:20pt;margin:0 0 8pt;color:var(--paars);page-break-after:avoid}
+.eyebrow{page-break-after:avoid}
+h2 span{color:var(--magenta)}
+.nieuwe-pagina{page-break-before:always}
+.kolom{column-count:1}
+.intro{font-size:12.5pt;line-height:1.45;color:var(--paars);margin:0 0 12pt;font-family:var(--serif)}
+ul,ol{margin:0 0 9pt 16pt}
+li{margin:0 0 4pt}
+b{font-weight:600}
+table{width:100%;border-collapse:collapse;margin:6pt 0 12pt;font-size:9.8pt}
+th,td{text-align:left;padding:6pt 8pt;border-bottom:1px solid var(--lijn);vertical-align:top}
+th{font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--grijs);font-weight:600}
+td:first-child{font-weight:600}
+.kader{background:var(--roze);border-radius:8pt;padding:12pt 14pt;margin:8pt 0 12pt;page-break-inside:avoid}
+.kader p:last-child{margin:0}
+.donker{background:var(--paars);color:#fff;border-radius:8pt;padding:14pt 16pt;margin:8pt 0 12pt;page-break-inside:avoid}
+.donker .eyebrow{color:#FF5FA8}
+.donker p{color:#E6CCDA}
+.donker p b{color:#fff}
+.vraag{page-break-inside:avoid;margin:0 0 10pt}
+.vraag b{display:block;font-family:var(--serif);font-weight:400;font-size:12.5pt;margin-bottom:3pt}
+.bronnen{font-size:9pt;color:var(--grijs)}
+.bronnen li{margin-bottom:3pt}
+.sluit{margin-top:14pt;font-size:9.5pt;color:var(--grijs);border-top:1px solid var(--lijn);padding-top:8pt}
+</style>
+</head>
+<body>
+
+<div class="omslag">
+  <img class="logo" src="file:///home/claude/happly-scan/assets/campagne/whitepaper/logo-wit.svg" alt="Happly">
+  <svg class="merk" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="256" fill="#D6026F"/><g transform="translate(256 256) scale(1.55) translate(-134.31 -169.54)"><path fill="#fff" d="M122.46,238.84c0-23.1,22.2-48.6,22.2-62.7,0-4.8-1.8-8.1-7.2-8.1-24.3,0-47.7,61.2-56.7,94.2h-31.2c17.7-51.9,43.2-126.9,64.5-188.4h30.6c-11.4,31.5-22.2,62.7-32.7,94.2,10.8-18.3,27-27.6,41.7-27.6s24,9.9,24.3,24.6c.6,22.2-23.7,52.2-23.7,65.1,0,3.9,2.4,6.3,6,6.3,12,0,30.3-23.7,45.6-54.3l13.2,14.4c-11.4,25.5-39.6,68.7-69.3,68.7-18,0-27.3-11.1-27.3-26.4Z"/></g></svg>
+  <div class="eyebrow">Whitepaper voor programma-eigenaren</div>
+  <h1>Volhoud&shy;kracht</h1>
+  <p class="sub">Jouw programma ziet er goed uit. Toch valt het effect bij veel mensen na enige tijd weer weg. Dit is waarom, en wat je eraan kunt doen.</p>
+  <ul class="lijst"><li>Training</li><li>Programma</li><li>Interventie</li><li>Traject</li></ul>
+  <div class="cirkel">Hoeveel volhoudkracht heeft jouw programma?</div>
+  <div class="voet"><span>Maarten Neeskens · Happly</span><span>Oktober 2026</span></div>
+</div>
+
+<section class="deel">
+  <div class="eyebrow">Deel 1</div>
+  <h2>Je telt wie begint. <span>Het resultaat zit bij wie volhoudt.</span></h2>
+  <p class="intro">Stel, je start een groep van twaalf deelnemers. Een leefstijlgroep, een training voor leidinggevenden, een stoppen-met-rokengroep, een fietsactie bij een werkgever. De intake is gedaan, de eerste bijeenkomst was goed, iedereen is gemotiveerd. Op papier heb je twaalf resultaten. In werkelijkheid heb je er twaalf die begonnen zijn.</p>
+  <p>Het resultaat waar je programma voor bestaat, ontstaat later. Iemand die na een jaar nog drie keer per week beweegt. Iemand die na de stopdatum nog steeds niet rookt. Een medewerker die in november nog op de fiets komt, niet alleen in de actiemaand. Een leidinggevende die drie maanden na de training nog elke week het gesprek voert dat hij daar heeft geleerd. Dat resultaat ontstaat niet in je bijeenkomst. Het ontstaat thuis, op een dinsdagavond, als er niemand bij is.</p>
+  <p>Hoeveel je daar verliest, is het best gemeten bij de leefstijlprogramma's (GLI): zes van de tien deelnemers ronden het traject af, vier van de tien stoppen onderweg (RIVM, 2025). Van je groep van twaalf zijn dat er vijf. Bij stoppen met roken, bij fietsacties en bij bedrijfstrainingen zijn de cijfers minder netjes bijgehouden, en wie ze wel bijhoudt, ziet hetzelfde beeld: het effect is het grootst in de eerste weken en zakt daarna weg. Niet omdat je programma slecht is. Omdat volhouden iets anders vraagt dan beginnen.</p>
+  <div class="kader">
+    <p><b>Reken het eens uit voor je eigen programma.</b> Een GLI-deelnemer die het hele traject doet, levert ongeveer 1.700 euro op. Wie halverwege het eerste jaar stopt, laat ruim 1.000 euro liggen. Een coach met drie groepen per jaar verliest zo ongeveer 12.000 euro per jaar aan deelnemers die al begonnen waren. Een werkgever die een training van een dag koopt waarvan het gedrag na drie weken weg is, heeft de dag betaald en niets gekregen. Een gemeente die een fietsactie financiert waarna in de herfst iedereen weer in de auto zit, heeft een actiemaand gekocht en geen fietsers. Een apotheek die mensen helpt stoppen met roken en na drie maanden niet weet wie er nog rookvrij is, kan niet laten zien wat ze waard is.</p>
+  </div>
+  <p>De vraag van dit document is niet of je programma goed is. De vraag is: wat heb je georganiseerd voor de dag na de laatste bijeenkomst?</p>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Deel 2</div>
+  <h2>Elk programma gaat over gedrag: <span>iets op een andere manier doen</span></h2>
+  <p>Een leefstijlprogramma, een leiderschapstraining, een fietsactie, een stoppen-met-rokenbegeleiding: ze zien er verschillend uit, maar ze vragen hetzelfde van de deelnemer. Hij moet iets wat hij al deed op een andere manier gaan doen (eten, bewegen, reizen, leidinggeven, omgaan met trek) en dat blijven doen. Dat is gedragsverandering, en gedrag laat zich sturen met vier knoppen.</p>
+  <ul>
+    <li><b>Omgeving (Architecture).</b> Hoe makkelijk of moeilijk de inrichting van iemands dag, plek en spullen het gedrag maakt. De fiets die voor de deur staat of achter in de schuur.</li>
+    <li><b>Kunnen (Competence).</b> Of iemand weet hoe het moet en het ook kan: kennis, vaardigheden, een plan.</li>
+    <li><b>Willen (Drives).</b> Wat iemand drijft: zijn eigen reden, wat het hem oplevert, wie hij wil zijn.</li>
+    <li><b>Weerstand (Resistance).</b> Wat iemand tegenhoudt, ook als hij wil en kan: niet op gang komen, niet geloven dat het lukt, niet willen dat het moet.</li>
+  </ul>
+  <p>De meeste programma's draaien vooral aan de knop Kunnen. Ze leggen uit, leren aan, oefenen, geven inzicht. Dat is logisch: het is wat een bijeenkomst kan. En bij de start werkt het: mensen weten na je bijeenkomst wat ze moeten doen en hoe.</p>
+  <p>Volhouden draait op de andere drie. Thuis, op een slechte dag, is kennis niet het probleem. De deelnemer weet precies wat hij zou moeten doen. Wat beslist, is of zijn omgeving het makkelijk maakt, of zijn eigen reden nog voelbaar is, en of de weerstand van dat moment een antwoord heeft. Daar heeft een bijeenkomst weinig grip op, en daar is het programma meestal niet.</p>
+  <p>De zes onderdelen die een programma volhoudkracht geven, zijn niets anders dan de vier knoppen, gericht op de tijd na de bijeenkomst:</p>
+  <table>
+    <tr><th>Onderdeel</th><th>Knop</th><th>Wat het programma regelt</th></tr>
+    <tr><td>Reden</td><td>Willen</td><td>De eigen reden van de deelnemer, bewaard en teruggegeven als hij wegzakt</td></tr>
+    <tr><td>Plan</td><td>Kunnen</td><td>Niet meer kennis, maar één concreet gedrag voor morgen en een als-dan voor het moeilijke moment</td></tr>
+    <tr><td>Ritme</td><td>Omgeving</td><td>Een vaste plek in de week en een aanleiding die er al is</td></tr>
+    <tr><td>Weerstand</td><td>Weerstand</td><td>Weten wat deze deelnemer tegenhoudt, en een afspraak voor na de misstap</td></tr>
+    <tr><td>Contact</td><td>Omgeving, in de tijd</td><td>Iets dat er is tussen de bijeenkomsten en in de 66 dagen erna</td></tr>
+    <tr><td>Meting</td><td>Alle vier</td><td>Het getal dat zegt welke knop je moet bijstellen</td></tr>
+  </table>
+  <p>Wie zijn programma op de zes onderdelen bekijkt, ziet dus meteen aan welke knop hij tot nu toe heeft gedraaid, en aan welke niet.</p>
+</section>
+
+<section class="deel nieuwe-pagina">
+  <div class="eyebrow">Deel 3</div>
+  <h2>Beginnen en volhouden zijn <span>twee verschillende dingen</span></h2>
+  <p>Mensen beginnen omdat ze iets verwachten: ik word fitter, ik val af, ik kom van die sigaretten af, mijn team gaat beter samenwerken, ik spaar geld en ben fit als ik fiets. Die verwachting brengt ze naar je eerste bijeenkomst. Jouw programma is daar goed in.</p>
+  <p>Mensen houden vol om andere redenen. Omdat ze merken dat het al iets oplevert. Omdat het een gewoonte is geworden die geen beslissing meer vraagt. Omdat ze weten wat ze doen op een slechte dag. Dat zijn andere motoren dan de verwachting waarmee ze begonnen (Rothman, 2000). Een programma dat de eerste motor aanzet, heeft de tweede nog niet aangeraakt.</p>
+  <p>Onderzoekers hebben honderd theorieën over volhouden naast elkaar gelegd (Kwasnicka en collega's, 2016). Vijf dingen komen steeds terug: een reden die blijft, jezelf kunnen bijsturen, een gewoonte, voldoende energie en een omgeving die meewerkt. Motivatie bij de start staat er niet bij.</p>
+  <p>En het duurt langer dan je denkt. Een nieuwe gewoonte heeft gemiddeld 66 dagen nodig voordat hij vanzelf gaat, bij sommige mensen 18 dagen, bij anderen meer dan 250 (Lally en collega's, 2010). Jouw training duurt een dag. Jouw bijeenkomsten zijn om de paar weken. De gewoonte wordt gevormd in de dagen daartussen, en die dagen heb je niet georganiseerd.</p>
+  <p>Dat is de hele verklaring. Niemand doet iets fout. Jouw programma organiseert het begin. Het volhouden heeft een eigen organisatie nodig, in de tijd dat je programma er niet is.</p>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Deel 4</div>
+  <h2>Zes vragen <span>aan jouw programma</span></h2>
+  <p>Volhoudkracht is hoeveel je programma heeft geregeld voor de tijd na de bijeenkomst. Het bestaat uit zes dingen. Loop ze langs met je eigen programma in gedachten. Bij elke vraag telt maar één antwoord: geldt dit voor elke deelnemer, of alleen als de begeleider eraan denkt?</p>
+  <div class="vraag"><b>1. Reden. Weet elke deelnemer waarvoor hij dit doet, in zijn eigen woorden?</b>Niet je reden (gezonder, fitter, duurzamer, beter samenwerken) maar de zijne: met mijn kleinkind op de grond kunnen spelen, mijn dochter niet meer naar mijn adem zien kijken, niet meer in de file staan, een team dat mij niet meer om elk besluit vraagt. Wie alleen je reden heeft, heeft op een moeilijk moment niets om aan vast te houden. Vraag je het? Bewaar je het? Komt het terug op het moment dat het wegzakt?</div>
+  <div class="vraag"><b>2. Plan. Heeft elke deelnemer een gedrag voor morgen, en een plan voor als het tegenzit?</b>Tien kilo eraf is een doel. Na het ontbijt twintig minuten lopen is gedrag. Als het regent, dan loop ik het rondje in de hal: dat is een plan. Hetzelfde geldt voor de fiets (als het regent, dan de regenbroek die al aan het stuur hangt), voor rookvrij (als ik na de koffie trek krijg, dan loop ik een rondje om het gebouw) en voor de leidinggevende na de training (als een medewerker met een probleem komt, dan stel ik eerst de vraag wat hij zelf al heeft geprobeerd). Zonder zo'n plan beslist het moeilijke moment, en dat kiest altijd de oude gewoonte.</div>
+  <div class="vraag"><b>3. Ritme. Heeft het gedrag een vaste plek in de week?</b>Een gewoonte ontstaat door herhaling op hetzelfde moment, na dezelfde aanleiding. Wie elke dag opnieuw moet kiezen, kiest op een slechte dag niet. Heb je met elke deelnemer een dag, een tijd en een aanleiding afgesproken?</div>
+  <div class="vraag"><b>4. Weerstand. Weet je wat je deelnemers tegenhoudt, en wat er gebeurt na een misstap?</b>Mensen stoppen zelden omdat ze niet willen. Ze stoppen omdat ze niet op gang komen, omdat ze niet geloven dat het hun gaat lukken, of omdat ze niet willen dat het moet. Dat zijn drie verschillende dingen en aanmoediging helpt bij geen van de drie. En iedereen slaat een keer over. Weet je deelnemer vooraf wat hij dan doet? Of concludeert hij dat het mislukt is?</div>
+  <div class="vraag"><b>5. Contact. Wat gebeurt er tussen de bijeenkomsten, en in de 66 dagen na de laatste?</b>Dit is de vraag waar de meeste programma's stil worden. Een deelnemer die twee weken niets doet, merkt dat niemand het merkt. De fietser die drie regendagen de auto pakt, de leidinggevende die in een drukke week terugvalt op het oude gesprek, de stopper die op een feestje één sigaret rookt: op dat moment is je programma er niet. Contact hoeft geen uren te kosten. Maar het moet er zijn, op het moment dat het ertoe doet, en het moet terugleiden naar jou.</div>
+  <div class="vraag"><b>6. Meting. Weet je hoeveel deelnemers het gedrag drie maanden na afloop nog doen?</b>De meeste programma's weten hoeveel mensen zijn gestart en hoeveel er zijn afgerond. Bijna niemand weet het getal daarna. Zonder dat getal kun je niet verbeteren en niet aantonen wat je waard bent. Zelf bijhouden of je het gedrag hebt gedaan, is bovendien de sterkste losse techniek die er is (Michie en collega's, 2013).</div>
+  <div class="kader"><p><b>Tel je antwoorden.</b> Bij hoeveel van de zes geldt: dit staat vast, voor elke deelnemer, ook als de begeleider het druk heeft?</p></div>
+</section>
+
+<section class="deel nieuwe-pagina">
+  <div class="eyebrow">Deel 5</div>
+  <h2>Waar het bij bijna iedereen <span>stilvalt</span></h2>
+  <p>De zwakste plek zit zelden in je bijeenkomst. Die is doordacht en vaak uitstekend. De zwakste plek zit op twee plaatsen die je niet ziet.</p>
+  <p><b>De dag na de laatste bijeenkomst.</b> Jouw programma heeft een einde. Het gedrag van je deelnemer heeft alleen een begin. Op die dag is hij voor het eerst alleen met zijn nieuwe gedrag, terwijl de gewoonte nog lang niet gevormd is. Wat er dan gebeurt, is bij de meeste programma's niet geregeld: een nieuwsbrief, een goede wens, een belrondje als er tijd is. De redenen die deelnemers noemen om te stoppen (het sluit niet aan, geen klik, het gaat thuis niet goed) dienen zich precies dan aan: tussen de afspraken door.</p>
+  <p><b>Het getal dat je niet hebt.</b> Je weet hoeveel mensen zijn gestart en hoeveel er zijn afgerond. Je weet waarschijnlijk niet hoeveel er drie maanden na afloop het gedrag nog doen. Dat is het enige getal dat telt voor wie jou betaalt: de zorgverzekeraar, de werkgever die de training kocht, de gemeente die de fietsactie financierde. En het enige getal waarmee je je programma kunt verbeteren.</p>
+  <p>Beide hebben dezelfde oorzaak: ze vallen buiten de uren. Jouw begeleider heeft tijd voor de bijeenkomst, niet voor 66 dagen nazorg bij twaalf mensen en niet voor een hermeting bij iedereen. Zolang volhouden extra uren van een mens kost, blijft het liggen. Het moet dus zo geregeld worden dat het geen uren kost.</p>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Deel 6</div>
+  <h2>Volhouden <span>kun je organiseren</span></h2>
+  <p>Volhouden is geen karaktereigenschap van je deelnemer. Het is een proces, en een proces kun je inrichten. Een programma met volhoudkracht doet vijf dingen anders. Geen daarvan maakt je bijeenkomst zwaarder.</p>
+  <ol>
+    <li>Elke deelnemer begint met zijn eigen reden en één gedrag dat hij morgen kan doen, met een plan voor het moment dat het tegenzit. Een kwartier aan het begin.</li>
+    <li>Het gedrag krijgt een vaste plek in de week, met een aanleiding die er al is.</li>
+    <li>Het programma weet per deelnemer wat hem tegenhoudt, maakt de eerste twee weken bewust klein, en heeft een afspraak voor na de eerste misstap.</li>
+    <li>Er is iets in de stilte. Geen uren, maar een signaal als iemand stilvalt en een klein zetje op het moment dat het ertoe doet, dat terugleidt naar het programma.</li>
+    <li>Er wordt gemeten: bij de start, onderweg, en op dag 66 tot 100.</li>
+  </ol>
+  <p>Wie dit leest, weet nu wat er moet gebeuren. Dat is niet hetzelfde als een programma dat het doet. Het verschil tussen weten en doen is precies het verschil tussen output en outcome. Het dichten ervan is werk: ontwerpen, inrichten, laten draaien, meten.</p>
+  <div class="kader"><p>De vraag is niet of je dit kunt. De vraag is wanneer. Elke groep die je start zonder dat dit geregeld is, is een groep waarvan je vier van de tien resultaten kwijtraakt. Jouw volgende groep begint waarschijnlijk binnen een paar weken.</p></div>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Deel 7</div>
+  <h2>Meet het, <span>in twaalf minuten</span></h2>
+  <p>De Volhoudkracht Scan stelt je 24 vragen over één programma, training of traject: een leefstijlprogramma, een stoppen-met-rokenbegeleiding, een fietsactie, een leiderschapstraining, een beweegprogramma. Niet of je volhouden belangrijk vindt, maar wat er voor elke deelnemer vaststaat en waarvan je gegevens hebt. Gratis, zonder account, twaalf minuten.</p>
+  <p>Je krijgt direct:</p>
+  <ul>
+    <li>je volhoudkrachtscore van 0 tot 100, en een score per dimensie;</li>
+    <li>je zwakste schakel, want daar breekt volhouden, niet bij het gemiddelde;</li>
+    <li>de rekensom: wat één deelnemer die je programma afmaakt je oplevert, en hoeveel er nu stoppen;</li>
+    <li>wat er op die zwakste schakel te doen is.</li>
+  </ul>
+  <p>Onder de 40 organiseert je programma het begin. Tussen 40 en 70 is volhouden bedoeld maar niet ingericht. Boven 70 is het georganiseerd, en is de enige vraag nog of je het meet.</p>
+  <p>De score is een ontwerpscore: hij zegt wat je programma belooft. Wat het doet, blijkt uit de meting bij je deelnemers. Ook dat kunnen wij voor je regelen.</p>
+  <div class="donker">
+    <div class="eyebrow">Gratis</div>
+    <p><b>Doe de Volhoudkracht Scan op happly.nl, voordat je volgende groep start.</b></p>
+    <p>Twaalf minuten, geen account, de uitslag in je mail.</p>
+  </div>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Deel 8</div>
+  <h2>Wat <span>Happly</span> doet</h2>
+  <p>Happly organiseert volhouden in programma's van anderen: leefstijl, bewegen, rookvrij, fietsen, bedrijfstrainingen. Jouw bijeenkomst blijft van jou. Wij regelen wat er omheen moet gebeuren, zonder uren van je begeleiders.</p>
+  <ul>
+    <li><b>Meten.</b> De Volhoudkracht Scan voor je programma. De Zelfkracht Scan per deelnemer, zodat je weet wat ieder tegenhoudt. De gewoontemeting onderweg en de hermeting op dag 66 tot 100.</li>
+    <li><b>Ontwerpen.</b> Het Volhoudontwerp: in één dag je programma inrichten op de zes dimensies.</li>
+    <li><b>Organiseren.</b> Volhouden inside: de Volhoudkaart als vaste stap aan het begin, en Zetjes in de 66 dagen erna. Een zetje op het moeilijke moment, in de woorden van de deelnemer, onder je naam.</li>
+    <li><b>Rapporteren.</b> Aantallen per groep, nooit wat een deelnemer typt: wie het gebruikt, wanneer, en wat de hermeting zegt. Het getal dat je kunt laten zien aan wie jou betaalt.</li>
+  </ul>
+  <p>Happly is opgericht door Maarten Neeskens, gedragsveranderaar met dertig jaar praktijk in mobiliteit, veilig werken, ondernemerschap en vitaliteit.</p>
+  <p class="sluit">maarten@happly.nl · 085 878 59 61 · happly.nl</p>
+</section>
+
+<section class="deel">
+  <div class="eyebrow">Bronnen</div>
+  <ul class="bronnen">
+    <li>RIVM, 60 procent rondt leefstijlprogramma GLI af; meer maatwerk nodig om uitval terug te dringen, 2 september 2025. rivm.nl</li>
+    <li>FBTO, Tarieven gecombineerde leefstijlinterventie 2026; de bedragen in deel 1 zijn daaruit afgeleid naar het NZa-maximum en afgerond.</li>
+    <li>Rothman, A. J. (2000). Toward a theory-based analysis of behavioral maintenance. Health Psychology, 19(1S), 64 tot 69.</li>
+    <li>Kwasnicka, D., Dombrowski, S. U., White, M., en Sniehotta, F. (2016). Theoretical explanations for maintenance of behaviour change: a systematic review of behaviour theories. Health Psychology Review, 10(3), 277 tot 296.</li>
+    <li>Lally, P., Van Jaarsveld, C. H. M., Potts, H. W. W., en Wardle, J. (2010). How are habits formed: modelling habit formation in the real world. European Journal of Social Psychology, 40(6), 998 tot 1009.</li>
+    <li>Gollwitzer, P. M., en Sheeran, P. (2006). Implementation intentions and goal achievement: a meta-analysis of effects and processes. Advances in Experimental Social Psychology, 38, 69 tot 119.</li>
+    <li>Michie, S., e.a. (2013). The behavior change technique taxonomy (v1) of 93 hierarchically clustered techniques. Annals of Behavioral Medicine, 46(1), 81 tot 95.</li>
+    <li>Marlatt, G. A., en Donovan, D. M. (2005). Relapse prevention: maintenance strategies in the treatment of addictive behaviors. Guilford Press.</li>
+  </ul>
+</section>
+
+</body>
+</html>

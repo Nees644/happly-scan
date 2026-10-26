@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Rekenhulp voor GLI-coaches: wat uitval de praktijk kost en wat Zetjes oplevert.">
+<title>Rekenhulp volhouden voor leefstijlcoaches · Happly</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://scan.happly.nl/rekenhulp-gli">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+  /* Layout: één kolom invoer links, uitkomsten rechts; op een telefoon onder elkaar. Kleuren van Happly. */
+  :root {
+    --bg: #FDF8FB; --vlak: #FFFFFF; --vlak2: #F6EDF2; --rand: #ECD8E4;
+    --tekst: #1A0A12; --tekst2: #5E3A4E; --tekst3: #8A6A7C;
+    --accent: #CC0066; --accent2: #FF5FA8; --donker: #1A0A12; --opdonker: #FDF8FB; --opdonker2: #E6CCDA;
+    --kop: 'Lora', Georgia, serif; --body: 'DM Sans', system-ui, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #120810; --vlak: #1E1118; --vlak2: #27171F; --rand: #3A2530;
+    --tekst: #FDF8FB; --tekst2: #E6CCDA; --tekst3: #B591A4;
+    --accent: #FF5FA8; --accent2: #FF8EC2; --donker: #FDF8FB; --opdonker: #1A0A12; --opdonker2: #5E3A4E; color-scheme: dark } }
+  :root[data-theme="dark"] {
+    --bg: #120810; --vlak: #1E1118; --vlak2: #27171F; --rand: #3A2530;
+    --tekst: #FDF8FB; --tekst2: #E6CCDA; --tekst3: #B591A4;
+    --accent: #FF5FA8; --accent2: #FF8EC2; --donker: #FDF8FB; --opdonker: #1A0A12; --opdonker2: #5E3A4E; color-scheme: dark }
+
+  * { box-sizing: border-box }
+  body { margin: 0; background: var(--bg); color: var(--tekst); font-family: var(--body); line-height: 1.5; font-size: 16px }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin: 0 0 8px }
+  h1 { font-family: var(--kop); font-weight: 600; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0 0 12px; text-wrap: balance; max-width: 22ch }
+  .intro { color: var(--tekst2); max-width: 62ch; margin: 0 0 32px }
+  .kolommen { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 28px; align-items: start }
+  @media (max-width: 760px) { .kolommen { grid-template-columns: 1fr } }
+  .paneel { background: var(--vlak); border: 1px solid var(--rand); border-radius: 16px; padding: 24px; min-width: 0 }
+  h2 { font-family: var(--kop); font-weight: 600; font-size: 20px; margin: 0 0 4px }
+  .sub { color: var(--tekst3); font-size: 14px; margin: 0 0 16px }
+  .veld { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rand) }
+  .veld:first-of-type { border-top: 0 }
+  .veld label { font-weight: 500 }
+  .veld small { display: block; color: var(--tekst3); font-weight: 400; font-size: 13px }
+  .veld input { width: 100%; padding: 9px 10px; font: inherit; font-variant-numeric: tabular-nums; text-align: right; border: 1.5px solid var(--rand); border-radius: 10px; background: var(--bg); color: var(--tekst) }
+  .veld input:focus { outline: 2px solid var(--accent); outline-offset: 1px }
+  details { margin-top: 16px }
+  summary { cursor: pointer; color: var(--accent); font-weight: 500 }
+  .tegels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px }
+  .tegel { background: var(--vlak2); border-radius: 12px; padding: 16px }
+  .tegel .l { font-size: 13px; color: var(--tekst3); font-weight: 700; letter-spacing: 1px; text-transform: uppercase }
+  .tegel .w { font-family: var(--kop); font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px; line-height: 1.1 }
+  .tegel .t { color: var(--tekst2); font-size: 14px; margin-top: 4px }
+  .tabelwrap { overflow-x: auto }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 520px }
+  th, td { text-align: right; padding: 10px 10px; border-top: 1px solid var(--rand); white-space: nowrap }
+  th:first-child, td:first-child { text-align: left; white-space: normal }
+  thead th { border-top: 0; color: var(--tekst3); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase }
+  tbody tr.kies { background: var(--vlak2) }
+  td.plus { color: var(--accent); font-weight: 700 }
+  .conclusie { margin-top: 20px; background: var(--donker); color: var(--opdonker); border-radius: 14px; padding: 20px 22px }
+  .conclusie p { margin: 0; font-size: 17px; line-height: 1.5 }
+  .conclusie b { color: var(--accent2) }
+  .conclusie .klein { color: var(--opdonker2); font-size: 14px; margin-top: 8px }
+  .voet { color: var(--tekst3); font-size: 13px; margin-top: 28px; max-width: 70ch }
+  .voet a { color: var(--accent) }
+  @media (prefers-reduced-motion: no-preference) { .tegel .w { transition: color .2s } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p style="margin:0 0 24px"><a href="https://happly.nl"><img src="/happly-logo.svg" alt="Happly" style="height:28px;display:block"></a></p>
+  <p class="eyebrow">Zetjes bij de GLI</p>
+  <h1>Wat kost het als een deelnemer stopt, en wat levert volhouden op</h1>
+  <p class="intro">Vul je eigen praktijk in. De vergoedingen en de uitvalcijfers staan vooraf ingevuld met landelijke getallen; je kunt ze aanpassen. Alle bedragen zijn omzet voor de praktijk, exclusief btw.</p>
+
+  <div class="kolommen">
+    <section class="paneel" aria-labelledby="k-invoer">
+      <h2 id="k-invoer">Jouw praktijk</h2>
+      <p class="sub">Wat je zelf weet</p>
+
+      <div class="veld"><label for="coaches">Aantal leefstijlcoaches</label><input id="coaches" type="number" min="1" step="1" value="1"></div>
+      <div class="veld"><label for="groepen">Nieuwe groepen per coach per jaar</label><input id="groepen" type="number" min="1" step="1" value="3"></div>
+      <div class="veld"><label for="grootte">Deelnemers per groep bij de start</label><input id="grootte" type="number" min="1" step="1" value="12"></div>
+      <div class="veld"><label for="prijs">Zetjes per coach per maand<small>Alle groepen, alle deelnemers</small></label><input id="prijs" type="number" min="0" step="0.5" value="24.50"></div>
+
+      <details>
+        <summary>Vergoeding en uitval aanpassen</summary>
+        <div class="veld"><label for="intake">Intake<small>Eenmalig</small></label><input id="intake" type="number" min="0" step="1" value="119"></div>
+        <div class="veld"><label for="behandel">Behandelfase, per kwartaal<small>Jaar 1, vier kwartalen</small></label><input id="behandel" type="number" min="0" step="1" value="266"></div>
+        <div class="veld"><label for="onderhoud">Onderhoudsfase, per kwartaal<small>Jaar 2, vier kwartalen</small></label><input id="onderhoud" type="number" min="0" step="1" value="139"></div>
+        <div class="veld"><label for="uitval1">Stopt in jaar 1<small>Procent van de starters</small></label><input id="uitval1" type="number" min="0" max="100" step="1" value="27"></div>
+        <div class="veld"><label for="uitval2">Stopt in jaar 2<small>Procent van wie jaar 2 begint</small></label><input id="uitval2" type="number" min="0" max="100" step="1" value="20"></div>
+      </details>
+    </section>
+
+    <section class="paneel" aria-labelledby="k-uit">
+      <h2 id="k-uit">Wat het je kost en oplevert</h2>
+      <p class="sub">Per jaar, voor de groepen die dat jaar starten, gerekend over hun hele traject van twee jaar</p>
+
+      <div class="tegels">
+        <div class="tegel"><div class="l">Per deelnemer die afmaakt</div><div class="w" id="u-volledig">€ 0</div><div class="t">Omzet over twee jaar</div></div>
+        <div class="tegel"><div class="l">Per deelnemer die stopt</div><div class="w" id="u-verlies-stop">€ 0</div><div class="t">Gemiddeld misgelopen</div></div>
+        <div class="tegel"><div class="l">Stoppen per jaar</div><div class="w" id="u-stoppers">0</div><div class="t" id="u-stoppers-t">van 0 starters</div></div>
+        <div class="tegel"><div class="l">Misgelopen omzet per jaar</div><div class="w" id="u-verlies">€ 0</div><div class="t">Zonder Zetjes</div></div>
+      </div>
+
+      <div class="tabelwrap">
+        <table aria-label="Drie scenario's">
+          <thead><tr><th>Scenario</th><th>Blijft extra</th><th>Omzet behouden</th><th>Zetjes kost</th><th>Netto per jaar</th></tr></thead>
+          <tbody id="u-scenario"></tbody>
+        </table>
+      </div>
+
+      <div class="conclusie">
+        <p id="u-zin"></p>
+        <p class="klein" id="u-zin2"></p>
+      </div>
+    </section>
+  </div>
+
+  <p class="voet">Vooraf ingevuld: vergoedingen afgeleid van het NZa-maximum 2026 (intake ongeveer €119, behandelfase ongeveer €266 per kwartaal, onderhoudsfase ongeveer €139 per kwartaal); uitval volgens de RIVM-monitor GLI (september 2025): ongeveer 27 procent stopt in het eerste jaar en 20 procent in het tweede, 60 procent rondt af. Aanname in de som: wie stopt, stopt gemiddeld halverwege het jaar. De scenario's rekenen met minder uitval van 10, 20 en 30 procent; wat Zetjes in jouw praktijk doet, meten we samen in de proef. Happly, maarten@happly.nl, 085 878 59 61.</p>
+</div>
+
+<script>
+  const SCENARIOS = [
+    { naam: 'Voorzichtig', reductie: 0.10 },
+    { naam: 'Verwacht', reductie: 0.20, kies: true },
+    { naam: 'Gunstig', reductie: 0.30 },
+  ];
+  const ids = ['coaches','groepen','grootte','prijs','intake','behandel','onderhoud','uitval1','uitval2'];
+  const el = (id) => document.getElementById(id);
+  const getal = (id) => { const v = parseFloat(el(id).value); return Number.isFinite(v) ? v : 0; };
+  const euro = (n) => '€ ' + Math.round(n).toLocaleString('nl-NL');
+  const een = (n) => n.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  function reken() {
+    const coaches = Math.max(1, getal('coaches'));
+    const groepen = Math.max(0, getal('groepen'));
+    const grootte = Math.max(0, getal('grootte'));
+    const prijs = Math.max(0, getal('prijs'));
+    const intake = getal('intake'), behandel = getal('behandel'), onderhoud = getal('onderhoud');
+    const p1 = Math.min(1, Math.max(0, getal('uitval1') / 100));
+    const p2 = Math.min(1, Math.max(0, getal('uitval2') / 100));
+
+    // Omzet over twee jaar voor wie afmaakt
+    const volledig = intake + 4 * behandel + 4 * onderhoud;
+    // Wie in jaar 1 stopt, stopt gemiddeld halverwege: twee behandelkwartalen en het hele onderhoudsjaar vallen weg
+    const verliesJaar1 = 2 * behandel + 4 * onderhoud;
+    // Wie in jaar 2 stopt: twee onderhoudskwartalen
+    const verliesJaar2 = 2 * onderhoud;
+
+    const starters = coaches * groepen * grootte;
+    const stop1 = starters * p1;
+    const stop2 = starters * (1 - p1) * p2;
+    const stoppers = stop1 + stop2;
+    const verlies = stop1 * verliesJaar1 + stop2 * verliesJaar2;
+    const verliesPerStopper = stoppers > 0 ? verlies / stoppers : 0;
+    const kostZetjes = coaches * prijs * 12;
+
+    el('u-volledig').textContent = euro(volledig);
+    el('u-verlies-stop').textContent = euro(verliesPerStopper);
+    el('u-stoppers').textContent = een(stoppers);
+    el('u-stoppers-t').textContent = `van ${Math.round(starters)} starters, bij ${coaches} coach${coaches > 1 ? 'es' : ''}`;
+    el('u-verlies').textContent = euro(verlies);
+
+    const body = el('u-scenario');
+    body.innerHTML = '';
+    let verwacht = null;
+    SCENARIOS.forEach((s) => {
+      const blijft = stoppers * s.reductie;
+      const behouden = verlies * s.reductie;
+      const netto = behouden - kostZetjes;
+      if (s.kies) verwacht = { blijft, behouden, netto };
+      const tr = document.createElement('tr');
+      if (s.kies) tr.className = 'kies';
+      const cellen = [
+        `${s.naam} (${Math.round(s.reductie * 100)}% minder uitval)`,
+        `${een(blijft)} deelnemers`,
+        euro(behouden),
+        euro(kostZetjes),
+        (netto >= 0 ? '+ ' : '') + euro(netto),
+      ];
+      cellen.forEach((c, i) => {
+        const td = document.createElement('td');
+        td.textContent = c;
+        if (i === 4 && netto >= 0) td.className = 'plus';
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+
+    // Hoeveel deelnemers moeten blijven om Zetjes terug te verdienen
+    const nodig = verliesPerStopper > 0 ? kostZetjes / verliesPerStopper : 0;
+    const perCoachPerJaar = coaches > 0 ? verlies / coaches : 0;
+    el('u-zin').innerHTML = `Zetjes is terugverdiend zodra <b>${een(nodig)} deelnemer${nodig >= 1.05 ? 's' : ''}</b> per jaar het traject afmaakt in plaats van te stoppen, op ${Math.round(stoppers)} die nu stoppen. In het verwachte scenario houd je <b>${euro(verwacht.netto)}</b> per jaar over.`;
+    el('u-zin2').textContent = `Per coach loopt de praktijk nu ${euro(perCoachPerJaar)} per jaar mis aan deelnemers die stoppen. Zetjes kost per coach ${euro(prijs * 12)} per jaar.`;
+  }
+
+  ids.forEach((id) => el(id).addEventListener('input', reken));
+  reken();
+</script>
+
+</body>
+</html>

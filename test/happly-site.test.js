@@ -116,14 +116,29 @@ test("het b2b-verdienmodel staat niet op de site", () => {
   }
 });
 
-test("trainers en coaches kunnen de whitepaper aanvragen", () => {
-  // Besluit 6 oktober 2026: de partnerroute loopt via de whitepaper. De
+test("de whitepaper Volhoudkracht is aan te vragen en trainers gaan naar de scan", () => {
+  // Concept 26 oktober 2026: de whitepaper Volhoudkracht vervangt de whitepaper
+  // voor trainers en staat in het blok van de Volhoudkracht Scan. Trainers en
+  // coaches beginnen met de scan over hun eigen training. De
   // founding-partnerplekken staan niet meer op de site.
+  const vk = HTML.split('id="volhoudkracht"')[1].split("</section>")[0];
+  assert.ok(vk.includes("happly-whitepaper-volhoudkracht.pdf"), "de link naar de whitepaper ontbreekt");
+  assert.ok(vk.includes("formspree.io/f/mwlvkbaw"), "de aanvraag gaat niet naar het happly.nl-formulier");
   const sectie = HTML.split('id="professionals"')[1].split("</section>")[0];
   assert.ok(sectie.includes("Voor trainers en coaches"), "de sectie richt zich niet op trainers en coaches");
-  assert.ok(sectie.includes("happly-whitepaper-trainers.pdf"), "de link naar de whitepaper ontbreekt");
-  assert.ok(sectie.includes("formspree.io/f/mwlvkbaw"), "de aanvraag gaat niet naar het happly.nl-formulier");
+  assert.ok(sectie.includes("scan.happly.nl/volhoudkracht?src=site_pro"), "trainers worden niet naar de scan gestuurd");
   assert.ok(!/founding/i.test(HTML), "de founding partners staan nog op de site");
+});
+
+test("de zes dimensies van volhoudkracht staan op de site, in de taal van de briefing", () => {
+  // Concept 26 oktober 2026, briefings/volhoudkracht-scan.md. Gratis is het
+  // mechanisme en de zes dimensies als bril; de bewijsvragen zelf staan niet
+  // op de site.
+  const vk = HTML.split('id="volhoudkracht"')[1].split("</section>")[0];
+  for (const d of ["Reden", "Plan", "Ritme", "Weerstand", "Contact", "Meting"]) {
+    assert.ok(vk.includes(`<b>${d}</b>`), `dimensie ${d} ontbreekt`);
+  }
+  assert.ok(!/aantoonbaar gedaan/i.test(HTML), "de niveaus van de bewijsvragen horen niet op de site");
 });
 
 test("de volgorde is aanbieders, werkgevers, ondernemers, en daarna samenwerken", () => {
@@ -148,13 +163,18 @@ test("de stelling en de twee bronnen van de impuls staan erop", () => {
   assert.ok(HTML.includes("Meer deelnemers die <em"), "de belofte aan aanbieders ontbreekt");
 });
 
-test("de hoofdknop is het gratis Leidersbeeld", () => {
-  // Besluit 6 oktober 2026: de site verkoopt aan organisaties. De eerste stap
-  // is het Leidersbeeld, daarna volgt de Teamkracht Scan met het teambeeld.
+test("de hoofdknop is de gratis Volhoudkracht Scan, het Leidersbeeld blijft bij werkgevers", () => {
+  // Concept 26 oktober 2026, vervangt het besluit van 6 oktober: de ingang is
+  // de vraag hoeveel volhoudkracht er in een programma zit. Die is breder dan
+  // het Leidersbeeld en levert directer een lead op. Het Leidersbeeld blijft
+  // de knop in het werkgeversblok.
   const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
-  assert.ok(menu.includes("teamkrachtindex.nl/leidersbeeld?src=site_nav"), "de menuknop gaat niet naar het Leidersbeeld");
+  assert.ok(menu.includes("scan.happly.nl/volhoudkracht?src=site_nav"), "de menuknop gaat niet naar de Volhoudkracht Scan");
   const hero = HTML.split('class="hero"')[1].split("</section>")[0];
-  assert.ok(hero.includes("teamkrachtindex.nl/leidersbeeld?src=site_hero"), "de heroknop gaat niet naar het Leidersbeeld");
+  assert.ok(hero.includes("scan.happly.nl/volhoudkracht?src=site_hero"), "de heroknop gaat niet naar de Volhoudkracht Scan");
+  assert.ok(hero.includes("Volhouden kun je <em"), "de stelling is niet meer de kop");
+  const werk = HTML.split('id="werkgevers"')[1].split("</section>")[0];
+  assert.ok(werk.includes("teamkrachtindex.nl/leidersbeeld?src=site_leider"), "het Leidersbeeld staat niet meer bij werkgevers");
 });
 
 test("de feiten over afhaken staan er met hun bron", () => {
@@ -168,4 +188,10 @@ test("de feiten over afhaken staan er met hun bron", () => {
   assert.ok(werk.includes("66 dagen") && werk.includes("Lally"), "de 66 dagen of de bron ontbreekt");
   const ond = HTML.split('id="ondernemers"')[1].split("</section>")[0];
   assert.ok(!ond.includes('class="feit"'), "bij ondernemers staat een cijfer zonder gecontroleerde bron");
+});
+
+test("de site spreekt overal met je en jouw, nergens met u", () => {
+  // Besluit 26 oktober 2026: één aanspreekvorm, je en jouw.
+  const tekst = HTML.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, "").replace(/<[^>]+>/g, " ");
+  assert.ok(!/\b[Uu]w?\b/.test(tekst), "er staat nog u of uw op de site");
 });
