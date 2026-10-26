@@ -189,3 +189,9 @@ test("de feiten over afhaken staan er met hun bron", () => {
   const ond = HTML.split('id="ondernemers"')[1].split("</section>")[0];
   assert.ok(!ond.includes('class="feit"'), "bij ondernemers staat een cijfer zonder gecontroleerde bron");
 });
+
+test("de site spreekt overal met je en jouw, nergens met u", () => {
+  // Besluit 26 oktober 2026: één aanspreekvorm, je en jouw.
+  const tekst = HTML.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, "").replace(/<[^>]+>/g, " ");
+  assert.ok(!/\b[Uu]w?\b/.test(tekst), "er staat nog u of uw op de site");
+});

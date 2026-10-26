@@ -162,3 +162,23 @@ test("de migratie geeft de nieuwe tabel aan service_role en eindigt met een cont
   assert.ok(!/\bdrop table\b|\bdelete from\b|\btruncate\b/i.test(sql), "de migratie verwijdert niets");
   assert.ok(/select[\s\S]*as scans;\s*$/.test(sql.trim() + "\n"), "de controleregel ontbreekt");
 });
+
+test("de rekenhulp staat op scan.happly.nl, in je-vorm, en alle links wijzen ernaar", () => {
+  const reken = readFileSync(new URL("../rekenhulp-gli.html", import.meta.url), "utf8");
+  const tekst = reken.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/id="[^"]*"/g, "");
+  assert.ok(!/\b[Uu]w?\b/.test(tekst), "de rekenhulp spreekt nog met u");
+  assert.ok(!/[—]/.test(reken), "gedachtestreepje in de rekenhulp");
+  for (const f of ["../volhoudkracht.html", "../volhoudkracht-pagina.js", "../happly.html"]){
+    const s = readFileSync(new URL(f, import.meta.url), "utf8");
+    assert.ok(!s.includes("happly.nl/rekenhulp-gli.html"), `${f} wijst nog naar happly.nl`);
+  }
+  assert.ok(readFileSync(new URL("../happly.html", import.meta.url), "utf8").includes("scan.happly.nl/rekenhulp-gli"));
+});
+
+test("de leadlijst toont ook de Volhoudkracht Scan, alleen voor de beheerder", () => {
+  const api = readFileSync(new URL("../api/leads.js", import.meta.url), "utf8");
+  assert.ok(api.includes('if (beheerder) uit.push(...await volhoudkrachtLeads(db))'));
+  assert.ok(/bron === "volhoudkracht"[\s\S]{0,120}if \(!beheerder\)/.test(api), "een partner mag geen scan-lead opvolgen");
+  const html = readFileSync(new URL("../leads.html", import.meta.url), "utf8");
+  assert.ok(html.includes("volhoudkracht_id: id"));
+});

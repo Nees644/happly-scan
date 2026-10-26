@@ -100,7 +100,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
   <section class="kaart">
     <p class="eyebrow">De rekensom</p>
     <p>Wat levert één deelnemer op die je ${esc(rij.woord)} afmaakt, en hoeveel stoppen er nu? Vul je eigen getallen in de rekenhulp in; voor leefstijlprogramma's staan de landelijke cijfers vooraf ingevuld.</p>
-    <a class="knop" href="https://happly.nl/rekenhulp-gli.html">Open de rekenhulp</a>
+    <a class="knop" href="https://scan.happly.nl/rekenhulp-gli">Open de rekenhulp</a>
   </section>
 
   <section class="kaart donker">

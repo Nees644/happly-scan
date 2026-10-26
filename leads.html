@@ -59,7 +59,7 @@ tr.lead td:first-child{cursor:pointer}
 
 <div id="app">
   <div class="hdr"><div class="wrap">
-    <h1>Leidersbeelden</h1>
+    <h1>Leads</h1>
     <nav class="menu">
       <a href="/teamkracht">Teams</a>
       <a href="/account">Account</a>
@@ -69,7 +69,7 @@ tr.lead td:first-child{cursor:pointer}
   </div></div>
 
   <main class="wrap">
-    <p class="uitleg">Iedereen die zijn Leidersbeeld invulde, met de laatste stand van de opvolging. De lijst staat op volgende datum, zodat bovenaan staat wie aan de beurt is. Klik op een naam om de geschiedenis te zien en een contactmoment vast te leggen. Elk contactmoment is een nieuwe regel; er wordt nooit iets overschreven.</p>
+    <p class="uitleg">Iedereen die een Leidersbeeld of een Volhoudkracht Scan invulde, met de laatste stand van de opvolging. De lijst staat op volgende datum, zodat bovenaan staat wie aan de beurt is. Klik op een naam om de geschiedenis te zien en een contactmoment vast te leggen. Elk contactmoment is een nieuwe regel; er wordt nooit iets overschreven.</p>
 
     <div class="balk">
       <select id="f-status"><option value="">Alle statussen</option></select>
@@ -84,8 +84,8 @@ tr.lead td:first-child{cursor:pointer}
         <th data-s="created_at">Datum</th>
         <th data-s="leider_naam">Naam</th>
         <th data-s="organisatie">Organisatie</th>
-        <th data-s="teamomvang">Team</th>
-        <th data-s="index_score">Index</th>
+        <th data-s="teamomvang">Team of programma</th>
+        <th data-s="index_score">Score</th>
         <th data-s="herkomst_src">Herkomst</th>
         <th data-s="status">Stand</th>
         <th data-s="mail_geopend">Mail</th>
@@ -177,7 +177,7 @@ function teken(){
   el("aantal").textContent = `${rijen.length} van ${LEADS.length}`;
   el("rijen").innerHTML = rijen.length
     ? rijen.map(rij).join("")
-    : `<tr><td colspan="10" class="melding">Nog geen Leidersbeelden die hieraan voldoen.</td></tr>`;
+    : `<tr><td colspan="10" class="melding">Nog geen leads die hieraan voldoen.</td></tr>`;
 
   el("rijen").querySelectorAll("tr.lead").forEach(tr => tr.addEventListener("click", e => {
     if (e.target.closest(".detail") || e.target.closest("input") || e.target.closest("select") || e.target.closest("button")) return;
@@ -230,8 +230,10 @@ async function bewaar(id){
   melding.className = "klein";
   melding.textContent = "Bezig...";
   try{
+    const bron = (LEADS.find(l => l.id === id) || {}).bron;
     const uit = await api("/api/leads", { method: "POST", body: JSON.stringify({
-      leidersbeeld_id: id,
+      bron,
+      ...(bron === "volhoudkracht" ? { volhoudkracht_id: id } : { leidersbeeld_id: id }),
       opvolgstatus:   el(`ns-${id}`).value,
       notitie:        el(`nn-${id}`).value,
       volgende_actie: el(`na-${id}`).value,
@@ -250,7 +252,7 @@ async function bewaar(id){
 }
 
 window.exporteer = function(){
-  const kolommen = ["created_at","leider_naam","leider_email","organisatie","teamomvang",
+  const kolommen = ["bron","created_at","leider_naam","leider_email","organisatie","teamomvang",
                     "index_score","herkomst_src","partnernaam","status","mail_geopend",
                     "opvolgstatus","volgende_actie","volgende_datum"];
   const veld = w => `"${String(w ?? "").replace(/"/g, '""')}"`;
@@ -258,7 +260,7 @@ window.exporteer = function(){
   const blob = new Blob(["﻿" + regels.join("\r\n")], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `leidersbeelden-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
 };
