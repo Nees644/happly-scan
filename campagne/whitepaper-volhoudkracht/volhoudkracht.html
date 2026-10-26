@@ -17,12 +17,13 @@ a{color:var(--magenta);text-decoration:none}
 
 /* Voorpagina */
 .omslag{width:210mm;height:297mm;background:var(--paars);color:#fff;position:relative;page-break-after:always;overflow:hidden}
-.omslag .logo{position:absolute;top:22mm;left:20mm;height:11mm}
+.omslag .logo{position:absolute;top:22mm;left:20mm;height:12mm;width:auto}
 .omslag .eyebrow{position:absolute;top:92mm;left:20mm;font-size:9pt;letter-spacing:.18em;text-transform:uppercase;color:#FF5FA8;font-weight:600}
 .omslag h1{position:absolute;top:100mm;left:20mm;width:150mm;font-size:52pt;line-height:1.02;color:#fff}
-.omslag .sub{position:absolute;top:168mm;left:20mm;width:140mm;font-size:14.5pt;line-height:1.4;color:#E6CCDA}
+.omslag .sub{position:absolute;top:150mm;left:20mm;width:95mm;font-size:14pt;line-height:1.4;color:#E6CCDA}
 .omslag .voet{position:absolute;bottom:22mm;left:20mm;right:20mm;display:flex;justify-content:space-between;font-size:9pt;color:#B591A4}
-.omslag .bol{position:absolute;right:-40mm;bottom:-40mm;width:150mm;height:150mm;border-radius:50%;background:radial-gradient(circle at 35% 35%,#D6026F 0%,#8A0044 55%,rgba(138,0,68,0) 72%);opacity:.9}
+.omslag .cirkel{position:absolute;right:20mm;top:178mm;width:78mm;height:78mm;border-radius:50%;background:var(--magenta);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:12mm;font-family:var(--serif);font-size:19pt;line-height:1.18}
+.omslag .merk{position:absolute;right:20mm;top:22mm;width:14mm;height:14mm}
 
 /* Binnenwerk */
 .eyebrow{font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;color:var(--magenta);font-weight:600;margin:0 0 6pt}
@@ -57,11 +58,12 @@ td:first-child{font-weight:600}
 <body>
 
 <div class="omslag">
-  <img class="logo" src="file:///home/claude/happly-scan/assets/happly-logo.png" alt="Happly">
+  <img class="logo" src="file:///home/claude/happly-scan/assets/campagne/whitepaper/logo-wit.svg" alt="Happly">
+  <svg class="merk" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="256" fill="#D6026F"/><g transform="translate(256 256) scale(1.55) translate(-134.31 -169.54)"><path fill="#fff" d="M122.46,238.84c0-23.1,22.2-48.6,22.2-62.7,0-4.8-1.8-8.1-7.2-8.1-24.3,0-47.7,61.2-56.7,94.2h-31.2c17.7-51.9,43.2-126.9,64.5-188.4h30.6c-11.4,31.5-22.2,62.7-32.7,94.2,10.8-18.3,27-27.6,41.7-27.6s24,9.9,24.3,24.6c.6,22.2-23.7,52.2-23.7,65.1,0,3.9,2.4,6.3,6,6.3,12,0,30.3-23.7,45.6-54.3l13.2,14.4c-11.4,25.5-39.6,68.7-69.3,68.7-18,0-27.3-11.1-27.3-26.4Z"/></g></svg>
   <div class="eyebrow">Whitepaper voor programma-eigenaren</div>
   <h1>Volhoud&shy;kracht</h1>
-  <p class="sub">Uw programma is goed. Toch verliest u vier van de tien resultaten na de laatste bijeenkomst. Dit is waarom, en wat u eraan kunt doen.</p>
-  <div class="bol"></div>
+  <p class="sub">Uw programma ziet er goed uit. Toch valt het effect bij veel mensen na enige tijd weer weg. Dit is waarom, en wat u eraan kunt doen.</p>
+  <div class="cirkel">Hoeveel volhoudkracht heeft jouw programma?</div>
   <div class="voet"><span>Maarten Neeskens · Happly</span><span>Oktober 2026</span></div>
 </div>
 
