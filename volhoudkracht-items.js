@@ -93,9 +93,9 @@ export const MAX_TOTAAL = ITEMS.length * MAX_PER_ITEM;
 
 // Banden op de score van 0 tot 100 (briefing, paragraaf 4).
 export const BANDEN = [
-  { code: "start",   van: 0,  tot: 39,  naam: "Een goede start, geen vervolg",       kop: "Uw [programma] organiseert het begin" },
-  { code: "bedoeld", van: 40, tot: 69,  naam: "Volhouden is bedoeld, niet ingericht", kop: "Uw [programma] wil volhouden, maar heeft het niet georganiseerd" },
-  { code: "georganiseerd", van: 70, tot: 100, naam: "Volhouden is georganiseerd",  kop: "Uw [programma] organiseert volhouden" }
+  { code: "start",   van: 0,  tot: 39,  naam: "Een goede start, geen vervolg",       kop: "Jouw [programma] organiseert het begin" },
+  { code: "bedoeld", van: 40, tot: 69,  naam: "Volhouden is bedoeld, niet ingericht", kop: "Jouw [programma] wil volhouden, maar heeft het niet georganiseerd" },
+  { code: "georganiseerd", van: 70, tot: 100, naam: "Volhouden is georganiseerd",  kop: "Jouw [programma] organiseert volhouden" }
 ];
 
 // Vanaf hoeveel scans het gemiddelde wordt getoond. Daarvoor geen referentie,
@@ -153,13 +153,13 @@ const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export function controleerGegevens(g = {}){
   const fouten = [];
   const tekst = v => String(v ?? "").trim();
-  if (!WOORDEN.includes(g.woord)) fouten.push({ veld: "woord", tekst: "Kies wat u aanbiedt." });
-  if (tekst(g.programma_naam).length < 2 || tekst(g.programma_naam).length > 120) fouten.push({ veld: "programma_naam", tekst: "Vul de naam van uw programma in." });
+  if (!WOORDEN.includes(g.woord)) fouten.push({ veld: "woord", tekst: "Kies wat je aanbiedt." });
+  if (tekst(g.programma_naam).length < 2 || tekst(g.programma_naam).length > 120) fouten.push({ veld: "programma_naam", tekst: "Vul de naam van je programma in." });
   if (!AANBIEDERS.includes(g.aanbieder)) fouten.push({ veld: "aanbieder", tekst: "Kies of het een eigen product is of een keten." });
-  if (tekst(g.naam).length < 2) fouten.push({ veld: "naam", tekst: "Vul uw naam in." });
-  if (!MAIL.test(tekst(g.email))) fouten.push({ veld: "email", tekst: "Vul een e-mailadres in waar u bij kunt." });
-  if (tekst(g.organisatie).length < 2) fouten.push({ veld: "organisatie", tekst: "Vul de naam van uw organisatie in." });
-  if (g.privacy !== true) fouten.push({ veld: "privacy", tekst: "Zonder akkoord op de privacyverklaring kunnen we u de uitslag niet mailen." });
+  if (tekst(g.naam).length < 2) fouten.push({ veld: "naam", tekst: "Vul je naam in." });
+  if (!MAIL.test(tekst(g.email))) fouten.push({ veld: "email", tekst: "Vul een e-mailadres in waar je bij kunt." });
+  if (tekst(g.organisatie).length < 2) fouten.push({ veld: "organisatie", tekst: "Vul de naam van je organisatie in." });
+  if (g.privacy !== true) fouten.push({ veld: "privacy", tekst: "Zonder akkoord op de privacyverklaring kunnen we je de uitslag niet mailen." });
   return { ok: fouten.length === 0, fouten };
 }
 
@@ -208,5 +208,5 @@ export function maakInzending(body = {}){
 }
 
 export function mailOnderwerp(score){
-  return `Uw volhoudkrachtscore: ${score}`;
+  return `Jouw volhoudkrachtscore: ${score}`;
 }

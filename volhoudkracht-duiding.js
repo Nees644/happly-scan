@@ -7,18 +7,18 @@
 import { vulWoord, DIMENSIES, BANDEN } from "./volhoudkracht-items.js";
 
 export const BAND_TEKST = {
-  start: "Uw [programma] is gebouwd op het begin: de intake, de bijeenkomsten, de energie van de start. Dat is waar het sterk in is. Daarna houdt het op, en daar verdwijnt het resultaat. Niet omdat deelnemers niet willen, maar omdat beginnen en volhouden twee verschillende processen zijn. Het eerste heeft u georganiseerd. Het tweede nog niet.",
-  bedoeld: "Uw [programma] weet dat volhouden het werk is. Het staat in uw teksten en uw begeleiders doen het op gevoel. Wat ontbreekt is de inrichting: vaste stappen die elke deelnemer krijgt, ook als de begeleider het druk heeft. Volhouden dat van een persoon afhangt, valt stil zodra die persoon wegvalt.",
-  georganiseerd: "Uw [programma] organiseert volhouden. Het heeft vaste stappen voor reden, plan, ritme, weerstand en contact. De vraag die overblijft is of u het ook meet: zonder cijfer weet u niet wat werkt en kunt u het niet aantonen aan wie ervoor betaalt."
+  start: "Jouw [programma] is gebouwd op het begin: de intake, de bijeenkomsten, de energie van de start. Dat is waar het sterk in is. Daarna houdt het op, en daar verdwijnt het resultaat. Niet omdat deelnemers niet willen, maar omdat beginnen en volhouden twee verschillende processen zijn. Het eerste heb je georganiseerd. Het tweede nog niet.",
+  bedoeld: "Jouw [programma] weet dat volhouden het werk is. Het staat in je teksten en je begeleiders doen het op gevoel. Wat ontbreekt is de inrichting: vaste stappen die elke deelnemer krijgt, ook als de begeleider het druk heeft. Volhouden dat van een persoon afhangt, valt stil zodra die persoon wegvalt.",
+  georganiseerd: "Jouw [programma] organiseert volhouden. Het heeft vaste stappen voor reden, plan, ritme, weerstand en contact. De vraag die overblijft is of je het ook meet: zonder cijfer weet je niet wat werkt en kun je het niet aantonen aan wie ervoor betaalt."
 };
 
 export const SCHAKEL_TEKST = {
   R: {
-    duiding: "Deelnemers beginnen met uw reden, niet met de hunne. Wie niet in eigen woorden weet waarvoor hij het doet, heeft op het moeilijke moment niets om aan vast te houden.",
+    duiding: "Deelnemers beginnen met je reden, niet met de hunne. Wie niet in eigen woorden weet waarvoor hij het doet, heeft op het moeilijke moment niets om aan vast te houden.",
     aanbod: "De Volhoudkaart als vaste stap aan het begin, waarin de deelnemer zijn waarom, zijn gedrag en zijn als-dan vastlegt, en Zetjes dat die reden letterlijk teruggeeft als het wegzakt."
   },
   P: {
-    duiding: "Uw deelnemers hebben een doel maar geen gedrag. Een doel is iets voor later; gedrag is iets voor morgenochtend. Zonder als-dan-plan beslist het moeilijke moment, en dat moment kiest altijd de oude gewoonte.",
+    duiding: "Jouw deelnemers hebben een doel maar geen gedrag. Een doel is iets voor later; gedrag is iets voor morgenochtend. Zonder als-dan-plan beslist het moeilijke moment, en dat moment kiest altijd de oude gewoonte.",
     aanbod: "De Volhoudkaart, met het gedrag zo klein dat overslaan lastiger is dan doen."
   },
   T: {
@@ -26,20 +26,20 @@ export const SCHAKEL_TEKST = {
     aanbod: "Ritme en cue als stap in de Volhoudkaart, en Zetjes op het zelfgekozen moment, tot dag 66."
   },
   W: {
-    duiding: "Uw [programma] rekent op motivatie en wordt verrast door weerstand. Inertia, scepsis en reactance zijn niet hetzelfde en vragen een ander antwoord. Een deelnemer die niet gelooft dat het lukt, heeft niets aan aanmoediging.",
-    aanbod: "De Zelfkracht Scan bij de start, zodat u per deelnemer weet wat hem tegenhoudt, en Zetjes dat daarop is afgestemd."
+    duiding: "Jouw [programma] rekent op motivatie en wordt verrast door weerstand. Inertia, scepsis en reactance zijn niet hetzelfde en vragen een ander antwoord. Een deelnemer die niet gelooft dat het lukt, heeft niets aan aanmoediging.",
+    aanbod: "De Zelfkracht Scan bij de start, zodat je per deelnemer weet wat hem tegenhoudt, en Zetjes dat daarop is afgestemd."
   },
   C: {
-    duiding: "Dit is waar bijna elk [programma] stilvalt: tussen de bijeenkomsten en na de laatste bijeenkomst. Daar gebeurt het volhouden, en daar is niemand. Niet omdat u niet wilt, maar omdat het uren kost die er niet zijn.",
-    aanbod: "Volhouden inside met Zetjes: een zetje op het moeilijke moment, tot dag 66, zonder uren van uw begeleiders."
+    duiding: "Dit is waar bijna elk [programma] stilvalt: tussen de bijeenkomsten en na de laatste bijeenkomst. Daar gebeurt het volhouden, en daar is niemand. Niet omdat je niet wilt, maar omdat het uren kost die er niet zijn.",
+    aanbod: "Volhouden inside met Zetjes: een zetje op het moeilijke moment, tot dag 66, zonder uren van je begeleiders."
   },
   M: {
-    duiding: "U weet niet wat uw [programma] oplevert na drie maanden. Dan kunt u het niet verbeteren en niet aantonen. Elke deelnemer die u niet meet, is een resultaat dat u niet kunt claimen.",
-    aanbod: "Gewoontemeting onderweg en hermeting op dag 66 tot 100, met aantallen voor u en nooit inhoud van de deelnemer; later de Progress Monitor."
+    duiding: "Je weet niet wat je [programma] oplevert na drie maanden. Dan kun je het niet verbeteren en niet aantonen. Elke deelnemer die je niet meet, is een resultaat dat je niet kunt claimen.",
+    aanbod: "Gewoontemeting onderweg en hermeting op dag 66 tot 100, met aantallen voor je en nooit inhoud van de deelnemer; later de Progress Monitor."
   }
 };
 
-export const SLOT_TEKST = "Dit is een ontwerpscore: hij zegt wat uw [programma] belooft. Wat het doet, blijkt uit de meting bij uw deelnemers. Het kennen van de zes dimensies maakt nog geen [programma] dat ze waarmaakt; organiseren is het werk. Dat is wat Happly doet: wij meten, ontwerpen, organiseren en rapporteren volhouden.";
+export const SLOT_TEKST = "Dit is een ontwerpscore: hij zegt wat je [programma] belooft. Wat het doet, blijkt uit de meting bij je deelnemers. Het kennen van de zes dimensies maakt nog geen [programma] dat ze waarmaakt; organiseren is het werk. Dat is wat Happly doet: wij meten, ontwerpen, organiseren en rapporteren volhouden.";
 
 // Alles wat de uitslagpagina en de mail nodig hebben, in het woord van de
 // invuller.

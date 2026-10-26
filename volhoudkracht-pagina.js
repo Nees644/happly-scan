@@ -35,7 +35,7 @@ export function bouwUitslagPagina(rij, { aantalScans = 0, gemiddelde = null } = 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uw volhoudkrachtscore: ${rij.score} · Happly</title>
+<title>Jouw volhoudkrachtscore: ${rij.score} · Happly</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,7 +91,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
   </section>
 
   <section class="kaart">
-    <p class="eyebrow">Uw zwakste schakel</p>
+    <p class="eyebrow">Jouw zwakste schakel</p>
     <h2>${esc(d.zwaksteNaam)}</h2>
     <p>${esc(d.zwaksteTekst)}</p>
     <p style="margin-top:12px"><b>Wat daar te doen is.</b> ${esc(d.aanbod)}</p>
@@ -99,7 +99,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
 
   <section class="kaart">
     <p class="eyebrow">De rekensom</p>
-    <p>Wat levert één deelnemer op die uw ${esc(rij.woord)} afmaakt, en hoeveel stoppen er nu? Vul uw eigen getallen in de rekenhulp in; voor leefstijlprogramma's staan de landelijke cijfers vooraf ingevuld.</p>
+    <p>Wat levert één deelnemer op die je ${esc(rij.woord)} afmaakt, en hoeveel stoppen er nu? Vul je eigen getallen in de rekenhulp in; voor leefstijlprogramma's staan de landelijke cijfers vooraf ingevuld.</p>
     <a class="knop" href="https://happly.nl/rekenhulp-gli.html">Open de rekenhulp</a>
   </section>
 
@@ -107,7 +107,7 @@ footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:va
     <p class="eyebrow">Wat dit getal is</p>
     <p>${esc(d.slot)}</p>
     <a class="knop" href="${CAL_URL}">Plan een gesprek met Maarten</a>
-    <p class="klein" style="color:#E6CCDA">Of antwoord op de mail met uw uitslag.</p>
+    <p class="klein" style="color:#E6CCDA">Of antwoord op de mail met je uitslag.</p>
   </section>
 </main>
 <footer><div class="wrap">Happly · maarten@happly.nl · 085 878 59 61 · <a href="/privacy">Privacy</a></div></footer>

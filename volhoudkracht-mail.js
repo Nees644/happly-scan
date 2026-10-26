@@ -44,13 +44,13 @@ export function uitslagUrl(token, basis = BASIS_URL){
 
 export function resultaatMail({ naam, score, band, zwakste, woord, programma_naam, token, basis = BASIS_URL }){
   const d = duiding({ woord, band, zwakste });
-  const naamregel = voornaam(naam) ? `Beste ${esc(voornaam(naam))},` : "Beste lezer,";
+  const naamregel = voornaam(naam) ? `Hallo ${esc(voornaam(naam))},` : "Hallo,";
   const inhoud =
     p(naamregel) +
-    p(`Uw ${esc(woord)} <b>${esc(programma_naam)}</b> scoort <b style="color:${PK}">${score}</b> op volhoudkracht. ${esc(d.bandKop)}.`) +
-    p(`Uw zwakste schakel is <b>${esc(d.zwaksteNaam)}</b>. ${esc(d.zwaksteTekst)}`) +
+    p(`Jouw ${esc(woord)} <b>${esc(programma_naam)}</b> scoort <b style="color:${PK}">${score}</b> op volhoudkracht. ${esc(d.bandKop)}.`) +
+    p(`Jouw zwakste schakel is <b>${esc(d.zwaksteNaam)}</b>. ${esc(d.zwaksteTekst)}`) +
     knop("Bekijk de volledige uitslag", uitslagUrl(token, basis)) +
-    p(`Wilt u weten wat het kost om die schakel te organiseren? Antwoord op deze mail of <a href="${CAL_URL}" style="color:${PK}">plan een gesprek</a>.`, "margin-top:18px") +
+    p(`Wil je weten wat het kost om die schakel te organiseren? Antwoord op deze mail of <a href="${CAL_URL}" style="color:${PK}">plan een gesprek</a>.`, "margin-top:18px") +
     p("Maarten Neeskens, Happly");
   return { subject: mailOnderwerp(score), html: shell(inhoud) };
 }

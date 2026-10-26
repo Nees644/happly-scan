@@ -13,7 +13,7 @@ wordt ingevuld door de professional over één concreet programma. De uitslag is
 een volhoudkrachtscore van 0 tot 100, zes dimensiescores, de zwakste schakel
 en het aanbod dat daarbij hoort.
 
-Naar buiten is het draagwoord **programma**; de ondertitel noemt training,
+Aanspreekvorm: je en jouw, zoals op happly.nl (besloten 26 oktober 2026). Naar buiten is het draagwoord **programma**; de ondertitel noemt training,
 traject en interventie. De scan vraagt als eerste wat de invuller aanbiedt en
 gebruikt daarna zijn eigen woord. Impuls blijft een intern woord.
 

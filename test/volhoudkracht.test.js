@@ -123,7 +123,7 @@ test("het formulier weigert een halve invulling en de rij bevat de scores van de
 test("de mail noemt het getal, de band en de zwakste schakel en linkt naar de uitslag", () => {
   const m = resultaatMail({ naam: "Anna de Vries", score: 56, band: "bedoeld", zwakste: "C", woord: "training", programma_naam: "Leidinggeven voor starters", token: "11111111-1111-1111-1111-111111111111" });
   assert.equal(m.subject, mailOnderwerp(56));
-  assert.ok(m.html.includes("Beste Anna,"));
+  assert.ok(m.html.includes("Hallo Anna,"));
   assert.ok(m.html.includes(">56<"));
   assert.ok(m.html.includes("Contact"));
   assert.ok(m.html.includes(uitslagUrl("11111111-1111-1111-1111-111111111111")));
@@ -136,7 +136,7 @@ test("de uitslagpagina toont de zes dimensies en de zwakste schakel, en nooit ee
   const html = bouwUitslagPagina(rij, { aantalScans: 12, gemiddelde: 55 });
   for (const d of DIMENSIES) assert.ok(html.includes(`<span>${d.naam}</span>`), d.naam);
   assert.ok(html.includes(">56<"));
-  assert.ok(html.includes("Uw zwakste schakel"));
+  assert.ok(html.includes("Jouw zwakste schakel"));
   assert.ok(!html.includes("gemiddelde van alle scans"), "geen gemiddelde onder de dertig scans");
   assert.ok(!/rangl|positie|plaats \d|top \d/i.test(html), "geen ranglijst");
   assert.ok(!html.includes("[programma]"));
