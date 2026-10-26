@@ -8,7 +8,7 @@ en de duidingen; daarna wordt de route gebouwd als kopie van het Leidersbeeld
 
 De Volhoudkracht Scan meet hoeveel volhoudkracht er zit in een programma,
 training, traject of interventie: organiseert de impuls alleen het begin, of
-ook het gedrag tot het een gewoonte is. Hij is gratis, duurt twaalf minuten en
+ook het gedrag tot het een gewoonte is. Hij is gratis, kort (naar buiten nooit een aantal minuten) en
 wordt ingevuld door de professional over één concreet programma. De uitslag is
 een volhoudkrachtscore van 0 tot 100, zes dimensiescores, de zwakste schakel
 en het aanbod dat daarbij hoort.
@@ -323,7 +323,7 @@ zonder ranglijst; dat is de ingang naar de Progress Monitor.
 Kop: **Hoeveel volhoudkracht zit er in uw programma?**
 
 Onder de kop: Voor trainingen, programma's, trajecten en interventies.
-Gratis, twaalf minuten, direct uw score en uw zwakste schakel.
+Gratis, kort, direct je score en uw zwakste schakel.
 
 Inleiding: Een goed programma organiseert het begin: de intake, de
 bijeenkomsten, de energie van de start. Het resultaat ontstaat daarna, als
