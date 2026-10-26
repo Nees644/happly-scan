@@ -14,6 +14,10 @@
       "destination": "/api/leider?t=:token"
     },
     {
+      "source": "/volhoudkracht/:token",
+      "destination": "/api/volhoudkracht-uitslag?t=:token"
+    },
+    {
       "source": "/betaald",
       "destination": "/betaald.html"
     },
@@ -124,6 +128,12 @@
     },
     "api/leidersbeeld.js": {
       "maxDuration": 15
+    },
+    "api/volhoudkracht.js": {
+      "maxDuration": 15
+    },
+    "api/volhoudkracht-uitslag.js": {
+      "maxDuration": 10
     },
     "api/leider.js": {
       "maxDuration": 10
