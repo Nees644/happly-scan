@@ -54,6 +54,9 @@ td:first-child{font-weight:600}
 .vraag b{display:block;font-family:var(--serif);font-weight:400;font-size:12.5pt;margin-bottom:3pt}
 .bronnen{font-size:9pt;color:var(--grijs)}
 .bronnen li{margin-bottom:3pt}
+.figuur{margin:6pt 0 12pt;page-break-inside:avoid}
+.figuur svg{display:block;width:100%;height:auto}
+.figuur figcaption{font-size:8.5pt;color:var(--grijs);margin-top:4pt}
 .sluit{margin-top:14pt;font-size:9.5pt;color:var(--grijs);border-top:1px solid var(--lijn);padding-top:8pt}
 </style>
 </head>
@@ -174,10 +177,155 @@ td:first-child{font-weight:600}
   </div>
 </section>
 
-<section class="deel">
+<section class="deel nieuwe-pagina">
   <div class="eyebrow">Deel 8</div>
   <h2>Wat <span>Happly</span> doet</h2>
   <p>Happly organiseert volhouden in programma's van anderen: leefstijl, bewegen, rookvrij, fietsen, bedrijfstrainingen. Jouw bijeenkomst blijft van jou. Wij regelen wat er omheen moet gebeuren, zonder uren van je begeleiders.</p>
+  <figure class="figuur">
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Succeskracht: het effect van een interventie, met en zonder Zetjes en Behavior Intelligence" viewBox="60 110 1500 710" width="100%" height="auto" font-family="'DM Sans', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowDark" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A0B2E"/>
+    </marker>
+    <marker id="arrowPink" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D6026F"/>
+    </marker>
+  </defs>
+
+  
+
+
+  <!-- axes -->
+  <line x1="150" y1="620" x2="1460" y2="620" stroke="#1A0B2E" stroke-width="2.5" marker-end="url(#arrowDark)"/>
+  <line x1="150" y1="620" x2="150" y2="150" stroke="#1A0B2E" stroke-width="2.5" marker-end="url(#arrowDark)"/>
+  <text x="140" y="140" text-anchor="end" font-size="20" font-weight="600" fill="#1A0B2E">Effect</text>
+  <text x="1470" y="648" text-anchor="end" font-size="20" font-weight="600" fill="#1A0B2E">Tijd</text>
+
+  <!-- Behavior Analyst zone (vooraf) -->
+  <rect x="165" y="165" width="170" height="440" rx="6" fill="#fdf1f7" stroke="#D6026F" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="250" y="195" text-anchor="middle" font-size="18" font-weight="700" fill="#D6026F">Behavior</text>
+  <text x="250" y="217" text-anchor="middle" font-size="18" font-weight="700" fill="#D6026F">Analyst</text>
+  <text x="250" y="245" text-anchor="middle" font-size="14" fill="#D6026F">gedragsanalyse vooraf</text>
+  <g font-size="13" fill="#7a4a63">
+    <text x="250" y="300" text-anchor="middle">scans</text>
+    <text x="250" y="322" text-anchor="middle">interviews</text>
+    <text x="250" y="344" text-anchor="middle">data</text>
+    <text x="250" y="384" text-anchor="middle" font-weight="600">inzicht in</text>
+    <text x="250" y="402" text-anchor="middle" font-weight="600">gedragsbepalers</text>
+    <text x="250" y="440" text-anchor="middle">input voor strategie</text>
+    <text x="250" y="458" text-anchor="middle">en interventiedesign</text>
+  </g>
+  <g stroke="#D6026F" stroke-width="2" stroke-linecap="round">
+    <line x1="190" y1="590" x2="190" y2="572"/>
+    <line x1="215" y1="590" x2="215" y2="578"/>
+    <line x1="240" y1="590" x2="240" y2="568"/>
+    <line x1="265" y1="590" x2="265" y2="576"/>
+    <line x1="290" y1="590" x2="290" y2="570"/>
+  </g>
+  <line x1="320" y1="520" x2="352" y2="542" stroke="#D6026F" stroke-width="3" marker-end="url(#arrowPink)"/>
+
+  <!-- Behavior Intelligence measurement zone -->
+  <rect x="730" y="240" width="625" height="170" rx="6" fill="#f5f1fa" stroke="#9a8fb6" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="745" y="265" font-size="18" font-weight="700" fill="#5b4d7a">Behavior Intelligence</text>
+  <text x="745" y="286" font-size="15" fill="#5b4d7a">continu meten op procesdata</text>
+  <!-- tick marks: metingen -->
+  <g stroke="#5b4d7a" stroke-width="2" stroke-linecap="round">
+    <line x1="760" y1="400" x2="760" y2="380"/>
+    <line x1="785" y1="400" x2="785" y2="388"/>
+    <line x1="810" y1="400" x2="810" y2="376"/>
+    <line x1="835" y1="400" x2="835" y2="390"/>
+    <line x1="860" y1="400" x2="860" y2="372"/>
+    <line x1="885" y1="400" x2="885" y2="386"/>
+    <line x1="910" y1="400" x2="910" y2="378"/>
+    <line x1="935" y1="400" x2="935" y2="392"/>
+    <line x1="960" y1="400" x2="960" y2="374"/>
+    <line x1="985" y1="400" x2="985" y2="384"/>
+    <line x1="1010" y1="400" x2="1010" y2="370"/>
+    <line x1="1035" y1="400" x2="1035" y2="390"/>
+    <line x1="1060" y1="400" x2="1060" y2="380"/>
+    <line x1="1085" y1="400" x2="1085" y2="372"/>
+    <line x1="1110" y1="400" x2="1110" y2="388"/>
+    <line x1="1135" y1="400" x2="1135" y2="376"/>
+    <line x1="1160" y1="400" x2="1160" y2="394"/>
+    <line x1="1185" y1="400" x2="1185" y2="378"/>
+    <line x1="1210" y1="400" x2="1210" y2="384"/>
+    <line x1="1235" y1="400" x2="1235" y2="370"/>
+    <line x1="1260" y1="400" x2="1260" y2="390"/>
+    <line x1="1285" y1="400" x2="1285" y2="380"/>
+    <line x1="1310" y1="400" x2="1310" y2="374"/>
+    <line x1="1335" y1="400" x2="1335" y2="386"/>
+  </g>
+  <text x="745" y="432" font-size="14" fill="#5b4d7a" font-style="italic">| = meting in het proces (voortgang, voorspelde uitkomst, benodigd zetje)</text>
+
+  <!-- purple curve: zonder Zetjes -->
+  <path d="M 365 560 C 470 540, 480 180, 560 180 C 620 180, 665 255, 720 300 C 850 410, 1050 540, 1320 580"
+        fill="none" stroke="#a89cc8" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="365" cy="560" r="9" fill="#1A0B2E"/>
+  <circle cx="1320" cy="580" r="9" fill="#a89cc8"/>
+  <text x="352" y="602" font-size="22" font-weight="700" fill="#1A0B2E">M</text>
+  <text x="385" y="602" font-size="13" fill="#6B6472">start impuls</text>
+  <text x="560" y="160" text-anchor="middle" font-size="24" font-weight="700" fill="#1A0B2E">I</text>
+  <text x="1030" y="550" font-size="15" fill="#7d72a0" font-style="italic" transform="rotate(16 1030 550)">zonder Zetjes</text>
+
+  <!-- pink curve: met Zetjes -->
+  <path d="M 720 300 C 760 320, 790 345, 830 345 C 870 345, 890 300, 930 300 C 970 300, 990 355, 1030 355 C 1070 355, 1090 310, 1130 310 C 1170 310, 1190 365, 1230 365 C 1270 365, 1290 325, 1320 330"
+        fill="none" stroke="#D6026F" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="1320" cy="330" r="9" fill="#D6026F"/>
+  <text x="640" y="330" font-size="15" fill="#D6026F" font-style="italic" font-weight="600">met Zetjes</text>
+
+  <!-- Zetjes: push + Z -->
+  <g>
+    <line x1="815" y1="378" x2="843" y2="360" stroke="#D6026F" stroke-width="3" marker-end="url(#arrowPink)"/>
+    <circle cx="862" cy="340" r="20" fill="#D6026F"/>
+    <text x="862" y="347" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">Z</text>
+
+    <line x1="1015" y1="388" x2="1043" y2="370" stroke="#D6026F" stroke-width="3" marker-end="url(#arrowPink)"/>
+    <circle cx="1062" cy="350" r="20" fill="#D6026F"/>
+    <text x="1062" y="357" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">Z</text>
+
+    <line x1="1215" y1="398" x2="1243" y2="380" stroke="#D6026F" stroke-width="3" marker-end="url(#arrowPink)"/>
+    <circle cx="1262" cy="360" r="20" fill="#D6026F"/>
+    <text x="1262" y="367" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">Z</text>
+  </g>
+
+  <!-- M' difference bracket -->
+  <path d="M 1375 330 L 1392 330 L 1392 580 L 1375 580" fill="none" stroke="#1A0B2E" stroke-width="2"/>
+  <text x="1405" y="450" font-size="22" font-weight="700" fill="#1A0B2E">M'</text>
+  <text x="1405" y="474" font-size="14" fill="#6B6472">het verschil</text>
+
+  <!-- legend -->
+  <line x1="80" y1="690" x2="1520" y2="690" stroke="#e6e2ea" stroke-width="1.5"/>
+  <g font-size="16">
+    <circle cx="100" cy="735" r="14" fill="#D6026F"/>
+    <text x="100" y="740" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">0</text>
+    <text x="125" y="741" font-size="20" font-weight="700" fill="#1A0B2E">Behavior Analyst</text>
+    <text x="125" y="768" fill="#6B6472">gedragsanalyse vooraf:</text>
+    <text x="125" y="792" fill="#6B6472">scans, interviews, data</text>
+
+    <circle cx="400" cy="735" r="14" fill="#D6026F"/>
+    <text x="400" y="740" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">1</text>
+    <text x="425" y="741" font-size="20" font-weight="700" fill="#1A0B2E">M  Inzicht</text>
+    <text x="425" y="768" fill="#6B6472">nulmeting, hier begint de impuls</text>
+
+    <circle cx="700" cy="735" r="14" fill="#D6026F"/>
+    <text x="700" y="740" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
+    <text x="725" y="741" font-size="20" font-weight="700" fill="#1A0B2E">I  Impuls</text>
+    <text x="725" y="768" fill="#6B6472">jouw training of interventie</text>
+
+    <circle cx="980" cy="735" r="14" fill="#D6026F"/>
+    <text x="980" y="740" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">3</text>
+    <text x="1005" y="741" font-size="20" font-weight="700" fill="#1A0B2E">Z  Volhouden</text>
+    <text x="1005" y="768" fill="#6B6472">Zetjes in de praktijk en</text>
+    <text x="1005" y="792" fill="#6B6472">Behavior Intelligence op procesdata</text>
+
+    <circle cx="1290" cy="735" r="14" fill="#D6026F"/>
+    <text x="1290" y="740" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">4</text>
+    <text x="1315" y="741" font-size="20" font-weight="700" fill="#1A0B2E">M'  Succes</text>
+    <text x="1315" y="768" fill="#6B6472">hermeting: het verschil</text>
+  </g>
+</svg>
+    <figcaption>Figuur: Succeskracht. Het effect van een programma, met en zonder georganiseerd volhouden. De streepjes zijn metingen in het proces.</figcaption>
+  </figure>
   <ul>
     <li><b>Meten.</b> De Volhoudkracht Scan voor je programma. De Zelfkracht Scan per deelnemer, zodat je weet wat ieder tegenhoudt. De gewoontemeting onderweg en de hermeting op dag 66 tot 100.</li>
     <li><b>Ontwerpen.</b> Het Volhoudontwerp: in één dag je programma inrichten op de zes dimensies.</li>
@@ -188,7 +336,7 @@ td:first-child{font-weight:600}
   <p class="sluit">maarten@happly.nl · 085 878 59 61 · happly.nl</p>
 </section>
 
-<section class="deel">
+<section class="deel nieuwe-pagina">
   <div class="eyebrow">Bronnen</div>
   <ul class="bronnen">
     <li>RIVM, 60 procent rondt leefstijlprogramma GLI af; meer maatwerk nodig om uitval terug te dringen, 2 september 2025. rivm.nl</li>

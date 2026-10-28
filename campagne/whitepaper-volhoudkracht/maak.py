@@ -1,7 +1,7 @@
 import asyncio
 from playwright.async_api import async_playwright
 from pypdf import PdfReader, PdfWriter
-URL='file:///tmp/claude-0/-home-claude/e80a6dfb-446e-5b48-953b-d08f8f3ca825/scratchpad/whitepaper/volhoudkracht.html'
+URL='file:///home/claude/happly-scan/campagne/whitepaper-volhoudkracht/volhoudkracht.html'
 VOET='<div style="width:100%;font-family:Helvetica,Arial,sans-serif;font-size:7.5pt;color:#6B6472;padding:0 20mm;display:flex;justify-content:space-between"><span>Happly · Volhoudkracht</span><span class="pageNumber"></span></div>'
 async def main():
     async with async_playwright() as p:
