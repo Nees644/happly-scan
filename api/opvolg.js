@@ -21,6 +21,7 @@ import { Resend } from "resend";
 import { ACTIEVE_TREDE, TREDES } from "../sprint-config.js";
 import { magHerinneren, HERINNERING_NA_DAGEN } from "../leidersbeeld.js";
 import { herinneringMail } from "../leidersbeeld-mail.js";
+import { stuurHerinneringen as zelfstartersHerinneringen } from "../zelfstarters-verwerken.js";
 
 const BASE = "https://scan.happly.nl";
 
@@ -199,7 +200,12 @@ export default async function handler(req, res){
       }
     }catch(e){ herinnerd = -1; }
 
-    res.status(200).json({ ok: true, verstuurd, herinnerd });
+    // Zelfstartregister: wie betaalde en na een dag nog niet heeft gemeten,
+    // krijgt één herinnering. Stil bij een fout; morgen opnieuw.
+    let zelfstarters = 0;
+    try{ zelfstarters = await zelfstartersHerinneringen(db); }catch(e){ zelfstarters = -1; }
+
+    res.status(200).json({ ok: true, verstuurd, herinnerd, zelfstarters });
   }catch(e){
     res.status(500).json({ error: "opvolg mislukt" });
   }

@@ -7,6 +7,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { doelVelden, berekenIndividueleRuimte } from "../teamkracht-ruimte-db.js";
 import { ruimteGegevens, doelBlokHtml, ruimteBlokHtml } from "../teamkracht-ruimte-blokken.js";
+import { koppelMeting } from "../zelfstarters-verwerken.js";
 
 async function meldAanReis({ reisToken, meting, scanId, index, zien, sturen, doen }){
   const url = (process.env.REIS_URL || "").replace(/\/$/, "");
@@ -27,7 +28,7 @@ export default async function handler(req, res){
   if (req.method !== "POST"){ res.status(405).json({error:"method"}); return; }
   try{
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype, doel_datum, reis, meting } = body;
+    const { index, zien, sturen, doen, items, age, work, duiding, duiding_fallback, deel_zin, team, doel_tekst, doeltype, doel_datum, reis, meting, zs } = body;
     if ([index,zien,sturen,doen].some(v => typeof v !== "number")){
       res.status(400).json({error:"ongeldige invoer"}); return;
     }
@@ -120,6 +121,13 @@ export default async function handler(req, res){
     // functie daarna). Mislukt de melding, dan staat de meting er gewoon en
     // komt er alleen een regel in de log; de deelnemer merkt niets.
     if (reisToken) await meldAanReis({ reisToken, meting: reisMeting, scanId: r.data.id, index, zien, sturen, doen });
+
+    // Koppeling aan het Zelfstartregister (scan?zs=<registratie_id>). Afgewacht
+    // voor de respons, om dezelfde reden als de reis. Een onbekende of
+    // onbetaalde registratie doet niets; de meting staat er hoe dan ook.
+    if (typeof zs === "string" && /^[0-9a-f-]{36}$/i.test(zs)){
+      try{ await koppelMeting(db, zs, r.data.id); }catch(e){ console.error("zelfstarters koppeling", e.message); }
+    }
 
     res.status(200).json({ id: r.data.id, deel_id: r.data.deel_id || null, blokken });
   }catch(e){

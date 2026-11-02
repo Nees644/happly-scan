@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betaling · Zelfstartregister</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Nunito,system-ui,sans-serif;background:#f6f4ef;color:#121826;line-height:1.55}
+.w{max-width:560px;margin:0 auto;padding:36px 20px 60px}
+.brand{display:flex;align-items:center;gap:10px;font-family:Outfit,sans-serif;font-weight:800;text-decoration:none;color:#121826;font-size:1.15rem}
+.brand small{display:block;font-family:Nunito;font-weight:600;font-size:.7rem;color:#5b6478;letter-spacing:.08em;text-transform:uppercase}
+h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 8px}
+.m{color:#5b6478}
+.card{background:#fff;border:1px solid #e3dfd6;border-radius:22px;padding:28px;margin-top:22px}
+.btn{display:inline-block;background:#ff6a2b;color:#fff;padding:15px 28px;border-radius:14px;font-family:Outfit,sans-serif;font-weight:700;font-size:1.05rem;text-decoration:none;margin-top:16px}
+</style>
+</head>
+<body><div class="w">
+<a class="brand" href="https://zelfstarters.nl"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>Zelfstartregister voor zelfstandige professionals</small></span></a>
+<div id="inhoud"><h1>Even kijken</h1><p class="m">We halen de stand van je betaling op.</p></div>
+</div>
+<script>
+(async function(){
+  const z = new URLSearchParams(location.search).get("z") || "";
+  const el = document.getElementById("inhoud");
+  let d = null;
+  for (let i = 0; i < 6; i++){
+    try{ const r = await fetch("/api/zelfstarters-status?z=" + encodeURIComponent(z)); d = await r.json(); }catch(e){}
+    if (d && d.status && d.status !== "open") break;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  if (!d || !d.status){
+    el.innerHTML = '<h1>Dat ging niet goed</h1><p class="m">We konden je registratie niet vinden. Mail naar info@zelfstarters.nl, dan kijken we mee.</p>'; return;
+  }
+  if (d.status === "betaald"){
+    el.innerHTML = '<h1>Gelukt, ' + (d.voornaam || "") + '</h1>' +
+      '<div class="card"><p>Je registratie is binnen. Nu je nulmeting: tien minuten, in één keer af, je eigen antwoorden. Daarna heb je morgen je registratienummer en badge in je mail.</p>' +
+      '<a class="btn" href="' + d.scan_url + '">Doe je nulmeting</a>' +
+      '<p class="m" style="font-size:.9rem;margin-top:14px">Liever later? De link staat ook in de mail die je zojuist hebt ontvangen.</p></div>';
+  }else if (d.status === "open"){
+    el.innerHTML = '<h1>Nog even</h1><p class="m">Je betaling is nog niet bevestigd. Ververs deze pagina over een minuut, of kijk in je mail.</p>';
+  }else{
+    el.innerHTML = '<h1>Niet gelukt</h1><p class="m">De betaling is niet doorgegaan. <a href="/zelfstarters?type=' + (d.type || "standaard") + '" style="color:#0f1f3d;font-weight:700">Probeer het opnieuw</a>.</p>';
+  }
+})();
+</script>
+</body>
+</html>

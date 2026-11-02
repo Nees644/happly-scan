@@ -36,6 +36,18 @@
     {
       "source": "/verificatie/:code",
       "destination": "/api/register?code=:code"
+    },
+    {
+      "source": "/zelfstarters",
+      "destination": "/zelfstarters.html"
+    },
+    {
+      "source": "/zelfstarters/betaald",
+      "destination": "/zelfstarters-betaald.html"
+    },
+    {
+      "source": "/zs/:nummer",
+      "destination": "/api/zelfstarters-check?nummer=:nummer"
     }
   ],
   "functions": {
@@ -157,6 +169,21 @@
       "maxDuration": 10
     },
     "api/badge.js": {
+      "maxDuration": 10
+    },
+    "api/zelfstarters-start.js": {
+      "maxDuration": 20
+    },
+    "api/zelfstarters-webhook.js": {
+      "maxDuration": 20
+    },
+    "api/zelfstarters-status.js": {
+      "maxDuration": 20
+    },
+    "api/zelfstarters-check.js": {
+      "maxDuration": 10
+    },
+    "api/zelfstarters-badge.js": {
       "maxDuration": 10
     }
   },

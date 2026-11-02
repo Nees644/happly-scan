@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registreren · Zelfstartregister</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f1f3d;--ink:#121826;--muted:#5b6478;--paper:#f6f4ef;--orange:#ff6a2b;--line:#e3dfd6}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55}
+.w{max-width:560px;margin:0 auto;padding:36px 20px 60px}
+.brand{display:flex;align-items:center;gap:10px;font-family:Outfit,sans-serif;font-weight:800;text-decoration:none;color:var(--ink);font-size:1.15rem}
+.brand small{display:block;font-family:Nunito;font-weight:600;font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 8px}
+.m{color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;margin-top:22px}
+.keuze{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.keuze label{border:2px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;display:block}
+.keuze input{display:none}
+.keuze input:checked + div{outline:3px solid var(--orange);outline-offset:-3px;border-radius:14px}
+.keuze div{padding:2px 4px}
+.keuze b{font-family:Outfit,sans-serif;font-size:1.05rem;display:block}
+.keuze .p{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:1.4rem}
+.keuze small{color:var(--muted);display:block;font-size:.8rem}
+label.v{display:block;font-weight:700;font-size:.9rem;margin:12px 0 6px}
+input[type=text],input[type=email]{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:14px;font:inherit;font-size:1rem}
+.btn{display:block;width:100%;background:var(--orange);color:#fff;border:0;padding:15px;border-radius:14px;font-family:Outfit,sans-serif;font-weight:700;font-size:1.05rem;cursor:pointer;margin-top:18px}
+.btn[disabled]{opacity:.6;cursor:wait}
+.fout{color:#b23b0a;font-weight:700;margin-top:10px;display:none}
+.foot{font-size:.85rem;color:var(--muted);margin-top:16px}
+@media(max-width:480px){.keuze{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="w">
+<a class="brand" href="https://zelfstarters.nl"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>Zelfstartregister voor zelfstandige professionals</small></span></a>
+
+<h1>Registreer en meet vandaag</h1>
+<p class="m">Na betaling doe je direct je nulmeting. Morgen heb je je registratienummer en badge in je mail.</p>
+
+<form class="card" id="f">
+  <div class="keuze">
+    <label><input type="radio" name="type" value="standaard" checked><div><b>Standaard</b><span class="p">€ 79</span><small>per jaar, excl. btw · founding-tarief tot 31 december</small></div></label>
+    <label><input type="radio" name="type" value="plus"><div><b>Plus Class</b><span class="p">€ 299</span><small>eerste jaar, excl. btw · dag live in januari, Zaltbommel</small></div></label>
+  </div>
+  <label class="v" for="naam">Je naam</label>
+  <input type="text" id="naam" name="naam" autocomplete="name" required placeholder="Voor- en achternaam">
+  <label class="v" for="email">Je e-mailadres</label>
+  <input type="email" id="email" name="email" autocomplete="email" required placeholder="naam@bedrijf.nl">
+  <button class="btn" id="knop" type="submit">Naar betalen</button>
+  <div class="fout" id="fout"></div>
+  <p class="foot">Je betaalt via Mollie (iDEAL, creditcard). Na betaling kom je terug op deze site en start je nulmeting. Je naam en e-mailadres gebruiken we alleen voor je registratie; openbaar is alleen je nummer, en je naam als je dat wilt.</p>
+</form>
+</div>
+<script>
+(function(){
+  const q = new URLSearchParams(location.search);
+  if (q.get("type") === "plus") document.querySelector('input[value="plus"]').checked = true;
+  const f = document.getElementById("f"), knop = document.getElementById("knop"), fout = document.getElementById("fout");
+  f.addEventListener("submit", async function(e){
+    e.preventDefault();
+    fout.style.display = "none"; knop.disabled = true; knop.textContent = "Even geduld";
+    try{
+      const r = await fetch("/api/zelfstarters-start", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ naam: f.naam.value, email: f.email.value, type: f.type.value }) });
+      const d = await r.json();
+      if (!r.ok || !d.betaalpagina) throw new Error(d.error || "De betaling kon niet worden gestart.");
+      location.href = d.betaalpagina;
+    }catch(err){
+      fout.textContent = err.message; fout.style.display = "block";
+      knop.disabled = false; knop.textContent = "Naar betalen";
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -412,6 +412,8 @@ const teamToken = (new URLSearchParams(location.search).get("team") || "").trim(
 /* Reistoken uit de Volhoudreis (scan?reis=<token>&meting=start|eind). Zelfde
    regels als bij een team: geen Sprint-blok, geen deelknop, geen opvolgreeks.
    De uitslag krijgt bovenaan een knop terug naar de reis. */
+/* Registratie in het Zelfstartregister (scan?zs=<id>): gaat mee met de opslag. */
+const zsId = (()=>{ const z=(new URLSearchParams(location.search).get("zs")||"").trim().toLowerCase(); return /^[0-9a-f-]{36}$/.test(z) ? z : null; })();
 const reisToken = (()=>{ const r=(new URLSearchParams(location.search).get("reis")||"").trim().toLowerCase(); return /^[0-9a-f]{32}$/.test(r) ? r : null; })();
 const reisMeting = (new URLSearchParams(location.search).get("meting")==="eind") ? "eind" : "start";
 const REIS_APP = "https://happly-zetjes.vercel.app";
@@ -1018,7 +1020,7 @@ async function saveScan(){
   try{
     const r = await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({index:scores.index,zien:scores.zien,sturen:scores.sturen,doen:scores.doen,items:scores.items,age:ctxAns.age,work:ctxAns.work,
-        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,reis:reisToken,meting:reisMeting,
+        duiding:duidingTekst,duiding_fallback:duidingFallback,deel_zin:(deelZin ? huidigeDeelzin() : null),team:teamToken,reis:reisToken,meting:reisMeting,zs:zsId,
         doel_tekst:doelTekst,doeltype:doelType,doel_datum:doelDatum})});
     if(r.ok){
       const d = await r.json(); scanId = d.id || null; deelId = d.deel_id || null;

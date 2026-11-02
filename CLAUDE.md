@@ -204,3 +204,16 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   nieuwe kolommen zijn niet geraakt.
 - Prijswijziging: nieuwe rij, oude op `actief = false`. Bestaande abonnementen
   houden hun bedrag. Een rij waar een bestelling aan hangt gaat nooit weg.
+
+- **Het Zelfstartregister staat in deze repo sinds 2 november 2026.** Eigen
+  lichte koopweg naast de bestaande: `/zelfstarters` (registratie zonder
+  account), `api/zelfstarters-start.js` (rij eerst, dan Mollie),
+  `api/zelfstarters-webhook.js` en `api/zelfstarters-status.js` (beide via
+  `zelfstarters-verwerken.js`, idempotent), `/zs/:nummer` en
+  `api/zelfstarters-check.js` (openbare controle, nooit een score),
+  `api/zelfstarters-badge.js` (svg). Nummer bij betaling
+  (`zelfstarters_nieuw_nummer`), badge pas bij de eerste meting: de scan
+  krijgt `?zs=<registratie_id>` mee en `api/scan.js` roept `koppelMeting`.
+  Producten ZS-STD en ZS-PLUS, excl. btw, founding-tarief tot 31 december
+  2026. Migratie: `migratie-zelfstarters-2026-11-02.sql`. De site
+  zelfstarters.nl staat in de repo Nees644/zelfstarters en linkt hierheen.
