@@ -48,6 +48,10 @@
     {
       "source": "/zs/:nummer",
       "destination": "/api/zelfstarters-check?nummer=:nummer"
+    },
+    {
+      "source": "/zelfstarters/dag",
+      "destination": "/zelfstarters-dag.html"
     }
   ],
   "functions": {
@@ -185,6 +189,9 @@
     },
     "api/zelfstarters-badge.js": {
       "maxDuration": 10
+    },
+    "api/zelfstarters-dag.js": {
+      "maxDuration": 15
     }
   },
   "crons": [

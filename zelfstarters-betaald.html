@@ -38,7 +38,8 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
     el.innerHTML = '<h1>Gelukt, ' + (d.voornaam || "") + '</h1>' +
       '<div class="card"><p>Je registratie is binnen. Nu je nulmeting: tien minuten, in één keer af, je eigen antwoorden. Daarna heb je morgen je registratienummer en badge in je mail.</p>' +
       '<a class="btn" href="' + d.scan_url + '">Doe je nulmeting</a>' +
-      '<p class="m" style="font-size:.9rem;margin-top:14px">Liever later? De link staat ook in de mail die je zojuist hebt ontvangen.</p></div>';
+      '<p class="m" style="font-size:.9rem;margin-top:14px">Liever later? De link staat ook in de mail die je zojuist hebt ontvangen.</p></div>' +
+      (d.type === "plus" ? '<div class="card"><p>Je hebt de Plus Class. Kies alvast je dag in januari.</p><a class="btn" style="background:#0f1f3d" href="/zelfstarters/dag?z=' + encodeURIComponent(z) + '">Kies je dag</a></div>' : '');
   }else if (d.status === "open"){
     el.innerHTML = '<h1>Nog even</h1><p class="m">Je betaling is nog niet bevestigd. Ververs deze pagina over een minuut, of kijk in je mail.</p>';
   }else{

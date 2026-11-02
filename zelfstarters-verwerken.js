@@ -13,6 +13,21 @@ import { haalBetaling } from "./mollie.js";
 import { welkomMail, herinneringMail, badgeMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
 import { Resend } from "resend";
 
+/* De sleutel van het websiteprofiel Zelfstarters, als die er is. Zonder die
+   variabele loopt alles via het profiel van de scan, zoals voorheen. */
+export function zelfstartersSleutel(){
+  return process.env.MOLLIE_API_KEY_ZELFSTARTERS || undefined;
+}
+
+/* Een betaling ophalen. Eerst met de Zelfstarters-sleutel; geeft die een 404,
+   dan met de gewone. Zo blijven betalingen van voor de omzetting vindbaar. */
+async function haalZelfstarterBetaling(mollieId){
+  const eigen = zelfstartersSleutel();
+  if (!eigen) return haalBetaling(mollieId);
+  try{ return await haalBetaling(mollieId, { sleutel: eigen }); }
+  catch(e){ if (e.status === 404) return haalBetaling(mollieId); throw e; }
+}
+
 const MOLLIE_NAAR_ONS = { paid: "betaald", expired: "verlopen", canceled: "mislukt", failed: "mislukt" };
 
 async function stuurMail(db, rij, kolom, mail){
@@ -30,7 +45,7 @@ async function stuurMail(db, rij, kolom, mail){
 /* De stand bij Mollie ophalen en de registratie bijwerken. Geeft een korte
    uitkomst terug voor de melding in mollie_meldingen. */
 export async function verwerkZelfstarterBetaling(db, mollieId){
-  const betaling = await haalBetaling(mollieId);
+  const betaling = await haalZelfstarterBetaling(mollieId);
   const status = MOLLIE_NAAR_ONS[betaling.status] || null;
 
   const q = await db.from("zelfstarters").select("*").eq("mollie_payment_id", mollieId).maybeSingle();

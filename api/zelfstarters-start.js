@@ -10,6 +10,7 @@
 import { serviceClient, logFout } from "../teamkracht-auth.js";
 import { bedragMetBtw } from "../betalen.js";
 import { maakBetaling } from "../mollie.js";
+import { zelfstartersSleutel } from "../zelfstarters-verwerken.js";
 
 const CODE = { standaard: "ZS-STD", plus: "ZS-PLUS" };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -55,7 +56,8 @@ export default async function handler(req, res){
       omschrijving: `Zelfstarters ${type === "plus" ? "Plus Class" : "Standaard"}, registratie`,
       redirectUrl: `${basis}/zelfstarters/betaald?z=${id}`,
       webhookUrl: `${basis}/api/zelfstarters-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
-      metadata: { zelfstarter_id: id, product: p.data.code }
+      metadata: { zelfstarter_id: id, product: p.data.code },
+      sleutel: zelfstartersSleutel()
     });
     await db.from("zelfstarters").update({ mollie_payment_id: betaling.id }).eq("id", id);
     res.status(200).json({ registratie_id: id, betaalpagina: betaling?._links?.checkout?.href || null, bedrag_cent: bedrag.totaal });

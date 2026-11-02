@@ -50,6 +50,11 @@ export function scanLink(registratieId){
   return `${SCAN_URL}/scan?zs=${encodeURIComponent(registratieId)}`;
 }
 
+/* De link waarmee een Plus Class-deelnemer zijn dag kiest of wijzigt. */
+export function dagLink(registratieId){
+  return `${SCAN_URL}/zelfstarters/dag?z=${encodeURIComponent(registratieId)}`;
+}
+
 export function welkomMail({ naam, registratieId, type }){
   const vn = esc(voornaam(naam));
   const plus = type === "plus";
@@ -61,7 +66,7 @@ export function welkomMail({ naam, registratieId, type }){
       knop("Doe je nulmeting", scanLink(registratieId)) +
       p(`Doe de meting in één keer af en vul je eigen antwoorden in. Het is geen test die je kunt halen of zakken; het is het startpunt waar je groei vanaf volgend jaar aan wordt afgemeten.`, `color:${MUT};font-size:14px`) +
       (plus
-        ? p(`Je hebt gekozen voor de Plus Class. Je kiest je dag in januari na je meting; je krijgt daar een aparte mail over.`, `color:${MUT};font-size:14px`)
+        ? p(`Je hebt gekozen voor de Plus Class. Kies hier je dag in januari, in Zaltbommel: <a href="${dagLink(registratieId)}" style="color:${NAVY};font-weight:700">kies je dag</a>.`, `color:${MUT};font-size:14px`)
         : "")
     )
   };
@@ -98,6 +103,20 @@ export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus }){
         ? p(`Na je Plus Class komt de plus op je badge.`, `color:${MUT};font-size:14px`)
         : "") +
       p(`Over twaalf maanden krijg je een uitnodiging voor je hermeting. Daarmee blijft je badge geldig en wordt je groei zichtbaar.`, `color:${MUT};font-size:14px`)
+    )
+  };
+}
+
+export function dagMail({ naam, dag, registratieId }){
+  const vn = esc(voornaam(naam));
+  return {
+    subject: `Je Plus Class: ${dag.label}`,
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Je Plus Class staat vast op <b>${esc(dag.label)}</b> in ${esc(dag.plaats)}. Een week vooraf krijg je het adres, de tijden en wat je meeneemt.`) +
+      p(`Lukt de dag toch niet, dan kies je hier een andere, zolang er plek is:`) +
+      knop("Wijzig je dag", dagLink(registratieId)) +
+      p(`Na die dag komt de plus op je badge en je certificaat.`, `color:${MUT};font-size:14px`)
     )
   };
 }

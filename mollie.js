@@ -8,8 +8,8 @@
 
 const BASIS = "https://api.mollie.com/v2";
 
-function sleutel(){
-  const s = process.env.MOLLIE_API_KEY;
+function sleutel(eigen){
+  const s = eigen || process.env.MOLLIE_API_KEY;
   if (!s) throw new Error("MOLLIE_API_KEY ontbreekt in deze omgeving");
   return s;
 }
@@ -21,12 +21,15 @@ export function modus(){
 }
 
 async function roep(pad, opties = {}){
+  // Een eigen sleutel per aanroep is er voor een tweede websiteprofiel
+  // (Zelfstarters). Zonder eigen sleutel geldt MOLLIE_API_KEY, zoals altijd.
+  const { sleutel: eigen, ...rest } = opties;
   const r = await fetch(`${BASIS}${pad}`, {
-    ...opties,
+    ...rest,
     headers: {
-      Authorization: `Bearer ${sleutel()}`,
+      Authorization: `Bearer ${sleutel(eigen)}`,
       "Content-Type": "application/json",
-      ...(opties.headers || {})
+      ...(rest.headers || {})
     }
   });
   const uit = await r.json().catch(() => ({}));
@@ -48,8 +51,9 @@ export function centenNaarBedrag(centen){
   return (centen / 100).toFixed(2);
 }
 
-export async function maakBetaling({ centen, omschrijving, redirectUrl, webhookUrl, metadata, customerId, sequenceType }){
+export async function maakBetaling({ centen, omschrijving, redirectUrl, webhookUrl, metadata, customerId, sequenceType, sleutel }){
   return roep("/payments", {
+    sleutel,
     method: "POST",
     body: JSON.stringify({
       amount: { currency: "EUR", value: centenNaarBedrag(centen) },
@@ -63,8 +67,8 @@ export async function maakBetaling({ centen, omschrijving, redirectUrl, webhookU
   });
 }
 
-export async function haalBetaling(id){
-  return roep(`/payments/${encodeURIComponent(id)}`);
+export async function haalBetaling(id, { sleutel } = {}){
+  return roep(`/payments/${encodeURIComponent(id)}`, { sleutel });
 }
 
 export async function maakKlant({ naam, email, metadata }){
