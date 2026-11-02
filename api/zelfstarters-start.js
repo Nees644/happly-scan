@@ -19,7 +19,27 @@ function basisUrl(req){
   return process.env.SITE_URL || `https://${req.headers?.host || "scan.happly.nl"}`;
 }
 
+function euro(centen){
+  return (centen / 100).toFixed(2).replace(".", ",").replace(",00", "");
+}
+
 export default async function handler(req, res){
+  // GET geeft de prijzen voor het formulier, met btw uitgesplitst. De pagina
+  // zet nooit zelf een bedrag neer: de tabel producten is de bron.
+  if (req.method === "GET"){
+    const db = serviceClient();
+    const q = await db.from("producten").select("*").in("code", Object.values(CODE)).eq("actief", true);
+    const uit = {};
+    for (const [type, code] of Object.entries(CODE)){
+      const p = (q.data || []).find(x => x.code === code);
+      if (!p) continue;
+      const b = bedragMetBtw(p);
+      uit[type] = { ex: euro(b.ex), btw: euro(b.btw), totaal: euro(b.totaal) };
+    }
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json(uit);
+    return;
+  }
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }
   const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
   const naam = String(body.naam || "").trim().slice(0, 120);

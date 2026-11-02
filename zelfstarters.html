@@ -23,7 +23,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
 .keuze input:checked + div{outline:3px solid var(--orange);outline-offset:-3px;border-radius:14px}
 .keuze div{padding:2px 4px}
 .keuze b{font-family:Outfit,sans-serif;font-size:1.05rem;display:block}
-.keuze .p{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:1.4rem}
+.keuze .p{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:1.2rem;display:block}
 .keuze small{color:var(--muted);display:block;font-size:.8rem}
 label.v{display:block;font-weight:700;font-size:.9rem;margin:12px 0 6px}
 input[type=text],input[type=email]{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:14px;font:inherit;font-size:1rem}
@@ -42,8 +42,8 @@ input[type=text],input[type=email]{width:100%;padding:13px 14px;border:2px solid
 
 <form class="card" id="f">
   <div class="keuze">
-    <label><input type="radio" name="type" value="standaard" checked><div><b>Standaard</b><span class="p">€ 79</span><small>per jaar, excl. btw · founding-tarief tot 31 december</small></div></label>
-    <label><input type="radio" name="type" value="plus"><div><b>Plus Class</b><span class="p">€ 299</span><small>eerste jaar, excl. btw · dag live in januari, Zaltbommel</small></div></label>
+    <label><input type="radio" name="type" value="standaard" checked><div><b>Standaard</b><span class="p" data-p="standaard"></span><small data-b="standaard"></small><small>per jaar · founding-tarief tot 31 december</small></div></label>
+    <label><input type="radio" name="type" value="plus"><div><b>Plus Class</b><span class="p" data-p="plus"></span><small data-b="plus"></small><small>eerste jaar · dag live in januari, Zaltbommel</small></div></label>
   </div>
   <label class="v" for="naam">Je naam</label>
   <input type="text" id="naam" name="naam" autocomplete="name" required placeholder="Voor- en achternaam">
@@ -56,6 +56,13 @@ input[type=text],input[type=email]{width:100%;padding:13px 14px;border:2px solid
 </div>
 <script>
 (function(){
+  fetch("/api/zelfstarters-start").then(r => r.json()).then(function(pr){
+    ["standaard","plus"].forEach(function(t){
+      if (!pr[t]) return;
+      document.querySelector('[data-p="' + t + '"]').textContent = "€ " + pr[t].ex + " excl. btw";
+      document.querySelector('[data-b="' + t + '"]').textContent = "+ € " + pr[t].btw + " btw = € " + pr[t].totaal;
+    });
+  }).catch(function(){});
   const q = new URLSearchParams(location.search);
   if (q.get("type") === "plus") document.querySelector('input[value="plus"]').checked = true;
   const f = document.getElementById("f"), knop = document.getElementById("knop"), fout = document.getElementById("fout");
