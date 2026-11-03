@@ -35,14 +35,15 @@ h2{font-family:Outfit,sans-serif;font-size:1.2rem;margin:0 0 10px}
 .btn:hover{background:var(--orange-dark)}
 .btn.blauw{background:var(--navy)}
 .btn[disabled]{opacity:.6;cursor:wait}
-.keuze{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
-.keuze label{border:2px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;display:block}
-.keuze input{display:none}
-.keuze label:has(input:checked){border-color:var(--orange);box-shadow:0 0 0 2px var(--orange)}
-.keuze div{padding:2px 4px}
-.keuze b{font-family:Outfit,sans-serif;font-size:1.02rem;display:block}
-.keuze .p{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;display:block}
-.keuze small{color:var(--muted);display:block;font-size:.8rem}
+.optie{border:2px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:12px;background:#fff}
+.optie.hi{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange)}
+.optie .kop{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.optie .nr{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.optie h3{font-family:Outfit,sans-serif;font-size:1.1rem;margin:2px 0 0}
+.optie .p{font-family:Outfit,sans-serif;font-weight:800;color:var(--navy);font-size:1.3rem;white-space:nowrap}
+.optie .p small{display:block;font-family:Nunito;font-weight:600;color:var(--muted);font-size:.75rem;text-align:right}
+.optie ul{padding-left:18px;margin:8px 0 12px;color:var(--muted);font-size:.93rem}
+.optie .btn{width:100%;text-align:center}
 ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
 .duiding{white-space:pre-line;font-size:.98rem}
 .plan .rij{border-top:1px solid var(--line);padding:14px 0}
@@ -85,7 +86,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
 
   function gratis(d){
     const pr = d.prijzen || {};
-    const prijs = t => pr[t] ? `€ ${pr[t].ex} excl. btw<small>+ € ${pr[t].btw} btw = € ${pr[t].totaal}</small>` : "";
+    const prijs = t => pr[t] ? `€ ${pr[t].ex}<small>excl. btw, + € ${pr[t].btw} btw = € ${pr[t].totaal}</small>` : "";
     el.innerHTML = `<h1>${esc(d.voornaam)}, je staat in het register</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>, geregistreerd. Dit is wat jij nu weet.</p>
       ${scoreBlok(d)}
@@ -93,29 +94,39 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
         <div class="badge">${badgeSvg(false, [], true)}<div><span class="stamp grijs">Geregistreerd, nog niet geverifieerd</span><div class="m" style="font-size:.9rem;margin-top:8px">Een opdrachtgever ziet nu alleen je nummer. Wat erbij komt als je je jaar doet, staat hieronder.</div></div></div>
       </div>
       <div class="card" id="verifieer">
-        <h2>Je jaar in de ontwikkelstructuur</h2>
-        <p class="m" style="margin:0">Wat de ruimte precies is en wat je ermee doet op de momenten die ertoe doen, hoort bij je jaar:</p>
-        <ul class="lijst"><li>De volledige duiding van je meting</li><li>Je als-dan plan met herinneringen op de momenten die ertoe doen</li><li>Geverifieerd: je badge met het jaartal ${esc(d.jaar)}, controleerbaar door elke opdrachtgever</li><li>Je hermeting over een jaar, met je groei op de badge</li></ul>
-        <form id="vf">
-          <div class="keuze">
-            <label><input type="radio" name="type" value="standaard" checked><div><b>Je jaar</b><span class="p">${prijs("standaard")}</span><small>founding-tarief tot 31 december</small></div></label>
-            <label><input type="radio" name="type" value="plus"><div><b>Je jaar met Plus Class</b><span class="p">${prijs("plus")}</span><small>plus een dag live in Zaltbommel, januari: je persoonlijke ontwikkelplan onder begeleiding</small></div></label>
-          </div>
-          <button class="btn" id="vknop" type="submit" style="width:100%">Maak je registratie geverifieerd</button>
-          <div class="fout" id="vfout"></div>
-        </form>
-        <p class="foot">Wie dit jaar verifieert, draagt ${esc(d.jaar)} als eerste jaartal op zijn badge. Dat jaartal is er volgend jaar niet meer. Je betaalt via Mollie en komt terug op deze pagina.</p>
+        <h2>Kies hoe je verdergaat</h2>
+        <p class="m" style="margin:0">Je staat geregistreerd. Dat blijft zo, ook als je niets kiest. Wil je weten wat je ruimte precies is en wat je ermee doet, en wil je dat een opdrachtgever het kan controleren, dan kies je optie 2 of 3.</p>
+        <div class="optie">
+          <div class="kop"><div><div class="nr">Optie 1</div><h3>Geregistreerd blijven</h3></div><div class="p">Gratis</div></div>
+          <ul><li>Je nummer in het register, zonder jaartal</li><li>Je score, je sterkste kant en je ruimte, zoals hierboven</li></ul>
+          <div class="m" style="font-size:.9rem">Je hoeft niets te doen. Over een jaar nodigen we je uit om opnieuw te meten.</div>
+        </div>
+        <div class="optie" id="optie-jaar">
+          <div class="kop"><div><div class="nr">Optie 2</div><h3>Je jaar in de ontwikkelstructuur</h3></div><div class="p">${prijs("standaard")}</div></div>
+          <ul><li>Geverifieerd: je badge met het jaartal ${esc(d.jaar)}, controleerbaar door elke opdrachtgever</li><li>De volledige duiding van je meting</li><li>Je als-dan plan met herinneringen op de momenten die ertoe doen</li><li>Je hermeting over een jaar, met je groei op de badge</li></ul>
+          <button class="btn" data-type="standaard">Kies je jaar</button>
+        </div>
+        <div class="optie" id="optie-plus">
+          <div class="kop"><div><div class="nr">Optie 3</div><h3>Je jaar met Plus Class</h3></div><div class="p">${prijs("plus")}</div></div>
+          <ul><li>Alles van optie 2</li><li>Een dag live in Zaltbommel in januari: je meting wordt je persoonlijke ontwikkelplan, met een gedragsexpert en vakgenoten</li><li>De plus op je badge</li></ul>
+          <button class="btn" data-type="plus">Kies Plus Class</button>
+        </div>
+        <div class="fout" id="vfout"></div>
+        <p class="foot">Founding-tarief tot 31 december. Wie dit jaar kiest, draagt ${esc(d.jaar)} als eerste jaartal op zijn badge; dat jaartal is er volgend jaar niet meer. Je betaalt via Mollie en komt terug op deze pagina.</p>
       </div>`;
-    const f = document.getElementById("vf"), knop = document.getElementById("vknop"), fout = document.getElementById("vfout");
-    f.addEventListener("submit", async function(e){
-      e.preventDefault(); fout.style.display = "none"; knop.disabled = true; knop.textContent = "Even geduld";
+    const keuze = new URLSearchParams(location.search).get("keuze");
+    const hi = keuze === "plus" ? document.getElementById("optie-plus") : keuze === "jaar" ? document.getElementById("optie-jaar") : null;
+    if (hi){ hi.classList.add("hi"); setTimeout(() => hi.scrollIntoView({ behavior: "smooth", block: "center" }), 400); }
+    const fout = document.getElementById("vfout");
+    document.querySelectorAll("#verifieer button[data-type]").forEach(knop => knop.addEventListener("click", async function(){
+      fout.style.display = "none"; const tekst = knop.textContent; knop.disabled = true; knop.textContent = "Even geduld";
       try{
-        const r = await fetch("/api/zelfstarters-verifieer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ z, type: f.type.value }) });
+        const r = await fetch("/api/zelfstarters-verifieer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ z, type: knop.dataset.type }) });
         const j = await r.json();
         if (!r.ok || !j.betaalpagina) throw new Error(j.error || "De betaling kon niet worden gestart.");
         location.href = j.betaalpagina;
-      }catch(err){ fout.textContent = err.message; fout.style.display = "block"; knop.disabled = false; knop.textContent = "Maak je registratie geverifieerd"; }
-    });
+      }catch(err){ fout.textContent = err.message; fout.style.display = "block"; knop.disabled = false; knop.textContent = tekst; }
+    }));
   }
 
   function geverifieerd(d){

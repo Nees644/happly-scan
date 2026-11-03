@@ -535,7 +535,8 @@ async function zsAfronden(){
     duidingTekst = d.tekst; duidingFallback = d.fallback;
   }catch(e){ duidingTekst = null; duidingFallback = null; }
   await saveScan();
-  location.replace("/zelfstarters/uitslag?z=" + encodeURIComponent(zsId));
+  const keuze = (new URLSearchParams(location.search).get("keuze") || "");
+  location.replace("/zelfstarters/uitslag?z=" + encodeURIComponent(zsId) + (keuze === "jaar" || keuze === "plus" ? "&keuze=" + keuze : ""));
 }
 function mailSubmit(){
   const inp = document.getElementById("m-email");

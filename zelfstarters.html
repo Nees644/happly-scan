@@ -36,6 +36,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
 
 <h1>Registreer je gratis</h1>
 <p class="m">Drie velden, dan je eerste meting: tien minuten, in één keer af. Daarna sta je in het Zelfstartregister met je eigen nummer.</p>
+<p class="m" id="keuzetekst" style="display:none;font-weight:700;color:var(--navy)"></p>
 
 <div class="stap">
   <div><b>1. Registreren</b>Naam, e-mail, vakgebied. Gratis.</div>
@@ -59,6 +60,10 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
 <script>
 (function(){
   const sel = document.getElementById("vakgebied");
+  const keuze = new URLSearchParams(location.search).get("keuze");
+  const kt = document.getElementById("keuzetekst");
+  if (keuze === "jaar"){ kt.textContent = "Je keuze: je jaar in de ontwikkelstructuur. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
+  if (keuze === "plus"){ kt.textContent = "Je keuze: je jaar met Plus Class. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
   fetch("/api/zelfstarters-start").then(r => r.json()).then(function(d){
     (d.vakgebieden || []).forEach(function(v){ const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
   }).catch(function(){});
@@ -71,7 +76,9 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
         body: JSON.stringify({ naam: f.naam.value, email: f.email.value, vakgebied: f.vakgebied.value, openbaar: f.openbaar.checked }) });
       const d = await r.json();
       if (!r.ok || !d.scan_url) throw new Error(d.error || "De registratie is niet gelukt.");
-      location.href = d.scan_url;
+      // De keuze van de site (jaar of plus) reist mee naar de uitslagpagina.
+      const keuze = new URLSearchParams(location.search).get("keuze");
+      location.href = d.scan_url + (keuze === "jaar" || keuze === "plus" ? "&keuze=" + keuze : "");
     }catch(err){
       fout.textContent = err.message; fout.style.display = "block";
       knop.disabled = false; knop.textContent = "Start je meting";
