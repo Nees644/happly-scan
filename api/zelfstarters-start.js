@@ -54,7 +54,7 @@ export async function startBetaling({ db, req, rij, type, terug }){
     : "";
   const betaling = await maakBetaling({
     centen: bedrag.totaal,
-    omschrijving: `Zelfstarters ${type === "plus" ? "Plus Class" : "Standaard"}, ${rij.nummer || "registratie"}`,
+    omschrijving: `Zelfstarters ${type === "plus" ? "Voorkeur met Plus Class" : "Voorkeur"}, ${rij.nummer || "registratie"}`,
     redirectUrl: `${basis}${terug}?z=${rij.id}`,
     webhookUrl: `${basis}/api/zelfstarters-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
     metadata: { zelfstarter_id: rij.id, product: p.data.code },
