@@ -50,20 +50,25 @@ export function bouwZelfstarterBadgeSvg({ plus = false, meetjaren = [], verlopen
 }
 
 /* Wat de openbare controle laat zien, en niets meer dan dat. Score, ringen en
-   groei staan hier met opzet niet in: die deelt de professional zelf. */
+   groei staan hier met opzet niet in: die deelt de professional zelf.
+   Geregistreerd (gratis, gemeten): nummer en naam bij toestemming, zonder
+   jaartallen; het jaartal hoort bij de verificatie. */
 export function controleRij(rij, nu = new Date()){
-  if (!rij || rij.status !== "betaald" || !rij.nummer) return null;
-  const isGeldig = geldig({ laatsteMetingOp: rij.laatste_meting_op, nu });
+  if (!rij || !rij.nummer) return null;
+  if (!["geregistreerd", "betaald"].includes(rij.status)) return null;
+  const geverifieerd = rij.status === "betaald";
+  const isGeldig = geverifieerd && geldig({ laatsteMetingOp: rij.laatste_meting_op, nu });
   return {
     nummer: rij.nummer,
     naam: rij.openbaar ? rij.naam : null,
-    type: rij.plus_class_gevolgd_op ? "plus" : "standaard",
-    plus: !!rij.plus_class_gevolgd_op,
-    sinds: rij.betaald_op ? String(rij.betaald_op).slice(0, 10) : null,
-    laatste_meting: rij.laatste_meting_op ? String(rij.laatste_meting_op).slice(0, 10) : null,
-    meetjaren: rij.meetjaren || [],
+    geverifieerd,
+    type: geverifieerd && rij.plus_class_gevolgd_op ? "plus" : "standaard",
+    plus: geverifieerd && !!rij.plus_class_gevolgd_op,
+    sinds: geverifieerd && rij.betaald_op ? String(rij.betaald_op).slice(0, 10) : (rij.eerste_meting_op ? String(rij.eerste_meting_op).slice(0, 10) : null),
+    laatste_meting: geverifieerd && rij.laatste_meting_op ? String(rij.laatste_meting_op).slice(0, 10) : null,
+    meetjaren: geverifieerd ? (rij.meetjaren || []) : [],
     geldig: isGeldig,
-    toestand: !rij.laatste_meting_op ? "wacht op meting" : (isGeldig ? "geldig" : "verlopen"),
+    toestand: !geverifieerd ? "geregistreerd" : (!rij.laatste_meting_op ? "wacht op meting" : (isGeldig ? "geldig" : "niet actief")),
     verificatiecode: rij.verificatiecode
   };
 }

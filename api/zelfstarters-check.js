@@ -4,15 +4,16 @@
 // GET /zs/:nummer                     pagina, voor de link achter een badge
 // GET /api/zelfstarters-check?q=...   JSON, voor het zoekveld op zelfstarters.nl
 //
-// Openbaar is alleen: geldig ja of nee, Standaard of Plus, sinds wanneer,
-// laatste meting. Geen score, geen ringen, geen groei: die deelt de
-// professional zelf. Zoeken op naam geeft alleen een treffer bij een exacte
-// naam, zodat de lijst niet is af te struinen.
+// Openbaar is alleen: geregistreerd of geverifieerd, Standaard of Plus, sinds
+// wanneer, de jaartallen. Geen score, geen ringen, geen groei: die deelt de
+// professional zelf (reglement, artikel 5). Zoeken op naam geeft alleen een
+// treffer bij een exacte naam en met toestemming, zodat de lijst niet is af
+// te struinen.
 
 import { serviceClient } from "../teamkracht-auth.js";
 import { controleRij, nummerIsGeldig, bouwZelfstarterBadgeSvg, BASIS_URL } from "../zelfstarters-badge.js";
 
-const VELDEN = "status, nummer, naam, openbaar, betaald_op, laatste_meting_op, meetjaren, plus_class_gevolgd_op, verificatiecode";
+const VELDEN = "status, nummer, naam, openbaar, betaald_op, eerste_meting_op, laatste_meting_op, meetjaren, plus_class_gevolgd_op, verificatiecode";
 const TOEGESTAAN = ["https://zelfstarters.nl", "https://www.zelfstarters.nl", "https://scan.happly.nl"];
 
 function esc(s){ return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c])); }
@@ -25,27 +26,28 @@ async function zoek(db, q){
     return r.data || null;
   }
   if (tekst.length < 4) return null;
-  const r = await db.from("zelfstarters").select(VELDEN).eq("status", "betaald").eq("openbaar", true)
+  const r = await db.from("zelfstarters").select(VELDEN).in("status", ["geregistreerd", "betaald"]).eq("openbaar", true)
     .ilike("naam", tekst).limit(1);
   return (r.data || [])[0] || null;
 }
 
 function pagina(rij){
   const plus = rij?.plus;
-  const kleur = !rij ? "#5b6478" : rij.geldig ? "#0f1f3d" : "#b23b0a";
+  const kleur = !rij ? "#5b6478" : rij.geldig ? "#0f1f3d" : (rij.toestand === "geregistreerd" ? "#5b6478" : "#b23b0a");
   const kop = !rij ? "Geen registratie gevonden"
-    : rij.toestand === "geldig" ? "Geldige registratie"
-    : rij.toestand === "verlopen" ? "Registratie verlopen"
+    : rij.toestand === "geldig" ? "Geverifieerde registratie"
+    : rij.toestand === "niet actief" ? "Registratie niet actief"
+    : rij.toestand === "geregistreerd" ? "Geregistreerd, nog niet geverifieerd"
     : "Registratie wacht op de eerste meting";
-  const badge = rij ? bouwZelfstarterBadgeSvg({ plus, meetjaren: rij.meetjaren, verlopen: rij.toestand === "verlopen", maat: 140 }) : "";
+  const badge = rij ? bouwZelfstarterBadgeSvg({ plus, meetjaren: rij.meetjaren, verlopen: rij.toestand !== "geldig", maat: 140 }) : "";
   const regels = rij ? `
     <table>
       <tr><td>Nummer</td><td><b>${esc(rij.nummer)}</b></td></tr>
       ${rij.naam ? `<tr><td>Naam</td><td>${esc(rij.naam)}</td></tr>` : ""}
-      <tr><td>Registratie</td><td>${plus ? "Plus" : "Standaard"}</td></tr>
+      <tr><td>Status</td><td>${rij.geverifieerd ? (plus ? "Geverifieerd, Plus" : "Geverifieerd") : "Geregistreerd"}</td></tr>
       <tr><td>Sinds</td><td>${esc(rij.sinds || "")}</td></tr>
-      <tr><td>Laatste meting</td><td>${rij.laatste_meting ? esc(rij.laatste_meting) : "nog niet gemeten"}</td></tr>
-      <tr><td>Meetjaren</td><td>${(rij.meetjaren || []).join(" · ") || "nog geen"}</td></tr>
+      ${rij.geverifieerd ? `<tr><td>Laatste meting</td><td>${rij.laatste_meting ? esc(rij.laatste_meting) : "nog niet gemeten"}</td></tr>
+      <tr><td>Jaartallen</td><td>${(rij.meetjaren || []).join(" · ") || "nog geen"}</td></tr>` : `<tr><td>Jaartallen</td><td>na verificatie</td></tr>`}
     </table>` : `<p class="m">Controleer het nummer (vorm ZS-2026-00123) of de exacte naam. Niet elke professional heeft zijn naam openbaar gezet; het nummer werkt altijd.</p>`;
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(kop)} · Zelfstartregister</title>
@@ -62,9 +64,9 @@ table{border-collapse:collapse;width:100%}td{padding:7px 0;border-bottom:1px sol
 .foot{color:#5b6478;font-size:.85rem;margin-top:24px}
 @media(max-width:560px){.card{grid-template-columns:1fr}}
 </style></head><body><div class="w">
-<a class="brand" href="${BASIS_URL}"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>Zelfstartregister voor zelfstandige professionals</small></span></a>
+<a class="brand" href="${BASIS_URL}"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>De ontwikkelstructuur voor zelfstandige professionals</small></span></a>
 <div class="card"><div>${badge}</div><div><h1>${esc(kop)}</h1>${regels}</div></div>
-<p class="foot">Openbaar is alleen of een registratie geldig is, Standaard of Plus, sinds wanneer en de laatste meting. Score, ringen en groei deelt de professional zelf. <a href="${BASIS_URL}" style="color:#0f1f3d">zelfstarters.nl</a></p>
+<p class="foot">Openbaar is alleen of een registratie geregistreerd of geverifieerd is, Standaard of Plus, sinds wanneer en de jaartallen. Score, ringen en groei deelt de professional zelf. <a href="${BASIS_URL}/reglement" style="color:#0f1f3d">Het reglement</a> · <a href="${BASIS_URL}" style="color:#0f1f3d">zelfstarters.nl</a></p>
 </div></body></html>`;
 }
 

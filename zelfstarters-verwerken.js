@@ -1,16 +1,22 @@
 // zelfstarters-verwerken.js
 // Eén plek waar een Zelfstarters-registratie verder wordt gebracht, gebruikt
-// door drie wegen: de melding van Mollie, de pagina waar de klant op
-// terugkomt, en de dagcron. Alles hierin is idempotent: twee keer verwerken
-// verandert niets.
+// door de melding van Mollie, de pagina's waar de klant op terugkomt, de scan
+// en de dagcron. Alles hierin is idempotent: twee keer verwerken verandert
+// niets.
 //
-// De stappen van een registratie:
-//   open  ->  betaald (nummer, welkomstmail)  ->  gemeten (badge, badgemail)
-// Het nummer komt bij betaling, de badge pas bij de eerste meting. Dat verschil
-// is de waarde van het register: wie betaalt en niet meet, staat er niet in.
+// De gratis weg (sinds 3 november 2026):
+//   open (aangemeld)  ->  geregistreerd (gemeten, nummer, uitslagmail)
+//                     ->  betaald (geverifieerd: badge, badgemail)
+// De oude weg, voor partners die vooraf betalen:
+//   open  ->  betaald (nummer, welkomstmail)  ->  meting erbij (badgemail)
+//
+// Het nummer komt bij de eerste meting of bij de betaling, wat het eerst
+// komt. Een mislukte verificatiebetaling raakt de registratie niet: wie
+// gemeten heeft, blijft geregistreerd.
 
 import { haalBetaling } from "./mollie.js";
-import { welkomMail, herinneringMail, badgeMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
+import { welkomMail, herinneringMail, badgeMail, uitslagMail, vervolgMail, planMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
+import { sterksteKant, ruimtePunten, planAlsTekst } from "./zelfstarters-uitslag.js";
 import { Resend } from "resend";
 
 /* De sleutel van het websiteprofiel Zelfstarters, als die er is. Zonder die
@@ -42,6 +48,20 @@ async function stuurMail(db, rij, kolom, mail){
   return true;
 }
 
+/* Een nummer uitgeven via de functie in de database, zodat twee verzoeken
+   tegelijk nooit hetzelfde nummer opleveren. */
+async function nieuwNummer(db, jaar){
+  const n = await db.rpc("zelfstarters_nieuw_nummer", { p_jaar: jaar });
+  if (n.error || !n.data) throw new Error(`nummer uitgeven mislukt: ${n.error?.message || "leeg"}`);
+  return n.data;
+}
+
+async function scanVan(db, scanId){
+  if (!scanId) return null;
+  const q = await db.from("index_scan_results").select("id, index_score, zien, sturen, doen, duiding").eq("id", scanId).maybeSingle();
+  return q.data || null;
+}
+
 /* De stand bij Mollie ophalen en de registratie bijwerken. Geeft een korte
    uitkomst terug voor de melding in mollie_meldingen. */
 export async function verwerkZelfstarterBetaling(db, mollieId){
@@ -56,38 +76,46 @@ export async function verwerkZelfstarterBetaling(db, mollieId){
   if (rij.status === "betaald") return { uitkomst: "stond al op betaald" };
 
   if (status !== "betaald"){
-    await db.from("zelfstarters").update({ status }).eq("id", rij.id);
+    // Niet betaald. Wie al gemeten heeft, blijft geregistreerd; alleen de
+    // stand van de betaling verandert. Een aanmelding zonder meting (oude
+    // weg) gaat wel op mislukt of verlopen.
+    const velden = { betaling_status: status };
+    if (rij.status === "open" && !rij.eerste_meting_op) velden.status = status;
+    await db.from("zelfstarters").update(velden).eq("id", rij.id);
     return { uitkomst: status };
   }
 
-  // Betaald: nummer uitgeven en de welkomstmail sturen. Het nummer via de
-  // functie in de database, zodat twee meldingen tegelijk nooit hetzelfde
-  // nummer opleveren.
-  const jaar = new Date().getFullYear();
-  const n = await db.rpc("zelfstarters_nieuw_nummer", { p_jaar: jaar });
-  if (n.error || !n.data) throw new Error(`nummer uitgeven mislukt: ${n.error?.message || "leeg"}`);
+  const nu = new Date();
+  const velden = { status: "betaald", betaling_status: "betaald", betaald_op: nu.toISOString() };
+  if (!rij.nummer) velden.nummer = await nieuwNummer(db, nu.getFullYear());
 
-  const upd = await db.from("zelfstarters").update({
-    status: "betaald",
-    betaald_op: new Date().toISOString(),
-    nummer: n.data
-  }).eq("id", rij.id).eq("status", "open").select("*").maybeSingle();
+  const upd = await db.from("zelfstarters").update(velden).eq("id", rij.id).neq("status", "betaald").select("*").maybeSingle();
   if (!upd.data) return { uitkomst: "stond al op betaald" };
+  const na = upd.data;
 
-  await stuurMail(db, upd.data, "mail_welkom_op", welkomMail({
-    naam: upd.data.naam, registratieId: upd.data.id, type: upd.data.type
-  }));
-  return { uitkomst: `betaald, nummer ${n.data}` };
+  if (na.eerste_meting_op){
+    // Gratis weg: er is al gemeten, dus de verificatie is meteen compleet.
+    await stuurMail(db, na, "mail_badge_op", badgeMail({
+      naam: na.naam, nummer: na.nummer, verificatiecode: na.verificatiecode,
+      meetjaren: na.meetjaren, plus: !!na.plus_class_gevolgd_op, registratieId: na.id
+    }));
+    return { uitkomst: `geverifieerd, nummer ${na.nummer}` };
+  }
+  // Oude weg: betaald, nog niet gemeten.
+  await stuurMail(db, na, "mail_welkom_op", welkomMail({ naam: na.naam, registratieId: na.id, type: na.type }));
+  return { uitkomst: `betaald, nummer ${na.nummer}` };
 }
 
 /* Een meting koppelen aan een registratie. Aangeroepen vanuit api/scan.js
-   zodra een meting met zs=<id> binnenkomt. Eerste meting: badge en badgemail.
+   zodra een meting met zs=<id> binnenkomt.
+   Gratis weg, eerste meting: nummer, status geregistreerd, uitslagmail.
+   Oude weg (al betaald), eerste meting: badge en badgemail.
    Latere meting: jaartal erbij, laatste_meting_op vooruit. */
 export async function koppelMeting(db, registratieId, scanId){
   const q = await db.from("zelfstarters").select("*").eq("id", registratieId).maybeSingle();
   if (!q.data) return "onbekende registratie";
   const rij = q.data;
-  if (rij.status !== "betaald") return "nog niet betaald";
+  if (!["open", "geregistreerd", "betaald"].includes(rij.status)) return "registratie niet actief";
 
   const nu = new Date();
   const jaar = nu.getFullYear();
@@ -98,29 +126,70 @@ export async function koppelMeting(db, registratieId, scanId){
     scan_id: rij.scan_id || scanId || null
   };
   if (!rij.eerste_meting_op) velden.eerste_meting_op = nu.toISOString();
+  if (rij.status === "open"){
+    velden.status = "geregistreerd";
+    if (!rij.nummer) velden.nummer = await nieuwNummer(db, jaar);
+  }
 
   const upd = await db.from("zelfstarters").update(velden).eq("id", rij.id).select("*").maybeSingle();
   const na = upd.data || { ...rij, ...velden };
 
-  await stuurMail(db, na, "mail_badge_op", badgeMail({
-    naam: na.naam, nummer: na.nummer, verificatiecode: na.verificatiecode,
-    meetjaren: na.meetjaren, plus: !!na.plus_class_gevolgd_op
-  }));
-  return rij.eerste_meting_op ? "hermeting vastgelegd" : "eerste meting vastgelegd, badge gestuurd";
+  if (na.status === "betaald"){
+    await stuurMail(db, na, "mail_badge_op", badgeMail({
+      naam: na.naam, nummer: na.nummer, verificatiecode: na.verificatiecode,
+      meetjaren: na.meetjaren, plus: !!na.plus_class_gevolgd_op, registratieId: na.id
+    }));
+    return rij.eerste_meting_op ? "hermeting vastgelegd" : "eerste meting vastgelegd, badge gestuurd";
+  }
+
+  const scan = await scanVan(db, na.scan_id);
+  if (scan){
+    const scores = { zien: scan.zien, sturen: scan.sturen, doen: scan.doen };
+    await stuurMail(db, na, "mail_uitslag_op", uitslagMail({
+      naam: na.naam, registratieId: na.id, nummer: na.nummer,
+      sterkste: sterksteKant(scores), ruimte: ruimtePunten(scores), jaar
+    }));
+  }
+  return rij.eerste_meting_op ? "hermeting vastgelegd" : "geregistreerd, uitslagmail gestuurd";
 }
 
-/* Dagelijks: wie gisteren betaalde en nog niet heeft gemeten, krijgt één
-   herinnering. Eén, niet elke dag. */
+/* Het als-dan plan vastleggen en mailen. Alleen voor geverifieerden. */
+export async function legPlanVast(db, rij, plan){
+  const upd = await db.from("zelfstarters").update({ plan, plan_op: new Date().toISOString(), mail_plan_op: null })
+    .eq("id", rij.id).select("*").maybeSingle();
+  const na = upd.data || { ...rij, plan };
+  await stuurMail(db, na, "mail_plan_op", planMail({ naam: na.naam, registratieId: na.id, regels: planAlsTekst(plan) }));
+  return na;
+}
+
+/* Dagelijks. Oude weg: wie gisteren betaalde en nog niet heeft gemeten,
+   krijgt één herinnering. Gratis weg: wie drie dagen geleden is
+   geregistreerd en niet heeft geverifieerd, krijgt één vervolgmail. */
 export async function stuurHerinneringen(db){
-  const grens = new Date(Date.now() - 24 * 3600e3).toISOString();
+  let n = 0;
+  const dag = new Date(Date.now() - 24 * 3600e3).toISOString();
   const q = await db.from("zelfstarters").select("*")
     .eq("status", "betaald").is("eerste_meting_op", null).is("mail_herinnering_op", null)
-    .lt("betaald_op", grens).limit(100);
-  let n = 0;
+    .lt("betaald_op", dag).limit(100);
   for (const rij of (q.data || [])){
     try{
       if (await stuurMail(db, rij, "mail_herinnering_op", herinneringMail({ naam: rij.naam, registratieId: rij.id }))) n++;
     }catch(e){ console.error("zelfstarters herinnering", e.message); }
+  }
+
+  const drieDagen = new Date(Date.now() - 3 * 24 * 3600e3).toISOString();
+  const v = await db.from("zelfstarters").select("*")
+    .eq("status", "geregistreerd").is("mail_vervolg_op", null)
+    .lt("eerste_meting_op", drieDagen).limit(100);
+  for (const rij of (v.data || [])){
+    try{
+      const scan = await scanVan(db, rij.scan_id);
+      if (!scan) continue;
+      const scores = { zien: scan.zien, sturen: scan.sturen, doen: scan.doen };
+      if (await stuurMail(db, rij, "mail_vervolg_op", vervolgMail({
+        naam: rij.naam, registratieId: rij.id, nummer: rij.nummer, ruimte: ruimtePunten(scores), jaar: new Date().getFullYear()
+      }))) n++;
+    }catch(e){ console.error("zelfstarters vervolg", e.message); }
   }
   return n;
 }

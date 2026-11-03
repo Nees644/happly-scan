@@ -72,3 +72,66 @@ test("de dagmail noemt de dag en heeft een wijzigknop, zonder u", () => {
   assert.match(m.html, /zelfstarters\/dag\?z=abc/);
   assert.doesNotMatch(m.html.replace(/<[^>]+>/g, " "), /\bu\b|—|!/);
 });
+
+/* De gratis trede, sinds 3 november 2026. */
+import { sterksteKant, ruimtePunten, uitslagVoor, planOpschonen, planAlsTekst, VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
+import { uitslagMail, vervolgMail, planMail } from "../zelfstarters-mail.js";
+
+test("de sterkste kant is de hoogste ring, de ruimte zit in de twee andere, laagste eerst", () => {
+  const s = { zien: 82, sturen: 61, doen: 74 };
+  assert.equal(sterksteKant(s).dimensie, "zien");
+  assert.deepEqual(ruimtePunten(s).map(p => p.dimensie), ["sturen", "doen"]);
+  assert.match(ruimtePunten(s)[0].zin, /^Je meeste ruimte zit in Sturen/);
+  // Gelijke scores: vaste volgorde, zodat de uitslag stabiel is.
+  assert.equal(sterksteKant({ zien: 70, sturen: 70, doen: 70 }).dimensie, "zien");
+});
+
+test("gratis geeft score, sterkste kant en ruimte; duiding en plan pas na verificatie", () => {
+  const scan = { index_score: 72, zien: 82, sturen: 61, doen: 74, duiding: "Lange duiding." };
+  const gratis = uitslagVoor({ rij: { status: "geregistreerd", naam: "Sanne de Vries", nummer: "ZS-2026-00001", eerste_meting_op: "2026-11-03" }, scan });
+  assert.equal(gratis.score, 72);
+  assert.equal(gratis.geverifieerd, false);
+  assert.equal("duiding" in gratis, false);
+  assert.equal("scores" in gratis, false);
+  assert.equal(gratis.voornaam, "Sanne");
+  const betaald = uitslagVoor({ rij: { status: "betaald", naam: "Sanne", nummer: "ZS-2026-00001", eerste_meting_op: "2026-11-03", plan: null }, scan });
+  assert.equal(betaald.duiding, "Lange duiding.");
+  assert.ok(Array.isArray(betaald.momenten));
+});
+
+test("een geregistreerde is openbaar vindbaar zonder jaartal; zonder meting is er niets", () => {
+  const rij = controleRij({ status: "geregistreerd", nummer: "ZS-2026-00009", naam: "Sanne", openbaar: true,
+    eerste_meting_op: "2026-11-03T10:00:00Z", laatste_meting_op: "2026-11-03T10:00:00Z", meetjaren: [2026] }, new Date("2026-12-01"));
+  assert.equal(rij.toestand, "geregistreerd");
+  assert.equal(rij.geverifieerd, false);
+  assert.deepEqual(rij.meetjaren, []);
+  assert.equal(rij.naam, "Sanne");
+  assert.equal(controleRij({ status: "open", nummer: null }), null);
+});
+
+test("het plan heeft hoogstens twee regels met een bekend moment en een actie", () => {
+  const plan = planOpschonen([
+    { dimensie: "sturen", moment: "gesprek", actie: "zeg ik wat ik zie voordat ik vraag wat zij willen" },
+    { dimensie: "doen", moment: "onbekend", actie: "iets" },
+    { dimensie: "doen", moment: "honderd", actie: "plan ik de eerste beslissing in week één" }
+  ]);
+  assert.equal(plan.length, 2);
+  assert.match(planAlsTekst(plan)[0], /^Als het eerste gesprek met een opdrachtgever eraan komt, dan zeg ik/);
+  assert.equal(planOpschonen([{ moment: "gesprek", actie: "x" }]), null);
+  assert.ok(VAKGEBIEDEN.includes("Anders"));
+});
+
+test("de nieuwe mails houden zich aan de taalregels en geven de score niet weg", () => {
+  const s = { zien: 82, sturen: 61, doen: 74 };
+  const mails = [
+    uitslagMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", sterkste: sterksteKant(s), ruimte: ruimtePunten(s), jaar: 2026 }),
+    vervolgMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", ruimte: ruimtePunten(s), jaar: 2026 }),
+    planMail({ naam: "Sanne", registratieId: "id", regels: ["Als x, dan y"] })
+  ];
+  for (const m of mails){
+    const t = m.subject + " " + m.html;
+    assert.doesNotMatch(t, /—|!/);
+    assert.doesNotMatch(t, /\bu\b|\buw\b/i);
+    assert.doesNotMatch(t, /\b(82|61|74|72)\b/);
+  }
+});

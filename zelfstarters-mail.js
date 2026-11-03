@@ -1,9 +1,16 @@
 // zelfstarters-mail.js
-// De drie mails van het Zelfstartregister, als pure functies.
+// De mails van het Zelfstartregister, als pure functies.
 //
-// 1. welkom: direct na betaling, met de link naar de nulmeting
-// 2. herinnering: na een dag zonder meting, zelfde link
-// 3. badge: zodra de meting binnen is, met nummer, badge en controlelink
+// De gratis weg (sinds 3 november 2026):
+// 1. uitslag: direct na de gratis meting, met nummer, sterkste kant en de
+//    plekken met ruimte, en de uitnodiging om te verifiëren
+// 2. vervolg: na drie dagen zonder verificatie, met het jaartal als reden
+// 3. badge: zodra is geverifieerd, met badge en controlelink
+// 4. plan: zodra het als-dan plan is ingevuld
+//
+// De oude weg (eerst betalen, dan meten), voor partners:
+// 5. welkom: direct na betaling, met de link naar de nulmeting
+// 6. herinnering: na een dag zonder meting, zelfde link
 //
 // Je en jouw, nooit u. Geen gedachtestreepjes, geen uitroeptekens.
 
@@ -50,6 +57,11 @@ export function scanLink(registratieId){
   return `${SCAN_URL}/scan?zs=${encodeURIComponent(registratieId)}`;
 }
 
+/* De uitslagpagina van een registratie, gratis en geverifieerd dezelfde. */
+export function uitslagLink(registratieId){
+  return `${SCAN_URL}/zelfstarters/uitslag?z=${encodeURIComponent(registratieId)}`;
+}
+
 /* De link waarmee een Plus Class-deelnemer zijn dag kiest of wijzigt. */
 export function dagLink(registratieId){
   return `${SCAN_URL}/zelfstarters/dag?z=${encodeURIComponent(registratieId)}`;
@@ -85,7 +97,7 @@ export function herinneringMail({ naam, registratieId }){
   };
 }
 
-export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus }){
+export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus, registratieId }){
   const vn = esc(voornaam(naam));
   const check = `${CHECK_URL}/${encodeURIComponent(nummer)}`;
   const badgeUrl = `${SCAN_URL}/api/zelfstarters-badge?code=${encodeURIComponent(verificatiecode)}`;
@@ -102,7 +114,52 @@ export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus }){
       (plus
         ? p(`Na je Plus Class komt de plus op je badge.`, `color:${MUT};font-size:14px`)
         : "") +
-      p(`Over twaalf maanden krijg je een uitnodiging voor je hermeting. Daarmee blijft je badge geldig en wordt je groei zichtbaar.`, `color:${MUT};font-size:14px`)
+      p(`Over twaalf maanden krijg je een uitnodiging voor je hermeting. Daarmee blijft je badge geldig en wordt je groei zichtbaar.`, `color:${MUT};font-size:14px`) +
+      (registratieId ? knop("Naar je uitslag en je plan", uitslagLink(registratieId)) : "")
+    )
+  };
+}
+
+export function uitslagMail({ naam, registratieId, nummer, sterkste, ruimte, jaar }){
+  const vn = esc(voornaam(naam));
+  return {
+    subject: `Je staat in het Zelfstartregister: ${nummer}`,
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Je eerste meting is binnen en je staat in het Zelfstartregister met nummer <b>${esc(nummer)}</b>.`) +
+      p(`<b>${esc(sterkste.zin)}</b>`) +
+      p(`${esc(ruimte[0].zin)} ${esc(ruimte[1].zin)}`) +
+      p(`Wat dat precies is en wat je ermee doet op de momenten die ertoe doen, staat in je jaar in de ontwikkelstructuur: de volledige duiding, je als-dan plan met herinneringen, je badge met jaartal en je hermeting over een jaar.`, `color:${MUT};font-size:14px`) +
+      knop("Bekijk je uitslag", uitslagLink(registratieId)) +
+      p(`Wie dit jaar verifieert, draagt ${jaar} als eerste jaartal op zijn badge. Dat jaartal is er volgend jaar niet meer.`, `color:${MUT};font-size:14px`)
+    )
+  };
+}
+
+export function vervolgMail({ naam, registratieId, nummer, ruimte, jaar }){
+  const vn = esc(voornaam(naam));
+  return {
+    subject: `${nummer}: je jaartal ${jaar} staat nog open`,
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Je staat in het Zelfstartregister als geregistreerd. ${esc(ruimte[0].zin)}`) +
+      p(`Wat je daar aan doet op het eerste gesprek, in de eerste honderd dagen en bij de verlenging, is precies waar je jaar in de ontwikkelstructuur over gaat. En het maakt je registratie controleerbaar voor elke opdrachtgever, met ${jaar} als eerste jaartal op je badge.`) +
+      knop("Maak je registratie geverifieerd", uitslagLink(registratieId)) +
+      p(`Dit is de enige herinnering die je hierover krijgt. Over een jaar nodigen we je uit voor je hermeting.`, `color:${MUT};font-size:14px`)
+    )
+  };
+}
+
+export function planMail({ naam, registratieId, regels }){
+  const vn = esc(voornaam(naam));
+  return {
+    subject: "Je als-dan plan",
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Dit is wat je jezelf hebt voorgenomen voor de momenten die ertoe doen:`) +
+      (regels || []).map(r => p(`<b>${esc(r)}</b>`, `padding-left:14px;border-left:3px solid ${ORANJE}`)).join("") +
+      p(`Je krijgt op die momenten een herinnering. Wil je het plan aanpassen, dan kan dat op je uitslagpagina.`, `color:${MUT};font-size:14px`) +
+      knop("Naar je uitslag", uitslagLink(registratieId))
     )
   };
 }

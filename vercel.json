@@ -52,6 +52,10 @@
     {
       "source": "/zelfstarters/dag",
       "destination": "/zelfstarters-dag.html"
+    },
+    {
+      "source": "/zelfstarters/uitslag",
+      "destination": "/zelfstarters-uitslag.html"
     }
   ],
   "functions": {
@@ -192,6 +196,12 @@
     },
     "api/zelfstarters-dag.js": {
       "maxDuration": 15
+    },
+    "api/zelfstarters-uitslag.js": {
+      "maxDuration": 20
+    },
+    "api/zelfstarters-verifieer.js": {
+      "maxDuration": 20
     }
   },
   "crons": [

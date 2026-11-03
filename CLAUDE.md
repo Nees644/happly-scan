@@ -217,3 +217,22 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   Producten ZS-STD en ZS-PLUS, excl. btw, founding-tarief tot 31 december
   2026. Migratie: `migratie-zelfstarters-2026-11-02.sql`. De site
   zelfstarters.nl staat in de repo Nees644/zelfstarters en linkt hierheen.
+
+- **De gratis trede van het Zelfstartregister staat in de code sinds 3 november
+  2026** (migratie `migratie-zelfstarters-gratis-2026-11-03.sql`). Registreren
+  is gratis en vraagt alleen een eerste meting: `/zelfstarters` (naam, e-mail,
+  vakgebied, toestemming naam) maakt een rij met status `open` en stuurt door
+  naar `/scan?zs=<id>`; de scan slaat mailstap en doelscherm over en stuurt na
+  de opslag door naar `/zelfstarters/uitslag?z=<id>`. Bij de eerste meting
+  geeft `koppelMeting` het nummer uit en zet de status op `geregistreerd`.
+  Verifiëren is de betaalde stap (`api/zelfstarters-verifieer.js`, Mollie op
+  de bestaande rij, terug op de uitslagpagina) en zet de status op `betaald`;
+  een mislukte betaling raakt de registratie niet (`betaling_status`). De
+  oude weg (eerst betalen, dan meten, `betaal: true`) blijft voor partners.
+  Wat de uitslagpagina toont staat in `zelfstarters-uitslag.js`: gratis de
+  score, de sterkste kant en twee plekken met ruimte in één zin; geverifieerd
+  ook de duiding en het als-dan plan. Openbaar is nooit een score, en een
+  geregistreerde heeft geen jaartallen: die horen bij de verificatie
+  (reglement op zelfstarters.nl/reglement). Teksten op de site spreken over
+  de ontwikkelstructuur; het register is het bewijs.
+

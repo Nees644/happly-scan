@@ -204,6 +204,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--dp);min-height:100vh;disp
 <div class="screen" id="s-c"></div>
 
 <!-- MAIL (vóór de uitslag; overslaanbaar) -->
+<div class="screen" id="s-zs">
+  <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Bijna klaar</span></div>
+  <div class="body">
+    <div class="eye">Zelfstartregister</div>
+    <div class="qtxt">Je meting wordt vastgelegd</div>
+    <div class="instr">Een paar tellen. Daarna zie je je uitslag en je registratienummer.</div>
+    <div class="duiding-load" style="margin-top:18px"><span class="spin"></span> Even geduld</div>
+  </div>
+</div>
 <div class="screen" id="s-m">
   <div class="hdr"><img src="happly-logo.svg" alt="Happly"><span class="ptxt">Laatste stap</span></div>
   <div class="body">
@@ -501,6 +510,10 @@ function toMail(){
   duidingPromise = fetchDuiding();
   // In een reis kennen we de deelnemer al: mailstap en doelscherm slaan we over.
   // Het doel komt van de Volhoudkaart; zonder kaart blijft het leeg.
+  // In het Zelfstartregister kennen we de deelnemer al: mailstap en doelscherm
+  // slaan we over, en de uitslag staat op zijn eigen pagina. De scan stuurt
+  // hier geen uitslagmail; dat doet het register.
+  if (zsId){ zsAfronden(); return; }
   if (reisToken && reisDeelnemer){
     leadEmail = reisDeelnemer.email; leadName = reisDeelnemer.voornaam || null; leadCompany = reisDeelnemer.programma || null;
     logEvent("mail_ingevuld");
@@ -511,6 +524,18 @@ function toMail(){
     return;
   }
   show("s-m");
+}
+async function zsAfronden(){
+  leadEmail = null; leadName = null; leadCompany = null;
+  doelTekst = null; doelType = null; doelDatum = null;
+  logEvent("mail_overgeslagen");
+  show("s-zs");
+  try{
+    const d = await duidingPromise;
+    duidingTekst = d.tekst; duidingFallback = d.fallback;
+  }catch(e){ duidingTekst = null; duidingFallback = null; }
+  await saveScan();
+  location.replace("/zelfstarters/uitslag?z=" + encodeURIComponent(zsId));
 }
 function mailSubmit(){
   const inp = document.getElementById("m-email");
