@@ -62,8 +62,8 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
   const sel = document.getElementById("vakgebied");
   const keuze = new URLSearchParams(location.search).get("keuze");
   const kt = document.getElementById("keuzetekst");
-  if (keuze === "jaar"){ kt.textContent = "Je keuze: je jaar in de ontwikkelstructuur. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
-  if (keuze === "plus"){ kt.textContent = "Je keuze: je jaar met Plus Class. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
+  if (keuze === "jaar"){ kt.textContent = "Je keuze: Voorkeur, je jaar in de ontwikkelstructuur. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
+  if (keuze === "plus"){ kt.textContent = "Je keuze: Voorkeur met Plus Class. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
   fetch("/api/zelfstarters-start").then(r => r.json()).then(function(d){
     (d.vakgebieden || []).forEach(function(v){ const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
   }).catch(function(){});

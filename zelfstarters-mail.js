@@ -129,7 +129,7 @@ export function uitslagMail({ naam, registratieId, nummer, sterkste, ruimte, jaa
       p(`Je eerste meting is binnen en je staat in het Zelfstartregister met nummer <b>${esc(nummer)}</b>.`) +
       p(`<b>${esc(sterkste.zin)}</b>`) +
       p(`${esc(ruimte[0].zin)} ${esc(ruimte[1].zin)}`) +
-      p(`Wat dat precies is en wat je ermee doet op de momenten die ertoe doen, staat in je jaar in de ontwikkelstructuur: de volledige duiding, je als-dan plan met herinneringen, je badge met jaartal en je hermeting over een jaar.`, `color:${MUT};font-size:14px`) +
+      p(`Wat dat precies is en wat je ermee doet op de momenten die ertoe doen, staat in Voorkeur, je jaar in de ontwikkelstructuur: de volledige duiding, je als-dan plan met herinneringen, je badge met jaartal en je hermeting over een jaar.`, `color:${MUT};font-size:14px`) +
       knop("Bekijk je uitslag", uitslagLink(registratieId)) +
       p(`Wie dit jaar verifieert, draagt ${jaar} als eerste jaartal op zijn badge. Dat jaartal is er volgend jaar niet meer.`, `color:${MUT};font-size:14px`)
     )
@@ -143,7 +143,7 @@ export function vervolgMail({ naam, registratieId, nummer, ruimte, jaar }){
     html: shell(
       p(`Dag ${vn},`) +
       p(`Je staat in het Zelfstartregister als geregistreerd. ${esc(ruimte[0].zin)}`) +
-      p(`Wat je daar aan doet op het eerste gesprek, in de eerste honderd dagen en bij de verlenging, is precies waar je jaar in de ontwikkelstructuur over gaat. En het maakt je registratie controleerbaar voor elke opdrachtgever, met ${jaar} als eerste jaartal op je badge.`) +
+      p(`Wat je daar aan doet op het eerste gesprek, in de eerste honderd dagen en bij de verlenging, is precies waar Voorkeur, je jaar in de ontwikkelstructuur, over gaat. En het maakt je registratie controleerbaar voor elke opdrachtgever, met ${jaar} als eerste jaartal op je badge.`) +
       knop("Maak je registratie geverifieerd", uitslagLink(registratieId)) +
       p(`Dit is de enige herinnering die je hierover krijgt. Over een jaar nodigen we je uit voor je hermeting.`, `color:${MUT};font-size:14px`)
     )
