@@ -60,28 +60,41 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
 <script>
 (function(){
   const sel = document.getElementById("vakgebied");
-  const keuze = new URLSearchParams(location.search).get("keuze");
+  const q = new URLSearchParams(location.search);
+  const keuze = q.get("keuze") === "plus" ? "plus" : q.get("keuze") === "jaar" ? "jaar" : null;
+  const type = keuze === "plus" ? "plus" : "standaard";
   const kt = document.getElementById("keuzetekst");
-  if (keuze === "jaar"){ kt.textContent = "Je keuze: Voorkeur, je jaar in de ontwikkelstructuur. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
-  if (keuze === "plus"){ kt.textContent = "Je keuze: Voorkeur met Plus Class. Je bevestigt en betaalt na je meting, op je uitslagpagina."; kt.style.display = "block"; }
+  const knop = document.getElementById("knop");
+  const h1 = document.querySelector("h1");
+  if (keuze){
+    h1.textContent = keuze === "plus" ? "Voorkeur met Plus Class" : "Voorkeur";
+    knop.textContent = "Naar betalen";
+    kt.style.display = "block"; kt.textContent = "Je betaalt eerst via Mollie, daarna doe je direct je meting.";
+  }
   fetch("/api/zelfstarters-start").then(r => r.json()).then(function(d){
     (d.vakgebieden || []).forEach(function(v){ const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+    const pr = d.prijzen && d.prijzen[type];
+    if (keuze && pr) kt.textContent = (keuze === "plus" ? "Voorkeur met Plus Class: € " + pr.ex + " eerste jaar, excl. btw (€ " + pr.totaal + " incl.)." : "Voorkeur: € " + pr.ex + " per jaar, excl. btw (€ " + pr.totaal + " incl.).") + " Je betaalt eerst via Mollie, daarna doe je direct je meting.";
   }).catch(function(){});
-  const f = document.getElementById("f"), knop = document.getElementById("knop"), fout = document.getElementById("fout");
+  const f = document.getElementById("f"), fout = document.getElementById("fout");
   f.addEventListener("submit", async function(e){
     e.preventDefault();
     fout.style.display = "none"; knop.disabled = true; knop.textContent = "Even geduld";
     try{
-      const r = await fetch("/api/zelfstarters-start", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ naam: f.naam.value, email: f.email.value, vakgebied: f.vakgebied.value, openbaar: f.openbaar.checked }) });
+      const body = { naam: f.naam.value, email: f.email.value, vakgebied: f.vakgebied.value, openbaar: f.openbaar.checked };
+      if (keuze){ body.betaal = true; body.type = type; }
+      const r = await fetch("/api/zelfstarters-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await r.json();
-      if (!r.ok || !d.scan_url) throw new Error(d.error || "De registratie is niet gelukt.");
-      // De keuze van de site (jaar of plus) reist mee naar de uitslagpagina.
-      const keuze = new URLSearchParams(location.search).get("keuze");
-      location.href = d.scan_url + (keuze === "jaar" || keuze === "plus" ? "&keuze=" + keuze : "");
+      if (!r.ok) throw new Error(d.error || "De registratie is niet gelukt.");
+      if (keuze){
+        if (!d.betaalpagina) throw new Error("De betaling kon niet worden gestart.");
+        location.href = d.betaalpagina;
+      }else{
+        location.href = "/zelfstarters/naar-scan?z=" + encodeURIComponent(d.registratie_id);
+      }
     }catch(err){
       fout.textContent = err.message; fout.style.display = "block";
-      knop.disabled = false; knop.textContent = "Start je meting";
+      knop.disabled = false; knop.textContent = keuze ? "Naar betalen" : "Start je meting";
     }
   });
 })();

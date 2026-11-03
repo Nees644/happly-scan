@@ -43,7 +43,11 @@
     },
     {
       "source": "/zelfstarters/betaald",
-      "destination": "/zelfstarters-betaald.html"
+      "destination": "/zelfstarters-naar-scan.html"
+    },
+    {
+      "source": "/zelfstarters/naar-scan",
+      "destination": "/zelfstarters-naar-scan.html"
     },
     {
       "source": "/zs/:nummer",

@@ -15,15 +15,17 @@ export default async function handler(req, res){
   const id = String(req.query?.z || "");
   if (!UUID.test(id)){ res.status(400).json({ error: "onbekende registratie" }); return; }
   const db = serviceClient();
-  let q = await db.from("zelfstarters").select("id, status, type, naam, mollie_payment_id, nummer, eerste_meting_op").eq("id", id).maybeSingle();
+  let q = await db.from("zelfstarters").select("id, status, type, naam, mollie_payment_id, nummer, eerste_meting_op, betaling_status").eq("id", id).maybeSingle();
   if (!q.data){ res.status(404).json({ error: "onbekende registratie" }); return; }
   if (q.data.status === "open" && q.data.mollie_payment_id){
     try{ await verwerkZelfstarterBetaling(db, q.data.mollie_payment_id); }catch(e){ /* de cron pakt het op */ }
-    q = await db.from("zelfstarters").select("id, status, type, naam, mollie_payment_id, nummer, eerste_meting_op").eq("id", id).maybeSingle();
+    q = await db.from("zelfstarters").select("id, status, type, naam, mollie_payment_id, nummer, eerste_meting_op, betaling_status").eq("id", id).maybeSingle();
   }
   res.setHeader("Cache-Control", "no-store");
   res.status(200).json({
     status: q.data.status, type: q.data.type, voornaam: String(q.data.naam || "").split(/\s+/)[0],
+    nummer: q.data.nummer || null,
+    betaling_open: !!q.data.mollie_payment_id && q.data.betaling_status !== "betaald" && q.data.status !== "betaald",
     gemeten: !!q.data.eerste_meting_op, scan_url: `/scan?zs=${id}`
   });
 }
