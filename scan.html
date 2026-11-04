@@ -536,7 +536,7 @@ async function zsAfronden(){
   }catch(e){ duidingTekst = null; duidingFallback = null; }
   await saveScan();
   const keuze = (new URLSearchParams(location.search).get("keuze") || "");
-  location.replace("/zelfstarters/uitslag?z=" + encodeURIComponent(zsId) + (keuze === "jaar" || keuze === "plus" ? "&keuze=" + keuze : ""));
+  location.replace("/zelfstarters-uitslag?z=" + encodeURIComponent(zsId) + (keuze === "jaar" || keuze === "plus" ? "&keuze=" + keuze : ""));
 }
 function mailSubmit(){
   const inp = document.getElementById("m-email");

@@ -222,8 +222,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   2026** (migratie `migratie-zelfstarters-gratis-2026-11-03.sql`). Registreren
   is gratis en vraagt alleen een eerste meting: `/zelfstarters` (naam, e-mail,
   vakgebied, toestemming naam) maakt een rij met status `open` en stuurt door
-  naar `/scan?zs=<id>`; de scan slaat mailstap en doelscherm over en stuurt na
-  de opslag door naar `/zelfstarters/uitslag?z=<id>`. Bij de eerste meting
+  naar `/zelfstarters-naar-scan?z=<id>` en dan `/scan?zs=<id>`; de scan slaat
+  mailstap en doelscherm over en stuurt na de opslag door naar
+  `/zelfstarters-uitslag?z=<id>`. Let op: herschrijfregels met twee delen
+  (`/zelfstarters/uitslag`) geven op Vercel een 404 naast `cleanUrls`; alle
+  Zelfstarters-pagina's worden daarom op hun bestandsnaam aangesproken
+  (`/zelfstarters-uitslag`, `/zelfstarters-dag`, `/zelfstarters-naar-scan`). Bij de eerste meting
   geeft `koppelMeting` het nummer uit en zet de status op `geregistreerd`.
   Verifiëren is de betaalde stap (`api/zelfstarters-verifieer.js`, Mollie op
   de bestaande rij, terug op de uitslagpagina) en zet de status op `betaald`;

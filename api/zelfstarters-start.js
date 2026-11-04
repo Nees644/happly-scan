@@ -102,7 +102,7 @@ export default async function handler(req, res){
   }
 
   try{
-    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters/betaald" });
+    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-naar-scan" });
     res.status(200).json({ registratie_id: rij.id, ...b });
   }catch(e){
     await db.from("zelfstarters").update({ status: "mislukt" }).eq("id", rij.id);

@@ -142,7 +142,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
     el.innerHTML = `<h1>${esc(d.voornaam)}, je bent geverifieerd</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>. Je badge draagt ${esc((d.meetjaren || []).join(" · "))}.</p>
       <div class="card"><div class="badge">${badgeSvg(d.plus, d.meetjaren, false)}<div><span class="stamp">Geverifieerd${d.plus ? " · Plus" : ""}</span><div class="m" style="font-size:.9rem;margin-top:8px">Controlepagina: <a href="https://scan.happly.nl/zs/${esc(d.nummer)}" style="color:var(--navy);font-weight:700">scan.happly.nl/zs/${esc(d.nummer)}</a>. Je badge en de link staan ook in je mail.</div>
-        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters/dag?z=${encodeURIComponent(z)}">Kies je Plus Class-dag</a></div>` : ""}</div></div></div>
+        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Plus Class-dag</a></div>` : ""}</div></div></div>
       ${scoreBlok(d)}
       <div class="card"><h2>Wat je meting laat zien</h2><div class="duiding">${esc(d.duiding || "Je duiding wordt nog geschreven. Kijk straks nog eens, of in je mail.")}</div></div>
       <div class="card plan"><h2>Je als-dan plan</h2><p class="m" style="margin:0 0 6px">Per punt één moment dat ertoe doet, en wat je dan doet. Je krijgt op die momenten een herinnering.</p>

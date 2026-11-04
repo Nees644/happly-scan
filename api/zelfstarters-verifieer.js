@@ -26,7 +26,7 @@ export default async function handler(req, res){
   if (!rij.eerste_meting_op){ res.status(409).json({ error: "Doe eerst je meting." }); return; }
 
   try{
-    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters/uitslag" });
+    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-uitslag" });
     res.status(200).json(b);
   }catch(e){
     await logFout("zelfstarters-verifieer", e.message);

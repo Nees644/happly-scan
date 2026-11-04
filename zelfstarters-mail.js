@@ -59,12 +59,12 @@ export function scanLink(registratieId){
 
 /* De uitslagpagina van een registratie, gratis en geverifieerd dezelfde. */
 export function uitslagLink(registratieId){
-  return `${SCAN_URL}/zelfstarters/uitslag?z=${encodeURIComponent(registratieId)}`;
+  return `${SCAN_URL}/zelfstarters-uitslag?z=${encodeURIComponent(registratieId)}`;
 }
 
 /* De link waarmee een Plus Class-deelnemer zijn dag kiest of wijzigt. */
 export function dagLink(registratieId){
-  return `${SCAN_URL}/zelfstarters/dag?z=${encodeURIComponent(registratieId)}`;
+  return `${SCAN_URL}/zelfstarters-dag?z=${encodeURIComponent(registratieId)}`;
 }
 
 export function welkomMail({ naam, registratieId, type }){
