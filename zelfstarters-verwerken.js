@@ -56,14 +56,19 @@ async function nieuwNummer(db, jaar){
   return n.data;
 }
 
-/* De prijs van Verificatie & Voorkeur voor in de mail, uit de productentabel. */
+/* De prijzen van Verificatie & Voorkeur en Plus Class voor in de mail, uit
+   de productentabel. Per maand is de jaarprijs gedeeld door twaalf. */
 async function prijsVoorMail(db){
   try{
-    const q = await db.from("producten").select("prijs_ex_btw").eq("code", "ZS-STD").eq("actief", true).maybeSingle();
-    if (!q.data) return null;
-    const ex = q.data.prijs_ex_btw / 100;
-    const maand = (Math.round(ex / 12 * 10) / 10).toFixed(2).replace(".", ",");
-    return { ex: String(Math.round(ex)), maand };
+    const q = await db.from("producten").select("code, prijs_ex_btw").in("code", ["ZS-STD", "ZS-PLUS"]).eq("actief", true);
+    const uit = {};
+    for (const [type, code] of [["standaard", "ZS-STD"], ["plus", "ZS-PLUS"]]){
+      const r = (q.data || []).find(x => x.code === code);
+      if (!r) continue;
+      const ex = r.prijs_ex_btw / 100;
+      uit[type] = { ex: String(Math.round(ex)), maand: (Math.round(ex / 12 * 10) / 10).toFixed(2).replace(".", ",") };
+    }
+    return uit;
   }catch(e){ return null; }
 }
 
