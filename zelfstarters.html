@@ -67,14 +67,14 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
   const knop = document.getElementById("knop");
   const h1 = document.querySelector("h1");
   if (keuze){
-    h1.textContent = keuze === "plus" ? "Voorkeur met Plus Class" : "Voorkeur";
+    h1.textContent = keuze === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur";
     knop.textContent = "Naar betalen";
     kt.style.display = "block"; kt.textContent = "Je betaalt eerst via Mollie, daarna doe je direct je meting.";
   }
   fetch("/api/zelfstarters-start").then(r => r.json()).then(function(d){
     (d.vakgebieden || []).forEach(function(v){ const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
     const pr = d.prijzen && d.prijzen[type];
-    if (keuze && pr) kt.textContent = (keuze === "plus" ? "Voorkeur met Plus Class: € " + pr.ex + " eerste jaar, excl. btw (€ " + pr.totaal + " incl.)." : "Voorkeur: € " + pr.ex + " per jaar, excl. btw (€ " + pr.totaal + " incl.).") + " Je betaalt eerst via Mollie, daarna doe je direct je meting.";
+    if (keuze && pr) kt.textContent = (keuze === "plus" ? "Verificatie & Voorkeur + Plus Class: € " + pr.ex + " eerste jaar, excl. btw (€ " + pr.totaal + " incl.)." : "Verificatie & Voorkeur: € " + pr.ex + " per jaar, excl. btw (€ " + pr.totaal + " incl.).") + " Je betaalt eerst via Mollie, daarna doe je direct je meting.";
   }).catch(function(){});
   const f = document.getElementById("f"), fout = document.getElementById("fout");
   f.addEventListener("submit", async function(e){
