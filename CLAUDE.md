@@ -239,7 +239,7 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   geregistreerde heeft geen jaartallen: die horen bij de verificatie
   (reglement op zelfstarters.nl/reglement). Teksten op de site spreken over
   de ontwikkelstructuur; het register is het bewijs. Een mail opnieuw sturen
-  kan met `api/zelfstarters-mail-opnieuw.js` (nummer, soort, CRON_SECRET);
+  kan met `api/zelfstarters-mail-opnieuw.js` (nummer, soort, ZS_BEHEER_SLEUTEL of CRON_SECRET);
   een badge is er alleen voor status betaald, geregistreerd heeft een nummer
   en geen badge.
 
