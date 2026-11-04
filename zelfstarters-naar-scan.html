@@ -22,7 +22,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
 .stap div{background:var(--paper);border-radius:14px;padding:12px}
 .stap b{font-family:Outfit,sans-serif;display:block;color:var(--navy)}
 .happly{display:flex;align-items:center;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
-.happly i{width:28px;height:28px;border-radius:50%;background:var(--magenta);color:#fff;font-family:Outfit,sans-serif;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-style:normal;flex:none}
+.happly img{width:28px;height:28px;flex:none;display:block}
 @media(max-width:480px){.stap{grid-template-columns:1fr}}
 </style>
 </head>
@@ -57,7 +57,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
     '<div class="card"><p style="margin:0 0 6px"><b>Je gaat nu naar de Zelfkracht Scan van Happly.</b> Dat is het meetinstrument achter het Zelfstartregister. Het ziet er anders uit (andere kleuren, het logo van Happly), maar het is dezelfde registratie: na de meting kom je hier terug met je uitslag en je nummer.</p>' +
     '<div class="stap"><div><b>Tien minuten</b>Twaalf vragen en drie over je situatie.</div><div><b>In één keer</b>Je eigen antwoorden, geen test die je kunt halen.</div><div><b>Daarna terug</b>Je uitslag, je nummer' + (betaald ? ", je badge" : "") + '.</div></div>' +
     '<a class="btn" href="' + d.scan_url + '">Start de Zelfkracht Scan</a>' +
-    '<div class="happly"><i>h</i><span>De Zelfkracht Scan is van Happly, de bouwer achter Zelfstarters.</span></div></div>' +
+    '<div class="happly"><img src="/favicon.svg" alt="Happly"><span>De Zelfkracht Scan is van Happly, de bouwer achter Zelfstarters.</span></div></div>' +
     (betaald && d.type === "plus" ? '<div class="card"><p>Je hebt Verificatie & Voorkeur + Plus Class. Kies alvast je dag in januari, of doe dat later via de link in je mail.</p><a class="btn" style="background:var(--navy)" href="/zelfstarters/dag?z=' + encodeURIComponent(z) + '">Kies je dag</a></div>' : '');
 })();
 </script>
