@@ -15,8 +15,8 @@
 // gemeten heeft, blijft geregistreerd.
 
 import { haalBetaling } from "./mollie.js";
-import { welkomMail, herinneringMail, badgeMail, uitslagMail, vervolgMail, planMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
-import { sterksteKant, ruimtePunten, planAlsTekst } from "./zelfstarters-uitslag.js";
+import { welkomMail, herinneringMail, badgeMail, uitslagMail, vervolgMail, planMail, planHerinneringMail, planCheckMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
+import { sterksteKant, ruimtePunten, planAlsTekst, regelsVoorHerinnering, MOMENTEN } from "./zelfstarters-uitslag.js";
 import { Resend } from "resend";
 
 /* De sleutel van het websiteprofiel Zelfstarters, als die er is. Zonder die
@@ -37,14 +37,14 @@ async function haalZelfstarterBetaling(mollieId){
 const MOLLIE_NAAR_ONS = { paid: "betaald", expired: "verlopen", canceled: "mislukt", failed: "mislukt" };
 
 async function stuurMail(db, rij, kolom, mail){
-  if (rij[kolom]) return false;
+  if (kolom && rij[kolom]) return false;
   if (!process.env.RESEND_API_KEY){ console.error("zelfstarters: RESEND_API_KEY ontbreekt"); return false; }
   const resend = new Resend(process.env.RESEND_API_KEY);
   const uit = await resend.emails.send({
     from: AFZENDER, to: rij.email, replyTo: ANTWOORD, subject: mail.subject, html: mail.html
   });
   if (uit?.error) throw new Error(`mail ${kolom} mislukt: ${uit.error.message || "onbekend"}`);
-  await db.from("zelfstarters").update({ [kolom]: new Date().toISOString() }).eq("id", rij.id);
+  if (kolom) await db.from("zelfstarters").update({ [kolom]: new Date().toISOString() }).eq("id", rij.id);
   return true;
 }
 
@@ -172,10 +172,14 @@ export async function koppelMeting(db, registratieId, scanId){
 
 /* Het als-dan plan vastleggen en mailen. Alleen voor geverifieerden. */
 export async function legPlanVast(db, rij, plan){
-  const upd = await db.from("zelfstarters").update({ plan, plan_op: new Date().toISOString(), mail_plan_op: null })
-    .eq("id", rij.id).select("*").maybeSingle();
+  // Een nieuw plan begint opnieuw: de checks na een week, drie en vijf
+  // maanden tellen vanaf nu.
+  const upd = await db.from("zelfstarters").update({
+    plan, plan_op: new Date().toISOString(), mail_plan_op: null,
+    mail_plan_week_op: null, mail_plan_m3_op: null, mail_plan_m5_op: null
+  }).eq("id", rij.id).select("*").maybeSingle();
   const na = upd.data || { ...rij, plan };
-  await stuurMail(db, na, "mail_plan_op", planMail({ naam: na.naam, registratieId: na.id, regels: planAlsTekst(plan) }));
+  await stuurMail(db, na, "mail_plan_op", planMail({ naam: na.naam, registratieId: na.id, regels: planAlsTekst(plan), datums: plan.map(r => r.datum) }));
   return na;
 }
 
@@ -204,10 +208,43 @@ export async function stuurMailOpnieuw(db, nummer, soort){
     mail = vervolgMail({ naam: rij.naam, registratieId: rij.id, nummer: rij.nummer, ruimte: ruimtePunten(scores), jaar });
   }else if (soort === "plan" && rij.plan){
     kolom = "mail_plan_op";
-    mail = planMail({ naam: rij.naam, registratieId: rij.id, regels: planAlsTekst(rij.plan) });
+    mail = planMail({ naam: rij.naam, registratieId: rij.id, regels: planAlsTekst(rij.plan), datums: rij.plan.map(r => r.datum) });
   }else return `mail ${soort} past niet bij deze registratie`;
   await stuurMail(db, { ...rij, [kolom]: null }, kolom, mail);
   return `${soort} gestuurd naar ${rij.email}`;
+}
+
+/* Dagelijks, de herinneringen bij het als-dan plan. Twee soorten:
+   de dag voor een ingevulde datum de eigen zin (herinnerd_op in de regel),
+   en de check na een week, drie maanden en vijf maanden (kolommen op de
+   rij). Alleen voor geverifieerden met een plan. */
+export async function stuurPlanHerinneringen(db, nu = new Date()){
+  let n = 0;
+  const q = await db.from("zelfstarters").select("*").eq("status", "betaald").not("plan", "is", null).limit(500);
+  const dagen = d => Math.floor((nu - Date.parse(d)) / 86400000);
+  for (const rij of (q.data || [])){
+    try{
+      const plan = Array.isArray(rij.plan) ? rij.plan : [];
+      for (const r of regelsVoorHerinnering(plan, nu)){
+        const m = MOMENTEN.find(x => x.code === r.moment);
+        const mail = planHerinneringMail({ naam: rij.naam, registratieId: rij.id, regel: { momentLabel: m ? m.label : r.moment, tekst: planAlsTekst([r])[0] } });
+        if (await stuurMail(db, rij, null, mail)){
+          plan[r.i] = { ...plan[r.i], herinnerd_op: nu.toISOString().slice(0, 10) };
+          await db.from("zelfstarters").update({ plan }).eq("id", rij.id);
+          n++;
+        }
+      }
+      if (!rij.plan_op) continue;
+      const oud = dagen(rij.plan_op);
+      const stap = !rij.mail_plan_week_op && oud >= 7 ? ["week", "mail_plan_week_op"]
+        : !rij.mail_plan_m3_op && oud >= 90 ? ["m3", "mail_plan_m3_op"]
+        : !rij.mail_plan_m5_op && oud >= 150 ? ["m5", "mail_plan_m5_op"] : null;
+      if (stap){
+        if (await stuurMail(db, rij, stap[1], planCheckMail({ naam: rij.naam, registratieId: rij.id, regels: planAlsTekst(plan), stap: stap[0] }))) n++;
+      }
+    }catch(e){ console.error("zelfstarters plan", e.message); }
+  }
+  return n;
 }
 
 /* Dagelijks. Oude weg: wie gisteren betaalde en nog niet heeft gemeten,
@@ -224,6 +261,8 @@ export async function stuurHerinneringen(db){
       if (await stuurMail(db, rij, "mail_herinnering_op", herinneringMail({ naam: rij.naam, registratieId: rij.id }))) n++;
     }catch(e){ console.error("zelfstarters herinnering", e.message); }
   }
+
+  n += await stuurPlanHerinneringen(db);
 
   const drieDagen = new Date(Date.now() - 3 * 24 * 3600e3).toISOString();
   const v = await db.from("zelfstarters").select("*")

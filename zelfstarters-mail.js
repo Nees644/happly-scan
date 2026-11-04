@@ -203,16 +203,54 @@ export function vervolgMail({ naam, registratieId, nummer, ruimte, jaar }){
   };
 }
 
-export function planMail({ naam, registratieId, regels }){
+export function planMail({ naam, registratieId, regels, datums }){
   const vn = esc(voornaam(naam));
+  const metDatum = (datums || []).filter(Boolean);
   return {
     subject: "Je als-dan plan",
     html: shell(
       p(`Dag ${vn},`) +
       p(`Dit is wat je jezelf hebt voorgenomen voor de momenten die ertoe doen:`) +
       (regels || []).map(r => p(`<b>${esc(r)}</b>`, `padding-left:14px;border-left:3px solid ${ORANJE}`)).join("") +
-      p(`Je krijgt op die momenten een herinnering. Wil je het plan aanpassen, dan kan dat op je uitslagpagina.`, `color:${MUT};font-size:14px`) +
-      knop("Naar je uitslag", uitslagLink(registratieId))
+      p(`<b>Zo werken de herinneringen.</b> ${metDatum.length ? `Je hebt ${metDatum.length === 1 ? "een datum" : "datums"} ingevuld: de dag ervoor krijg je een mail met je eigen zin. ` : "Je hebt nog geen datum ingevuld; weet je ongeveer wanneer een moment komt, zet hem dan op je uitslagpagina en je krijgt de dag ervoor een mail. "}Daarnaast krijg je drie keer een korte check: na een week, na drie maanden en na vijf maanden. Is het moment geweest, wat deed je, en wil je de regel bijstellen.`, `color:${MUT};font-size:14px`) +
+      p(`Bewaar deze mail, of zet de zinnen ergens waar je ze ziet.`, `color:${MUT};font-size:14px`) +
+      knop("Naar je plan", `${uitslagLink(registratieId)}#plan`)
+    )
+  };
+}
+
+/* De dag voor een verwacht moment: de eigen zin, meer niet. */
+export function planHerinneringMail({ naam, registratieId, regel }){
+  const vn = esc(voornaam(naam));
+  return {
+    subject: `Morgen: ${regel.momentLabel}`,
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Je gaf aan dat dit moment eraan komt: <b>${esc(regel.momentLabel)}</b>. Dit is wat je jezelf had voorgenomen:`) +
+      p(`<b>${esc(regel.tekst)}</b>`, `padding-left:14px;border-left:3px solid ${ORANJE};font-size:17px`) +
+      p(`Meer is het niet. Doe het klein en doe het morgen.`, `color:${MUT};font-size:14px`) +
+      knop("Naar je plan", `${uitslagLink(registratieId)}#plan`)
+    )
+  };
+}
+
+/* De check na een week, drie maanden en vijf maanden. */
+export function planCheckMail({ naam, registratieId, regels, stap }){
+  const vn = esc(voornaam(naam));
+  const kop = { week: "Een week met je plan", m3: "Drie maanden met je plan", m5: "Vijf maanden met je plan" }[stap];
+  const slot = {
+    week: "Staan de zinnen nog ergens waar je ze ziet? Is een moment al voorbijgekomen, dan is de vraag: deed je het, en hoe ging dat.",
+    m3: "Drie maanden is lang genoeg om te weten of een regel werkt. Werkt hij niet, maak hem kleiner. Is het moment nog niet gekomen, laat hem staan.",
+    m5: "Nog een paar weken, dan komt je hermeting in zicht. Wat je nu nog doet, telt daarin mee. Kijk je plan nog één keer na."
+  }[stap];
+  return {
+    subject: kop,
+    html: shell(
+      p(`Dag ${vn},`) +
+      p(`Dit had je jezelf voorgenomen:`) +
+      (regels || []).map(r => p(`<b>${esc(r)}</b>`, `padding-left:14px;border-left:3px solid ${ORANJE}`)).join("") +
+      p(slot, `color:${MUT};font-size:14px`) +
+      knop("Bekijk of pas je plan aan", `${uitslagLink(registratieId)}#plan`)
     )
   };
 }

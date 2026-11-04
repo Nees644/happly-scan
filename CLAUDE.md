@@ -242,4 +242,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   kan met `api/zelfstarters-mail-opnieuw.js` (nummer, soort, ZS_BEHEER_SLEUTEL of CRON_SECRET);
   een badge is er alleen voor status betaald, geregistreerd heeft een nummer
   en geen badge.
+- **Het als-dan plan heeft herinneringen sinds 4 november 2026** (migratie
+  `migratie-zelfstarters-plan-2026-11-04.sql`). Per regel een optionele datum:
+  de dag ervoor gaat de eigen zin per mail (`herinnerd_op` in de regel in
+  `plan`). Daarnaast drie checks na het vastleggen: week, drie maanden, vijf
+  maanden (`mail_plan_week_op`, `mail_plan_m3_op`, `mail_plan_m5_op`); een
+  nieuw plan zet ze terug. Uitleg en voorbeelden per ruimtepunt en moment
+  staan in `zelfstarters-uitslag.js` (`PLAN_UITLEG`, `VOORBEELDEN`), de cron
+  loopt mee in `stuurHerinneringen` via `api/opvolg.js`.
 

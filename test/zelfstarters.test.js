@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { bouwZelfstarterBadgeSvg, geldig, nummerIsGeldig, controleRij } from "../zelfstarters-badge.js";
-import { welkomMail, badgeMail, herinneringMail, scanLink } from "../zelfstarters-mail.js";
+import { welkomMail, badgeMail, herinneringMail, scanLink, planHerinneringMail, planCheckMail } from "../zelfstarters-mail.js";
 
 test("nummer heeft de vorm ZS-jaar-volgnummer", () => {
   assert.equal(nummerIsGeldig("ZS-2026-00001"), true);
@@ -74,7 +74,7 @@ test("de dagmail noemt de dag en heeft een wijzigknop, zonder u", () => {
 });
 
 /* De gratis trede, sinds 3 november 2026. */
-import { sterksteKant, ruimtePunten, uitslagVoor, planOpschonen, planAlsTekst, VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
+import { sterksteKant, ruimtePunten, uitslagVoor, planOpschonen, planAlsTekst, regelsVoorHerinnering, VOORBEELDEN, MOMENTEN, VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
 import { uitslagMail, vervolgMail, planMail } from "../zelfstarters-mail.js";
 
 test("de sterkste kant is de hoogste ring, de ruimte zit in de twee andere, laagste eerst", () => {
@@ -121,6 +121,31 @@ test("het plan heeft hoogstens twee regels met een bekend moment en een actie", 
   assert.ok(VAKGEBIEDEN.includes("Anders"));
 });
 
+test("een planregel kan een datum dragen en de herinnering komt de dag ervoor, één keer", () => {
+  const plan = planOpschonen([
+    { dimensie: "doen", moment: "start", actie: "maak ik een lijst van drie dingen", datum: "2026-11-20" },
+    { dimensie: "zien", moment: "tegenslag", actie: "wacht ik een uur", datum: "geen datum" }
+  ]);
+  assert.equal(plan[0].datum, "2026-11-20");
+  assert.equal(plan[1].datum, null);
+  assert.equal(regelsVoorHerinnering(plan, new Date("2026-11-18T07:00:00Z")).length, 0);
+  assert.equal(regelsVoorHerinnering(plan, new Date("2026-11-19T07:00:00Z")).length, 1);
+  assert.equal(regelsVoorHerinnering(plan, new Date("2026-11-21T07:00:00Z")).length, 1);
+  plan[0].herinnerd_op = "2026-11-19";
+  assert.equal(regelsVoorHerinnering(plan, new Date("2026-11-19T07:00:00Z")).length, 0);
+});
+
+test("elk ruimtepunt heeft voor elk moment een voorbeeld dat begint met wat je doet", () => {
+  for (const dim of ["zien", "sturen", "doen"]){
+    for (const m of MOMENTEN){
+      const v = VOORBEELDEN[dim][m.code];
+      assert.ok(v && v.length > 20, `${dim}/${m.code}`);
+      assert.doesNotMatch(v, /—|!/);
+      assert.match(planAlsTekst([{ moment: m.code, actie: v }])[0], /^Als .+ eraan komt, dan \w+ ik /);
+    }
+  }
+});
+
 test("de nieuwe mails houden zich aan de taalregels; de dimensiescores blijven binnen, de zelfkrachtscore mag mee", () => {
   const s = { zien: 82, sturen: 61, doen: 74 };
   const u = uitslagMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", score: 72, sterkste: sterksteKant(s), ruimte: ruimtePunten(s), jaar: 2026 });
@@ -130,7 +155,9 @@ test("de nieuwe mails houden zich aan de taalregels; de dimensiescores blijven b
   const mails = [
     uitslagMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", sterkste: sterksteKant(s), ruimte: ruimtePunten(s), jaar: 2026 }),
     vervolgMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", ruimte: ruimtePunten(s), jaar: 2026 }),
-    planMail({ naam: "Sanne", registratieId: "id", regels: ["Als x, dan y"] })
+    planMail({ naam: "Sanne", registratieId: "id", regels: ["Als x, dan y"], datums: ["2026-11-20", null] }),
+    planHerinneringMail({ naam: "Sanne", registratieId: "id", regel: { momentLabel: "de eerste week van een opdracht", tekst: "Als x, dan y" } }),
+    planCheckMail({ naam: "Sanne", registratieId: "id", regels: ["Als x, dan y"], stap: "m3" })
   ];
   for (const m of mails){
     const t = m.subject + " " + m.html;

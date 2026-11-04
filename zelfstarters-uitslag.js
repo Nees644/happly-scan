@@ -74,7 +74,49 @@ export const MOMENTEN = [
   { code: "verlenging", label: "het gesprek over verlenging" }
 ];
 
-/* Een ingevuld plan opschonen: twee regels, elk een moment en een actie. */
+/* Wat een als-dan plan is en hoe je hem maakt. Staat op de pagina en in de
+   mail, op één plek zodat beide hetzelfde zeggen. */
+export const PLAN_UITLEG = {
+  waarom: "Een voornemen zonder moment vervliegt. Koppel je wat je wilt doen aan een moment dat zeker komt en dat je herkent, dan hoef je op dat moment niet meer te beslissen: je doet het. Dat is het gedrag dat je meting zichtbaar maakt, op de momenten die ertoe doen.",
+  als: "Kies een moment dat de komende maanden zeker in je werk voorkomt, dat je herkent als het er is, en dat raakt aan dit ruimtepunt.",
+  dan: "Eén handeling, in tien minuten te doen, klein genoeg om altijd te lukken. Begin met wat je doet: bel, schrijf, stuur, vraag. Het voorbeeld mag je overnemen en aanpassen.",
+  wanneer: "Weet je ongeveer wanneer dit moment komt, vul dan de datum in. Je krijgt de dag ervoor een mail met je eigen zin.",
+  herinnering: "Zonder datum, en daarnaast, krijg je drie keer een korte check: na een week, na drie maanden en na vijf maanden. Is het moment geweest, wat deed je, en wil je de regel bijstellen. Na vijf maanden komt je hermeting in zicht."
+};
+
+/* Per ruimtepunt en per moment één voorbeeld van een dan. Klein, concreet,
+   in de eerste persoon, beginnend met wat je doet. */
+export const VOORBEELDEN = {
+  zien: {
+    gesprek: "schrijf ik vooraf op wat ik verwacht te voelen als het stroef loopt, en kijk ik daar na afloop naar terug",
+    start: "noteer ik drie avonden lang in één regel waar ik vandaag op aansloeg",
+    honderd: "zet ik op dag 30, 60 en 90 een kwartier in mijn agenda om op te schrijven wat me irriteert en wat me energie geeft",
+    tegenslag: "wacht ik een uur voordat ik reageer en schrijf ik eerst op wat er precies gebeurde",
+    evaluatie: "vraag ik vooraf aan één collega wat hem aan mij opviel, en lees ik dat voor het gesprek",
+    verlenging: "schrijf ik voor het gesprek op wat ik wil en wat ik vrees, zodat ik mijn eigen reactie herken"
+  },
+  sturen: {
+    gesprek: "benoem ik in de eerste tien minuten zelf wat ik als mijn bijdrage zie, in plaats van te wachten op de vraag",
+    start: "stuur ik aan het eind van week één een voorstel voor de aanpak, voordat iemand erom vraagt",
+    honderd: "leg ik op dag 30 zelf een korte koerscheck op tafel: wat gaat goed, wat stel ik bij",
+    tegenslag: "kom ik binnen een dag met twee opties en mijn keuze, niet alleen met het probleem",
+    evaluatie: "stuur ik vooraf mijn eigen agenda met drie punten die ik besproken wil hebben",
+    verlenging: "doe ik zelf het voorstel voor de volgende periode, met wat ik anders wil doen"
+  },
+  doen: {
+    gesprek: "mail ik binnen 24 uur met één concrete eerste stap die ik al heb gezet",
+    start: "maak ik op dag één een lijst van drie dingen die ik in week één af heb, en meld ik vrijdag wat ervan staat",
+    honderd: "kies ik elke maandag één ding dat ik uitstel, en doe ik dat vóór twaalf uur",
+    tegenslag: "zet ik dezelfde dag nog de kleinste volgende stap, ook als ik hem niet af krijg",
+    evaluatie: "maak ik binnen een dag na het gesprek de afspraken concreet, met datum, en stuur ik ze rond",
+    verlenging: "begin ik de eerste week van de nieuwe periode met het ding dat ik vorige keer liet liggen"
+  }
+};
+
+const DATUM = /^\d{4}-\d{2}-\d{2}$/;
+
+/* Een ingevuld plan opschonen: twee regels, elk een moment en een actie, en
+   als die er is een datum waarop het moment wordt verwacht. */
 export function planOpschonen(invoer){
   const regels = Array.isArray(invoer) ? invoer : [];
   const uit = [];
@@ -84,9 +126,22 @@ export function planOpschonen(invoer){
     const actie = String(r?.actie || "").trim().slice(0, 240);
     const dimensie = DIMENSIES.includes(r?.dimensie) ? r.dimensie : null;
     if (!moment || actie.length < 5) continue;
-    uit.push({ dimensie, moment: moment.code, actie });
+    const datum = DATUM.test(String(r?.datum || "")) && !Number.isNaN(Date.parse(r.datum)) ? r.datum : null;
+    uit.push({ dimensie, moment: moment.code, actie, datum });
   }
   return uit.length ? uit : null;
+}
+
+/* De regels waarvoor morgen een herinnering uit moet: datum is morgen (of
+   eerder, nog niet herinnerd en hoogstens een week geleden). */
+export function regelsVoorHerinnering(plan, nu = new Date()){
+  const dag = d => Math.floor(d / 86400000);
+  const vandaag = dag(nu);
+  return (plan || []).map((r, i) => ({ ...r, i })).filter(r => {
+    if (!r.datum || r.herinnerd_op) return false;
+    const verschil = dag(Date.parse(r.datum)) - vandaag;
+    return verschil <= 1 && verschil >= -7;
+  });
 }
 
 export function planAlsTekst(plan){
@@ -126,7 +181,10 @@ export function uitslagVoor({ rij, scan, nu = new Date() }){
     uit.scores = scores;
     uit.duiding = scan.duiding || null;
     uit.plan = rij.plan || null;
+    uit.plan_op = rij.plan_op || null;
     uit.momenten = MOMENTEN;
+    uit.voorbeelden = VOORBEELDEN;
+    uit.uitleg = PLAN_UITLEG;
   }
   return uit;
 }
