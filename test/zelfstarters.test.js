@@ -121,8 +121,12 @@ test("het plan heeft hoogstens twee regels met een bekend moment en een actie", 
   assert.ok(VAKGEBIEDEN.includes("Anders"));
 });
 
-test("de nieuwe mails houden zich aan de taalregels en geven de score niet weg", () => {
+test("de nieuwe mails houden zich aan de taalregels; de dimensiescores blijven binnen, de zelfkrachtscore mag mee", () => {
   const s = { zien: 82, sturen: 61, doen: 74 };
+  const u = uitslagMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", score: 72, sterkste: sterksteKant(s), ruimte: ruimtePunten(s), jaar: 2026 });
+  assert.match(u.html, /\b72\b/);
+  assert.match(u.html, /Waar je aan kunt werken/);
+  assert.doesNotMatch(u.html, /badge-geregistreerd/);
   const mails = [
     uitslagMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", sterkste: sterksteKant(s), ruimte: ruimtePunten(s), jaar: 2026 }),
     vervolgMail({ naam: "Sanne", registratieId: "id", nummer: "ZS-2026-00001", ruimte: ruimtePunten(s), jaar: 2026 }),

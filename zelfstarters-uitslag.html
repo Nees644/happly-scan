@@ -28,6 +28,8 @@ h2{font-family:Outfit,sans-serif;font-size:1.2rem;margin:0 0 10px}
 .ring .t b{font-family:Outfit,sans-serif}
 .ring .s{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);margin-left:auto}
 .badge{display:flex;align-items:center;gap:20px}
+.controle{border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:10px;font-size:.95rem}
+.controle.straks{border:2px solid var(--orange);background:#fff7f3}
 .stamp{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:7px 13px;border-radius:999px;font-size:.82rem;font-weight:700}
 .stamp.grijs{background:#d9d3c6;color:var(--navy)}
 .jaar{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);letter-spacing:.08em;margin-top:8px}
@@ -92,7 +94,10 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
       <p class="m">Nummer <b>${esc(d.nummer)}</b>, geregistreerd. Dit is wat jij nu weet.</p>
       ${scoreBlok(d)}
       <div class="card">
-        <div class="badge">${badgeSvg(false, [], true)}<div><span class="stamp grijs">Geregistreerd, nog niet geverifieerd</span><div class="m" style="font-size:.9rem;margin-top:8px">Een opdrachtgever ziet nu alleen je nummer. Wat erbij komt als je je jaar doet, staat hieronder.</div></div></div>
+        <h2 style="margin-top:0">Wat een opdrachtgever ziet</h2>
+        <p class="m" style="margin:0 0 12px">Een badge kun je kopiëren. Het register niet. Wie je nummer controleert op <a href="https://scan.happly.nl/zs/${esc(d.nummer)}" style="color:var(--navy);font-weight:700">scan.happly.nl/zs/${esc(d.nummer)}</a> ziet wat er staat.</p>
+        <div class="controle nu"><b>${esc(d.nummer)}</b> &middot; <span class="stamp grijs">Geregistreerd</span> <span class="m" style="font-size:.85rem">nu, zonder jaartal</span></div>
+        <div class="controle straks"><b>${esc(d.nummer)}</b> &middot; <span class="stamp">Geverifieerd</span> &middot; ${esc(d.jaar)} <span class="m" style="font-size:.85rem">met Verificatie &amp; Voorkeur, plus je badge met jaartal</span></div>
       </div>
       <div class="card" id="verifieer">
         <h2>Kies hoe je verdergaat</h2>

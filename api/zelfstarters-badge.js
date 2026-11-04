@@ -14,14 +14,13 @@ export default async function handler(req, res){
   const db = serviceClient();
   const q = await db.from("zelfstarters").select("status, nummer, meetjaren, laatste_meting_op, plus_class_gevolgd_op")
     .eq("verificatiecode", code).maybeSingle();
-  if (!q.data || !["geregistreerd", "betaald"].includes(q.data.status) || !q.data.nummer){ res.status(404).json({ error: "onbekende code" }); return; }
-  // Geregistreerd zonder verificatie: de badge bestaat wel, maar grijs en
-  // zonder jaartal. Het jaartal hoort bij de verificatie.
-  const geverifieerd = q.data.status === "betaald";
+  // Een badge is er pas na verificatie. Wie alleen geregistreerd is heeft een
+  // nummer, geen badge: een badge is zo geplakt, het register niet.
+  if (!q.data || q.data.status !== "betaald" || !q.data.nummer){ res.status(404).json({ error: "onbekende code" }); return; }
   const svg = bouwZelfstarterBadgeSvg({
-    plus: geverifieerd && !!q.data.plus_class_gevolgd_op,
-    meetjaren: geverifieerd ? (q.data.meetjaren || []) : [],
-    verlopen: !geverifieerd || !geldig({ laatsteMetingOp: q.data.laatste_meting_op }),
+    plus: !!q.data.plus_class_gevolgd_op,
+    meetjaren: q.data.meetjaren || [],
+    verlopen: !geldig({ laatsteMetingOp: q.data.laatste_meting_op }),
     maat: Number(req.query?.maat) || 120
   });
   res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");

@@ -157,7 +157,7 @@ export async function koppelMeting(db, registratieId, scanId){
   if (scan){
     const scores = { zien: scan.zien, sturen: scan.sturen, doen: scan.doen };
     await stuurMail(db, na, "mail_uitslag_op", uitslagMail({
-      naam: na.naam, registratieId: na.id, nummer: na.nummer,
+      naam: na.naam, registratieId: na.id, nummer: na.nummer, score: scan.index_score,
       sterkste: sterksteKant(scores), ruimte: ruimtePunten(scores), jaar,
       prijs: await prijsVoorMail(db)
     }));
