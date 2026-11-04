@@ -100,7 +100,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
       ${scoreBlok(d)}
       <div class="card">
         <h2 style="margin-top:0">Wat een opdrachtgever ziet</h2>
-        <p class="m" style="margin:0 0 12px">Een badge kun je kopiëren. Het register niet. Wie je nummer controleert op <a href="https://scan.happly.nl/zs/${esc(d.nummer)}" style="color:var(--navy);font-weight:700">scan.happly.nl/zs/${esc(d.nummer)}</a> ziet wat er staat.</p>
+        <p class="m" style="margin:0 0 12px">Een badge kun je kopiëren. Het register niet. Wie je nummer controleert op <a href="https://zelfstarters.nl/check?nummer=${esc(d.nummer)}" style="color:var(--navy);font-weight:700">zelfstarters.nl/check</a> ziet wat er staat.</p>
         <div class="controle nu"><b>${esc(d.nummer)}</b> &middot; <span class="stamp grijs">Geregistreerd</span> <span class="m" style="font-size:.85rem">nu, zonder jaartal</span></div>
         <div class="controle straks"><b>${esc(d.nummer)}</b> &middot; <span class="stamp">Geverifieerd</span> &middot; ${esc(d.jaar)} <span class="m" style="font-size:.85rem">met Verificatie &amp; Voorkeur, plus je badge met jaartal</span></div>
       </div>
@@ -160,7 +160,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
     }).join("");
     el.innerHTML = `<h1>${esc(d.voornaam)}, je bent geverifieerd</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>. Je badge draagt ${esc((d.meetjaren || []).join(" · "))}.</p>
-      <div class="card"><div class="badge">${badgeSvg(d.plus, d.meetjaren, false)}<div><span class="stamp">Geverifieerd${d.plus ? " · Plus" : ""}</span><div class="m" style="font-size:.9rem;margin-top:8px">Controlepagina: <a href="https://scan.happly.nl/zs/${esc(d.nummer)}" style="color:var(--navy);font-weight:700">scan.happly.nl/zs/${esc(d.nummer)}</a>. Je badge en de link staan ook in je mail.</div>
+      <div class="card"><div class="badge">${badgeSvg(d.plus, d.meetjaren, false)}<div><span class="stamp">Geverifieerd${d.plus ? " · Plus" : ""}</span><div class="m" style="font-size:.9rem;margin-top:8px">Controlepagina: <a href="https://zelfstarters.nl/check?nummer=${esc(d.nummer)}" style="color:var(--navy);font-weight:700">zelfstarters.nl/check</a>. Je badge en de link staan ook in je mail.</div>
         ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Plus Class-dag</a></div>` : ""}</div></div></div>
       ${scoreBlok(d)}
       <div class="card"><h2>Wat je meting laat zien</h2><div class="duiding">${esc(d.duiding || "Je duiding wordt nog geschreven. Kijk straks nog eens, of in je mail.")}</div></div>

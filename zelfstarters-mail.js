@@ -99,7 +99,7 @@ export function herinneringMail({ naam, registratieId }){
 
 export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus, registratieId }){
   const vn = esc(voornaam(naam));
-  const check = `${CHECK_URL}/${encodeURIComponent(nummer)}`;
+  const check = `${CHECK_URL}${encodeURIComponent(nummer)}`;
   const badgeUrl = `${SCAN_URL}/api/zelfstarters-badge?code=${encodeURIComponent(verificatiecode)}`;
   const jaren = (meetjaren || []).join(" · ");
   return {
@@ -149,7 +149,7 @@ export function uitslagMail({ naam, registratieId, nummer, score, sterkste, ruim
         p(`<b>${esc(sterkste.zin)}</b>`, "font-size:14px;margin-bottom:8px") +
         p(`<b>Waar je aan kunt werken</b>`, "font-size:14px;margin-bottom:2px") +
         `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:10px">${punt(ruimte[0], 0)}${punt(ruimte[1], 1)}</table>` +
-        p(`Wat een opdrachtgever ziet als hij je nummer controleert:`, `color:${MUT};font-size:13px;margin:0`) +
+        p(`Wat een opdrachtgever ziet als hij je nummer controleert op <a href="${CHECK_URL}${esc(nummer)}" style="color:${NAVY};font-weight:700">zelfstarters.nl/check</a>:`, `color:${MUT};font-size:13px;margin:0`) +
         controle(`<b>${esc(nummer)}</b> &middot; ${stamp("Geregistreerd", MUT)} <span style="color:${MUT};font-size:13px">zonder jaartal</span>`) +
         p(`Dit blijft zo, ook als je niets kiest. Wat je uitslag betekent in een opdracht en wat je ermee doet, zit in de volgende stap.`, `color:${MUT};font-size:13px;margin:12px 0 0`),
         `background:${PAPIER}`

@@ -8,7 +8,7 @@
 // controlepagina; meer niet.
 
 export const BASIS_URL = "https://zelfstarters.nl";
-export const CHECK_URL = "https://scan.happly.nl/zs";
+export const CHECK_URL = "https://zelfstarters.nl/check?nummer=";
 
 const NAVY = "#0f1f3d", NAVY2 = "#16294f", ORANJE = "#ff6a2b";
 
