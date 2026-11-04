@@ -90,7 +90,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
         if (!d.betaalpagina) throw new Error("De betaling kon niet worden gestart.");
         location.href = d.betaalpagina;
       }else{
-        location.href = "/zelfstarters/naar-scan?z=" + encodeURIComponent(d.registratie_id);
+        location.href = "/zelfstarters-naar-scan?z=" + encodeURIComponent(d.registratie_id);
       }
     }catch(err){
       fout.textContent = err.message; fout.style.display = "block";
