@@ -42,24 +42,8 @@
       "destination": "/zelfstarters.html"
     },
     {
-      "source": "/zelfstarters/betaald",
-      "destination": "/zelfstarters-naar-scan.html"
-    },
-    {
-      "source": "/zelfstarters/naar-scan",
-      "destination": "/zelfstarters-naar-scan.html"
-    },
-    {
       "source": "/zs/:nummer",
       "destination": "/api/zelfstarters-check?nummer=:nummer"
-    },
-    {
-      "source": "/zelfstarters/dag",
-      "destination": "/zelfstarters-dag.html"
-    },
-    {
-      "source": "/zelfstarters/uitslag",
-      "destination": "/zelfstarters-uitslag.html"
     }
   ],
   "functions": {
@@ -243,6 +227,26 @@
         }
       ],
       "destination": "https://scan.happly.nl/:pad/:rest*",
+      "permanent": false
+    },
+    {
+      "source": "/zelfstarters/betaald",
+      "destination": "/zelfstarters-naar-scan",
+      "permanent": false
+    },
+    {
+      "source": "/zelfstarters/naar-scan",
+      "destination": "/zelfstarters-naar-scan",
+      "permanent": false
+    },
+    {
+      "source": "/zelfstarters/dag",
+      "destination": "/zelfstarters-dag",
+      "permanent": false
+    },
+    {
+      "source": "/zelfstarters/uitslag",
+      "destination": "/zelfstarters-uitslag",
       "permanent": false
     }
   ]
