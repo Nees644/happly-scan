@@ -69,7 +69,7 @@ test("een dag is vol bij het maximum en dicht als hij voorbij is", () => {
 test("de dagmail noemt de dag en heeft een wijzigknop, zonder u", () => {
   const m = dagMail({ naam: "Sanne", dag: DAGEN[0], registratieId: "abc" });
   assert.match(m.subject, /15 januari/);
-  assert.match(m.html, /zelfstarters\/dag\?z=abc/);
+  assert.match(m.html, /zelfstarters-dag\?z=abc/);
   assert.doesNotMatch(m.html.replace(/<[^>]+>/g, " "), /\bu\b|—|!/);
 });
 
