@@ -178,6 +178,8 @@ export function uitslagMail({ naam, registratieId, nummer, score, sterkste, ruim
           `<b>Een dag live in Zaltbommel, in januari:</b> je meting wordt je persoonlijke ontwikkelplan, met een gedragsexpert en vakgenoten`,
           `<b>De plus op je badge</b>`
         ]) +
+        p(`Wat een opdrachtgever dan ziet:`, `color:${MUT};font-size:13px;margin:12px 0 0`) +
+        controle(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="font-family:${FONT};font-size:14px;color:${TX}"><b>${esc(nummer)}</b> &middot; ${stamp("Geverifieerd &middot; Plus", NAVY)} &middot; ${esc(jaar)}</td><td align="right" style="width:70px"><img src="${SCAN_URL}/beeld/badge-plus-${esc(jaar)}.png" width="60" alt="Je badge met plus" style="display:block"></td></tr></table>`) +
         p(`Vijftien plekken per dag. <a href="${uitslag}?keuze=plus#verifieer" style="color:${NAVY};font-weight:700">Kies met Plus Class</a>`, `font-size:14px;margin:12px 0 0`),
         `border:1px solid #e3dfd6;background:#fff`
       ) +
