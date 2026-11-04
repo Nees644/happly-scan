@@ -56,6 +56,17 @@ async function nieuwNummer(db, jaar){
   return n.data;
 }
 
+/* De prijs van Verificatie & Voorkeur voor in de mail, uit de productentabel. */
+async function prijsVoorMail(db){
+  try{
+    const q = await db.from("producten").select("prijs_ex_btw").eq("code", "ZS-STD").eq("actief", true).maybeSingle();
+    if (!q.data) return null;
+    const ex = q.data.prijs_ex_btw / 100;
+    const maand = (Math.round(ex / 12 * 10) / 10).toFixed(2).replace(".", ",");
+    return { ex: String(Math.round(ex)), maand };
+  }catch(e){ return null; }
+}
+
 async function scanVan(db, scanId){
   if (!scanId) return null;
   const q = await db.from("index_scan_results").select("id, index_score, zien, sturen, doen, duiding").eq("id", scanId).maybeSingle();
@@ -147,7 +158,8 @@ export async function koppelMeting(db, registratieId, scanId){
     const scores = { zien: scan.zien, sturen: scan.sturen, doen: scan.doen };
     await stuurMail(db, na, "mail_uitslag_op", uitslagMail({
       naam: na.naam, registratieId: na.id, nummer: na.nummer,
-      sterkste: sterksteKant(scores), ruimte: ruimtePunten(scores), jaar
+      sterkste: sterksteKant(scores), ruimte: ruimtePunten(scores), jaar,
+      prijs: await prijsVoorMail(db)
     }));
   }
   return rij.eerste_meting_op ? "hermeting vastgelegd" : "geregistreerd, uitslagmail gestuurd";

@@ -120,18 +120,46 @@ export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus, regi
   };
 }
 
-export function uitslagMail({ naam, registratieId, nummer, sterkste, ruimte, jaar }){
+export function uitslagMail({ naam, registratieId, nummer, sterkste, ruimte, jaar, prijs }){
   const vn = esc(voornaam(naam));
+  const uitslag = uitslagLink(registratieId);
+  const cel = (inhoud, extra) => `<td style="padding:10px 12px;border-bottom:1px solid #eee8dc;font-family:${FONT};font-size:14px;color:${TX};vertical-align:top;${extra || ""}">${inhoud}</td>`;
+  const rij = (wat, nu, straks) => `<tr>${cel(`<b>${wat}</b>`, `color:${MUT};width:26%`)}${cel(nu, `color:${MUT};width:34%`)}${cel(straks, `font-weight:700;background:#fff7f3`)}</tr>`;
+  const maand = prijs ? `€ ${prijs.maand} per maand, betaald per jaar: € ${prijs.ex} excl. btw` : "€ 6,60 per maand, betaald per jaar: € 79 excl. btw";
   return {
     subject: `Je staat in het Zelfstartregister: ${nummer}`,
     html: shell(
       p(`Dag ${vn},`) +
-      p(`Je eerste meting is binnen en je staat in het Zelfstartregister met nummer <b>${esc(nummer)}</b>.`) +
+      p(`Je eerste meting is binnen. Je staat in het Zelfstartregister met nummer <b>${esc(nummer)}</b>.`) +
       p(`<b>${esc(sterkste.zin)}</b>`) +
       p(`${esc(ruimte[0].zin)} ${esc(ruimte[1].zin)}`) +
-      p(`Wat dat precies is en wat je ermee doet op de momenten die ertoe doen, staat in Verificatie &amp; Voorkeur, je jaar in de ontwikkelstructuur: de volledige duiding, je als-dan plan met herinneringen, je badge met jaartal en je hermeting over een jaar.`, `color:${MUT};font-size:14px`) +
-      knop("Bekijk je uitslag", uitslagLink(registratieId)) +
-      p(`Wie dit jaar verifieert, draagt ${jaar} als eerste jaartal op zijn badge. Dat jaartal is er volgend jaar niet meer.`, `color:${MUT};font-size:14px`)
+      `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:22px 0 6px;border-collapse:collapse">
+        <tr>
+          <td align="center" style="width:50%;padding:14px;background:${PAPIER};border-radius:14px 0 0 14px">
+            <img src="${SCAN_URL}/beeld/badge-geregistreerd.png" width="96" alt="Je badge nu" style="display:block;margin:0 auto 6px">
+            <div style="font-family:${FONT};font-size:12px;color:${MUT};font-weight:700">NU: GEREGISTREERD</div>
+            <div style="font-family:${FONT};font-size:12px;color:${MUT}">zonder jaartal</div>
+          </td>
+          <td align="center" style="width:50%;padding:14px;background:#fff7f3;border-radius:0 14px 14px 0;border:2px solid ${ORANJE}">
+            <img src="${SCAN_URL}/beeld/badge-geverifieerd-${esc(jaar)}.png" width="96" alt="Je badge na verificatie" style="display:block;margin:0 auto 6px">
+            <div style="font-family:${FONT};font-size:12px;color:${NAVY};font-weight:700">MET VERIFICATIE &amp; VOORKEUR</div>
+            <div style="font-family:${FONT};font-size:12px;color:${NAVY}">geverifieerd, jaartal ${esc(jaar)}</div>
+          </td>
+        </tr>
+      </table>` +
+      `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 8px;border-collapse:collapse">
+        <tr>${cel("", `color:${MUT}`)}${cel("<b>Nu</b>", `color:${MUT}`)}${cel("<b>Met Verificatie &amp; Voorkeur</b>", `color:${NAVY};background:#fff7f3`)}</tr>
+        ${rij("Je uitslag", "Score, sterkste kant, twee plekken met ruimte", "De volledige duiding: wat het is en wat het betekent in een opdracht")}
+        ${rij("Je plan", "Geen", "Een als-dan plan voor de momenten die ertoe doen, met herinneringen")}
+        ${rij("Je badge", "Grijs, zonder jaartal", `Geverifieerd, met jaartal ${esc(jaar)}, controleerbaar door elke opdrachtgever`)}
+        ${rij("Over een jaar", "Niets", "Je hermeting, met je groei op de badge")}
+      </table>` +
+      p(`Zo ziet een opdrachtgever het straks als hij je nummer controleert:`, `color:${MUT};font-size:14px;margin-top:16px`) +
+      `<div style="border:1px solid #e3dfd6;border-radius:14px;padding:12px 16px;font-family:${FONT};font-size:14px;color:${TX};margin:0 0 18px"><b style="color:${NAVY}">${esc(nummer)}</b> &middot; <span style="background:${NAVY};color:#fff;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700">Geverifieerd</span> &middot; ${esc(jaar)} &middot; ${esc(voornaam(naam))} ${esc(String(naam || "").split(/\s+/).slice(1).join(" "))}</div>` +
+      p(`<b>${maand}.</b> Eén uur eerder aan de slag op je volgende opdracht, en het is terugverdiend.`) +
+      knop("Kies Verificatie & Voorkeur", `${uitslag}#verifieer`) +
+      p(`Of bekijk eerst <a href="${uitslag}" style="color:${NAVY};font-weight:700">je uitslag</a>.`, `color:${MUT};font-size:14px`) +
+      p(`Wie dit jaar verifieert, draagt ${esc(jaar)} als eerste jaartal op zijn badge. Dat jaartal is er volgend jaar niet meer. Founding-tarief tot 31 december.`, `color:${MUT};font-size:14px`)
     )
   };
 }
