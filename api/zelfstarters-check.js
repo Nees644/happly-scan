@@ -35,7 +35,7 @@ function pagina(rij){
   const plus = rij?.plus;
   const kleur = !rij ? "#5b6478" : rij.geldig ? "#0f1f3d" : (rij.toestand === "geregistreerd" ? "#5b6478" : "#b23b0a");
   const kop = !rij ? "Geen registratie gevonden"
-    : rij.toestand === "geldig" ? "Geverifieerde registratie"
+    : rij.toestand === "geldig" ? (plus ? "Geverifieerde registratie, Plus" : "Geverifieerde registratie")
     : rij.toestand === "niet actief" ? "Registratie niet actief"
     : rij.toestand === "geregistreerd" ? "Geregistreerd, nog niet geverifieerd"
     : "Registratie wacht op de eerste meting";
