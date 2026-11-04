@@ -179,6 +179,37 @@ export async function legPlanVast(db, rij, plan){
   return na;
 }
 
+/* Een mail opnieuw sturen, voor beheer. Zet eerst de datumkolom leeg, zodat
+   stuurMail hem niet overslaat. welkom en badge voor betaald, uitslag en
+   vervolg voor wie gemeten heeft, plan als er een plan is. */
+export async function stuurMailOpnieuw(db, nummer, soort){
+  const q = await db.from("zelfstarters").select("*").eq("nummer", nummer).maybeSingle();
+  if (!q.data) return "onbekend nummer";
+  const rij = q.data;
+  const scan = await scanVan(db, rij.scan_id);
+  const scores = scan ? { zien: scan.zien, sturen: scan.sturen, doen: scan.doen } : null;
+  const jaar = new Date().getFullYear();
+  let kolom, mail;
+  if (soort === "badge" && rij.status === "betaald"){
+    kolom = "mail_badge_op";
+    mail = badgeMail({ naam: rij.naam, nummer: rij.nummer, verificatiecode: rij.verificatiecode, meetjaren: rij.meetjaren, plus: !!rij.plus_class_gevolgd_op, registratieId: rij.id });
+  }else if (soort === "welkom" && rij.status === "betaald"){
+    kolom = "mail_welkom_op";
+    mail = welkomMail({ naam: rij.naam, registratieId: rij.id, type: rij.type });
+  }else if (soort === "uitslag" && scores){
+    kolom = "mail_uitslag_op";
+    mail = uitslagMail({ naam: rij.naam, registratieId: rij.id, nummer: rij.nummer, score: scan.index_score, sterkste: sterksteKant(scores), ruimte: ruimtePunten(scores), jaar, prijs: await prijsVoorMail(db) });
+  }else if (soort === "vervolg" && scores){
+    kolom = "mail_vervolg_op";
+    mail = vervolgMail({ naam: rij.naam, registratieId: rij.id, nummer: rij.nummer, ruimte: ruimtePunten(scores), jaar });
+  }else if (soort === "plan" && rij.plan){
+    kolom = "mail_plan_op";
+    mail = planMail({ naam: rij.naam, registratieId: rij.id, regels: planAlsTekst(rij.plan) });
+  }else return `mail ${soort} past niet bij deze registratie`;
+  await stuurMail(db, { ...rij, [kolom]: null }, kolom, mail);
+  return `${soort} gestuurd naar ${rij.email}`;
+}
+
 /* Dagelijks. Oude weg: wie gisteren betaalde en nog niet heeft gemeten,
    krijgt één herinnering. Gratis weg: wie drie dagen geleden is
    geregistreerd en niet heeft geverifieerd, krijgt één vervolgmail. */
