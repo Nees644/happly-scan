@@ -17,6 +17,7 @@ import { maakBetaling } from "../mollie.js";
 import { zelfstartersSleutel } from "../zelfstarters-verwerken.js";
 import { VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
 import { partnerVoorCode, kortingCent } from "../zelfstarters-korting.js";
+import { verwerkGratisVerificatie } from "../zelfstarters-verwerken.js";
 
 export const CODE = { standaard: "ZS-STD", plus: "ZS-PLUS" };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -64,6 +65,18 @@ export async function startBetaling({ db, req, rij, type, terug, partner }){
   if (!p.data) throw Object.assign(new Error("Dit tarief is niet meer beschikbaar."), { status: 404 });
   const korting = partner ? kortingCent(p.data.prijs_ex_btw, partner.korting_pct) : 0;
   const bedrag = bedragMetBtw({ ...p.data, prijs_ex_btw: p.data.prijs_ex_btw - korting });
+  if (bedrag.totaal <= 0){
+    // Een code van honderd procent: geen betaling, Mollie neemt geen nul
+    // euro aan. De registratie gaat direct op geverifieerd, en de code blijft
+    // op de rij staan zodat geschonken en betaald nooit door elkaar lopen.
+    if (type === "plus") throw Object.assign(new Error("Plus Class kan niet met deze code. Kies Verificatie & Voorkeur."), { status: 400 });
+    await db.from("zelfstarters").update({
+      type, product_code: p.data.code, bedrag_cent: 0, btw_cent: 0,
+      partner_id: partner.id, kortingscode: partner.code, korting_cent: korting
+    }).eq("id", rij.id);
+    await verwerkGratisVerificatie(db, rij.id);
+    return { betaalpagina: null, bedrag_cent: 0, gratis: true, terug: `${basisUrl(req)}${terug}?z=${rij.id}` };
+  }
   const basis = basisUrl(req);
   const geheim = process.env.MOLLIE_WEBHOOK_SECRET || "";
   const doorlaat = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
@@ -129,7 +142,7 @@ export default async function handler(req, res){
 
   try{
     const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-naar-scan", partner });
-    res.status(200).json({ registratie_id: rij.id, ...b });
+    res.status(200).json({ registratie_id: rij.id, ...b, scan_url: b.gratis ? `/zelfstarters-naar-scan?z=${rij.id}` : undefined });
   }catch(e){
     await db.from("zelfstarters").update({ status: "mislukt" }).eq("id", rij.id);
     await logFout("zelfstarters-start", e.message);

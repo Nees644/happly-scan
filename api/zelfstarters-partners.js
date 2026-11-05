@@ -22,14 +22,17 @@ export default async function handler(req, res){
 
   if (req.method === "GET"){
     const p = await db.from("zelfstarters_partners").select("*").order("aangemaakt_op", { ascending: false });
-    const r = await db.from("zelfstarters").select("partner_id, status, korting_cent, bedrag_cent").not("partner_id", "is", null);
+    const r = await db.from("zelfstarters").select("partner_id, status, betaling_status, korting_cent, bedrag_cent").not("partner_id", "is", null);
     const telling = {};
+    const leeg = () => ({ gestart: 0, betaald: 0, gratis: 0, korting_cent: 0, omzet_cent: 0 });
     for (const rij of (r.data || [])){
-      const t = telling[rij.partner_id] || (telling[rij.partner_id] = { gestart: 0, betaald: 0, korting_cent: 0, omzet_cent: 0 });
+      const t = telling[rij.partner_id] || (telling[rij.partner_id] = leeg());
       t.gestart++;
-      if (rij.status === "betaald"){ t.betaald++; t.korting_cent += rij.korting_cent || 0; t.omzet_cent += rij.bedrag_cent || 0; }
+      if (rij.status !== "betaald") continue;
+      if (rij.betaling_status === "gratis"){ t.gratis++; continue; }
+      t.betaald++; t.korting_cent += rij.korting_cent || 0; t.omzet_cent += rij.bedrag_cent || 0;
     }
-    res.status(200).json({ partners: (p.data || []).map(x => ({ ...x, ...(telling[x.id] || { gestart: 0, betaald: 0, korting_cent: 0, omzet_cent: 0 }) })) });
+    res.status(200).json({ partners: (p.data || []).map(x => ({ ...x, ...(telling[x.id] || leeg()) })) });
     return;
   }
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }

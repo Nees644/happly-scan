@@ -122,6 +122,32 @@ export async function verwerkZelfstarterBetaling(db, mollieId){
   return { uitkomst: `betaald, nummer ${na.nummer}` };
 }
 
+/* Een verificatie zonder betaling, voor een kortingscode van honderd procent.
+   Zelfde uitkomst als een betaalde verificatie: status betaald, nummer als
+   dat er nog niet is, badgemail als er al gemeten is, anders de welkomstmail.
+   betaling_status zegt gratis, zodat het in elk overzicht apart telt. */
+export async function verwerkGratisVerificatie(db, registratieId){
+  const q = await db.from("zelfstarters").select("*").eq("id", registratieId).maybeSingle();
+  if (!q.data) return "onbekende registratie";
+  const rij = q.data;
+  if (rij.status === "betaald") return "stond al op betaald";
+  const nu = new Date();
+  const velden = { status: "betaald", betaling_status: "gratis", betaald_op: nu.toISOString() };
+  if (!rij.nummer) velden.nummer = await nieuwNummer(db, nu.getFullYear());
+  const upd = await db.from("zelfstarters").update(velden).eq("id", rij.id).neq("status", "betaald").select("*").maybeSingle();
+  if (!upd.data) return "stond al op betaald";
+  const na = upd.data;
+  if (na.eerste_meting_op){
+    await stuurMail(db, na, "mail_badge_op", badgeMail({
+      naam: na.naam, nummer: na.nummer, verificatiecode: na.verificatiecode,
+      meetjaren: na.meetjaren, plus: !!na.plus_class_gevolgd_op, registratieId: na.id
+    }));
+    return `geverifieerd zonder betaling, nummer ${na.nummer}`;
+  }
+  await stuurMail(db, na, "mail_welkom_op", welkomMail({ naam: na.naam, registratieId: na.id, type: na.type }));
+  return `geverifieerd zonder betaling, nog meten, nummer ${na.nummer}`;
+}
+
 /* Een meting koppelen aan een registratie. Aangeroepen vanuit api/scan.js
    zodra een meting met zs=<id> binnenkomt.
    Gratis weg, eerste meting: nummer, status geregistreerd, uitslagmail.

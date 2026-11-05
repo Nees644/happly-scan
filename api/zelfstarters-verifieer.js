@@ -28,7 +28,7 @@ export default async function handler(req, res){
   try{
     const partner = await partnerBijCode(db, body.code);
     const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-uitslag", partner });
-    res.status(200).json(b);
+    res.status(200).json(b.gratis ? { ...b, betaalpagina: b.terug } : b);
   }catch(e){
     await logFout("zelfstarters-verifieer", e.message);
     res.status(e.status || 502).json({ error: e.status ? e.message : "de betaling kon niet worden gestart" });

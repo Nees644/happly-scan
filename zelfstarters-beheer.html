@@ -41,7 +41,7 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
 <div id="inhoud" style="display:none">
   <div class="card">
     <h2>Nieuwe partner</h2>
-    <p class="m" style="margin:0 0 6px">De code krijgt de partner voor zijn kandidaten. Laat je hem leeg, dan maken we er een van de naam. Standaard 25%; dezelfde code voor open en founding partners.</p>
+    <p class="m" style="margin:0 0 6px">De code krijgt de partner voor zijn kandidaten. Laat je hem leeg, dan maken we er een van de naam. Standaard 25%; dezelfde code voor open en founding partners. Een code van 100% verifieert zonder betaling (niet voor Plus Class) en telt apart als gratis.</p>
     <form id="nf">
       <div class="rij">
         <div><label>Naam</label><input name="naam" required placeholder="bijv. Knab"></div>
@@ -56,8 +56,8 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
   </div>
   <div class="card">
     <h2>Partners</h2>
-    <p class="m" style="margin:0">Gestart: betalingen begonnen met de code. Betaald: afgerond. Korting en omzet over de betaalde registraties, excl. btw respectievelijk incl. btw.</p>
-    <table><thead><tr><th>Partner</th><th>Code</th><th>Korting</th><th>Gestart</th><th>Betaald</th><th>Korting €</th><th>Omzet €</th><th></th></tr></thead><tbody id="lijst"></tbody></table>
+    <p class="m" style="margin:0">Gestart: registraties die de code gebruikten. Betaald: afgerond via Mollie. Gratis: geverifieerd met een code van 100%. Korting en omzet over de betaalde registraties, excl. btw respectievelijk incl. btw.</p>
+    <table><thead><tr><th>Partner</th><th>Code</th><th>Korting</th><th>Gestart</th><th>Betaald</th><th>Gratis</th><th>Korting €</th><th>Omzet €</th><th></th></tr></thead><tbody id="lijst"></tbody></table>
   </div>
   <div class="card">
     <h2>Links voor de partner</h2>
@@ -82,8 +82,8 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
     const j = await r.json();
     document.getElementById("lijst").innerHTML = (j.partners || []).map(p => `<tr class="${p.actief ? "" : "uit"}">
       <td><b>${esc(p.naam)}</b><br><span class="m" style="font-size:.8rem">${esc(p.soort)}${p.email ? " · " + esc(p.email) : ""}</span></td>
-      <td><code>${esc(p.code)}</code></td><td>${esc(p.korting_pct)}%</td><td>${p.gestart}</td><td>${p.betaald}</td><td>${euro(p.korting_cent)}</td><td>${euro(p.omzet_cent)}</td>
-      <td><button class="klein" data-id="${esc(p.id)}" data-actief="${p.actief ? "0" : "1"}">${p.actief ? "Uitzetten" : "Aanzetten"}</button></td></tr>`).join("") || `<tr><td colspan="8" class="m">Nog geen partners.</td></tr>`;
+      <td><code>${esc(p.code)}</code></td><td>${esc(p.korting_pct)}%</td><td>${p.gestart}</td><td>${p.betaald}</td><td>${p.gratis}</td><td>${euro(p.korting_cent)}</td><td>${euro(p.omzet_cent)}</td>
+      <td><button class="klein" data-id="${esc(p.id)}" data-actief="${p.actief ? "0" : "1"}">${p.actief ? "Uitzetten" : "Aanzetten"}</button></td></tr>`).join("") || `<tr><td colspan="9" class="m">Nog geen partners.</td></tr>`;
     document.querySelectorAll("button[data-id]").forEach(b => b.addEventListener("click", async () => {
       await fetch("/api/zelfstarters-partners", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ s, id: b.dataset.id, actief: b.dataset.actief === "1" }) });
       laad();

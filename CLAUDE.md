@@ -259,4 +259,6 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   `/zelfstarters-beheer` met ZS_BEHEER_SLEUTEL (`api/zelfstarters-partners.js`),
   controle van een code op `api/zelfstarters-code.js`. De code komt mee als
   `?code=` op `/zelfstarters`, `/zelfstarters-uitslag` en zelfstarters.nl.
+  Een code van 100% gaat langs Mollie heen (`verwerkGratisVerificatie`,
+  `betaling_status = 'gratis'`), niet voor Plus Class.
 

@@ -91,7 +91,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
     try{
       const r = await fetch("/api/zelfstarters-code?code=" + encodeURIComponent(c)); const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Onbekende code.");
-      kuit.textContent = "Code van " + j.partner.naam + ": " + j.partner.korting_pct + "% korting."; toonPrijs(j.prijzen[type], j.partner);
+      kuit.textContent = "Code van " + j.partner.naam + ": " + j.partner.korting_pct + "% korting." + (j.partner.korting_pct >= 100 ? " Je hoeft niet te betalen; je gaat direct naar je meting." : ""); toonPrijs(j.prijzen[type], j.partner); if (j.partner.korting_pct >= 100) knop.textContent = "Start je meting";
     }catch(err){ kuit.textContent = err.message; toonPrijs(prijzenZonder); }
   }
   codeVeld.addEventListener("change", pasCodeToe);
@@ -111,7 +111,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
       const r = await fetch("/api/zelfstarters-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "De registratie is niet gelukt.");
-      if (keuze){
+      if (keuze && !d.gratis){
         if (!d.betaalpagina) throw new Error("De betaling kon niet worden gestart.");
         location.href = d.betaalpagina;
       }else{

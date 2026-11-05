@@ -188,4 +188,5 @@ test("de partnermigratie geeft service_role toegang en legt de korting vast op d
   assert.match(m, /grant select, insert, update, delete on public\.zelfstarters_partners to service_role/);
   assert.match(m, /partner_id uuid references public\.zelfstarters_partners/);
   assert.match(m, /korting_cent integer/);
+  assert.match(m, /'gratis'/);
 });

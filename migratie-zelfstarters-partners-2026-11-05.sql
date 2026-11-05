@@ -21,3 +21,9 @@ alter table public.zelfstarters
   add column if not exists partner_id uuid references public.zelfstarters_partners (id),
   add column if not exists kortingscode text,
   add column if not exists korting_cent integer not null default 0;
+
+-- Een code van honderd procent verifieert zonder betaling; betaling_status
+-- zegt dan gratis, zodat geschonken en betaald nooit door elkaar lopen.
+alter table public.zelfstarters drop constraint if exists zelfstarters_betaling_status_check;
+alter table public.zelfstarters add constraint zelfstarters_betaling_status_check
+  check (betaling_status is null or betaling_status in ('open','betaald','mislukt','verlopen','gratis'));
