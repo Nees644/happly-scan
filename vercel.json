@@ -193,6 +193,9 @@
     },
     "api/zelfstarters-mail-opnieuw.js": {
       "maxDuration": 20
+    },
+    "api/zelfstarters-partners.js": {
+      "maxDuration": 20
     }
   },
   "crons": [

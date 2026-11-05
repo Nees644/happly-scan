@@ -166,3 +166,26 @@ test("de nieuwe mails houden zich aan de taalregels; de dimensiescores blijven b
     assert.doesNotMatch(t, /\b(82|61|74|72)\b/);
   }
 });
+
+import { codeOpschonen, kortingCent, codeVoorNaam } from "../zelfstarters-korting.js";
+import fs from "node:fs";
+
+test("kortingscodes: opschonen, korting in hele centen, code uit naam", () => {
+  assert.equal(codeOpschonen(" knab-42 "), "KNAB-42");
+  assert.equal(codeOpschonen("ab"), null);
+  assert.equal(codeOpschonen("met spatie x"), "METSPATIEX");
+  assert.equal(codeOpschonen("ab?c"), null);
+  assert.equal(kortingCent(7900, 25), 1975);
+  assert.equal(kortingCent(29900, 30), 8970);
+  assert.equal(kortingCent(7900, 0), 0);
+  assert.equal(kortingCent(7900, 250), 7900);
+  assert.match(codeVoorNaam("Knab Zakelijk"), /^KNABZAKE-\d{2}$/);
+  assert.match(codeVoorNaam(""), /^PARTNER-\d{2}$/);
+});
+
+test("de partnermigratie geeft service_role toegang en legt de korting vast op de registratie", () => {
+  const m = fs.readFileSync(new URL("../migratie-zelfstarters-partners-2026-11-05.sql", import.meta.url), "utf8");
+  assert.match(m, /grant select, insert, update, delete on public\.zelfstarters_partners to service_role/);
+  assert.match(m, /partner_id uuid references public\.zelfstarters_partners/);
+  assert.match(m, /korting_cent integer/);
+});

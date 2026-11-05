@@ -16,6 +16,7 @@ import { bedragMetBtw } from "../betalen.js";
 import { maakBetaling } from "../mollie.js";
 import { zelfstartersSleutel } from "../zelfstarters-verwerken.js";
 import { VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
+import { partnerVoorCode, kortingCent } from "../zelfstarters-korting.js";
 
 export const CODE = { standaard: "ZS-STD", plus: "ZS-PLUS" };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -28,7 +29,8 @@ function euro(centen){
   return (centen / 100).toFixed(2).replace(".", ",").replace(",00", "");
 }
 
-export async function prijzen(db){
+/* De prijzen, en met een partner erbij ook de prijzen na korting. */
+export async function prijzen(db, partner){
   const q = await db.from("producten").select("*").in("code", Object.values(CODE)).eq("actief", true);
   const uit = {};
   for (const [type, code] of Object.entries(CODE)){
@@ -36,17 +38,32 @@ export async function prijzen(db){
     if (!p) continue;
     const b = bedragMetBtw(p);
     uit[type] = { ex: euro(b.ex), btw: euro(b.btw), totaal: euro(b.totaal) };
+    if (partner){
+      const korting = kortingCent(p.prijs_ex_btw, partner.korting_pct);
+      const k = bedragMetBtw({ ...p, prijs_ex_btw: p.prijs_ex_btw - korting });
+      uit[type].met_korting = { ex: euro(k.ex), btw: euro(k.btw), totaal: euro(k.totaal), korting_ex: euro(korting) };
+    }
   }
   return uit;
+}
+
+/* De partner bij een ingevulde code, of null. Een onbekende code geeft een
+   fout met status 400, zodat de klant het ziet voordat hij betaalt. */
+export async function partnerBijCode(db, code){
+  if (!code) return null;
+  const partner = await partnerVoorCode(db, code);
+  if (!partner) throw Object.assign(new Error("Deze kortingscode is niet bekend. Vraag je intermediair om de juiste code."), { status: 400 });
+  return partner;
 }
 
 /* Een betaling bij Mollie starten voor een bestaande rij. Gebruikt door de
    oude weg (hier) en door de verificatie (api/zelfstarters-verifieer.js).
    terug is de pagina waar de klant na Mollie op terugkomt. */
-export async function startBetaling({ db, req, rij, type, terug }){
+export async function startBetaling({ db, req, rij, type, terug, partner }){
   const p = await db.from("producten").select("*").eq("code", CODE[type]).eq("actief", true).maybeSingle();
   if (!p.data) throw Object.assign(new Error("Dit tarief is niet meer beschikbaar."), { status: 404 });
-  const bedrag = bedragMetBtw(p.data);
+  const korting = partner ? kortingCent(p.data.prijs_ex_btw, partner.korting_pct) : 0;
+  const bedrag = bedragMetBtw({ ...p.data, prijs_ex_btw: p.data.prijs_ex_btw - korting });
   const basis = basisUrl(req);
   const geheim = process.env.MOLLIE_WEBHOOK_SECRET || "";
   const doorlaat = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
@@ -54,15 +71,16 @@ export async function startBetaling({ db, req, rij, type, terug }){
     : "";
   const betaling = await maakBetaling({
     centen: bedrag.totaal,
-    omschrijving: `Zelfstarters ${type === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur"}, ${rij.nummer || "registratie"}`,
+    omschrijving: `Zelfstarters ${type === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur"}, ${rij.nummer || "registratie"}${partner ? `, via ${partner.code}` : ""}`,
     redirectUrl: `${basis}${terug}?z=${rij.id}`,
     webhookUrl: `${basis}/api/zelfstarters-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
-    metadata: { zelfstarter_id: rij.id, product: p.data.code },
+    metadata: { zelfstarter_id: rij.id, product: p.data.code, partner: partner ? partner.code : null },
     sleutel: zelfstartersSleutel()
   });
   await db.from("zelfstarters").update({
     mollie_payment_id: betaling.id, type, product_code: p.data.code,
-    bedrag_cent: bedrag.totaal, btw_cent: bedrag.btw, betaling_status: "open"
+    bedrag_cent: bedrag.totaal, btw_cent: bedrag.btw, betaling_status: "open",
+    partner_id: partner ? partner.id : null, kortingscode: partner ? partner.code : null, korting_cent: korting
   }).eq("id", rij.id);
   return { betaalpagina: betaling?._links?.checkout?.href || null, bedrag_cent: bedrag.totaal };
 }
@@ -70,7 +88,13 @@ export async function startBetaling({ db, req, rij, type, terug }){
 export default async function handler(req, res){
   if (req.method === "GET"){
     res.setHeader("Cache-Control", "no-store");
-    res.status(200).json({ prijzen: await prijzen(serviceClient()), vakgebieden: VAKGEBIEDEN });
+    const db = serviceClient();
+    let partner = null;
+    try{ partner = await partnerBijCode(db, req.query?.code); }catch(e){ res.status(400).json({ error: e.message }); return; }
+    res.status(200).json({
+      prijzen: await prijzen(db, partner), vakgebieden: VAKGEBIEDEN,
+      partner: partner ? { naam: partner.naam, code: partner.code, korting_pct: partner.korting_pct } : null
+    });
     return;
   }
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }
@@ -80,6 +104,8 @@ export default async function handler(req, res){
   const type = body.type === "plus" ? "plus" : "standaard";
   const vakgebied = VAKGEBIEDEN.includes(body.vakgebied) ? body.vakgebied : null;
   const openbaar = body.openbaar === true;
+  let partner = null;
+  try{ partner = await partnerBijCode(serviceClient(), body.code); }catch(e){ res.status(400).json({ error: e.message }); return; }
   if (naam.length < 2){ res.status(400).json({ error: "Vul je naam in." }); return; }
   if (!EMAIL.test(email)){ res.status(400).json({ error: "Vul een geldig e-mailadres in." }); return; }
 
@@ -102,7 +128,7 @@ export default async function handler(req, res){
   }
 
   try{
-    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-naar-scan" });
+    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-naar-scan", partner });
     res.status(200).json({ registratie_id: rij.id, ...b });
   }catch(e){
     await db.from("zelfstarters").update({ status: "mislukt" }).eq("id", rij.id);

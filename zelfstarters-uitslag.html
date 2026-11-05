@@ -55,6 +55,11 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
 .plan .klein{font:inherit;font-size:.85rem;font-weight:700;color:var(--navy);background:#fff;border:2px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer;margin-left:6px}
 .plan .uitleg{font-size:.92rem;background:var(--paper);border-radius:14px;padding:12px 14px;margin-bottom:6px}
 .plan textarea{resize:vertical;font-family:inherit}
+.korting{background:var(--paper);border-radius:14px;padding:14px 16px;margin-top:14px}
+.krij{display:flex;gap:8px;margin-top:8px}
+.krij input{flex:1;padding:11px 12px;border:2px solid var(--line);border-radius:12px;font:inherit;text-transform:uppercase}
+.korting .klein{font:inherit;font-weight:700;color:#fff;background:var(--navy);border:0;border-radius:12px;padding:0 16px;cursor:pointer}
+.optie .p s{color:var(--muted);font-weight:400;font-size:.85rem;margin-right:6px}
 .plan select,.plan input,.plan textarea{width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:12px;font:inherit;font-size:.98rem;background:#fff}
 .fout{color:#b23b0a;font-weight:700;margin-top:10px;display:none}
 .foot{font-size:.85rem;color:var(--muted);margin-top:18px}
@@ -122,6 +127,11 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
           <ul><li>Alles van optie 2</li><li>Een dag live in Zaltbommel in januari: je meting wordt je persoonlijke ontwikkelplan, met een gedragsexpert en vakgenoten</li><li>De plus op je badge</li></ul>
           <button class="btn" data-type="plus">Kies Plus Class</button>
         </div>
+        <div class="korting">
+          <label for="kcode"><b>Kortingscode van je intermediair</b> <span class="m" style="font-weight:400">(als je die hebt)</span></label>
+          <div class="krij"><input type="text" id="kcode" placeholder="bijv. KNAB-42" autocomplete="off" value="${esc(new URLSearchParams(location.search).get("code") || "")}"><button type="button" class="klein" id="kknop">Toepassen</button></div>
+          <div class="m" id="kuit" style="font-size:.9rem;margin-top:6px">Partners van Zelfstarters geven hun kandidaten korting op Verificatie &amp; Voorkeur. Vraag je intermediair om de code.</div>
+        </div>
         <div class="fout" id="vfout"></div>
         <p class="foot">Founding-tarief tot 31 december. Wie dit jaar kiest, draagt ${esc(d.jaar)} als eerste jaartal op zijn badge; dat jaartal is er volgend jaar niet meer. Je betaalt via Mollie en komt terug op deze pagina.</p>
       </div>`;
@@ -129,10 +139,40 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
     const hi = keuze === "plus" ? document.getElementById("optie-plus") : keuze === "jaar" ? document.getElementById("optie-jaar") : null;
     if (hi){ hi.classList.add("hi"); setTimeout(() => hi.scrollIntoView({ behavior: "smooth", block: "center" }), 400); }
     const fout = document.getElementById("vfout");
+    let code = null;
+    const kcode = document.getElementById("kcode"), kuit = document.getElementById("kuit");
+    async function pasCodeToe(){
+      const c = kcode.value.trim().toUpperCase();
+      code = null;
+      if (!c){ kuit.textContent = "Partners van Zelfstarters geven hun kandidaten korting op Verificatie & Voorkeur. Vraag je intermediair om de code."; toonPrijzen(pr); return; }
+      kuit.textContent = "Even kijken";
+      try{
+        const r = await fetch("/api/zelfstarters-code?code=" + encodeURIComponent(c));
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || "Onbekende code.");
+        code = j.partner.code;
+        kuit.innerHTML = `Code van <b>${esc(j.partner.naam)}</b>: ${esc(String(j.partner.korting_pct))}% korting, verwerkt in de prijzen hierboven.`;
+        toonPrijzen(j.prijzen, true);
+      }catch(err){ kuit.textContent = err.message; toonPrijzen(pr); }
+    }
+    function toonPrijzen(p, korting){
+      for (const [t, id, hoe] of [["standaard", "optie-jaar", "betaald per jaar"], ["plus", "optie-plus", "betaald ineens"]]){
+        const el = document.querySelector(`#${id} .p`); if (!el || !p[t]) continue;
+        const k = korting && p[t].met_korting;
+        el.innerHTML = k
+          ? `<s>€ ${maand(p[t].ex)}</s>€ ${maand(k.ex)} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">per maand</span><small>${hoe}: € ${k.ex} excl. btw (€ ${k.totaal} incl.), korting € ${k.korting_ex}</small>`
+          : prijs(t, hoe);
+      }
+    }
+    document.getElementById("kknop").addEventListener("click", pasCodeToe);
+    kcode.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); pasCodeToe(); } });
+    if (kcode.value) pasCodeToe();
     document.querySelectorAll("#verifieer button[data-type]").forEach(knop => knop.addEventListener("click", async function(){
       fout.style.display = "none"; const tekst = knop.textContent; knop.disabled = true; knop.textContent = "Even geduld";
       try{
-        const r = await fetch("/api/zelfstarters-verifieer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ z, type: knop.dataset.type }) });
+        if (kcode.value.trim() && !code) await pasCodeToe();
+        if (kcode.value.trim() && !code) throw new Error("Deze kortingscode is niet bekend. Haal hem weg of vraag je intermediair om de juiste code.");
+        const r = await fetch("/api/zelfstarters-verifieer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ z, type: knop.dataset.type, code }) });
         const j = await r.json();
         if (!r.ok || !j.betaalpagina) throw new Error(j.error || "De betaling kon niet worden gestart.");
         location.href = j.betaalpagina;

@@ -3,11 +3,11 @@
 // registratie geverifieerd. Kan alleen na een meting; de betaling hangt aan
 // de bestaande rij en de klant komt terug op zijn uitslagpagina.
 //
-// POST { z: <registratie_id>, type: 'standaard' | 'plus' }
+// POST { z: <registratie_id>, type: 'standaard' | 'plus', code?: <kortingscode van de intermediair> }
 // Antwoord: { betaalpagina }
 
 import { serviceClient, logFout } from "../teamkracht-auth.js";
-import { startBetaling } from "./zelfstarters-start.js";
+import { startBetaling, partnerBijCode } from "./zelfstarters-start.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -26,7 +26,8 @@ export default async function handler(req, res){
   if (!rij.eerste_meting_op){ res.status(409).json({ error: "Doe eerst je meting." }); return; }
 
   try{
-    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-uitslag" });
+    const partner = await partnerBijCode(db, body.code);
+    const b = await startBetaling({ db, req, rij, type, terug: "/zelfstarters-uitslag", partner });
     res.status(200).json(b);
   }catch(e){
     await logFout("zelfstarters-verifieer", e.message);

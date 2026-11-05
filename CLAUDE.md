@@ -250,4 +250,13 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   nieuw plan zet ze terug. Uitleg en voorbeelden per ruimtepunt en moment
   staan in `zelfstarters-uitslag.js` (`PLAN_UITLEG`, `VOORBEELDEN`), de cron
   loopt mee in `stuurHerinneringen` via `api/opvolg.js`.
+- **Partners en kortingscodes sinds 5 november 2026** (migratie
+  `migratie-zelfstarters-partners-2026-11-05.sql`, tabel
+  `zelfstarters_partners`). Een intermediair krijgt een code met een
+  percentage korting op Verificatie & Voorkeur, excl. btw, verwerkt in
+  `startBetaling` (`zelfstarters-korting.js`). Op de registratie staan
+  `partner_id`, `kortingscode` en `korting_cent`. Beheer op
+  `/zelfstarters-beheer` met ZS_BEHEER_SLEUTEL (`api/zelfstarters-partners.js`),
+  controle van een code op `api/zelfstarters-code.js`. De code komt mee als
+  `?code=` op `/zelfstarters`, `/zelfstarters-uitslag` en zelfstarters.nl.
 
