@@ -172,12 +172,12 @@ export function uitslagMail({ naam, registratieId, nummer, score, sterkste, ruim
       ) +
 
       blok(
-        kop("Optie 3 &middot; de uitbreiding", "De Zelfstarters Dag", `<b style="color:${TX}">€ ${esc(plus.ex)} ineens</b>, excl. btw, inclusief Verificatie &amp; Voorkeur`, NAVY) +
+        kop("Optie 3 &middot; de uitbreiding", "De Zelfstarters Dag", `<b style="color:${TX}">€ ${esc(plus.ex)} ineens</b>, excl. btw, alles inbegrepen`, NAVY) +
         lijst([
-          `Alles van optie 2`,
+          `<b>Je scan, je registratie en je geverifieerde badge</b> met nummer`,
           `<b>Dag 1, de Zelfstarters Dag</b>: in één dag werk je aan de punten uit je scan en maak je je groeiplan, met een practitioner en vakgenoten. Elke maand één, vanaf tien deelnemers`,
-          `<b>Een jaar lang</b> je plan met herinneringen en Zetjes`,
-          `<b>Dag 2, de Alumni Dag</b>, een jaar later: ervaringen uitwisselen, sprekers, een werkgeversmarkt en de plus op je badge`
+          `<b>Dag 2, de Alumni Dag</b> na zes maanden: je hermeting, ervaringen uitwisselen, sprekers en een werkgeversmarkt`,
+          `<b>De plus op je badge</b>`
         ]) +
         p(`Wat een opdrachtgever dan ziet:`, `color:${MUT};font-size:13px;margin:12px 0 0`) +
         controle(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="font-family:${FONT};font-size:14px;color:${TX}"><b>${esc(nummer)}</b> &middot; ${stamp("Geverifieerd &middot; Plus", NAVY)} &middot; ${esc(jaar)}</td><td align="right" style="width:70px"><img src="${SCAN_URL}/beeld/badge-plus-${esc(jaar)}.png" width="60" alt="Je badge met plus" style="display:block"></td></tr></table>`) +

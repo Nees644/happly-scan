@@ -270,8 +270,9 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   live met een practitioner, elke maand één, vanaf tien deelnemers (schuift
   anders een maand), plus een jaar plan en Zetjes en de Zelfstarters Alumni Dag (twee
   keer per jaar, `terugkomdag_op`, voor iedere geverifieerde; heette kort
-  Terugkomdag; na een jaar ervaringen uitwisselen, sprekers, werkgeversmarkt,
-  uitreiking van de plus). Het type heet
+  Terugkomdag; zes maanden na de Dag: hermeting, ervaringen uitwisselen, sprekers,
+  werkgeversmarkt, uitreiking van de plus; de Dag kost 499 en bevat scan,
+  registratie, geverifieerde badge en plus). Het type heet
   in de code nog `plus` en de kolommen `plus_class_op` en
   `plus_class_gevolgd_op` blijven; de dagen staan in `zelfstarters-dagen.js`.
   De plus op de badge komt na de gevolgde Dag.

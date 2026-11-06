@@ -17,7 +17,7 @@ export const DAGEN = [
   { datum: "2027-06-18", label: "vrijdag 18 juni 2027", plaats: "Zaltbommel" }
 ];
 
-/* De Zelfstarters Alumni Dag: ervaringen uitwisselen, sprekers, een werkgeversmarkt en de uitreiking van de plus. Geen
+/* De Zelfstarters Alumni Dag, zes maanden na de Zelfstarters Dag: de hermeting, ervaringen uitwisselen, sprekers, een werkgeversmarkt en de uitreiking van de plus. Geen
    maximum; wie geverifieerd is mag komen. */
 export const TERUGKOMDAGEN = [
   { datum: "2027-06-25", label: "vrijdag 25 juni 2027", plaats: "Zaltbommel" },
