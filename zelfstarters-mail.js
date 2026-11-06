@@ -62,7 +62,7 @@ export function uitslagLink(registratieId){
   return `${SCAN_URL}/zelfstarters-uitslag?z=${encodeURIComponent(registratieId)}`;
 }
 
-/* De link waarmee een Plus Class-deelnemer zijn dag kiest of wijzigt. */
+/* De link waarmee een deelnemer zijn Zelfstarters Dag kiest of wijzigt, en zich aanmeldt voor de Terugkomdag. */
 export function dagLink(registratieId){
   return `${SCAN_URL}/zelfstarters-dag?z=${encodeURIComponent(registratieId)}`;
 }
@@ -78,7 +78,7 @@ export function welkomMail({ naam, registratieId, type }){
       knop("Doe je nulmeting", scanLink(registratieId)) +
       p(`Doe de meting in één keer af en vul je eigen antwoorden in. Het is geen test die je kunt halen of zakken; het is het startpunt waar je groei vanaf volgend jaar aan wordt afgemeten.`, `color:${MUT};font-size:14px`) +
       (plus
-        ? p(`Je hebt gekozen voor de Plus Class. Kies hier je dag in januari, in Zaltbommel: <a href="${dagLink(registratieId)}" style="color:${NAVY};font-weight:700">kies je dag</a>.`, `color:${MUT};font-size:14px`)
+        ? p(`Je hebt gekozen voor de Zelfstarters Dag. Kies hier je dag, elke maand één, in Zaltbommel: <a href="${dagLink(registratieId)}" style="color:${NAVY};font-weight:700">kies je dag</a>.`, `color:${MUT};font-size:14px`)
         : "")
     )
   };
@@ -112,7 +112,7 @@ export function badgeMail({ naam, nummer, verificatiecode, meetjaren, plus, regi
       p(`<a href="${check}" style="color:${NAVY};font-weight:700">${esc(check)}</a>`) +
       p(`Openbaar is alleen dat je registratie geldig is, Standaard of Plus, sinds wanneer en wanneer je laatste meting was. Je score en je groei deel je zelf.`, `color:${MUT};font-size:14px`) +
       (plus
-        ? p(`Na je Plus Class komt de plus op je badge.`, `color:${MUT};font-size:14px`)
+        ? p(`Na je Zelfstarters Dag komt de plus op je badge.`, `color:${MUT};font-size:14px`)
         : "") +
       p(`Over twaalf maanden krijg je een uitnodiging voor je hermeting. Daarmee blijft je badge geldig en wordt je groei zichtbaar.`, `color:${MUT};font-size:14px`) +
       (registratieId ? knop("Naar je uitslag en je plan", uitslagLink(registratieId)) : "")
@@ -172,15 +172,16 @@ export function uitslagMail({ naam, registratieId, nummer, score, sterkste, ruim
       ) +
 
       blok(
-        kop("Optie 3 &middot; de uitbreiding", "Verificatie &amp; Voorkeur + Plus Class", `<b style="color:${TX}">€ ${esc(plus.maand)} per maand</b>, betaald ineens: € ${esc(plus.ex)} excl. btw`, NAVY) +
+        kop("Optie 3 &middot; de uitbreiding", "De Zelfstarters Dag", `<b style="color:${TX}">€ ${esc(plus.ex)} ineens</b>, excl. btw, inclusief Verificatie &amp; Voorkeur`, NAVY) +
         lijst([
           `Alles van optie 2`,
-          `<b>Een dag live in Zaltbommel, in januari:</b> je meting wordt je persoonlijke ontwikkelplan, met een gedragsexpert en vakgenoten`,
-          `<b>De plus op je badge</b>`
+          `<b>Eén dag live</b> met een practitioner en vakgenoten: Zien, Sturen en Doen, en je als-dan plan staat aan het eind van de dag. Elke maand één dag, vanaf tien deelnemers`,
+          `<b>Een jaar lang</b> je plan met herinneringen en Zetjes`,
+          `<b>De Terugkomdag</b>, twee keer per jaar: lezingen, de hermeting en de uitreiking van de plus op je badge`
         ]) +
         p(`Wat een opdrachtgever dan ziet:`, `color:${MUT};font-size:13px;margin:12px 0 0`) +
         controle(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="font-family:${FONT};font-size:14px;color:${TX}"><b>${esc(nummer)}</b> &middot; ${stamp("Geverifieerd &middot; Plus", NAVY)} &middot; ${esc(jaar)}</td><td align="right" style="width:70px"><img src="${SCAN_URL}/beeld/badge-plus-${esc(jaar)}.png" width="60" alt="Je badge met plus" style="display:block"></td></tr></table>`) +
-        p(`Vijftien plekken per dag. <a href="${uitslag}?keuze=plus#verifieer" style="color:${NAVY};font-weight:700">Kies met Plus Class</a>`, `font-size:14px;margin:12px 0 0`),
+        p(`Vijftien plekken per dag. <a href="${uitslag}?keuze=plus#verifieer" style="color:${NAVY};font-weight:700">Kies de Zelfstarters Dag</a>`, `font-size:14px;margin:12px 0 0`),
         `border:1px solid #e3dfd6;background:#fff`
       ) +
 
@@ -258,10 +259,10 @@ export function planCheckMail({ naam, registratieId, regels, stap }){
 export function dagMail({ naam, dag, registratieId }){
   const vn = esc(voornaam(naam));
   return {
-    subject: `Je Plus Class: ${dag.label}`,
+    subject: `Je Zelfstarters Dag: ${dag.label}`,
     html: shell(
       p(`Dag ${vn},`) +
-      p(`Je Plus Class staat vast op <b>${esc(dag.label)}</b> in ${esc(dag.plaats)}. Een week vooraf krijg je het adres, de tijden en wat je meeneemt.`) +
+      p(`Je Zelfstarters Dag staat op <b>${esc(dag.label)}</b> in ${esc(dag.plaats)}. De dag gaat door vanaf tien deelnemers; is dat niet gehaald, dan schuift de groep een maand en hoor je dat uiterlijk twee weken vooraf. Een week vooraf krijg je het adres, de tijden en wat je meeneemt.`) +
       p(`Lukt de dag toch niet, dan kies je hier een andere, zolang er plek is:`) +
       knop("Wijzig je dag", dagLink(registratieId)) +
       p(`Na die dag komt de plus op je badge en je certificaat.`, `color:${MUT};font-size:14px`)

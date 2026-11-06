@@ -19,7 +19,10 @@ import { VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
 import { partnerVoorCode, kortingCent } from "../zelfstarters-korting.js";
 import { verwerkGratisVerificatie } from "../zelfstarters-verwerken.js";
 
-export const CODE = { standaard: "ZS-STD", plus: "ZS-PLUS" };
+// Type plus is sinds 6 november 2026 de Zelfstarters Dag (ZS-DAG); de
+// kolommen plus_class_op en plus_class_gevolgd_op blijven de dagkeuze en de
+// gevolgde dag, en de plus op de badge komt na die dag.
+export const CODE = { standaard: "ZS-STD", plus: "ZS-DAG" };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function basisUrl(req){
@@ -69,7 +72,7 @@ export async function startBetaling({ db, req, rij, type, terug, partner }){
     // Een code van honderd procent: geen betaling, Mollie neemt geen nul
     // euro aan. De registratie gaat direct op geverifieerd, en de code blijft
     // op de rij staan zodat geschonken en betaald nooit door elkaar lopen.
-    if (type === "plus") throw Object.assign(new Error("Plus Class kan niet met deze code. Kies Verificatie & Voorkeur."), { status: 400 });
+    if (type === "plus") throw Object.assign(new Error("De Zelfstarters Dag kan niet met deze code. Kies Verificatie & Voorkeur."), { status: 400 });
     await db.from("zelfstarters").update({
       type, product_code: p.data.code, bedrag_cent: 0, btw_cent: 0,
       partner_id: partner.id, kortingscode: partner.code, korting_cent: korting
@@ -84,7 +87,7 @@ export async function startBetaling({ db, req, rij, type, terug, partner }){
     : "";
   const betaling = await maakBetaling({
     centen: bedrag.totaal,
-    omschrijving: `Zelfstarters ${type === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur"}, ${rij.nummer || "registratie"}${partner ? `, via ${partner.code}` : ""}`,
+    omschrijving: `Zelfstarters ${type === "plus" ? "Dag" : "Verificatie & Voorkeur"}, ${rij.nummer || "registratie"}${partner ? `, via ${partner.code}` : ""}`,
     redirectUrl: `${basis}${terug}?z=${rij.id}`,
     webhookUrl: `${basis}/api/zelfstarters-webhook?s=${encodeURIComponent(geheim)}${doorlaat}`,
     metadata: { zelfstarter_id: rij.id, product: p.data.code, partner: partner ? partner.code : null },
@@ -116,6 +119,7 @@ export default async function handler(req, res){
   const email = String(body.email || "").trim().toLowerCase();
   const type = body.type === "plus" ? "plus" : "standaard";
   const vakgebied = VAKGEBIEDEN.includes(body.vakgebied) ? body.vakgebied : null;
+  const werkvorm = body.werkvorm === "loondienst" ? "loondienst" : "zelfstandig";
   const openbaar = body.openbaar === true;
   let partner = null;
   try{ partner = await partnerBijCode(serviceClient(), body.code); }catch(e){ res.status(400).json({ error: e.message }); return; }
@@ -127,7 +131,7 @@ export default async function handler(req, res){
   // Eerst de rij. Een meting of betaling zonder registratie is een getal
   // zonder verhaal.
   const ins = await db.from("zelfstarters").insert({
-    naam, email, type, vakgebied, openbaar, status: "open"
+    naam, email, type, vakgebied, werkvorm, openbaar, status: "open"
   }).select("*").single();
   if (ins.error){
     await logFout("zelfstarters-start", ins.error.message);

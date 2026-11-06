@@ -58,7 +58,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
     '<div class="stap"><div><b>Tien minuten</b>Twaalf vragen en drie over je situatie.</div><div><b>In één keer</b>Je eigen antwoorden, geen test die je kunt halen.</div><div><b>Daarna terug</b>Je uitslag, je nummer' + (betaald ? ", je badge" : "") + '.</div></div>' +
     '<a class="btn" href="' + d.scan_url + '">Start de Zelfkracht Scan</a>' +
     '<div class="happly"><img src="/favicon.svg" alt="Happly"><span>De Zelfkracht Scan is van Happly, de bouwer achter Zelfstarters.</span></div></div>' +
-    (betaald && d.type === "plus" ? '<div class="card"><p>Je hebt Verificatie & Voorkeur + Plus Class. Kies alvast je dag in januari, of doe dat later via de link in je mail.</p><a class="btn" style="background:var(--navy)" href="/zelfstarters-dag?z=' + encodeURIComponent(z) + '">Kies je dag</a></div>' : '');
+    (betaald && d.type === "plus" ? '<div class="card"><p>Je hebt de Zelfstarters Dag. Kies alvast je dag in januari, of doe dat later via de link in je mail.</p><a class="btn" style="background:var(--navy)" href="/zelfstarters-dag?z=' + encodeURIComponent(z) + '">Kies je dag</a></div>' : '');
 })();
 </script>
 </body>

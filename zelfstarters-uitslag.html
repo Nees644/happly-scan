@@ -99,7 +99,9 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
   function gratis(d){
     const pr = d.prijzen || {};
     const maand = ex => { const n = Math.round(parseFloat(String(ex).replace(",", ".")) / 12 * 10) / 10; return n.toFixed(2).replace(".", ","); };
-    const prijs = (t, hoe) => pr[t] ? `€ ${maand(pr[t].ex)} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">per maand</span><small>${hoe}: € ${pr[t].ex} excl. btw (€ ${pr[t].totaal} incl.)</small>` : "";
+    const prijs = (t, hoe) => !pr[t] ? "" : t === "plus"
+      ? `€ ${pr[t].ex} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">ineens</span><small>${hoe}, excl. btw (€ ${pr[t].totaal} incl.)</small>`
+      : `€ ${maand(pr[t].ex)} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">per maand</span><small>${hoe}: € ${pr[t].ex} excl. btw (€ ${pr[t].totaal} incl.)</small>`;
     el.innerHTML = `<h1>${esc(d.voornaam)}, je staat in het register</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>, geregistreerd. Dit is wat jij nu weet.</p>
       ${scoreBlok(d)}
@@ -123,9 +125,9 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
           <button class="btn" data-type="standaard">Kies Verificatie &amp; Voorkeur</button>
         </div>
         <div class="optie" id="optie-plus">
-          <div class="kop"><div><div class="nr">Optie 3</div><h3>Verificatie &amp; Voorkeur + Plus Class</h3></div><div class="p">${prijs("plus", "betaald ineens")}</div></div>
-          <ul><li>Alles van optie 2</li><li>Een dag live in Zaltbommel in januari: je meting wordt je persoonlijke ontwikkelplan, met een gedragsexpert en vakgenoten</li><li>De plus op je badge</li></ul>
-          <button class="btn" data-type="plus">Kies Plus Class</button>
+          <div class="kop"><div><div class="nr">Optie 3</div><h3>De Zelfstarters Dag</h3></div><div class="p">${prijs("plus", "inclusief Verificatie & Voorkeur")}</div></div>
+          <ul><li>Alles van optie 2</li><li>Eén dag live met een practitioner en vakgenoten: Zien, Sturen en Doen, en je als-dan plan staat aan het eind van de dag. Elke maand één dag, in Zaltbommel, vanaf tien deelnemers</li><li>Een jaar lang je plan met herinneringen en Zetjes</li><li>De Terugkomdag, twee keer per jaar: lezingen, de hermeting en de uitreiking van de plus op je badge</li></ul>
+          <button class="btn" data-type="plus">Kies de Zelfstarters Dag</button>
         </div>
         <div class="korting">
           <label for="kcode"><b>Kortingscode van je intermediair</b> <span class="m" style="font-weight:400">(als je die hebt)</span></label>
@@ -156,12 +158,12 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
       }catch(err){ kuit.textContent = err.message; toonPrijzen(pr); }
     }
     function toonPrijzen(p, korting){
-      for (const [t, id, hoe] of [["standaard", "optie-jaar", "betaald per jaar"], ["plus", "optie-plus", "betaald ineens"]]){
+      for (const [t, id, hoe] of [["standaard", "optie-jaar", "betaald per jaar"], ["plus", "optie-plus", "inclusief Verificatie & Voorkeur"]]){
         const el = document.querySelector(`#${id} .p`); if (!el || !p[t]) continue;
         const k = korting && p[t].met_korting;
-        el.innerHTML = k
-          ? `<s>€ ${maand(p[t].ex)}</s>€ ${maand(k.ex)} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">per maand</span><small>${hoe}: € ${k.ex} excl. btw (€ ${k.totaal} incl.), korting € ${k.korting_ex}</small>`
-          : prijs(t, hoe);
+        el.innerHTML = !k ? prijs(t, hoe) : t === "plus"
+          ? `<s>€ ${p[t].ex}</s>€ ${k.ex} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">ineens</span><small>${hoe}, excl. btw (€ ${k.totaal} incl.), korting € ${k.korting_ex}</small>`
+          : `<s>€ ${maand(p[t].ex)}</s>€ ${maand(k.ex)} <span style="font-family:Nunito;font-weight:600;font-size:.85rem;color:var(--muted)">per maand</span><small>${hoe}: € ${k.ex} excl. btw (€ ${k.totaal} incl.), korting € ${k.korting_ex}</small>`;
       }
     }
     document.getElementById("kknop").addEventListener("click", pasCodeToe);
@@ -201,7 +203,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
     el.innerHTML = `<h1>${esc(d.voornaam)}, je bent geverifieerd</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>. Je badge draagt ${esc((d.meetjaren || []).join(" · "))}.</p>
       <div class="card"><div class="badge">${badgeSvg(d.plus, d.meetjaren, false)}<div><span class="stamp">Geverifieerd${d.plus ? " · Plus" : ""}</span><div class="m" style="font-size:.9rem;margin-top:8px">Controlepagina: <a href="https://zelfstarters.nl/check?nummer=${esc(d.nummer)}" style="color:var(--navy);font-weight:700">zelfstarters.nl/check</a>. Je badge en de link staan ook in je mail.</div>
-        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Plus Class-dag</a></div>` : ""}</div></div></div>
+        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Zelfstarters Dag</a></div>` : `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">De Terugkomdag: meld je aan</a></div>`}</div></div></div>
       ${scoreBlok(d)}
       <div class="card"><h2>Wat je meting laat zien</h2><div class="duiding">${esc(d.duiding || "Je duiding wordt nog geschreven. Kijk straks nog eens, of in je mail.")}</div></div>
       <div class="card plan" id="plan"><h2>Je als-dan plan</h2>

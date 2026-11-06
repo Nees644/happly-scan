@@ -260,5 +260,17 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   controle van een code op `api/zelfstarters-code.js`. De code komt mee als
   `?code=` op `/zelfstarters`, `/zelfstarters-uitslag` en zelfstarters.nl.
   Een code van 100% gaat langs Mollie heen (`verwerkGratisVerificatie`,
-  `betaling_status = 'gratis'`), niet voor Plus Class.
+  `betaling_status = 'gratis'`), niet voor de Zelfstarters Dag.
+- **Twee werkvormen en de Zelfstarters Dag sinds 6 november 2026** (migratie
+  `migratie-zelfstarters-dag-2026-11-06.sql`). `werkvorm` op de registratie
+  (zelfstandig, loondienst) kiest de momenten en voorbeelden van het als-dan
+  plan (`MOMENTEN_LOONDIENST`, `VOORBEELDEN_LOONDIENST`); meting, nummer en
+  badge zijn één. De Plus Class (ZS-PLUS, 299, één dag) is vervangen door de
+  Zelfstarters Dag (ZS-DAG, 499, inclusief Verificatie & Voorkeur): één dag
+  live met een practitioner, elke maand één, vanaf tien deelnemers (schuift
+  anders een maand), plus een jaar plan en Zetjes en de Terugkomdag (twee
+  keer per jaar, `terugkomdag_op`, voor iedere geverifieerde). Het type heet
+  in de code nog `plus` en de kolommen `plus_class_op` en
+  `plus_class_gevolgd_op` blijven; de dagen staan in `zelfstarters-dagen.js`.
+  De plus op de badge komt na de gevolgde Dag.
 

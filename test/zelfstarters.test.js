@@ -52,18 +52,24 @@ test("de mails spreken met je en jouw, zonder u en zonder gedachtestreepjes", ()
   assert.match(scanLink("abc"), /scan\?zs=abc$/);
 });
 
-import { beschikbaarheid, PLEKKEN_PER_DAG, DAGEN } from "../zelfstarters-plusclass.js";
+import { beschikbaarheid, MAX_PER_DAG, MIN_PER_DAG, DAGEN, TERUGKOMDAGEN, terugkomdagen } from "../zelfstarters-dagen.js";
 import { dagMail } from "../zelfstarters-mail.js";
 
-test("een dag is vol bij het maximum en dicht als hij voorbij is", () => {
-  const telling = { [DAGEN[0].datum]: PLEKKEN_PER_DAG, [DAGEN[1].datum]: 3 };
+test("een Dag is vol bij het maximum, gaat door vanaf het minimum en is dicht als hij voorbij is", () => {
+  const telling = { [DAGEN[0].datum]: MAX_PER_DAG, [DAGEN[1].datum]: 3, [DAGEN[2].datum]: MIN_PER_DAG };
   const b = beschikbaarheid(telling, new Date("2026-12-01"));
   assert.equal(b[0].open, false);
-  assert.equal(b[1].vrij, PLEKKEN_PER_DAG - 3);
+  assert.equal(b[0].gaat_door, true);
+  assert.equal(b[1].vrij, MAX_PER_DAG - 3);
   assert.equal(b[1].open, true);
+  assert.equal(b[1].gaat_door, false);
+  assert.equal(b[2].gaat_door, true);
   const later = beschikbaarheid({}, new Date("2027-01-20"));
-  assert.equal(later.find(d => d.datum === "2027-01-16").open, false);
-  assert.equal(later.find(d => d.datum === "2027-01-22").open, true);
+  assert.equal(later.find(d => d.datum === "2027-01-15").open, false);
+  assert.equal(later.find(d => d.datum === "2027-02-12").open, true);
+  assert.equal(DAGEN.length, 6);
+  assert.equal(TERUGKOMDAGEN.length, 2);
+  assert.equal(terugkomdagen({}, new Date("2027-07-01"))[0].open, false);
 });
 
 test("de dagmail noemt de dag en heeft een wijzigknop, zonder u", () => {

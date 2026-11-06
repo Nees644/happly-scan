@@ -23,6 +23,9 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
 .vink input{margin-top:4px;width:18px;height:18px}
 .btn{display:block;width:100%;background:var(--orange);color:#fff;border:0;padding:15px;border-radius:14px;font-family:Outfit,sans-serif;font-weight:700;font-size:1.05rem;cursor:pointer;margin-top:18px}
 .btn[disabled]{opacity:.6;cursor:wait}
+.wv{display:flex;gap:10px}
+.wv label{flex:1;display:flex;align-items:center;gap:8px;padding:11px 12px;border:2px solid var(--line);border-radius:12px;cursor:pointer;font-weight:600}
+.wv label:has(input:checked){border-color:var(--navy);background:var(--paper)}
 .fout{color:#b23b0a;font-weight:700;margin-top:10px;display:none}
 .foot{font-size:.85rem;color:var(--muted);margin-top:16px}
 .stap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:22px;font-size:.85rem}
@@ -35,7 +38,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
 <a class="brand" href="https://zelfstarters.nl"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>De ontwikkelstructuur voor zelfstandige professionals</small></span></a>
 
 <h1>Registreer je gratis</h1>
-<p class="m">Drie velden, dan je eerste meting: tien minuten, in één keer af. Daarna sta je in het Zelfstartregister met je eigen nummer.</p>
+<p class="m">Een paar velden, dan je eerste meting: tien minuten, in één keer af. Daarna sta je in het Zelfstartregister met je eigen nummer. Zelfstandig of in loondienst: dezelfde meting, dezelfde badge, een lezing die bij jouw werk past.</p>
 <p class="m" id="keuzetekst" style="display:none;font-weight:700;color:var(--navy)"></p>
 
 <div class="stap">
@@ -49,6 +52,8 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
   <input type="text" id="naam" name="naam" autocomplete="name" required placeholder="Voor- en achternaam">
   <label class="v" for="email">Je e-mailadres</label>
   <input type="email" id="email" name="email" autocomplete="email" required placeholder="naam@bedrijf.nl">
+  <label class="v">Hoe werk je?</label>
+  <div class="wv"><label><input type="radio" name="werkvorm" value="zelfstandig" checked> Zelfstandig</label><label><input type="radio" name="werkvorm" value="loondienst"> In loondienst</label></div>
   <label class="v" for="vakgebied">Je vakgebied</label>
   <select id="vakgebied" name="vakgebied" required><option value="">Kies je vakgebied</option></select>
   <div id="kblok" style="display:none"><label class="v" for="code">Kortingscode van je intermediair <span style="font-weight:400;color:var(--muted)">(als je die hebt)</span></label>
@@ -71,8 +76,9 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
   const h1 = document.querySelector("h1");
   const codeVeld = document.getElementById("code"), kuit = document.getElementById("kuit");
   codeVeld.value = (q.get("code") || "").toUpperCase();
+  if (q.get("werkvorm") === "loondienst") document.querySelector("input[name=werkvorm][value=loondienst]").checked = true;
   if (keuze){
-    h1.textContent = keuze === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur";
+    h1.textContent = keuze === "plus" ? "De Zelfstarters Dag" : "Verificatie & Voorkeur";
     knop.textContent = "Naar betalen";
     kt.style.display = "block"; kt.textContent = "Je betaalt eerst via Mollie, daarna doe je direct je meting.";
     document.getElementById("kblok").style.display = "block";
@@ -81,7 +87,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
   function toonPrijs(pr, partner){
     if (!keuze || !pr) return;
     const k = partner && pr.met_korting;
-    const naam = keuze === "plus" ? "Verificatie & Voorkeur + Plus Class" : "Verificatie & Voorkeur";
+    const naam = keuze === "plus" ? "De Zelfstarters Dag" : "Verificatie & Voorkeur";
     const hoe = keuze === "plus" ? "betaald ineens" : "per jaar";
     kt.textContent = naam + ": € " + (k ? k.ex : pr.ex) + " " + hoe + ", excl. btw (€ " + (k ? k.totaal : pr.totaal) + " incl.)" + (k ? ", met " + partner.korting_pct + "% korting via " + partner.naam : "") + ". Je betaalt eerst via Mollie, daarna doe je direct je meting.";
   }
@@ -106,7 +112,7 @@ input[type=text],input[type=email],select{width:100%;padding:13px 14px;border:2p
     e.preventDefault();
     fout.style.display = "none"; knop.disabled = true; knop.textContent = "Even geduld";
     try{
-      const body = { naam: f.naam.value, email: f.email.value, vakgebied: f.vakgebied.value, openbaar: f.openbaar.checked };
+      const body = { naam: f.naam.value, email: f.email.value, vakgebied: f.vakgebied.value, werkvorm: f.werkvorm.value, openbaar: f.openbaar.checked };
       if (keuze){ body.betaal = true; body.type = type; if (f.code.value.trim()) body.code = f.code.value.trim().toUpperCase(); }
       const r = await fetch("/api/zelfstarters-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await r.json();

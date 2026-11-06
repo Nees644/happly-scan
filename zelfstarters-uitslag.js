@@ -74,6 +74,26 @@ export const MOMENTEN = [
   { code: "verlenging", label: "het gesprek over verlenging" }
 ];
 
+/* Dezelfde meting, een andere lezing: voor wie in loondienst werkt zijn de
+   momenten die ertoe doen anders. Sinds 6 november 2026. */
+export const MOMENTEN_LOONDIENST = [
+  { code: "sollicitatie", label: "het sollicitatiegesprek" },
+  { code: "proeftijd", label: "de proeftijd" },
+  { code: "functioneren", label: "het functioneringsgesprek" },
+  { code: "verandering", label: "de reorganisatie of de nieuwe leidinggevende" },
+  { code: "stap", label: "de interne vacature of de stap omhoog" },
+  { code: "vertrek", label: "het moment dat je weet dat je weg wilt" }
+];
+
+export const WERKVORMEN = ["zelfstandig", "loondienst"];
+
+export function momentenVoor(werkvorm){
+  return werkvorm === "loondienst" ? MOMENTEN_LOONDIENST : MOMENTEN;
+}
+export function alleMomenten(){
+  return [...MOMENTEN, ...MOMENTEN_LOONDIENST];
+}
+
 /* Wat een als-dan plan is en hoe je hem maakt. Staat op de pagina en in de
    mail, op één plek zodat beide hetzelfde zeggen. */
 export const PLAN_UITLEG = {
@@ -113,6 +133,35 @@ export const VOORBEELDEN = {
   }
 };
 
+/* Voorbeelden voor loondienst, per ruimtepunt en moment. Eerste versie van
+   6 november 2026, door Maarten te redigeren. */
+export const VOORBEELDEN_LOONDIENST = {
+  zien: {
+    sollicitatie: "schrijf ik vooraf op welke vraag ik vrees, en wat ik dan voel, zodat ik hem herken als hij komt",
+    proeftijd: "noteer ik elke vrijdag in één regel waar ik deze week op aansloeg en wat ik liet lopen",
+    functioneren: "vraag ik een week vooraf aan één collega wat hem aan mij opvalt, en neem ik dat mee",
+    verandering: "wacht ik een dag voordat ik reageer op het nieuws, en schrijf ik eerst op wat het met me doet",
+    stap: "schrijf ik op waarom ik twijfel voordat ik iemand vraag of ik het moet doen",
+    vertrek: "schrijf ik op wat ik mis en wat ik ontloop, voordat ik met iemand praat"
+  },
+  sturen: {
+    sollicitatie: "stel ik in de eerste tien minuten zelf de vraag wat zij van de persoon op deze plek verwachten",
+    proeftijd: "stuur ik aan het eind van week twee een korte mail met wat ik heb opgepakt en wat ik wil oppakken",
+    functioneren: "stuur ik vooraf mijn eigen drie punten, zodat het gesprek ook over mijn richting gaat",
+    verandering: "vraag ik binnen een week een gesprek aan met de nieuwe leidinggevende over wat ik wil bijdragen",
+    stap: "zeg ik tegen mijn leidinggevende dat ik ervoor ga, voordat de vacature sluit",
+    vertrek: "bepaal ik eerst waar ik heen wil, en pas daarna wanneer ik ga"
+  },
+  doen: {
+    sollicitatie: "mail ik binnen een dag na het gesprek met één concreet idee dat ik al heb uitgewerkt",
+    proeftijd: "kies ik op dag één drie dingen die ik in de eerste maand af heb, en meld ik elke vrijdag wat ervan staat",
+    functioneren: "maak ik binnen een dag na het gesprek de afspraken concreet, met datum, en stuur ik ze",
+    verandering: "pak ik dezelfde week één ding op dat in de nieuwe situatie blijft liggen",
+    stap: "solliciteer ik de dag dat ik de vacature zie, niet de dag voor de sluiting",
+    vertrek: "doe ik elke week één gesprek of sollicitatie, ook in de weken dat het werk druk is"
+  }
+};
+
 const DATUM = /^\d{4}-\d{2}-\d{2}$/;
 
 /* Een ingevuld plan opschonen: twee regels, elk een moment en een actie, en
@@ -122,7 +171,7 @@ export function planOpschonen(invoer){
   const uit = [];
   for (const r of regels){
     if (uit.length === 2) break;
-    const moment = MOMENTEN.find(m => m.code === r?.moment);
+    const moment = alleMomenten().find(m => m.code === r?.moment);
     const actie = String(r?.actie || "").trim().slice(0, 240);
     const dimensie = DIMENSIES.includes(r?.dimensie) ? r.dimensie : null;
     if (!moment || actie.length < 5) continue;
@@ -146,7 +195,7 @@ export function regelsVoorHerinnering(plan, nu = new Date()){
 
 export function planAlsTekst(plan){
   return (plan || []).map(r => {
-    const m = MOMENTEN.find(x => x.code === r.moment);
+    const m = alleMomenten().find(x => x.code === r.moment);
     return `Als ${m ? m.label : r.moment} eraan komt, dan ${r.actie}`;
   });
 }
@@ -182,8 +231,8 @@ export function uitslagVoor({ rij, scan, nu = new Date() }){
     uit.duiding = scan.duiding || null;
     uit.plan = rij.plan || null;
     uit.plan_op = rij.plan_op || null;
-    uit.momenten = MOMENTEN;
-    uit.voorbeelden = VOORBEELDEN;
+    uit.momenten = momentenVoor(rij.werkvorm);
+    uit.voorbeelden = rij.werkvorm === "loondienst" ? VOORBEELDEN_LOONDIENST : VOORBEELDEN;
     uit.uitleg = PLAN_UITLEG;
   }
   return uit;

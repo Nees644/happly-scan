@@ -16,7 +16,7 @@
 
 import { haalBetaling } from "./mollie.js";
 import { welkomMail, herinneringMail, badgeMail, uitslagMail, vervolgMail, planMail, planHerinneringMail, planCheckMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
-import { sterksteKant, ruimtePunten, planAlsTekst, regelsVoorHerinnering, MOMENTEN } from "./zelfstarters-uitslag.js";
+import { sterksteKant, ruimtePunten, planAlsTekst, regelsVoorHerinnering, alleMomenten } from "./zelfstarters-uitslag.js";
 import { Resend } from "resend";
 
 /* De sleutel van het websiteprofiel Zelfstarters, als die er is. Zonder die
@@ -56,13 +56,13 @@ async function nieuwNummer(db, jaar){
   return n.data;
 }
 
-/* De prijzen van Verificatie & Voorkeur en Plus Class voor in de mail, uit
+/* De prijzen van Verificatie & Voorkeur en de Zelfstarters Dag voor in de mail, uit
    de productentabel. Per maand is de jaarprijs gedeeld door twaalf. */
 async function prijsVoorMail(db){
   try{
-    const q = await db.from("producten").select("code, prijs_ex_btw").in("code", ["ZS-STD", "ZS-PLUS"]).eq("actief", true);
+    const q = await db.from("producten").select("code, prijs_ex_btw").in("code", ["ZS-STD", "ZS-DAG"]).eq("actief", true);
     const uit = {};
-    for (const [type, code] of [["standaard", "ZS-STD"], ["plus", "ZS-PLUS"]]){
+    for (const [type, code] of [["standaard", "ZS-STD"], ["plus", "ZS-DAG"]]){
       const r = (q.data || []).find(x => x.code === code);
       if (!r) continue;
       const ex = r.prijs_ex_btw / 100;
@@ -252,7 +252,7 @@ export async function stuurPlanHerinneringen(db, nu = new Date()){
     try{
       const plan = Array.isArray(rij.plan) ? rij.plan : [];
       for (const r of regelsVoorHerinnering(plan, nu)){
-        const m = MOMENTEN.find(x => x.code === r.moment);
+        const m = alleMomenten().find(x => x.code === r.moment);
         const mail = planHerinneringMail({ naam: rij.naam, registratieId: rij.id, regel: { momentLabel: m ? m.label : r.moment, tekst: planAlsTekst([r])[0] } });
         if (await stuurMail(db, rij, null, mail)){
           plan[r.i] = { ...plan[r.i], herinnerd_op: nu.toISOString().slice(0, 10) };
