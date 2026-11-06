@@ -153,7 +153,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || "Onbekende code.");
         code = j.partner.code;
-        kuit.innerHTML = `Code van <b>${esc(j.partner.naam)}</b>: ${esc(String(j.partner.korting_pct))}% korting, verwerkt in de prijzen hierboven.`;
+        kuit.innerHTML = `Code van <b>${esc(j.partner.naam)}</b>: ${esc(String(j.partner.korting_pct))}% korting op Verificatie &amp; Voorkeur, verwerkt in de prijs van optie 2.`;
         toonPrijzen(j.prijzen, true);
       }catch(err){ kuit.textContent = err.message; toonPrijzen(pr); }
     }

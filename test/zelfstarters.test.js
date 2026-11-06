@@ -196,3 +196,15 @@ test("de partnermigratie geeft service_role toegang en legt de korting vast op d
   assert.match(m, /korting_cent integer/);
   assert.match(m, /'gratis'/);
 });
+
+test("korting van een partner geldt alleen op Verificatie & Voorkeur, nooit op de Zelfstarters Dag", async () => {
+  const { prijzen } = await import("../api/zelfstarters-start.js");
+  const rijen = [
+    { code: "ZS-STD", prijs_ex_btw: 7900, btw_pct: 21, actief: true },
+    { code: "ZS-DAG", prijs_ex_btw: 49900, btw_pct: 21, actief: true }
+  ];
+  const db = { from: () => ({ select: () => ({ in: () => ({ eq: async () => ({ data: rijen }) }) }) }) };
+  const p = await prijzen(db, { korting_pct: 25 });
+  assert.ok(p.standaard.met_korting, "standaard krijgt korting");
+  assert.equal(p.plus.met_korting, undefined, "de Dag krijgt geen korting");
+});

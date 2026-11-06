@@ -33,7 +33,8 @@ function euro(centen){
   return (centen / 100).toFixed(2).replace(".", ",").replace(",00", "");
 }
 
-/* De prijzen, en met een partner erbij ook de prijzen na korting. */
+/* De prijzen, en met een partner erbij ook de prijzen na korting. Korting
+   geldt alleen op Verificatie & Voorkeur (standaard), nooit op de Dag. */
 export async function prijzen(db, partner){
   const q = await db.from("producten").select("*").in("code", Object.values(CODE)).eq("actief", true);
   const uit = {};
@@ -42,7 +43,7 @@ export async function prijzen(db, partner){
     if (!p) continue;
     const b = bedragMetBtw(p);
     uit[type] = { ex: euro(b.ex), btw: euro(b.btw), totaal: euro(b.totaal) };
-    if (partner){
+    if (partner && type === "standaard"){
       const korting = kortingCent(p.prijs_ex_btw, partner.korting_pct);
       const k = bedragMetBtw({ ...p, prijs_ex_btw: p.prijs_ex_btw - korting });
       uit[type].met_korting = { ex: euro(k.ex), btw: euro(k.btw), totaal: euro(k.totaal), korting_ex: euro(korting) };
@@ -66,7 +67,8 @@ export async function partnerBijCode(db, code){
 export async function startBetaling({ db, req, rij, type, terug, partner }){
   const p = await db.from("producten").select("*").eq("code", CODE[type]).eq("actief", true).maybeSingle();
   if (!p.data) throw Object.assign(new Error("Dit tarief is niet meer beschikbaar."), { status: 404 });
-  const korting = partner ? kortingCent(p.data.prijs_ex_btw, partner.korting_pct) : 0;
+  // Korting alleen op Verificatie & Voorkeur; de Zelfstarters Dag is altijd de volle prijs.
+  const korting = partner && type === "standaard" ? kortingCent(p.data.prijs_ex_btw, partner.korting_pct) : 0;
   const bedrag = bedragMetBtw({ ...p.data, prijs_ex_btw: p.data.prijs_ex_btw - korting });
   if (bedrag.totaal <= 0){
     // Een code van honderd procent: geen betaling, Mollie neemt geen nul

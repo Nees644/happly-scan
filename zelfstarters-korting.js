@@ -1,5 +1,6 @@
 // zelfstarters-korting.js
 // Kortingscodes van partners (intermediairs) voor Verificatie & Voorkeur.
+// Alleen daarop: de Zelfstarters Dag en de Alumni Dag krijgen nooit korting.
 // Een code is hoofdletterongevoelig, hoort bij één partner en geeft een
 // percentage korting op het bedrag exclusief btw. De btw komt daarna, in
 // bedragMetBtw, zoals altijd.

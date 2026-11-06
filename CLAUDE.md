@@ -260,7 +260,9 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   controle van een code op `api/zelfstarters-code.js`. De code komt mee als
   `?code=` op `/zelfstarters`, `/zelfstarters-uitslag` en zelfstarters.nl.
   Een code van 100% gaat langs Mollie heen (`verwerkGratisVerificatie`,
-  `betaling_status = 'gratis'`), niet voor de Zelfstarters Dag.
+  `betaling_status = 'gratis'`). Korting geldt alleen op Verificatie &
+  Voorkeur: de Zelfstarters Dag en de Alumni Dag krijgen nooit korting
+  (besloten 6 november 2026, test bewaakt het).
 - **Twee werkvormen en de Zelfstarters Dag sinds 6 november 2026** (migratie
   `migratie-zelfstarters-dag-2026-11-06.sql`). `werkvorm` op de registratie
   (zelfstandig, loondienst) kiest de momenten en voorbeelden van het als-dan
