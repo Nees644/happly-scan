@@ -268,8 +268,10 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   badge zijn één. De Plus Class (ZS-PLUS, 299, één dag) is vervangen door de
   Zelfstarters Dag (ZS-DAG, 499, inclusief Verificatie & Voorkeur): één dag
   live met een practitioner, elke maand één, vanaf tien deelnemers (schuift
-  anders een maand), plus een jaar plan en Zetjes en de Terugkomdag (twee
-  keer per jaar, `terugkomdag_op`, voor iedere geverifieerde). Het type heet
+  anders een maand), plus een jaar plan en Zetjes en de Zelfstarters Alumni Dag (twee
+  keer per jaar, `terugkomdag_op`, voor iedere geverifieerde; heette kort
+  Terugkomdag; na een jaar ervaringen uitwisselen, sprekers, werkgeversmarkt,
+  uitreiking van de plus). Het type heet
   in de code nog `plus` en de kolommen `plus_class_op` en
   `plus_class_gevolgd_op` blijven; de dagen staan in `zelfstarters-dagen.js`.
   De plus op de badge komt na de gevolgde Dag.

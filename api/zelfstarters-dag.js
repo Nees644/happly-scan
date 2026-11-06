@@ -1,11 +1,11 @@
 // api/zelfstarters-dag.js, Vercel serverless function
-// De dagkeuze voor de Zelfstarters Dag, en de aanmelding voor de Terugkomdag.
+// De dagkeuze voor de Zelfstarters Dag, en de aanmelding voor de Zelfstarters Alumni Dag.
 // De registratie-id in de link is de sleutel, net als bij de scanlink: wie de
 // mail heeft, mag kiezen.
 //
 // GET  /api/zelfstarters-dag?z=<id>                    dagen, plekken, huidige keuzes
 // POST /api/zelfstarters-dag {z, datum}                de Dag kiezen of wijzigen (type plus)
-// POST /api/zelfstarters-dag {z, terugkomdag: datum}   aanmelden voor de Terugkomdag (iedere geverifieerde)
+// POST /api/zelfstarters-dag {z, terugkomdag: datum}   aanmelden voor de Alumni Dag (iedere geverifieerde)
 //
 // Het aantal plekken wordt pas bij het opslaan nog eens geteld. Kiezen er twee
 // mensen tegelijk de laatste plek, dan kan één dag één plek te veel hebben;
@@ -52,7 +52,7 @@ export default async function handler(req, res){
 
   if (body.terugkomdag){
     const datum = String(body.terugkomdag);
-    if (!terugkomdagBestaat(datum)){ res.status(400).json({ error: "Deze Terugkomdag bestaat niet." }); return; }
+    if (!terugkomdagBestaat(datum)){ res.status(400).json({ error: "Deze Alumni Dag bestaat niet." }); return; }
     const upd = await db.from("zelfstarters").update({ terugkomdag_op: datum }).eq("id", id);
     if (upd.error){ await logFout("zelfstarters-dag", upd.error.message); res.status(500).json({ error: "opslaan mislukt" }); return; }
     res.status(200).json({ terugkomdag: datum });

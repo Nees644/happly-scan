@@ -126,7 +126,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
         </div>
         <div class="optie" id="optie-plus">
           <div class="kop"><div><div class="nr">Optie 3</div><h3>De Zelfstarters Dag</h3></div><div class="p">${prijs("plus", "inclusief Verificatie & Voorkeur")}</div></div>
-          <ul><li>Alles van optie 2</li><li>Eén dag live met een practitioner en vakgenoten: Zien, Sturen en Doen, en je als-dan plan staat aan het eind van de dag. Elke maand één dag, in Zaltbommel, vanaf tien deelnemers</li><li>Een jaar lang je plan met herinneringen en Zetjes</li><li>De Terugkomdag, twee keer per jaar: lezingen, de hermeting en de uitreiking van de plus op je badge</li></ul>
+          <ul><li>Alles van optie 2</li><li>Eén dag live met een practitioner en vakgenoten: Zien, Sturen en Doen, en je als-dan plan staat aan het eind van de dag. Elke maand één dag, in Zaltbommel, vanaf tien deelnemers</li><li>Een jaar lang je plan met herinneringen en Zetjes</li><li>Na een jaar de Zelfstarters Alumni Dag: ervaringen uitwisselen, sprekers, een werkgeversmarkt en de plus op je badge</li></ul>
           <button class="btn" data-type="plus">Kies de Zelfstarters Dag</button>
         </div>
         <div class="korting">
@@ -203,7 +203,7 @@ ul.lijst{padding-left:20px;color:var(--muted);margin:10px 0 0;font-size:.95rem}
     el.innerHTML = `<h1>${esc(d.voornaam)}, je bent geverifieerd</h1>
       <p class="m">Nummer <b>${esc(d.nummer)}</b>. Je badge draagt ${esc((d.meetjaren || []).join(" · "))}.</p>
       <div class="card"><div class="badge">${badgeSvg(d.plus, d.meetjaren, false)}<div><span class="stamp">Geverifieerd${d.plus ? " · Plus" : ""}</span><div class="m" style="font-size:.9rem;margin-top:8px">Controlepagina: <a href="https://zelfstarters.nl/check?nummer=${esc(d.nummer)}" style="color:var(--navy);font-weight:700">zelfstarters.nl/check</a>. Je badge en de link staan ook in je mail.</div>
-        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Zelfstarters Dag</a></div>` : `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">De Terugkomdag: meld je aan</a></div>`}</div></div></div>
+        ${d.plus_gekozen && !d.plus ? `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">Kies je Zelfstarters Dag</a></div>` : `<div style="margin-top:12px"><a class="btn blauw" href="/zelfstarters-dag?z=${encodeURIComponent(z)}">De Zelfstarters Alumni Dag: meld je aan</a></div>`}</div></div></div>
       ${scoreBlok(d)}
       <div class="card"><h2>Wat je meting laat zien</h2><div class="duiding">${esc(d.duiding || "Je duiding wordt nog geschreven. Kijk straks nog eens, of in je mail.")}</div></div>
       <div class="card plan" id="plan"><h2>Je als-dan plan</h2>

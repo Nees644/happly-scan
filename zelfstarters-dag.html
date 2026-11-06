@@ -26,7 +26,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
 <h1 id="kop">Kies je dag</h1>
 <p class="m" id="sub">De Zelfstarters Dag: één dag live met een practitioner en vakgenoten. Zien, Sturen en Doen, en aan het eind van de dag staat je als-dan plan. Een dag gaat door vanaf tien deelnemers; anders schuift de groep een maand en hoor je dat uiterlijk twee weken vooraf.</p>
 <div id="dagen"></div>
-<h2 id="tkop" style="font-family:Outfit,sans-serif;margin:30px 0 6px">De Terugkomdag</h2>
+<h2 id="tkop" style="font-family:Outfit,sans-serif;margin:30px 0 6px">De Zelfstarters Alumni Dag</h2>
 <p class="m">Twee keer per jaar, voor iedereen die geverifieerd is: lezingen, de hermeting en de uitreiking van de plus. Meld je aan voor een datum.</p>
 <div id="terugkomdagen"></div>
 <div class="melding" id="melding"></div>
@@ -40,7 +40,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
     const d = await r.json();
     if (!r.ok){ el.innerHTML = '<p class="m">' + (d.error || "Deze link werkt niet.") + ' Mail naar info@zelfstarters.nl.</p>'; return; }
     if (d.voornaam) document.getElementById("kop").textContent = (d.type === "plus" ? "Kies je dag, " : "Je dagen, ") + d.voornaam;
-    if (d.type !== "plus"){ document.getElementById("sub").textContent = "Je bent geverifieerd. De Zelfstarters Dag hoort bij optie 3; de Terugkomdag is er voor iedereen die geverifieerd is."; }
+    if (d.type !== "plus"){ document.getElementById("sub").textContent = "Je bent geverifieerd. De Zelfstarters Dag hoort bij optie 3; de Alumni Dag is er voor iedereen die geverifieerd is."; }
     el.innerHTML = "";
     d.dagen.forEach(function(dag){
       const b = document.createElement("button");
@@ -70,7 +70,7 @@ h1{font-family:Outfit,sans-serif;font-size:1.9rem;line-height:1.1;margin:30px 0 
         melding.textContent = "Even opslaan";
         const p = await fetch("/api/zelfstarters-dag", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ z: z, terugkomdag: dag.datum }) });
         const u = await p.json();
-        melding.textContent = p.ok ? "Aangemeld voor de Terugkomdag van " + dag.label + "." : (u.error || "Dat lukte niet.");
+        melding.textContent = p.ok ? "Aangemeld voor de Alumni Dag van " + dag.label + "." : (u.error || "Dat lukte niet.");
         await laad();
       });
       tel.appendChild(b);

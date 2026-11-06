@@ -62,7 +62,7 @@ export function uitslagLink(registratieId){
   return `${SCAN_URL}/zelfstarters-uitslag?z=${encodeURIComponent(registratieId)}`;
 }
 
-/* De link waarmee een deelnemer zijn Zelfstarters Dag kiest of wijzigt, en zich aanmeldt voor de Terugkomdag. */
+/* De link waarmee een deelnemer zijn Zelfstarters Dag kiest of wijzigt, en zich aanmeldt voor de Zelfstarters Alumni Dag. */
 export function dagLink(registratieId){
   return `${SCAN_URL}/zelfstarters-dag?z=${encodeURIComponent(registratieId)}`;
 }
@@ -177,7 +177,7 @@ export function uitslagMail({ naam, registratieId, nummer, score, sterkste, ruim
           `Alles van optie 2`,
           `<b>Eén dag live</b> met een practitioner en vakgenoten: Zien, Sturen en Doen, en je als-dan plan staat aan het eind van de dag. Elke maand één dag, vanaf tien deelnemers`,
           `<b>Een jaar lang</b> je plan met herinneringen en Zetjes`,
-          `<b>De Terugkomdag</b>, twee keer per jaar: lezingen, de hermeting en de uitreiking van de plus op je badge`
+          `<b>De Zelfstarters Alumni Dag</b>, na een jaar: ervaringen uitwisselen, sprekers, een werkgeversmarkt en de plus op je badge`
         ]) +
         p(`Wat een opdrachtgever dan ziet:`, `color:${MUT};font-size:13px;margin:12px 0 0`) +
         controle(`<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="font-family:${FONT};font-size:14px;color:${TX}"><b>${esc(nummer)}</b> &middot; ${stamp("Geverifieerd &middot; Plus", NAVY)} &middot; ${esc(jaar)}</td><td align="right" style="width:70px"><img src="${SCAN_URL}/beeld/badge-plus-${esc(jaar)}.png" width="60" alt="Je badge met plus" style="display:block"></td></tr></table>`) +

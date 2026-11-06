@@ -1,5 +1,5 @@
 // zelfstarters-dagen.js
-// De Zelfstarters Dag (één dag live, elke maand één) en de Terugkomdag (twee
+// De Zelfstarters Dag (één dag live, elke maand één) en de Zelfstarters Alumni Dag (twee
 // keer per jaar). Een dag erbij of eraf is een regel in deze lijst; pagina's
 // en routes lezen hem hier. Een Dag gaat door vanaf tien deelnemers en heeft
 // plek voor vijftien; onder de tien schuift de groep naar de volgende maand.
@@ -17,7 +17,7 @@ export const DAGEN = [
   { datum: "2027-06-18", label: "vrijdag 18 juni 2027", plaats: "Zaltbommel" }
 ];
 
-/* De Terugkomdag: lezingen, de hermeting en de uitreiking van de plus. Geen
+/* De Zelfstarters Alumni Dag: ervaringen uitwisselen, sprekers, een werkgeversmarkt en de uitreiking van de plus. Geen
    maximum; wie geverifieerd is mag komen. */
 export const TERUGKOMDAGEN = [
   { datum: "2027-06-25", label: "vrijdag 25 juni 2027", plaats: "Zaltbommel" },
