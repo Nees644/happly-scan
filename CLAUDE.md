@@ -237,8 +237,12 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   score, de sterkste kant en twee plekken met ruimte in één zin; geverifieerd
   ook de duiding en het als-dan plan. Openbaar is nooit een score, en een
   geregistreerde heeft geen jaartallen: die horen bij de verificatie
-  (reglement op zelfstarters.nl/reglement). Teksten op de site spreken over
-  de ontwikkelstructuur; het register is het bewijs. Een mail opnieuw sturen
+  (reglement op zelfstarters.nl/reglement). Definitie sinds 6 november 2026:
+  Zelfstarters is het openbaar register van professionals met ondernemend
+  gedrag, gemeten op eigenaarschap, initiatief en doorpakken. Het woord
+  ontwikkelstructuur is vervallen. Een registratie is een indicatie van
+  ondernemend gedrag, nooit een oordeel over de arbeidsrelatie of een bewijs
+  van ondernemerschap; die zin wordt nog door een jurist getoetst. Een mail opnieuw sturen
   kan met `api/zelfstarters-mail-opnieuw.js` (nummer, soort, ZS_BEHEER_SLEUTEL of CRON_SECRET);
   een badge is er alleen voor status betaald, geregistreerd heeft een nummer
   en geen badge.

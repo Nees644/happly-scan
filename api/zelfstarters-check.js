@@ -64,7 +64,7 @@ table{border-collapse:collapse;width:100%}td{padding:7px 0;border-bottom:1px sol
 .foot{color:#5b6478;font-size:.85rem;margin-top:24px}
 @media(max-width:560px){.card{grid-template-columns:1fr}}
 </style></head><body><div class="w">
-<a class="brand" href="${BASIS_URL}"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>De ontwikkelstructuur voor zelfstandige professionals</small></span></a>
+<a class="brand" href="${BASIS_URL}"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0f1f3d"/><circle cx="20" cy="20" r="13" fill="#fff"/><circle cx="20" cy="20" r="8" fill="#ff6a2b"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg><span>Zelfstarters<small>Het register voor ondernemend gedrag</small></span></a>
 <div class="card"><div>${badge}</div><div><h1>${esc(kop)}</h1>${regels}</div></div>
 <p class="foot">Openbaar is alleen of een registratie geregistreerd of geverifieerd is, Standaard of Plus, sinds wanneer en de jaartallen. Score, ringen en groei deelt de professional zelf. <a href="${BASIS_URL}/reglement" style="color:#0f1f3d">Het reglement</a> · <a href="${BASIS_URL}" style="color:#0f1f3d">zelfstarters.nl</a></p>
 </div></body></html>`;
