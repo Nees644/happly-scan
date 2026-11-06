@@ -20,8 +20,8 @@ export const DAGEN = [
 /* De Zelfstarters Alumni Dag, zes maanden na de Zelfstarters Dag: de hermeting, ervaringen uitwisselen, sprekers, een werkgeversmarkt en de uitreiking van de plus. Geen
    maximum; wie geverifieerd is mag komen. */
 export const TERUGKOMDAGEN = [
-  { datum: "2027-06-25", label: "vrijdag 25 juni 2027", plaats: "Zaltbommel" },
-  { datum: "2027-12-10", label: "vrijdag 10 december 2027", plaats: "Zaltbommel" }
+  { datum: "2027-06-25", label: "vrijdag 25 juni 2027", plaats: "centraal in Nederland" },
+  { datum: "2027-12-10", label: "vrijdag 10 december 2027", plaats: "centraal in Nederland" }
 ];
 
 export function dagBestaat(datum){
