@@ -208,3 +208,47 @@ test("korting van een partner geldt alleen op Verificatie & Voorkeur, nooit op d
   assert.ok(p.standaard.met_korting, "standaard krijgt korting");
   assert.equal(p.plus.met_korting, undefined, "de Dag krijgt geen korting");
 });
+
+test("tegoed: tarief per aantal plaatsen, bedragen uit de migratie", async () => {
+  const { tegoedTarief } = await import("../zelfstarters-korting.js");
+  assert.equal(tegoedTarief(10), "ZS-STD");
+  assert.equal(tegoedTarief(24), "ZS-STD");
+  assert.equal(tegoedTarief(25), "ZS-TEG-25");
+  assert.equal(tegoedTarief(99), "ZS-TEG-25");
+  assert.equal(tegoedTarief(100), "ZS-TEG-100");
+  const fs = await import("node:fs");
+  const m = fs.readFileSync(new URL("../migratie-zelfstarters-tegoed-2026-11-07.sql", import.meta.url), "utf8");
+  assert.match(m, /'ZS-TEG-25',[^)]*?5900/);
+  assert.match(m, /'ZS-TEG-100',[^)]*?4900/);
+  assert.match(m, /'tegoed'\)\)/, "betaling_status kent tegoed");
+});
+
+test("tegoed: btw over het totaal, plaatsen naar beneden afgerond", async () => {
+  const { tegoedBedrag } = await import("../zelfstarters-tegoed.js");
+  const b = tegoedBedrag({ prijs_ex_btw: 5900, btw_promille: 210 }, 25.7);
+  assert.equal(b.plaatsen, 25);
+  assert.equal(b.ex, 147500);
+  assert.equal(b.btw, 30975);
+  assert.equal(b.totaal, 178475);
+});
+
+test("tegoed: een code met een maximum is op als alle plaatsen gebruikt zijn", async () => {
+  const { vrijePlaatsen } = await import("../zelfstarters-korting.js");
+  const db = n => ({ from: () => ({ select: () => ({ eq: () => ({ eq: async () => ({ count: n }) }) }) }) });
+  assert.equal(await vrijePlaatsen(db(3), { id: "x", plaatsen: 5 }), 2);
+  assert.equal(await vrijePlaatsen(db(5), { id: "x", plaatsen: 5 }), 0);
+  assert.equal(await vrijePlaatsen(db(9), { id: "x", plaatsen: 5 }), 0);
+  assert.equal(await vrijePlaatsen(db(9), { id: "x", plaatsen: null }), Infinity);
+});
+
+test("tegoedmails: geen score, de badge is van de persoon, geen uitroeptekens", async () => {
+  const { tegoedBetaalMail, tegoedCodeMail } = await import("../zelfstarters-mail.js");
+  const a = tegoedBetaalMail({ naam: "JobOn", plaatsen: 25, ex: 147500, totaal: 178475, prijsPlaats: 5900, betaalpagina: "https://x" });
+  const b = tegoedCodeMail({ naam: "JobOn", code: "JOBON-26", plaatsen: 25, doelgroep: "intermediair" });
+  assert.match(a.html, /nooit een score/);
+  assert.match(b.html, /zelfstarters\.nl\/\?code=JOBON-26/);
+  for (const m of [a, b]){
+    assert.doesNotMatch(m.html + m.subject, /!/);
+    assert.doesNotMatch(m.html + m.subject, /—/);
+  }
+});

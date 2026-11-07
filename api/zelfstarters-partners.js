@@ -4,9 +4,13 @@
 // GET  ?s=<sleutel>                      alle partners, met aantal betalingen via hun code
 // POST { s, naam, code?, korting_pct?, soort?, email? }   nieuwe partner; code wordt gemaakt als hij ontbreekt
 // POST { s, id, actief }                 partner aan of uit
+// POST { s, tegoed: true, naam, email, doelgroep, plaatsen, klant_* }
+//      tegoed voor een organisatie: maakt de code (nog uit) en de betaling;
+//      de betaallink gaat per mail naar de organisatie en komt terug in het antwoord
 
 import { serviceClient, logFout } from "../teamkracht-auth.js";
 import { codeOpschonen, codeVoorNaam } from "../zelfstarters-korting.js";
+import { maakTegoed } from "../zelfstarters-tegoed.js";
 
 function toegang(req, body){
   const sleutels = [process.env.ZS_BEHEER_SLEUTEL, process.env.CRON_SECRET].filter(Boolean);
@@ -24,18 +28,30 @@ export default async function handler(req, res){
     const p = await db.from("zelfstarters_partners").select("*").order("aangemaakt_op", { ascending: false });
     const r = await db.from("zelfstarters").select("partner_id, status, betaling_status, korting_cent, bedrag_cent").not("partner_id", "is", null);
     const telling = {};
-    const leeg = () => ({ gestart: 0, betaald: 0, gratis: 0, korting_cent: 0, omzet_cent: 0 });
+    const leeg = () => ({ gestart: 0, betaald: 0, gratis: 0, tegoed: 0, korting_cent: 0, omzet_cent: 0 });
     for (const rij of (r.data || [])){
       const t = telling[rij.partner_id] || (telling[rij.partner_id] = leeg());
       t.gestart++;
       if (rij.status !== "betaald") continue;
       if (rij.betaling_status === "gratis"){ t.gratis++; continue; }
+      if (rij.betaling_status === "tegoed"){ t.tegoed++; continue; }
       t.betaald++; t.korting_cent += rij.korting_cent || 0; t.omzet_cent += rij.bedrag_cent || 0;
     }
     res.status(200).json({ partners: (p.data || []).map(x => ({ ...x, ...(telling[x.id] || leeg()) })) });
     return;
   }
   if (req.method !== "POST"){ res.status(405).json({ error: "method" }); return; }
+
+  if (body.tegoed === true){
+    try{
+      const uit = await maakTegoed(db, req, body);
+      res.status(200).json({ partner: uit.tegoed, betaalpagina: uit.betaalpagina, bedrag: uit.bedrag });
+    }catch(e){
+      if (!e.status) await logFout("zelfstarters-partners", e.message);
+      res.status(e.status || 502).json({ error: e.status ? e.message : "het tegoed kon niet worden aangemaakt" });
+    }
+    return;
+  }
 
   if (body.id){
     const upd = await db.from("zelfstarters_partners").update({ actief: body.actief !== false }).eq("id", body.id).select("*").maybeSingle();

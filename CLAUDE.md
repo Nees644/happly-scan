@@ -282,4 +282,18 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   in de code nog `plus` en de kolommen `plus_class_op` en
   `plus_class_gevolgd_op` blijven; de dagen staan in `zelfstarters-dagen.js`.
   De plus op de badge komt na de gevolgde Dag.
+- **Tegoed voor organisaties sinds 7 november 2026** (migratie
+  `migratie-zelfstarters-tegoed-2026-11-07.sql`, `zelfstarters-tegoed.js`).
+  Vier groepen betalen de badge: werkzoekende en zelfstandige zelf, werkgever
+  en intermediair via een tegoed. Een tegoed is een rij in
+  `zelfstarters_partners` met soort `tegoed`, 100% korting en `plaatsen`;
+  hij staat uit tot de organisatie via Mollie heeft betaald (beheer maakt hem
+  aan, de betaallink gaat per mail). Na betaling: aan, factuur uit dezelfde
+  reeks (`facturen.zs_tegoed_id`), code en link per mail. Wie zich met de code
+  aanmeldt (`partner_id` al bij de aanmelding), is bij de eerste meting direct
+  geverifieerd met `betaling_status = 'tegoed'` (koppelMeting). Tarief per
+  plaats: ZS-TEG-100 vanaf 100 (49), ZS-TEG-25 vanaf 25 (59), daaronder ZS-STD
+  (79), alle excl. btw. Alleen Verificatie & Voorkeur, nooit de Dag. De
+  organisatie ziet wie meedoet, nooit een score. Belofte voor alle vier: meer
+  kans op voorkeur bij promotie, volgende baan of opdracht.
 

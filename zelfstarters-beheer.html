@@ -55,9 +55,32 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
     </form>
   </div>
   <div class="card">
+    <h2>Tegoed voor een organisatie</h2>
+    <p class="m" style="margin:0 0 6px">Een werkgever of intermediair betaalt Verificatie &amp; Voorkeur voor een aantal mensen. Vanaf 25 plaatsen 59 euro, vanaf 100 plaatsen 49 euro, daaronder 79 euro per plaats, excl. btw. De organisatie krijgt een betaallink; na betaling gaat de code aan en komen code en factuur in de mail. Wie de code gebruikt, is na zijn meting direct geverifieerd.</p>
+    <form id="tf">
+      <div class="rij">
+        <div><label>Organisatie</label><input name="naam" required placeholder="bijv. JobOn"></div>
+        <div><label>Plaatsen</label><input name="plaatsen" type="number" min="1" max="5000" value="25" required></div>
+        <div><label>Doelgroep</label><select name="doelgroep"><option value="intermediair">Intermediair</option><option value="werkgever">Werkgever</option></select></div>
+        <div><label>Code (optioneel)</label><input name="code" placeholder="JOBON-26" style="text-transform:uppercase"></div>
+      </div>
+      <label>E-mail contactpersoon</label><input name="email" type="email" required>
+      <div class="rij">
+        <div><label>Factuurnaam</label><input name="klant_naam" placeholder="leeg is de organisatie"></div>
+        <div><label>Adres</label><input name="klant_adres" required></div>
+        <div><label>Postcode</label><input name="klant_postcode" required></div>
+        <div><label>Plaats</label><input name="klant_plaats" required></div>
+      </div>
+      <label>Btw-nummer (optioneel)</label><input name="klant_btw_nummer">
+      <button class="btn" type="submit">Tegoed aanmaken en betaallink sturen</button>
+      <div class="fout" id="tfout" style="display:none"></div>
+      <div id="tuit" style="display:none;margin-top:10px"></div>
+    </form>
+  </div>
+  <div class="card">
     <h2>Partners</h2>
     <p class="m" style="margin:0">Gestart: registraties die de code gebruikten. Betaald: afgerond via Mollie. Gratis: geverifieerd met een code van 100%. Korting en omzet over de betaalde registraties, excl. btw respectievelijk incl. btw.</p>
-    <table><thead><tr><th>Partner</th><th>Code</th><th>Korting</th><th>Gestart</th><th>Betaald</th><th>Gratis</th><th>Korting €</th><th>Omzet €</th><th></th></tr></thead><tbody id="lijst"></tbody></table>
+    <table><thead><tr><th>Partner</th><th>Code</th><th>Korting</th><th>Gestart</th><th>Betaald</th><th>Gratis</th><th>Tegoed</th><th>Korting €</th><th>Omzet €</th><th></th></tr></thead><tbody id="lijst"></tbody></table>
   </div>
   <div class="card">
     <h2>Links voor de partner</h2>
@@ -82,8 +105,8 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
     const j = await r.json();
     document.getElementById("lijst").innerHTML = (j.partners || []).map(p => `<tr class="${p.actief ? "" : "uit"}">
       <td><b>${esc(p.naam)}</b><br><span class="m" style="font-size:.8rem">${esc(p.soort)}${p.email ? " · " + esc(p.email) : ""}</span></td>
-      <td><code>${esc(p.code)}</code></td><td>${esc(p.korting_pct)}%</td><td>${p.gestart}</td><td>${p.betaald}</td><td>${p.gratis}</td><td>${euro(p.korting_cent)}</td><td>${euro(p.omzet_cent)}</td>
-      <td><button class="klein" data-id="${esc(p.id)}" data-actief="${p.actief ? "0" : "1"}">${p.actief ? "Uitzetten" : "Aanzetten"}</button></td></tr>`).join("") || `<tr><td colspan="9" class="m">Nog geen partners.</td></tr>`;
+      <td><code>${esc(p.code)}</code></td><td>${esc(p.korting_pct)}%</td><td>${p.gestart}</td><td>${p.betaald}</td><td>${p.gratis}</td><td>${p.plaatsen ? (p.tegoed + " van " + p.plaatsen + (p.betaald_op ? "" : "<br><span class='m' style='font-size:.8rem'>nog niet betaald</span>")) : "-"}</td><td>${euro(p.korting_cent)}</td><td>${euro(p.omzet_cent)}</td>
+      <td><button class="klein" data-id="${esc(p.id)}" data-actief="${p.actief ? "0" : "1"}">${p.actief ? "Uitzetten" : "Aanzetten"}</button></td></tr>`).join("") || `<tr><td colspan="10" class="m">Nog geen partners.</td></tr>`;
     document.querySelectorAll("button[data-id]").forEach(b => b.addEventListener("click", async () => {
       await fetch("/api/zelfstarters-partners", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ s, id: b.dataset.id, actief: b.dataset.actief === "1" }) });
       laad();
@@ -101,6 +124,18 @@ code{font-family:Outfit,sans-serif;font-weight:700;color:var(--navy);font-size:1
     const j = await r.json();
     if (!r.ok){ fout.textContent = j.error || "Mislukt."; fout.style.display = "block"; return; }
     f.reset(); f.korting_pct.value = 25; laad();
+  });
+  const tf = document.getElementById("tf");
+  tf.addEventListener("submit", async e => {
+    e.preventDefault(); const fout = document.getElementById("tfout"), uit = document.getElementById("tuit");
+    fout.style.display = "none"; uit.style.display = "none";
+    const body = { s, tegoed: true };
+    ["naam","plaatsen","doelgroep","code","email","klant_naam","klant_adres","klant_postcode","klant_plaats","klant_btw_nummer"].forEach(k => body[k] = tf[k].value);
+    const r = await fetch("/api/zelfstarters-partners", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok){ fout.textContent = j.error || "Mislukt."; fout.style.display = "block"; return; }
+    uit.innerHTML = "Tegoed aangemaakt met code <code>" + esc(j.partner.code) + "</code>, " + j.bedrag.plaatsen + " plaatsen, € " + euro(j.bedrag.ex) + " excl. btw, € " + euro(j.bedrag.totaal) + " incl. btw. De betaallink is gemaild naar " + esc(j.partner.email) + "." + (j.betaalpagina ? ' Of stuur hem zelf: <a href="' + esc(j.betaalpagina) + '" target="_blank">betaallink</a>.' : "");
+    uit.style.display = "block"; tf.reset(); tf.plaatsen.value = 25; laad();
   });
   if (s) document.getElementById("open").click();
 })();

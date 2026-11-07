@@ -269,3 +269,38 @@ export function dagMail({ naam, dag, registratieId }){
     )
   };
 }
+
+function euroMail(centen){
+  return (Number(centen || 0) / 100).toLocaleString("nl-NL", { style: "currency", currency: "EUR" });
+}
+
+/* Naar de organisatie die een tegoed koopt: de betaallink. */
+export function tegoedBetaalMail({ naam, plaatsen, ex, totaal, prijsPlaats, betaalpagina }){
+  return {
+    subject: `Je tegoed voor ${plaatsen} Zelfstarters staat klaar`,
+    html: shell(
+      p(`Dag ${esc(naam)},`) +
+      p(`Je tegoed voor ${plaatsen} ${plaatsen === 1 ? "plaats" : "plaatsen"} staat klaar. Betaal en je code werkt direct.`) +
+      p(`${plaatsen} × ${euroMail(prijsPlaats)} = ${euroMail(ex)} excl. btw, ${euroMail(totaal)} incl. btw. De factuur komt na de betaling.`, `color:${MUT};font-size:14px`) +
+      knop("Betaal en activeer de code", betaalpagina) +
+      p(`Elke plaats is een jaar Verificatie &amp; Voorkeur: badge, plan met herinneringen en hermeting. De badge is van de persoon; jij ziet wie meedoet, nooit een score.`, `color:${MUT};font-size:14px`)
+    )
+  };
+}
+
+/* Naar de organisatie na betaling: de code en de link voor de mensen. */
+export function tegoedCodeMail({ naam, code, plaatsen, doelgroep }){
+  const wie = doelgroep === "werkgever" ? "je mensen" : "je kandidaten";
+  const link = `https://zelfstarters.nl/?code=${encodeURIComponent(code)}`;
+  return {
+    subject: `Je code ${code} werkt. Stuur hem door`,
+    html: shell(
+      p(`Dag ${esc(naam)},`) +
+      p(`Betaald, en je code werkt. Stuur ${wie} deze link:`) +
+      p(`<a href="${link}" style="color:${NAVY};font-weight:700">${link}</a>`) +
+      p(`Code <b style="color:${NAVY};font-size:20px">${esc(code)}</b>, goed voor ${plaatsen} ${plaatsen === 1 ? "plaats" : "plaatsen"}.`) +
+      p(`Ze melden zich aan, meten tien minuten, en zijn direct geverifieerd. Badge, nummer en plan zijn van hen. Zo krijgen ze meer kans op voorkeur bij hun promotie, hun volgende baan of hun volgende opdracht.`) +
+      p(`Wil je weten hoeveel plaatsen er gebruikt zijn, of heb je meer nodig? Antwoord op deze mail.`, `color:${MUT};font-size:14px`)
+    )
+  };
+}

@@ -18,6 +18,8 @@ import { haalBetaling } from "./mollie.js";
 import { welkomMail, herinneringMail, badgeMail, uitslagMail, vervolgMail, planMail, planHerinneringMail, planCheckMail, AFZENDER, ANTWOORD } from "./zelfstarters-mail.js";
 import { sterksteKant, ruimtePunten, planAlsTekst, regelsVoorHerinnering, alleMomenten } from "./zelfstarters-uitslag.js";
 import { Resend } from "resend";
+import { vrijePlaatsen } from "./zelfstarters-korting.js";
+import { verwerkTegoedBetaling } from "./zelfstarters-tegoed.js";
 
 /* De sleutel van het websiteprofiel Zelfstarters, als die er is. Zonder die
    variabele loopt alles via het profiel van de scan, zoals voorheen. */
@@ -85,7 +87,12 @@ export async function verwerkZelfstarterBetaling(db, mollieId){
   const status = MOLLIE_NAAR_ONS[betaling.status] || null;
 
   const q = await db.from("zelfstarters").select("*").eq("mollie_payment_id", mollieId).maybeSingle();
-  if (!q.data) return { uitkomst: "geen registratie bij deze betaling" };
+  if (!q.data){
+    // Geen registratie: misschien het tegoed van een organisatie.
+    const t = await db.from("zelfstarters_partners").select("*").eq("mollie_payment_id", mollieId).maybeSingle();
+    if (t.data) return { uitkomst: await verwerkTegoedBetaling(db, t.data, status) };
+    return { uitkomst: "geen registratie bij deze betaling" };
+  }
   const rij = q.data;
 
   if (!status) return { uitkomst: `mollie zegt ${betaling.status}, niets gedaan` };
@@ -126,13 +133,13 @@ export async function verwerkZelfstarterBetaling(db, mollieId){
    Zelfde uitkomst als een betaalde verificatie: status betaald, nummer als
    dat er nog niet is, badgemail als er al gemeten is, anders de welkomstmail.
    betaling_status zegt gratis, zodat het in elk overzicht apart telt. */
-export async function verwerkGratisVerificatie(db, registratieId){
+export async function verwerkGratisVerificatie(db, registratieId, betalingStatus = "gratis"){
   const q = await db.from("zelfstarters").select("*").eq("id", registratieId).maybeSingle();
   if (!q.data) return "onbekende registratie";
   const rij = q.data;
   if (rij.status === "betaald") return "stond al op betaald";
   const nu = new Date();
-  const velden = { status: "betaald", betaling_status: "gratis", betaald_op: nu.toISOString() };
+  const velden = { status: "betaald", betaling_status: betalingStatus === "tegoed" ? "tegoed" : "gratis", betaald_op: nu.toISOString() };
   if (!rij.nummer) velden.nummer = await nieuwNummer(db, nu.getFullYear());
   const upd = await db.from("zelfstarters").update(velden).eq("id", rij.id).neq("status", "betaald").select("*").maybeSingle();
   if (!upd.data) return "stond al op betaald";
@@ -182,6 +189,17 @@ export async function koppelMeting(db, registratieId, scanId){
       meetjaren: na.meetjaren, plus: !!na.plus_class_gevolgd_op, registratieId: na.id
     }));
     return rij.eerste_meting_op ? "hermeting vastgelegd" : "eerste meting vastgelegd, badge gestuurd";
+  }
+
+  // Een tegoed van een werkgever of intermediair: bij de eerste meting
+  // direct geverifieerd, zolang er plaatsen vrij zijn. Geen uitslagmail met
+  // een betaalknop, maar meteen de badge.
+  if (!rij.eerste_meting_op && na.partner_id){
+    const p = await db.from("zelfstarters_partners").select("*").eq("id", na.partner_id).maybeSingle();
+    if (p.data && p.data.soort === "tegoed" && p.data.actief && await vrijePlaatsen(db, p.data) > 0){
+      await verwerkGratisVerificatie(db, na.id, "tegoed");
+      return `geregistreerd en geverifieerd met tegoed ${p.data.code}`;
+    }
   }
 
   const scan = await scanVan(db, na.scan_id);

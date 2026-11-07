@@ -13,7 +13,7 @@ export default async function handler(req, res){
   try{
     const partner = await partnerBijCode(db, req.query?.code);
     if (!partner){ res.status(400).json({ error: "Vul een kortingscode in." }); return; }
-    res.status(200).json({ partner: { naam: partner.naam, code: partner.code, korting_pct: partner.korting_pct }, prijzen: await prijzen(db, partner) });
+    res.status(200).json({ partner: { naam: partner.naam, code: partner.code, korting_pct: partner.korting_pct, tegoed: partner.soort === "tegoed" }, prijzen: await prijzen(db, partner) });
   }catch(e){
     res.status(e.status || 500).json({ error: e.message });
   }

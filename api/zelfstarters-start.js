@@ -16,7 +16,7 @@ import { bedragMetBtw } from "../betalen.js";
 import { maakBetaling } from "../mollie.js";
 import { zelfstartersSleutel } from "../zelfstarters-verwerken.js";
 import { VAKGEBIEDEN } from "../zelfstarters-uitslag.js";
-import { partnerVoorCode, kortingCent } from "../zelfstarters-korting.js";
+import { partnerVoorCode, kortingCent, vrijePlaatsen } from "../zelfstarters-korting.js";
 import { verwerkGratisVerificatie } from "../zelfstarters-verwerken.js";
 
 // Type plus is sinds 6 november 2026 de Zelfstarters Dag (ZS-DAG); de
@@ -58,6 +58,9 @@ export async function partnerBijCode(db, code){
   if (!code) return null;
   const partner = await partnerVoorCode(db, code);
   if (!partner) throw Object.assign(new Error("Deze kortingscode is niet bekend. Vraag je intermediair om de juiste code."), { status: 400 });
+  // Een tegoed van een organisatie heeft een maximum aantal plaatsen.
+  if (partner.plaatsen && await vrijePlaatsen(db, partner) <= 0)
+    throw Object.assign(new Error("Alle plaatsen van deze code zijn gebruikt. Vraag je organisatie om een nieuwe."), { status: 400 });
   return partner;
 }
 
@@ -79,7 +82,7 @@ export async function startBetaling({ db, req, rij, type, terug, partner }){
       type, product_code: p.data.code, bedrag_cent: 0, btw_cent: 0,
       partner_id: partner.id, kortingscode: partner.code, korting_cent: korting
     }).eq("id", rij.id);
-    await verwerkGratisVerificatie(db, rij.id);
+    await verwerkGratisVerificatie(db, rij.id, partner.soort === "tegoed" ? "tegoed" : "gratis");
     return { betaalpagina: null, bedrag_cent: 0, gratis: true, terug: `${basisUrl(req)}${terug}?z=${rij.id}` };
   }
   const basis = basisUrl(req);
@@ -132,8 +135,12 @@ export default async function handler(req, res){
 
   // Eerst de rij. Een meting of betaling zonder registratie is een getal
   // zonder verhaal.
+  // Met een code erbij onthouden we de partner al bij de aanmelding. Bij een
+  // tegoed van een organisatie is de registratie dan bij de eerste meting
+  // direct geverifieerd (koppelMeting).
   const ins = await db.from("zelfstarters").insert({
-    naam, email, type, vakgebied, werkvorm, openbaar, status: "open"
+    naam, email, type, vakgebied, werkvorm, openbaar, status: "open",
+    partner_id: partner ? partner.id : null, kortingscode: partner ? partner.code : null
   }).select("*").single();
   if (ins.error){
     await logFout("zelfstarters-start", ins.error.message);
