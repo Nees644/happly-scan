@@ -36,7 +36,7 @@ export function naamRegels(naam, perRegel = 22){
   return regels.slice(0, 2).map(r => r.length > perRegel + 4 ? r.slice(0, perRegel + 1) + "..." : r);
 }
 
-export function bouwBadgeSvg({ naam, niveau, datum, verificatiecode, basis = "https://www.teamkrachtindex.nl" }){
+export function bouwBadgeSvg({ naam, niveau, datum, verificatiecode, basis = "https://scan.happly.nl" }){
   const label = NIVEAU_LABEL[niveau] || niveau;
   const jaar = jaarVan(datum);
   const regels = naamRegels(naam);

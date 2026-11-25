@@ -63,7 +63,7 @@ footer{margin-top:40px;border-top:1px solid ${LIJN};padding-top:20px;font-size:1
 /* De lijst. Namen staan er alleen in met toestemming, en de volgorde is
    alfabetisch: geen ranglijst en geen nieuwste eerst, want dat zou een
    voorkeur suggereren die er niet is. */
-export function bouwRegisterLijst({ rijen = [], basis = "https://www.teamkrachtindex.nl" }){
+export function bouwRegisterLijst({ rijen = [], basis = "https://scan.happly.nl" }){
   const kaarten = rijen.length
     ? rijen.map(r => `
       <a class="kaart" href="/register/${ontsnap(r.slug)}" style="display:block;text-decoration:none;color:inherit">
@@ -103,7 +103,7 @@ export function bouwRegisterLijst({ rijen = [], basis = "https://www.teamkrachti
 /* De pagina van een persoon, en tegelijk de verificatiepagina. Bestaat ook als
    het certificaat niet meer actief is: een badge die iemand vorig jaar op
    LinkedIn zette hoort te blijven werken en dan eerlijk te zijn. */
-export function bouwRegisterPagina({ rij, basis = "https://www.teamkrachtindex.nl", viaCode = false }){
+export function bouwRegisterPagina({ rij, basis = "https://scan.happly.nl", viaCode = false }){
   const beschrijving = `${rij.naam} is ${rij.niveau_label} van de Teamkracht Scan sinds ${nederlandseDatum(rij.sinds)}.`;
   return schil({
     titel: `${rij.naam} · ${rij.niveau_label} · Teamkracht Scan`,

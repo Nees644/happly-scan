@@ -409,7 +409,7 @@ footer a{color:var(--lav);text-decoration:none}
         <li><b>Medewerkers</b> met meer eigen regie en eigenaarschap</li>
       </ul>
       <p style="margin:0 0 18px"><b>Begin met het Leidersbeeld.</b> In drie minuten zie je hoe jij je team inschat op zien, sturen en doen. Gratis, geen account. Daarna weet je wat je wilt weten van je team.</p>
-      <a class="btn btn-p" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_leider">Doe het gratis Leidersbeeld</a>
+      <a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_leider">Doe het gratis Leidersbeeld</a>
     </div>
     <div class="offer fade">
       <p class="eyebrow">Teamkracht-pakket</p>
@@ -422,7 +422,7 @@ footer a{color:var(--lav);text-decoration:none}
         <li>Hermeting om de vooruitgang te zien</li>
       </ul>
       <a class="btn btn-p" href="#contact">Neem contact op</a>
-      <a class="btn btn-s" style="color:#fff;margin-left:8px" href="https://www.teamkrachtindex.nl/teamkracht-demo-interactief?src=site_org">Bekijk de demo</a>
+      <a class="btn btn-s" style="color:#fff;margin-left:8px" href="https://scan.happly.nl/teamkracht-demo-interactief?src=site_org">Bekijk de demo</a>
     </div>
   </div>
 </section>
@@ -478,7 +478,7 @@ footer a{color:var(--lav);text-decoration:none}
         <li>Per professional per maand, geen opstartkosten</li>
       </ul>
       <a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_pro">Doe de Volhoudkracht Scan</a>
-      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/register?src=site_pro">Bekijk het register</a> &middot; <a style="color:#fff" href="https://www.teamkrachtindex.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a></p>
+      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://scan.happly.nl/register?src=site_pro">Bekijk het register</a> &middot; <a style="color:#fff" href="https://scan.happly.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a></p>
     </div>
   </div>
 </section>
@@ -564,7 +564,7 @@ footer a{color:var(--lav);text-decoration:none}
 (function(){
   var src = new URLSearchParams(location.search).get("src");
   if (!src || !/^[a-z0-9_-]{1,40}$/i.test(src)) return;
-  var links = document.querySelectorAll('a[href*="teamkrachtindex.nl/leidersbeeld"]');
+  var links = document.querySelectorAll('a[href*="scan.happly.nl/leidersbeeld"]');
   for (var i = 0; i < links.length; i++){
     var url = new URL(links[i].href);
     url.searchParams.set("src", src.toLowerCase());

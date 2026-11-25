@@ -124,7 +124,13 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   blokkeerde tot 15 september de module en de prijsopvraag voor elke nieuwe
   gebruiker.
 
-- **Het register is openbaar en staat op teamkrachtindex.nl**: `/register`,
+- **teamkrachtindex.nl werkt niet meer sinds november 2026.** Alles wat daar
+  stond is bereikbaar op scan.happly.nl onder hetzelfde pad: het Leidersbeeld,
+  de leiderpagina uit de mail, het register, de verificatie, de badge en het
+  logo op de factuur. Bouw geen nieuwe link naar teamkrachtindex.nl; een test
+  bewaakt de mails van het Leidersbeeld. De middleware en `teamkrachtindex.html`
+  staan er nog voor het geval het domein terugkomt.
+- **Het register is openbaar en staat op scan.happly.nl**: `/register`,
   `/register/:slug` en `/verificatie/:code`, server-getekend zodat een
   verificatielink werkt zonder javascript. Er staat alleen in wat met
   uitdrukkelijke toestemming is gegeven; zonder toestemming bestaat het
