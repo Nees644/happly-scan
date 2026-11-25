@@ -270,3 +270,17 @@ test("de nieuwe bestanden staan in git en komen dus op productie", () => {
     assert.ok(inGit.includes(bestand), `${bestand} staat niet in git`);
   }
 });
+
+
+/* --------------------------------------------- de knop in de mail werkt */
+test("de mails van het Leidersbeeld wijzen naar scan.happly.nl", async () => {
+  const { BASIS_URL, leiderUrl, resultaatMail, herinneringMail } = await import("../leidersbeeld-mail.js");
+  assert.equal(BASIS_URL, "https://scan.happly.nl");
+  assert.equal(leiderUrl("abc"), "https://scan.happly.nl/leider/abc");
+  const eerste = resultaatMail({ naam: "Test Leider", index: 67, token: "abc" });
+  const tweede = herinneringMail({ naam: "Test Leider", index: 67, token: "abc", afmeldUrl: null });
+  for (const mail of [eerste, tweede]){
+    assert.ok(mail.html.includes('href="https://scan.happly.nl/leider/abc"'), "de knop wijst niet naar scan.happly.nl");
+    assert.ok(!mail.html.includes("teamkrachtindex.nl"), "de mail verwijst nog naar teamkrachtindex.nl");
+  }
+});
