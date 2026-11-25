@@ -61,7 +61,7 @@ test("een leidinggevende kan meteen het gratis Leidersbeeld doen", () => {
   // De verkoopweg voor teams loopt via het Leidersbeeld naar de Teamfoto. De
   // voorpagina van 5 oktober was hem eerst kwijt; deze test houdt hem erop.
   const sectie = HTML.split('id="werkgevers"')[1].split("</section>")[0];
-  assert.ok(sectie.includes("teamkrachtindex.nl/leidersbeeld?src=site_leider"), "de knop naar het Leidersbeeld ontbreekt");
+  assert.ok(sectie.includes("scan.happly.nl/leidersbeeld?src=site_leider"), "de knop naar het Leidersbeeld ontbreekt");
   assert.ok(/geen account/.test(sectie), "de drempelvrije belofte ontbreekt");
 });
 
@@ -69,16 +69,16 @@ test("de herkomst uit de URL gaat mee naar het Leidersbeeld", () => {
   // Een post landt op happly.nl en niet rechtstreeks op de vragen. Dan moet
   // de site de src doorgeven, anders is niet te zien wat een post opleverde.
   assert.ok(HTML.includes('searchParams.set("src"'), "de site geeft de herkomst niet door");
-  assert.ok(HTML.includes('a[href*="teamkrachtindex.nl/leidersbeeld"]'),
+  assert.ok(HTML.includes('a[href*="scan.happly.nl/leidersbeeld"]'),
     "de doorgifte raakt niet de links naar het Leidersbeeld");
   // Alleen tekens die schoonHerkomst() aan de andere kant ook toelaat.
   assert.ok(/\^\[a-z0-9_-\]\{1,40\}\$/.test(HTML), "de src wordt niet gecontroleerd voordat hij wordt doorgegeven");
 });
 
 test("de links wijzen naar wat er draait", () => {
-  for (const url of ["https://www.teamkrachtindex.nl/leidersbeeld",
-                     "https://www.teamkrachtindex.nl/register",
-                     "https://www.teamkrachtindex.nl/teamkracht-demo-interactief",
+  for (const url of ["https://scan.happly.nl/leidersbeeld",
+                     "https://scan.happly.nl/register",
+                     "https://scan.happly.nl/teamkracht-demo-interactief",
                      "https://scan.happly.nl/module",
                      "https://scan.happly.nl"]){
     assert.ok(HTML.includes(url), `de link naar ${url} ontbreekt`);
@@ -174,7 +174,7 @@ test("de hoofdknop is de gratis Volhoudkracht Scan, het Leidersbeeld blijft bij 
   assert.ok(hero.includes("scan.happly.nl/volhoudkracht?src=site_hero"), "de heroknop gaat niet naar de Volhoudkracht Scan");
   assert.ok(hero.includes("Volhouden kun je <em"), "de stelling is niet meer de kop");
   const werk = HTML.split('id="werkgevers"')[1].split("</section>")[0];
-  assert.ok(werk.includes("teamkrachtindex.nl/leidersbeeld?src=site_leider"), "het Leidersbeeld staat niet meer bij werkgevers");
+  assert.ok(werk.includes("scan.happly.nl/leidersbeeld?src=site_leider"), "het Leidersbeeld staat niet meer bij werkgevers");
 });
 
 test("de feiten over afhaken staan er met hun bron", () => {

@@ -9,7 +9,10 @@
 
 import { voornaam, mailOnderwerp, herinneringOnderwerp } from "./leidersbeeld.js";
 
-export const BASIS_URL = "https://www.teamkrachtindex.nl";
+// De knop in de mail wijst naar scan.happly.nl. Daar draait de leiderpagina
+// zeker; teamkrachtindex.nl gaf op 28 oktober 2026 een foutpagina, en dan
+// loopt iedereen die het Leidersbeeld invult dood op de knop in zijn mail.
+export const BASIS_URL = "https://scan.happly.nl";
 
 const FONT = "'DM Sans',Helvetica,Arial,sans-serif";
 const DP = "#1A0B2E", PK = "#D6026F", RT = "#FBEFF5", MUT = "#6A5A78", TX = "#3A2E46";

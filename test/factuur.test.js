@@ -111,8 +111,8 @@ test("op de factuur staat alles wat erop hoort", () => {
 });
 
 test("het beeldmerk staat op de factuur, als afbeelding met een alt-tekst", () => {
-  const html = bouwFactuurHtml(FACTUUR, { ...VOLLEDIG, logo: "https://www.teamkrachtindex.nl/assets/happly-logo.png" });
-  assert.ok(html.includes('src="https://www.teamkrachtindex.nl/assets/happly-logo.png"'));
+  const html = bouwFactuurHtml(FACTUUR, { ...VOLLEDIG, logo: "https://scan.happly.nl/assets/happly-logo.png" });
+  assert.ok(html.includes('src="https://scan.happly.nl/assets/happly-logo.png"'));
   assert.ok(html.includes('alt="Happly"'), "zonder alt staat er niets als afbeeldingen geblokkeerd zijn");
   assert.ok(/logo\.png/.test(html) && !/\.svg/.test(html), "svg wordt in de meeste mailprogramma's niet getoond");
 

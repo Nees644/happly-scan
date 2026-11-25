@@ -134,7 +134,7 @@ test("een lege pagina zegt niet of de code bestaat", () => {
 test("op de badge staan naam, niveau, jaar en de verificatie", () => {
   const svg = bouwBadgeSvg({ naam: "Maarten Neeskens", niveau: "lezer", datum: "2026-09-15", verificatiecode: CERT.verificatiecode });
   assert.ok(svg.startsWith("<svg"));
-  for (const wat of ["Maarten Neeskens", "Gecertificeerde Practitioner", "2026", "teamkrachtindex.nl/verificatie", CERT.verificatiecode]){
+  for (const wat of ["Maarten Neeskens", "Gecertificeerde Practitioner", "2026", "scan.happly.nl/verificatie", CERT.verificatiecode]){
     assert.ok(svg.includes(wat), `de badge mist ${wat}`);
   }
   assert.ok(svg.includes(`viewBox="0 0 ${BREEDTE} ${HOOGTE}"`), "de badge is niet vierkant");
@@ -168,11 +168,11 @@ test("de openbare routes staan in vercel.json", () => {
   assert.equal(paden["/register/:slug"], "/api/register?slug=:slug");
   assert.equal(paden["/verificatie/:code"], "/api/register?code=:code");
 
-  // Het register hoort op teamkrachtindex.nl en mag daar niet worden
-  // doorgestuurd naar scan.happly.nl.
+  // Het register staat sinds 25 november 2026 op scan.happly.nl, omdat
+  // teamkrachtindex.nl niet meer werkt. Het mag nergens heen worden doorgestuurd.
   for (const r of vercel.redirects){
     assert.ok(!/\|register\||\|verificatie\|/.test(r.source || ""),
-      "het register wordt doorgestuurd en staat dan niet op teamkrachtindex.nl");
+      "het register wordt doorgestuurd en is dan niet meer te vinden");
   }
 });
 
