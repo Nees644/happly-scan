@@ -127,3 +127,14 @@ test("het b2b-verdienmodel staat niet op de site", () => {
 test("geen link naar teamkrachtindex.nl", () => {
   assert.ok(!HTML.includes("teamkrachtindex.nl"), "er staat nog een link naar het oude domein");
 });
+
+test("sterkeropjewerk.nl stuurt via https door naar happly.nl, met herkomst", () => {
+  // 26 november 2026: de doorsturing bij TransIP had geen https, en Safari
+  // waarschuwt dan dat de verbinding niet veilig is. Vercel geeft het domein
+  // een certificaat en stuurt elk pad door.
+  const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const r = vercel.redirects.find(x => (x.has || []).some(h => h.type === "host" && h.value.includes("sterkeropjewerk")));
+  assert.ok(r, "er is geen doorsturing voor sterkeropjewerk.nl");
+  assert.equal(r.source, "/:pad*");
+  assert.equal(r.destination, "https://happly.nl/?src=sterkeropjewerk");
+});
