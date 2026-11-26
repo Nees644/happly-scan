@@ -15,7 +15,7 @@ import { voornaam, mailOnderwerp, herinneringOnderwerp } from "./leidersbeeld.js
 export const BASIS_URL = "https://scan.happly.nl";
 
 // Het gesprek over het programma voor leidinggevenden, met herkomst.
-export const GESPREK_URL_MAIL = "https://cal.com/maarten-neeskens-aoijqe?src=leidersbeeld_mail";
+export const GESPREK_URL_MAIL = "https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=leidersbeeld_mail";
 
 const FONT = "'DM Sans',Helvetica,Arial,sans-serif";
 const DP = "#1A0B2E", PK = "#D6026F", RT = "#FBEFF5", MUT = "#6A5A78", TX = "#3A2E46";

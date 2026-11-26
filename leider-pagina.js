@@ -14,7 +14,7 @@ import { tekenKaartSvg } from "./teamkracht-kaart.js";
 
 // Het gesprek over Sterker op je werk. De herkomst laat in cal.com zien dat
 // iemand via de leiderpagina kwam.
-export const GESPREK_URL = "https://cal.com/maarten-neeskens-aoijqe?src=leiderpagina";
+export const GESPREK_URL = "https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=leiderpagina";
 
 const PAARS = "#1A0B2E", MAGENTA = "#D6026F", ROOM = "#F7F3F0", LIJN = "#E6DFE9", GRIJS = "#6B6472";
 
