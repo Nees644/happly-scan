@@ -19,9 +19,16 @@ export const config = {
 };
 
 const TEAMKRACHTINDEX = /^(www\.)?teamkrachtindex\.nl$/i;
+const STERKEROPJEWERK = /^(www\.)?sterkeropjewerk\.nl$/i;
+
+// sterkeropjewerk.nl is alleen een doorverwijzing naar happly.nl (26 november
+// 2026). De regel in vercel.json doet dat voor elk pad; deze regel vangt de
+// voordeur op, want daar kwam de bezoeker anders op de Zelfkracht Scan uit.
+export const DOEL_STERKER = "https://happly.nl/?src=sterkeropjewerk";
 
 export default function middleware(request){
   const host = request.headers.get("host") || "";
+  if (STERKEROPJEWERK.test(host)) return Response.redirect(DOEL_STERKER, 307);
   if (!TEAMKRACHTINDEX.test(host)) return;          // scan.happly.nl blijft zoals hij was
 
   // Zonder .html: cleanUrls staat aan in vercel.json, dus Vercel serveert de
