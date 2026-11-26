@@ -196,6 +196,16 @@
     },
     "api/zelfstarters-partners.js": {
       "maxDuration": 20
+    },
+    "api/sterker-aanmelden.js": {
+      "maxDuration": 30,
+      "includeFiles": "assets/**"
+    },
+    "api/sterker-betaal.js": {
+      "maxDuration": 15
+    },
+    "api/sterker-webhook.js": {
+      "maxDuration": 15
     }
   },
   "crons": [

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aanmelden · Sterker op je werk · Happly</title>
+<meta name="description" content="Meld je mensen aan voor Sterker op je werk in 15 minuten per week. Je krijgt direct de factuur en kunt meteen betalen.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--paars);background:var(--room);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.4vw,2.8rem);margin-bottom:.4em}
+h1 em{font-style:normal;color:var(--magenta)}
+h2{font-size:1.35rem;margin:30px 0 4px}
+a{color:var(--magenta)}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--lijn);background:var(--wit)}
+header .wrap{display:flex;align-items:center;height:64px}
+header img{height:28px;display:block}
+main{padding:44px 0 80px}
+.lead{color:var(--grijs);margin-bottom:22px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:26px}
+.keuze{display:grid;gap:10px;margin-top:8px}
+.keuze label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--lijn);border-radius:12px;padding:14px 16px;cursor:pointer;margin:0;font-weight:400;background:var(--wit)}
+.keuze label:has(input:checked){border-color:var(--magenta);background:#FDF5F9}
+.keuze input{accent-color:var(--magenta);width:19px;height:19px;margin-top:3px;flex:none}
+.keuze b{display:block;font-size:16px}
+.keuze span{display:block;font-size:14px;color:var(--grijs)}
+.keuze .prijs{font-weight:600;color:var(--magenta);font-size:15px}
+label{display:block;font-size:14px;font-weight:600;margin:16px 0 5px}
+.opt{font-weight:400;color:var(--grijs)}
+input[type=text],input[type=email],input[type=tel],input[type=number],textarea{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+.rij{display:grid;grid-template-columns:1fr 2fr;gap:12px}
+.totaal{margin-top:22px;padding:16px 18px;border-radius:12px;background:#F2ECF5;font-size:15px}
+.totaal b{font-size:18px}
+.vink{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14.5px;line-height:1.5}
+.vink input{width:19px;height:19px;margin-top:2px;accent-color:var(--magenta);flex:none}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;margin-top:24px;text-decoration:none}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044;border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:18px}
+.klein{font-size:14px;color:var(--grijs);margin-top:18px}
+footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:var(--grijs)}
+[hidden]{display:none}
+@media (max-width:560px){.rij{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><a href="https://happly.nl"><img src="happly-logo.svg" alt="Happly"></a></div></header>
+
+<main class="wrap">
+  <section id="stap-formulier">
+    <h1>Sterker op je werk <em>in 15 minuten per week.</em></h1>
+    <p class="lead">Meld je aan. Je krijgt direct de factuur in je mail en kunt meteen betalen, met creditcard of iDEAL. Daarna plannen we de coach en het vaste moment in de week.</p>
+
+    <form id="formulier" class="kaart" novalidate>
+      <h2 style="margin-top:0">Welk programma?</h2>
+      <div class="keuze" id="keuze"><p class="klein">Even laden...</p></div>
+
+      <label for="plaatsen">Aantal deelnemers</label>
+      <input type="number" id="plaatsen" name="plaatsen" min="1" max="500" value="1" inputmode="numeric" style="max-width:140px">
+
+      <label for="deelnemers">Namen van de deelnemers <span class="opt">(mag ook later)</span></label>
+      <textarea id="deelnemers" name="deelnemers" placeholder="Een naam en mailadres per regel"></textarea>
+
+      <h2>Jouw gegevens</h2>
+      <label for="organisatie">Organisatie</label>
+      <input type="text" id="organisatie" name="organisatie" autocomplete="organization" required>
+      <label for="contact_naam">Je naam</label>
+      <input type="text" id="contact_naam" name="contact_naam" autocomplete="name" required>
+      <label for="email">E-mailadres <span class="opt">(hier gaat de factuur naartoe)</span></label>
+      <input type="email" id="email" name="email" autocomplete="email" required>
+      <label for="telefoon">Telefoon <span class="opt">(voor het plannen)</span></label>
+      <input type="tel" id="telefoon" name="telefoon" autocomplete="tel">
+
+      <h2>Factuuradres</h2>
+      <label for="klant_adres">Straat en huisnummer</label>
+      <input type="text" id="klant_adres" name="klant_adres" autocomplete="street-address" required>
+      <div class="rij">
+        <div><label for="klant_postcode">Postcode</label><input type="text" id="klant_postcode" name="klant_postcode" autocomplete="postal-code" required></div>
+        <div><label for="klant_plaats">Plaats</label><input type="text" id="klant_plaats" name="klant_plaats" autocomplete="address-level2" required></div>
+      </div>
+      <label for="klant_btw_nummer">Btw-nummer <span class="opt">(als je dat op de factuur wilt)</span></label>
+      <input type="text" id="klant_btw_nummer" name="klant_btw_nummer">
+      <label for="referentie">Inkoopnummer of referentie <span class="opt">(als jullie administratie dat vraagt)</span></label>
+      <input type="text" id="referentie" name="referentie">
+      <label for="opmerking">Opmerking <span class="opt">(bijvoorbeeld een voorkeur voor dag of tijd)</span></label>
+      <textarea id="opmerking" name="opmerking"></textarea>
+
+      <div class="totaal" id="totaal" hidden></div>
+
+      <label class="vink"><input type="checkbox" id="akkoord" name="akkoord"> <span>Ik meld me aan namens de organisatie en ontvang de factuur per mail. Betalen kan binnen veertien dagen.</span></label>
+      <div class="fout" id="fout" hidden></div>
+      <button class="knop" type="submit" id="verstuur">Meld aan en ontvang de factuur</button>
+      <p class="klein">Liever eerst overleggen? <a href="https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=sterker_aanmelden">Plan een gesprek van 20 minuten</a>. Hoe we met je gegevens omgaan, lees je in de <a href="/privacy">privacyverklaring</a>.</p>
+    </form>
+  </section>
+
+  <section id="stap-klaar" hidden>
+    <h1>Dank je. <em>De factuur staat in je mail.</em></h1>
+    <p class="lead" id="klaar-tekst"></p>
+    <a class="knop" id="betaal" href="#">Betaal nu</a>
+    <p class="klein">Je kunt ook later betalen via de knop in de mail. We nemen binnen twee werkdagen contact met je op om de coach en het vaste moment te plannen.</p>
+  </section>
+</main>
+
+<footer><div class="wrap">Happly · Sterker op je werk · <a href="/privacy">Privacy</a></div></footer>
+
+<script>
+(function(){
+  var el = function(id){ return document.getElementById(id); };
+  var params = new URLSearchParams(location.search);
+  var producten = [];
+  var euro = function(c){ return (c / 100).toLocaleString("nl-NL", { style: "currency", currency: "EUR" }); };
+
+  function gekozen(){
+    var r = document.querySelector('input[name="product"]:checked');
+    return r ? producten.find(function(p){ return p.soort === r.value; }) : null;
+  }
+  function rekenUit(){
+    var p = gekozen(), n = Math.max(1, parseInt(el("plaatsen").value, 10) || 1);
+    if (!p){ el("totaal").hidden = true; return; }
+    var ex = p.prijs_ex_btw * n;
+    el("totaal").innerHTML = n + " x " + p.naam + "<br><b>" + euro(ex) + "</b> exclusief btw. De btw staat op de factuur.";
+    el("totaal").hidden = false;
+  }
+
+  fetch("/api/sterker-aanmelden").then(function(r){ return r.json(); }).then(function(d){
+    producten = d.producten || [];
+    var start = params.get("p") || "start";
+    el("keuze").innerHTML = producten.map(function(p){
+      return '<label><input type="radio" name="product" value="' + p.soort + '"' + (p.soort === start ? " checked" : "") + '>' +
+        '<div><b>' + p.naam + '</b><span>' + (p.bevat || "") + '</span><span class="prijs">' + euro(p.prijs_ex_btw) + ' ' + (p.voorwaarde || "").toLowerCase() + ', exclusief btw</span></div></label>';
+    }).join("");
+    if (!document.querySelector('input[name="product"]:checked') && producten[0]) document.querySelector('input[name="product"]').checked = true;
+    document.querySelectorAll('input[name="product"]').forEach(function(i){ i.addEventListener("change", rekenUit); });
+    rekenUit();
+  }).catch(function(){
+    el("keuze").innerHTML = '<p class="fout">De programma\'s laden niet. Probeer het zo nog eens, of mail hallo@happly.nl.</p>';
+  });
+  el("plaatsen").addEventListener("input", rekenUit);
+
+  el("formulier").addEventListener("submit", function(e){
+    e.preventDefault();
+    var f = el("formulier"), knop = el("verstuur");
+    var invoer = { product: (gekozen() || {}).soort, akkoord: el("akkoord").checked, src: params.get("src") };
+    ["plaatsen","deelnemers","organisatie","contact_naam","email","telefoon","klant_adres","klant_postcode","klant_plaats","klant_btw_nummer","referentie","opmerking"]
+      .forEach(function(k){ invoer[k] = f.elements[k].value; });
+    el("fout").hidden = true; knop.disabled = true; knop.textContent = "Een moment...";
+    fetch("/api/sterker-aanmelden", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(invoer) })
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(u){
+        if (!u.ok) throw new Error(u.d.error || "Het aanmelden lukte niet.");
+        el("klaar-tekst").textContent = u.d.factuur
+          ? "Factuur " + u.d.factuur.nummer + " is verstuurd naar " + invoer.email + ". Te betalen: " + euro(u.d.bedrag.totaal) + "."
+          : "We hebben je aanmelding. De factuur volgt per mail.";
+        el("betaal").href = u.d.betaalUrl;
+        el("stap-formulier").hidden = true; el("stap-klaar").hidden = false; window.scrollTo(0, 0);
+      })
+      .catch(function(err){
+        el("fout").textContent = err.message; el("fout").hidden = false;
+        knop.disabled = false; knop.textContent = "Meld aan en ontvang de factuur";
+      });
+  });
+})();
+</script>
+</body>
+</html>

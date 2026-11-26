@@ -31,6 +31,15 @@ function adresblok(kop, r){
   </td>`;
 }
 
+/* De slotzin onder de bedragen. Een open factuur met vervaldatum noemt de
+   termijn, en het IBAN als dat in bedrijf.js staat. */
+export function openTekst(factuur, bedrijf = BEDRIJF){
+  if (factuur.status === "betaald") return "Dit bedrag is voldaan via Mollie. Je hoeft niets meer te doen.";
+  if (!factuur.vervaldatum) return "Dit bedrag staat nog open.";
+  const iban = bedrijf.iban ? ` of maak het over naar ${bedrijf.iban} ten name van ${bedrijf.naam}, met het factuurnummer erbij` : "";
+  return `Te betalen uiterlijk ${nederlandseDatum(factuur.vervaldatum)}. Betaal via de betaallink in de mail${iban}.`;
+}
+
 export function bouwFactuurHtml(factuur, bedrijf = BEDRIJF){
   const regels = (factuur.regels || []).map(r => `
     <tr>
@@ -67,6 +76,7 @@ export function bouwFactuurHtml(factuur, bedrijf = BEDRIJF){
             <b style="font-size:16px;color:${DP}">Factuur ${ontsnap(factuur.nummer)}</b><br>
             <span style="color:${MUT}">Factuurdatum ${ontsnap(nederlandseDatum(factuur.created_at))}</span><br>
             <span style="color:${MUT}">Leverdatum ${ontsnap(nederlandseDatum(factuur.periode_van))}</span>
+            ${factuur.vervaldatum && factuur.status !== "betaald" ? `<br><span style="color:${MUT}">Vervaldatum ${ontsnap(nederlandseDatum(factuur.vervaldatum))}</span>` : ""}
             ${factuur.klant_referentie ? `<br><span style="color:${MUT}">Referentie ${ontsnap(factuur.klant_referentie)}</span>` : ""}
           </td>
         </tr>
@@ -98,9 +108,7 @@ export function bouwFactuurHtml(factuur, bedrijf = BEDRIJF){
       </table>
 
       <p style="font-family:${FONT};font-size:13px;color:${MUT};line-height:1.7;margin:22px 0 0">
-        ${factuur.status === "betaald"
-          ? "Dit bedrag is voldaan via Mollie. Je hoeft niets meer te doen."
-          : "Dit bedrag staat nog open."}
+        ${openTekst(factuur, bedrijf)}
       </p>
       ${factuur.btw_verlegd ? `<p style="font-family:${FONT};font-size:12.5px;color:${MUT};margin:8px 0 0">Btw verlegd naar de afnemer.</p>` : ""}
     </div>

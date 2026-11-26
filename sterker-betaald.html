@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betaling · Sterker op je werk · Happly</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:17px}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.15;font-size:clamp(1.9rem,4.4vw,2.6rem);margin-bottom:.5em}
+h1 em{font-style:normal;color:var(--magenta)}
+a{color:var(--magenta)}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--lijn);background:var(--wit)}
+header .wrap{display:flex;align-items:center;height:64px}
+header img{height:28px;display:block}
+main{padding:56px 0 80px}
+.lead{color:var(--grijs)}
+.knop{display:inline-block;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border-radius:999px;padding:13px 28px;margin-top:24px;text-decoration:none}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a href="https://happly.nl"><img src="happly-logo.svg" alt="Happly"></a></div></header>
+<main class="wrap">
+  <h1 id="kop">Een moment...</h1>
+  <p class="lead" id="tekst"></p>
+  <a class="knop" id="opnieuw" href="#" hidden>Probeer opnieuw te betalen</a>
+</main>
+<script>
+(function(){
+  var t = new URLSearchParams(location.search).get("t") || "";
+  var kop = document.getElementById("kop"), tekst = document.getElementById("tekst"), opnieuw = document.getElementById("opnieuw");
+  var pogingen = 0;
+  function kijk(){
+    fetch("/api/sterker-betaal?stand=1&t=" + encodeURIComponent(t)).then(function(r){ return r.json(); }).then(function(d){
+      if (d.status === "betaald"){
+        kop.innerHTML = "Dank je. <em>De betaling is binnen.</em>";
+        tekst.textContent = "Je krijgt een bevestiging per mail. We nemen binnen twee werkdagen contact op om de coach en het vaste moment in de week te plannen.";
+        return;
+      }
+      if (++pogingen < 6){ setTimeout(kijk, 2500); return; }
+      kop.innerHTML = "We zien je betaling <em>nog niet.</em>";
+      tekst.textContent = "Soms duurt het even. Heb je betaald, dan krijg je de bevestiging per mail. Is het niet gelukt, dan kun je het opnieuw proberen.";
+      opnieuw.href = "/api/sterker-betaal?t=" + encodeURIComponent(t); opnieuw.hidden = false;
+    }).catch(function(){
+      kop.textContent = "Dit kunnen we nu niet nakijken.";
+      tekst.textContent = "Je krijgt een bevestiging per mail zodra de betaling binnen is.";
+    });
+  }
+  kijk();
+})();
+</script>
+</body>
+</html>
