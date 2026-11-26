@@ -242,6 +242,30 @@ test("de koopknop staat er alleen als er iets te kopen valt", async () => {
   assert.ok(viaPartner.includes("Bureau Noord"));
 });
 
+test("na het Leidersbeeld is het aanbod het programma voor leidinggevenden", async () => {
+  // Besluit 26 november 2026: happly.nl gaat over Sterker op je werk, en wat
+  // na het Leidersbeeld komt sluit daarop aan. Geen bedrag op de scanpagina's.
+  const { bouwLeiderPagina, GESPREK_URL } = await import("../leider-pagina.js");
+  const { resultaatMail } = await import("../leidersbeeld-mail.js");
+  const basis = { index_score: 69, zien: 75, sturen: 75, doen: 56, organisatie: "Testorganisatie Noord", teamomvang: "10-20" };
+
+  const pagina = bouwLeiderPagina({ rij: basis, token: "abc" });
+  assert.ok(pagina.includes("programma voor leidinggevenden"), "de leiderpagina noemt het programma niet");
+  assert.ok(pagina.includes(GESPREK_URL), "de leiderpagina heeft geen knop naar een gesprek");
+  assert.ok(pagina.indexOf(GESPREK_URL) < pagina.indexOf("leidersbeeld-kopen"), "de Teamfoto staat voor het programma");
+  assert.ok(!/\u20ac|&euro;/.test(pagina), "er staat een bedrag op de leiderpagina");
+
+  const mail = resultaatMail({ naam: "Sanne de Vries", index: 69, token: "abc" }).html;
+  assert.ok(mail.includes("programma voor leidinggevenden"), "de mail noemt het programma niet");
+  assert.ok(mail.includes("cal.com/maarten-neeskens-aoijqe?src=leidersbeeld_mail"), "de mail heeft geen link naar een gesprek");
+  assert.ok(!/\u20ac|&euro;/.test(mail), "er staat een bedrag in de mail");
+
+  const lb = readFileSync(new URL("../leidersbeeld.html", import.meta.url), "utf8");
+  const klaar = lb.split('id="stap-klaar"')[1].split("</section>")[0];
+  assert.ok(klaar.includes("src=leidersbeeld_klaar"), "de bevestiging biedt geen gesprek aan");
+  assert.ok(!/\u20ac|&euro;/.test(klaar), "er staat een bedrag op de bevestiging");
+});
+
 /* ---------------------------------------- A7 · na de eindkaart is het dicht */
 test("A7 · de route weigert een tweede Leidersbeeld als de eindkaart er is", () => {
   const route = readFileSync(new URL("../api/leidersbeeld.js", import.meta.url), "utf8");

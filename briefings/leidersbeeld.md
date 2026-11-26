@@ -164,6 +164,8 @@ Eigen ingang van de leider. Vier toestanden.
 
 a. Ingevuld, geen team: kolommen Zien, Sturen, Doen met alleen zijn drie punten, geen landelijk beeld (K9). Tekst: "Dit is jouw beeld van [organisatie]. Hoe het team het zelf doet, weet je na de meting." Daaronder de koopknop Teamfoto €495 (Mollie, bestaande Los-flow uit tarieven v4) en één regel voor wie via een partner kwam: "Je werkt met [partnernaam]; hij regelt de meting met je." Bij herkomst zonder partner en Organisatie-context: zelfde koopknop.
 
+Bijgewerkt 26 november 2026: het aanbod in toestand a is het programma voor leidinggevenden van Sterker op je werk (twaalf weken, elke week 15 minuten met een eigen coach, team in beeld bij start en eind), met als knop een gesprek van 20 minuten. De Teamfoto blijft als kleinere stap in een regel eronder. Geen bedrag op de pagina. Dezelfde zin met een link naar het gesprek staat onder de knop in de resultaatmail en op de bevestiging na het invullen.
+
 b. Gekoppeld of betaald, kaart nog niet vrij: zijn drie punten blijven zichtbaar, plus deelnameteller van het team (aantal ingevuld van aantal uitgenodigd, geen namen) en "Je krijgt bericht zodra de kaart klaar is".
 
 c. Kaart vrijgegeven: statusregel bovenaan ("Gedeeld beeld op Zien, Sturen en Doen" of "Verschil in beeld op Sturen"), daaronder de volledige Teamkrachtkaart met Leidersbeeld en het R13-blok. Vanaf hier is dit de plek waar de leider terugkomt: hermeting, later de wekelijkse sprintvraag.

@@ -191,6 +191,17 @@ keer werk: eenmaal om het te maken en eenmaal om het weer weg te halen.
   kop. De site spreekt als wij; alleen het blok Waarom ik dit doe is ik. De
   hoofdknop blijft het gratis Leidersbeeld.
 
+- **happly.nl gaat sinds 26 november 2026 over één product: Sterker op je werk
+  in 15 minuten per week.** Dit vervangt de merksite van 5, 6 en 13 oktober:
+  geen Volhouden kun je organiseren, geen blokken voor zorg, werkgevers,
+  ondernemers en trainers, en de pay-off Klein zetje. Grote beweging. hoort
+  alleen nog bij de tool Zetjes. De bedragen 395, 695 en 990 staan wel op
+  happly.nl, onder De investering; op de scanpagina's staat nog steeds geen
+  bedrag. Na het Leidersbeeld (bevestiging, resultaatmail, leiderpagina) is het
+  aanbod het programma voor leidinggevenden met een gesprek van 20 minuten; de
+  Teamfoto blijft als kleinere stap. `happly.html` is de bron van wat er bij
+  TransIP staat; de oude versie staat daar als oud261126.
+
 ## Werkregels
 
 - Nederlands, in code en in commentaar. Geen gedachtestreepjes, geen

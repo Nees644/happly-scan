@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Happly · Volhouden kun je organiseren · Klein zetje. Grote beweging.</title>
-<meta name="description" content="Volhouden is geen karaktereigenschap, je kunt het organiseren. Happly zorgt voor meer volhouders, voor aanbieders in health en vitality, werkgevers en ondernemers.">
+<title>Sterker op je werk in 15 minuten per week · Happly</title>
+<meta name="description" content="Je mensen sterker op het werk, jij sterker voor je mensen. Een vaste coach, 15 minuten per week, twaalf weken. Rust in het hoofd, grip op de week en meer energie.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -120,12 +120,63 @@ section{padding:96px 0}
 .rhythm b{font-family:'DM Serif Display',serif;font-weight:400;font-size:2.2rem;color:var(--magenta);display:block;margin-bottom:6px}
 .rhythm span{color:var(--lav)}
 
+/* sterker op je werk */
+.hero.donker{background:linear-gradient(135deg,#3A1650 0%,#4C1E62 55%,#6A2A70 100%);color:#fff;padding:110px 0 96px}
+.hero.donker::before{background:radial-gradient(circle,rgba(255,120,170,.42),transparent 65%)}
+.hero.donker::after{content:"";position:absolute;width:620px;height:620px;left:-240px;bottom:-380px;background:radial-gradient(circle,rgba(255,190,150,.22),transparent 65%);pointer-events:none}
+.hero.donker em.acc{color:#FF8CC4}
+.hero.donker h1{max-width:none}
+.hero.donker .kwart{position:absolute;right:max(3vw,8px);top:50%;transform:translateY(-50%);width:min(32vw,440px);height:auto;z-index:0;pointer-events:none}
+@media (min-width:901px){.hero.donker .wrap > *{max-width:62%}.hero.donker h1{font-size:clamp(2.8rem,4.9vw,4.4rem)}}
+@media (max-width:900px){.hero.donker .kwart{display:none}}
+/* Bij het openen loopt het kwartier vol, van twaalf naar drie uur. */
+.kwart-loop{stroke-dasharray:330;stroke-dashoffset:0;animation:kwartvol 1.8s cubic-bezier(.22,.8,.3,1) .35s both}
+@keyframes kwartvol{from{stroke-dashoffset:330}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.kwart-loop{animation:none}}
+.hero.donker .wrap{position:relative;z-index:1}
+.hero.donker h1 span,.hero.donker h1 em{display:block}
+.hero.donker p.lead{color:var(--lav)}
+.hero.donker .ctas .btn-s{color:#fff}
+.hero.donker .ctas .btn-s:hover{background:rgba(255,255,255,.08)}
+@media (max-width:900px){.hero.donker{padding:72px 0 64px}}
+.sterk-waarom{max-width:780px}
+.sterk-waarom h2{font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px}
+.sterk-waarom p{font-size:1.15rem;color:var(--lav-d);margin:0 0 18px}
+.sterk-waarom p.pain{color:var(--ink)}
+.offer .bedrag{font-family:'DM Serif Display',serif;font-size:2.6rem;color:#fff;line-height:1;margin:6px 0 6px}
+.offer .klein{font-size:.92rem;color:var(--lav);margin:14px 0 0}
+.prijs{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:28px}
+.prijs div{background:#3A1650;border-radius:16px;padding:28px;color:var(--lav)}
+.prijs h3{color:#fff;font-size:1.3rem;margin-bottom:10px}
+.prijs b{font-family:'DM Serif Display',serif;font-weight:400;font-size:2.2rem;color:#FF8CC4;display:block;margin-bottom:8px;line-height:1.05}
+.prijs div{display:flex;flex-direction:column}
+.prijs p{margin:0 0 22px;font-size:.95rem}
+.prijs .btn{margin-top:auto;text-align:center;padding:12px 16px;font-size:.92rem}
+.prijsnoot{color:var(--lav-d);font-size:.9rem;margin:16px 0 0}
+#mensen .offer,#leider .offer{background:#3A1650}
+/* keuzevraag */
+.keuze{padding:56px 0 8px}
+.keuze h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:22px}
+.pillen{display:flex;flex-wrap:wrap;gap:10px}
+.pil{font:inherit;font-size:1rem;font-weight:600;cursor:pointer;border:2px solid var(--magenta);background:#fff;color:var(--ink);border-radius:999px;padding:12px 20px;transition:.15s}
+.pil:hover,.pil[aria-pressed="true"]{background:var(--magenta);color:#fff}
+.pil:focus-visible{outline:3px solid var(--magenta);outline-offset:3px}
+.keuzepaneel{margin-top:22px;background:#3A1650;color:#fff;border-radius:20px;padding:28px 30px;display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;justify-content:space-between}
+.keuzepaneel p{margin:0;font-family:'DM Serif Display',serif;font-size:1.6rem;line-height:1.2;max-width:560px}
+.keuzepaneel .knoppen{display:flex;flex-wrap:wrap;gap:10px}
+.keuzepaneel .btn-s{color:#fff}
+@media (max-width:900px){.prijs{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.prijs{grid-template-columns:1fr}}
+
 /* over */
 .story{display:grid;grid-template-columns:1fr 1.3fr;gap:56px;align-items:center}
 .quote{background:var(--magenta);color:#fff;border-radius:24px;padding:56px 40px;text-align:center}
 .quote q{font-family:'DM Serif Display',serif;font-size:clamp(2.6rem,6vw,4rem);line-height:1;quotes:none;display:block}
 .quote small{display:block;margin-top:18px;opacity:.85;font-size:.95rem}
 .story p{margin:0 0 16px}
+.over-foto{width:200px;height:auto;border-radius:20px;display:block}
+#over .story{grid-template-columns:200px 1fr;align-items:start;gap:48px}
+@media(max-width:900px){#over .story{grid-template-columns:1fr;gap:28px}}
 
 /* contact */
 .contact{display:grid;grid-template-columns:1fr 1.2fr;gap:56px}
@@ -174,346 +225,158 @@ footer a{color:var(--lav);text-decoration:none}
     <a href="#top" class="logo" aria-label="Happly"><svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="49 73 719 269" role="img" aria-label="Happly"><g fill="#D6026F"><path d="M122.46,238.84c0-23.1,22.2-48.6,22.2-62.7,0-4.8-1.8-8.1-7.2-8.1-24.3,0-47.7,61.2-56.7,94.2h-31.2c17.7-51.9,43.2-126.9,64.5-188.4h30.6c-11.4,31.5-22.2,62.7-32.7,94.2,10.8-18.3,27-27.6,41.7-27.6s24,9.9,24.3,24.6c.6,22.2-23.7,52.2-23.7,65.1,0,3.9,2.4,6.3,6,6.3,12,0,30.3-23.7,45.6-54.3l13.2,14.4c-11.4,25.5-39.6,68.7-69.3,68.7-18,0-27.3-11.1-27.3-26.4Z"/><path d="M351.06,196.54c-11.4,25.5-39.6,68.7-68.4,68.7-14.4,0-22.5-9.9-24.3-20.1-6.6,10.5-17.4,20.1-34.2,20.1-20.7,0-33.9-17.1-33.9-43.5,0-40.2,27.9-81.3,61.8-81.3,12,0,23.7,7.5,28.2,15.6l4.2-12.6h30.6c-26.4,72-34.2,93-22.8,93s30.3-22.8,45.6-54.3l13.2,14.4ZM273.06,177.64c-3.9-5.7-10.5-9.9-18-9.9-19.8,0-33,27.9-33,51,0,9.6,4.2,17.7,13.8,17.7,13.2,0,25.2-19.2,37.2-58.8Z"/><path d="M282.66,338.74c22.5-64.8,44.7-130.8,66.9-195.3h30.6l-10.2,25.5c9.6-16.2,24.9-28.2,41.4-28.2s27,13.2,27,36.6c0,20.7-13.5,51.6-30.9,63.3,20.1-2.1,41.7-22.2,57-58.8l13.2,16.5c-26.4,60.6-59.7,67.2-94.8,67.2-15.3,0-30.3-3-41.4-10.8-7.8,22.2-16.5,51.3-26.4,84h-32.4ZM406.26,183.04c0-9.9-3.6-16.2-11.1-16.2-12-.3-29.4,18-47.1,66.3,4.2,4.5,11.4,7.5,19.8,7.5,19.8,0,38.4-34.2,38.4-57.6Z"/><path d="M410.15,338.74c22.5-64.8,44.7-130.8,66.9-195.3h30.6l-10.2,25.5c9.6-16.2,24.9-28.2,41.4-28.2s27,13.2,27,36.6c0,20.7-13.5,51.6-30.9,63.3,20.1-2.1,41.7-22.2,57-58.8l13.2,16.5c-26.4,60.6-59.7,67.2-94.8,67.2-15.3,0-30.3-3-41.4-10.8-7.8,22.2-16.5,51.3-26.4,84h-32.4ZM533.75,183.04c0-9.9-3.6-16.2-11.1-16.2-12-.3-29.4,18-47.1,66.3,4.2,4.5,11.4,7.5,19.8,7.5,19.8,0,38.4-34.2,38.4-57.6Z"/><path d="M672.05,196.54c-11.1,25.5-39.3,68.7-68.4,68.7s-33.3-23.4-16.8-75.6c9.6-29.4,26.4-74.4,41.4-115.8h31.8c-19.2,49.8-35.1,95.1-43.5,120.6-11.1,32.7-12.3,42-3.3,42,11.7,0,30.6-22.8,45.9-54.3l12.9,14.4Z"/><path d="M612.65,312.64c0-35.7,49.2-48.9,87.3-54l9-25.8c-6,8.7-17.7,15.3-29.4,15.3-42,0-32.4-48.3-9.3-104.7h31.5c-14.7,36-30.9,78.9-10.8,78.9,22.5,0,34.5-45.6,45.3-78.9h31.2c-15.9,45.9-28.8,85.2-44.7,131.4-14.7,42.6-40.5,66.9-72.6,66.9-24.9,0-37.5-13.5-37.5-29.1ZM692.75,281.14c-22.2,2.1-50.7,13.2-50.7,27.3,0,5.1,3.3,9,10.8,9,13.8,0,28.5-10.5,39.9-36.3Z"/></g></svg></a>
     <button class="burger" aria-label="Menu" onclick="document.querySelector('.menu').classList.toggle('open')">&#9776;</button>
     <ul class="menu">
-      <li><a href="#zorg">Aanbieders</a></li>
-      <li><a href="#werkgevers">Werkgevers</a></li>
-      <li><a href="#ondernemers">Ondernemers</a></li>
-      <li><a href="#methode">Methode</a></li>
-      <li><a href="#professionals">Samenwerken</a></li>
+      <li><a href="#mensen">Voor je mensen</a></li>
+      <li><a href="#leider">Voor leidinggevenden</a></li>
+      <li><a href="#meedoen">Meedoen</a></li>
+      <li><a href="#investering">Investering</a></li>
       <li><a href="#over">Over</a></li>
-      <li><a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_nav">Gratis Volhoudkracht Scan</a></li>
+      <li><a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_nav">Gratis Leidersbeeld</a></li>
     </ul>
   </div>
 </header>
 
 <main id="top">
-<section class="hero">
-  <div class="wrap">
-    <p class="eyebrow">Klein zetje. Grote beweging.</p>
-    <h1>Volhouden kun je <em class="acc">organiseren.</em></h1>
-    <p class="lead">Happly organiseert het in jouw programma, training of traject, zodat het nieuwe gedrag een goede gewoonte wordt: drie keer per week bewegen, rookvrij blijven, het geleerde gesprek ook na maandag nog voeren. Wij meten, ontwerpen, organiseren en rapporteren volhouden.</p>
-    <div class="ctas">
-      <a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_hero">Doe de gratis Volhoudkracht Scan</a>
-      <a class="btn btn-s" href="#contact">Bespreek jouw casus</a>
-    </div>
-  </div>
-</section>
-
-<div class="wrap">
-  <div class="kracht fade">
-    <div><p class="eyebrow">Waarom</p><div class="eq">Inzicht + Impuls + Volhouden = Succes</div></div>
-    <p>Mensen haken zelden af omdat ze niet willen of niet kunnen. Ze haken af op weerstand: twijfel, ongemak en een omgeving die hen terugtrekt naar hoe het was. <b>Volhouden is geen karaktereigenschap.</b> Je kunt het organiseren. De volhouder wint.</p>
-  </div>
-  <div class="doors">
-    <a class="door fade" href="#zorg">
-      <p class="eyebrow">Voor aanbieders in health en vitality</p>
-      <h3>Deelnemers die doorgaan</h3>
-      <p>Voor programma's, praktijken, studio's en ketens die willen dat deelnemers blijven.</p>
-      <span class="arrow">Bekijk wat we doen &rarr;</span>
-    </a>
-    <a class="door fade" href="#werkgevers">
-      <p class="eyebrow">Voor werkgevers</p>
-      <h3>Verandering die blijft hangen</h3>
-      <p>Voor teams en leiders die willen dat nieuw gedrag na de training blijft.</p>
-      <span class="arrow">Bekijk wat we doen &rarr;</span>
-    </a>
-    <a class="door fade" href="#ondernemers">
-      <p class="eyebrow">Voor ondernemers</p>
-      <h3>Je eigen doel halen</h3>
-      <p>Voor ondernemers die hun plan ook volhouden als het tegenzit.</p>
-      <span class="arrow">Bekijk wat we doen &rarr;</span>
-    </a>
-  </div>
-</div>
-
-<section id="volhoudkracht" class="alt">
-  <div class="wrap split">
-    <div class="fade">
-      <p class="eyebrow">Volhoudkracht Scan · Gratis</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Hoeveel volhoudkracht zit er in <em class="acc">jouw programma?</em></h2>
-      <p class="pain">Een goed programma organiseert het begin. Het resultaat ontstaat daarna, als het gedrag een gewoonte wordt. Beginnen en volhouden zijn twee verschillende processen.</p>
-      <p class="feit"><b>6 op de 10</b> deelnemers aan een leefstijlprogramma (GLI) ronden het af. De rest stopt tussen de bijeenkomsten, niet erin. <small>Bron: <a href="https://www.rivm.nl/nieuws/60-procent-rondt-leefstijlprogramma-gli-af-meer-maatwerk-nodig-om-uitval-terug-te-dringen" target="_blank" rel="noopener">RIVM, Monitor GLI, 2025</a></small></p>
-      <p>De scan meet op zes dimensies hoeveel van het tweede je hebt georganiseerd. Voor trainingen, programma's, trajecten en interventies, van een eigen product tot een keten.</p>
-      <ul class="list">
-        <li><b>Reden</b> Weet elke deelnemer waarvoor hij dit doet, in eigen woorden?</li>
-        <li><b>Plan</b> Is het doel vertaald naar klein gedrag, met een als-dan voor het moeilijke moment?</li>
-        <li><b>Ritme</b> Heeft het gedrag een vaste plek in de week?</li>
-        <li><b>Weerstand</b> Rekent het programma met twijfel, ongemak en een misstap?</li>
-        <li><b>Contact</b> Wat gebeurt er tussen de bijeenkomsten en in de 66 dagen na de laatste?</li>
-        <li><b>Meting</b> Weet je hoeveel deelnemers het gedrag na drie maanden nog doen?</li>
-      </ul>
-      <a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_vk">Doe de gratis Volhoudkracht Scan</a>
-      <p style="margin:16px 0 0;color:var(--lav-d);font-size:.95rem">Een korte scan, geen account. Je krijgt je volhoudkrachtscore, je zwakste schakel en de rekensom: wat één deelnemer die volhoudt je oplevert.</p>
-    </div>
-    <div class="offer fade">
-      <p class="eyebrow">Whitepaper</p>
-      <h3>Volhoudkracht</h3>
-      <p>Waarom goede programma's hun resultaat verliezen na de laatste bijeenkomst, en hoe je dat organiseert. Acht pagina's, gratis.</p>
-      <form id="wp-form" class="wp-form" action="https://formspree.io/f/mwlvkbaw" method="POST">
-        <input type="hidden" name="_subject" value="Whitepaper Volhoudkracht aangevraagd via happly.nl">
-        <input type="hidden" name="onderwerp" value="Whitepaper Volhoudkracht">
-        <label for="wp-naam">Naam</label><input id="wp-naam" name="naam" required>
-        <label for="wp-email">E-mail</label><input id="wp-email" type="email" name="email" required>
-        <button class="btn btn-p" type="submit">Ontvang de whitepaper</button>
-      </form>
-      <p id="wp-klaar" class="wp-klaar" hidden>Dank je. <a href="https://scan.happly.nl/assets/campagne/whitepaper/happly-whitepaper-volhoudkracht.pdf" target="_blank" rel="noopener">Open de whitepaper</a>. Liever meteen sparren over jouw programma? <a href="https://cal.com/maarten-neeskens-aoijqe?src=site_vk">Plan een gesprek</a>.</p>
-      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/rekenhulp-gli">Rekenhulp voor leefstijlcoaches</a>: wat uitval kost en wat volhouden oplevert.</p>
-    </div>
-  </div>
-</section>
-
-<section id="methode">
-  <div class="wrap">
-    <div class="sec-head fade">
-      <p class="eyebrow">De Happly-methode</p>
-      <h2>Van inzicht naar <em class="acc">succes</em></h2>
-      <p>Een volhouder ziet wat er speelt, stuurt bij en doet het, ook als het tegenzit. Niet iedereen kan dat vanzelf. Daarom organiseert Happly het in vier stappen.</p>
-    </div>
-    <figure class="schema fade"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 70 1600 930" role="img" aria-label="Succeskracht: het effect van een interventie, met en zonder Zetjes. Zonder Zetjes zakt het effect weg, met Zetjes blijft het hoog.">
-  <rect width="1600" height="1000" fill="#F7F3F0"/>
+<section class="hero donker" id="sterker">
+  <svg class="kwart" viewBox="0 0 620 620" aria-hidden="true" focusable="false">
   <defs>
-    <marker id="sk-pijl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#1A0B2E"/>
-    </marker>
-    <marker id="sk-pijlm" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#D6026F"/>
-    </marker>
-  </defs>
-
-  <!-- titel -->
+    <radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FF8CC4" stop-opacity=".55"/><stop offset="1" stop-color="#FF8CC4" stop-opacity="0"/></radialGradient>
+    <linearGradient id="k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB38A"/><stop offset="1" stop-color="#FF4FA3"/></linearGradient>
+  <mask id="kwartmasker" maskUnits="userSpaceOnUse" x="0" y="0" width="620" height="620"><path class="kwart-loop" d="M310 133.6 A176.4 176.4 0 0 1 482.5 346.7" fill="none" stroke="#fff" stroke-width="90" stroke-linecap="round"/></mask></defs>
   
-  <text x="120" y="182" font-family="'DM Serif Display',Georgia,serif" font-size="64" fill="#1A0B2E">Succeskracht</text>
-  <text x="120" y="226" font-family="'DM Sans',sans-serif" font-size="24" fill="#6B6472">Het effect van een interventie, met en zonder Zetjes</text>
-
-  <!-- assen -->
-  <line x1="200" y1="800" x2="200" y2="300" stroke="#1A0B2E" stroke-width="3" marker-end="url(#sk-pijl)"/>
-  <line x1="200" y1="800" x2="1380" y2="800" stroke="#1A0B2E" stroke-width="3" marker-end="url(#sk-pijl)"/>
-  <text transform="translate(160,560) rotate(-90)" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Effect</text>
-  <text x="1380" y="846" text-anchor="end" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Tijd</text>
-
-  <!-- zonder Zetjes -->
-  <path d="M200,800 C260,640 320,380 450,372 C560,366 610,500 700,590 C800,690 920,728 1060,734 L1320,736"
-        fill="none" stroke="#B9AECB" stroke-width="7" stroke-linecap="round"/>
-
-  <!-- met Zetjes -->
-  <path d="M612,480 C650,470 680,470 712,452 C744,434 760,420 784,422 C812,424 830,470 862,474
-           C894,478 912,440 940,436 C968,432 986,478 1018,484 C1050,490 1066,452 1094,450
-           C1122,448 1140,496 1172,502 C1204,508 1222,472 1250,470 C1278,468 1296,500 1320,504"
-        fill="none" stroke="#D6026F" stroke-width="7" stroke-linecap="round"/>
-
-  <!-- Z's met pijltjes -->
-  <!-- Zetjes-beeldmerk boven elk zetje -->
-  <g transform="translate(784,372) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(940,386) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(1094,400) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g><g transform="translate(1250,420) scale(0.8)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g>
-  <g stroke="#D6026F" stroke-width="3.5" marker-end="url(#sk-pijlm)">
-    <line x1="784" y1="512" x2="784" y2="452"/><line x1="940" y1="526" x2="940" y2="466"/>
-    <line x1="1094" y1="540" x2="1094" y2="480"/><line x1="1250" y1="560" x2="1250" y2="500"/>
-  </g>
-
-  <!-- M: scan -->
-  <circle cx="236" cy="712" r="11" fill="#1A0B2E"/>
-  <text x="258" y="722" font-family="'DM Serif Display',Georgia,serif" font-size="40" fill="#1A0B2E">M</text>
-  <!-- I: interventie -->
-  <text x="452" y="346" text-anchor="middle" font-family="'DM Serif Display',Georgia,serif" font-size="48" fill="#1A0B2E">I</text>
-  <!-- M': hermeting met het verschil -->
-  <circle cx="1320" cy="504" r="11" fill="#D6026F"/>
-  <circle cx="1320" cy="736" r="11" fill="#B9AECB"/>
-  <path d="M1352,510 L1366,510 L1366,730 L1352,730" fill="none" stroke="#1A0B2E" stroke-width="2.5"/>
-  <text x="1384" y="612" font-family="'DM Serif Display',Georgia,serif" font-size="40" fill="#1A0B2E">M&#8242;</text>
-  <text x="1384" y="644" font-family="'DM Sans',sans-serif" font-size="20" fill="#6B6472">het verschil</text>
-
-  <!-- lijnlabels -->
-  <text x="1110" y="770" font-family="'DM Sans',sans-serif" font-size="20" fill="#8E8496">zonder Zetjes</text>
-    <text x="606" y="452" font-family="'DM Sans',sans-serif" font-size="20" font-weight="600" fill="#D6026F">met Zetjes</text>
-
-  <!-- legenda -->
-  <line x1="120" y1="882" x2="1480" y2="882" stroke="#E2D8D2" stroke-width="2"/>
-  <circle cx="136" cy="923" r="16" fill="#D6026F"/><text x="136" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">1</text>
-  <text x="166" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">M</text>
-  <text x="206" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Inzicht</text>
-  <text x="166" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">Zelfkracht Scan vooraf</text>
-  <circle cx="476" cy="923" r="16" fill="#D6026F"/><text x="476" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">2</text>
-  <text x="506" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">I</text>
-  <text x="528" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Impuls</text>
-  <text x="506" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">programma, training of doel</text>
-  <circle cx="816" cy="923" r="16" fill="#D6026F"/><text x="816" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">3</text>
-  <g transform="translate(864,923) scale(0.44)"><circle r="41" fill="#fff"/><circle r="38" fill="#D6026F"/><path d="M-12.5,-23.5 L25.0,-11.0 L25.0,-5.0 L-13.5,8.5 L12.5,17.0 L12.5,24.0 L-25.5,11.5 L-25.5,4.5 L11.0,-8.0 L-12.5,-16.0 Z" fill="#fff"/></g>
-  <text x="892" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Volhouden</text>
-  <text x="846" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">Zetjes in de praktijk</text>
-  <circle cx="1156" cy="923" r="16" fill="#D6026F"/><text x="1156" y="931" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="21" font-weight="700" fill="#fff">4</text>
-  <text x="1186" y="934" font-family="'DM Serif Display',Georgia,serif" font-size="30" fill="#1A0B2E">M&#8242;</text>
-  <text x="1234" y="932" font-family="'DM Sans',sans-serif" font-size="24" font-weight="600" fill="#1A0B2E">Succes</text>
-  <text x="1186" y="966" font-family="'DM Sans',sans-serif" font-size="19" fill="#6B6472">hermeting: het verschil</text>
-</svg></figure>
-    <div class="steps">
-      <div class="step fade"><h3>Inzicht</h3><p>Waar sta je in zien, sturen en doen. Wat geeft je kracht en wat remt je af.</p><span class="tool">Zelfkracht Scan · Teamkracht Scan</span></div>
-      <div class="step fade"><h3>Impuls</h3><p>Het begin. Een programma of training, of je eigen doel, met een als-dan-plan voor de lastige momenten.</p><span class="tool">Programma · Training · Eigen doel</span></div>
-      <div class="step fade"><h3>Volhouden</h3><p>Kleine zetjes door de weerstand heen, tot het een gewoonte is. Jij houdt de regie.</p><span class="tool">Zetjes</span></div>
-      <div class="step fade"><h3>Succes</h3><p>Na 30 dagen hermeten. Zien wat er veranderd is geeft vertrouwen voor de volgende stap.</p><span class="tool">Hermeting</span></div>
+  <circle cx="310" cy="310" r="176.4" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="33"/>
+  <g mask="url(#kwartmasker)"><path d="M310.0 131.1 L313.1 131.0 L316.3 130.9 L319.4 130.9 L322.5 131.0 L325.7 131.0 L328.8 131.2 L331.9 131.3 L335.1 131.6 L338.2 131.8 L341.4 132.2 L344.5 132.5 L347.6 133.0 L350.8 133.5 L353.9 134.0 L357.0 134.6 L360.1 135.3 L363.2 136.0 L366.3 136.7 L369.4 137.5 L372.5 138.4 L375.5 139.3 L378.6 140.3 L381.6 141.3 L384.6 142.4 L387.6 143.5 L390.6 144.7 L393.6 145.9 L396.6 147.2 L399.5 148.5 L402.4 149.9 L405.3 151.4 L408.2 152.9 L411.0 154.4 L413.9 156.0 L416.7 157.6 L419.5 159.3 L422.2 161.1 L424.9 162.9 L427.6 164.7 L430.3 166.6 L432.9 168.6 L435.6 170.6 L438.1 172.6 L440.7 174.7 L443.2 176.8 L445.7 179.0 L448.1 181.2 L450.5 183.5 L452.9 185.8 L455.2 188.1 L457.5 190.5 L459.8 193.0 L462.0 195.5 L464.2 198.0 L466.3 200.6 L468.4 203.2 L470.5 205.8 L472.5 208.5 L474.4 211.2 L476.3 214.0 L478.2 216.8 L480.0 219.6 L481.8 222.5 L483.5 225.4 L485.2 228.3 L486.9 231.3 L488.4 234.3 L490.0 237.3 L491.5 240.3 L492.9 243.4 L494.3 246.6 L495.6 249.7 L496.9 252.9 L498.1 256.1 L499.3 259.3 L500.4 262.5 L501.4 265.8 L502.4 269.1 L503.4 272.4 L504.2 275.7 L505.1 279.1 L505.8 282.5 L506.6 285.9 L507.2 289.3 L507.8 292.7 L508.3 296.1 L508.8 299.6 L509.2 303.0 L509.6 306.5 L509.9 310.0 A23.5 23.5 0 0 1 462.9 310.0 L463.1 307.3 L463.3 304.6 L463.5 302.0 L463.6 299.3 L463.6 296.6 L463.7 293.9 L463.6 291.1 L463.5 288.4 L463.4 285.7 L463.2 283.0 L463.0 280.3 L462.7 277.5 L462.3 274.8 L462.0 272.1 L461.5 269.4 L461.0 266.7 L460.5 264.0 L459.9 261.3 L459.3 258.6 L458.6 255.9 L457.9 253.2 L457.1 250.6 L456.3 247.9 L455.4 245.2 L454.5 242.6 L453.5 240.0 L452.5 237.4 L451.5 234.8 L450.4 232.2 L449.2 229.6 L448.0 227.1 L446.7 224.6 L445.4 222.1 L444.1 219.6 L442.7 217.1 L441.2 214.6 L439.8 212.2 L438.2 209.8 L436.7 207.4 L435.0 205.1 L433.4 202.8 L431.7 200.5 L429.9 198.2 L428.1 195.9 L426.3 193.7 L424.4 191.5 L422.5 189.4 L420.5 187.3 L418.5 185.2 L416.5 183.1 L414.4 181.1 L412.3 179.1 L410.1 177.2 L407.9 175.2 L405.7 173.4 L403.4 171.5 L401.1 169.7 L398.8 167.9 L396.4 166.2 L394.0 164.5 L391.5 162.9 L389.1 161.3 L386.6 159.7 L384.0 158.2 L381.5 156.8 L378.9 155.3 L376.2 154.0 L373.6 152.6 L370.9 151.3 L368.2 150.1 L365.5 148.9 L362.7 147.7 L359.9 146.7 L357.1 145.6 L354.3 144.6 L351.5 143.7 L348.6 142.8 L345.7 141.9 L342.8 141.1 L339.9 140.4 L337.0 139.7 L334.0 139.1 L331.1 138.5 L328.1 138.0 L325.1 137.5 L322.1 137.1 L319.1 136.8 L316.1 136.5 L313.0 136.2 L310.0 136.1 A2.5 2.5 0 0 1 310.0 131.1 Z" fill="url(#k)"/></g>
+  <g id="streepjes"><line x1="310.0" y1="167.1" x2="310.0" y2="183.1" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="452.9" y1="310.0" x2="436.9" y2="310.0" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="310.0" y1="452.9" x2="310.0" y2="436.9" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="167.1" y1="310.0" x2="183.1" y2="310.0" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/></g>
+</svg>
+  <div class="wrap">
+    <h1><span>Sterker op je werk</span> <em class="acc">in 15 minuten per week.</em></h1>
+    <p class="lead">Je mensen sterker op het werk. Jij sterker voor je mensen. Met rust in het hoofd, grip op de week en meer energie.</p>
+    <div class="ctas">
+      <a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_hero">Doe het gratis Leidersbeeld</a>
+      <a class="btn btn-s" href="#mensen">Bekijk wat het oplevert</a>
     </div>
-    <div class="science fade">
-      <p class="eyebrow">De wetenschap achter volhouden</p>
-      <h3>Wat werkt, weten we al lang</h3>
-      <div class="sgrid">
-        <div><b>Vertrouwen in eigen kunnen</b><p>Wie gelooft dat het lukt, zet door bij tegenslag. Kleine successen bouwen dat vertrouwen op.</p><small>Bandura</small></div>
-        <div><b>Eigen regie</b><p>Gedrag dat je zelf kiest, houd je langer vol dan gedrag dat wordt opgelegd.</p><small>Deci en Ryan</small></div>
-        <div><b>Als-dan-plannen</b><p>Vooraf bepalen wat je doet op een lastig moment vergroot de kans dat je je doel haalt aanzienlijk.</p><small>Gollwitzer en Sheeran</small></div>
-        <div><b>Gewoonte vormen</b><p>Een nieuwe gewoonte vraagt gemiddeld ruim twee maanden herhalen. Juist dan helpt een zetje.</p><small>Lally e.a.</small></div>
+  </div>
+</section>
+
+<section class="keuze" id="keuze">
+  <div class="wrap">
+    <h2>Waar wil jij <em class="acc">sterker in worden?</em></h2>
+    <div class="pillen" role="group" aria-label="Kies waar je sterker in wilt worden">
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="rust" data-zin="Weten wat telt, en de rest laten liggen.">Rust in je hoofd</button>
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="grip" data-zin="Jij bepaalt je agenda, niet je inbox.">Grip op je week</button>
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="gesprek" data-zin="Zeggen wat gezegd moet worden, terwijl het nog klein is.">Het lastige gesprek</button>
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="energie" data-zin="Het werk is af als je naar huis gaat, en thuis ben je er echt.">Energie over</button>
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="team" data-zin="Mensen die meedenken en afmaken, zonder dat jij erachteraan zit.">Een team dat oppakt</button>
+      <button class="pil" type="button" aria-pressed="false" data-sleutel="steviger" data-zin="Overeind blijven als het druk wordt.">Steviger staan</button>
+    </div>
+    <div class="keuzepaneel" id="keuzepaneel" hidden>
+      <p id="keuzezin"></p>
+      <div class="knoppen">
+        <a class="btn btn-p" id="keuze-lb" href="https://scan.happly.nl/leidersbeeld?src=site_keuze">Doe het gratis Leidersbeeld</a>
+        <a class="btn btn-s" id="keuze-gesprek" href="#contact">Plan een gesprek</a>
       </div>
     </div>
   </div>
 </section>
 
+<section id="waarom">
+  <div class="wrap">
+    <div class="sterk-waarom fade">
+      <h2>Het werk vraagt elk jaar <em class="acc">meer.</em></h2>
+      <p>Meer tempo, meer verandering, meer mensen die iets willen. Van jou en van je mensen. Iedereen weet wat er zou moeten gebeuren. Of het lukt op het moment dat het erop aankomt, hangt af van hoe je erin staat.</p>
+      <p class="pain">Daar word je sterker in. Elke week een beetje, met een vaste coach die je kent en de virtuele coach Zetjes voor vragen tussendoor.</p>
+    </div>
+  </div>
+</section>
 
-
-<section id="zorg">
+<section id="mensen" class="alt">
   <div class="wrap split">
     <div class="fade">
-      <p class="eyebrow">Voor aanbieders in health en vitality</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Meer deelnemers die <em class="acc">volhouden.</em></h2>
-      <p class="pain">Programma's, coaching en trainingen zijn gepland. Afhaken komt ongepland, tussen de afspraken door. Happly ziet het aankomen en is er op dat moment, onder je eigen naam.</p>
-      <p class="feit"><b>4 op de 10</b> deelnemers aan een leefstijlprogramma (GLI) stoppen voortijdig. <small>Bron: <a href="https://www.rivm.nl/bibliotheek/rapporten/2025-0085.pdf" target="_blank" rel="noopener">RIVM, Deelname en uitval bij de GLI, 2025</a></small></p>
+      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Je mensen <em class="acc">sterker op het werk.</em></h2>
+      <p class="pain">Wie rust in zijn hoofd heeft, pakt meer op en houdt energie over.</p>
       <ul class="list">
-        <li><b>Leefstijlprogramma's</b> die uitval willen verminderen</li>
-        <li><b>Studio's en ketens</b> die leden willen behouden</li>
-        <li><b>Apotheken en praktijken</b> die mensen die stoppen met roken beter willen begeleiden</li>
+        <li><b>Rust in het hoofd.</b> Weten wat telt en de rest laten liggen.</li>
+        <li><b>Grip op de week.</b> Het werk is af en gaat niet mee naar huis.</li>
+        <li><b>Steviger op lastige momenten.</b> Zeggen wat gezegd moet worden.</li>
+        <li><b>Energie en veerkracht.</b> Ook als het druk is, en thuis.</li>
       </ul>
-      <div class="chips">
-        <span class="chip">Leefstijl (GLI)</span><span class="chip">Bewegen</span><span class="chip">Rookvrij</span><span class="chip">Therapietrouw</span>
-      </div>
     </div>
     <div class="offer fade">
-      <p class="eyebrow">Zo werkt het</p>
-      <h3>Jouw deelnemers, jouw naam, onze techniek</h3>
-      <p>Je biedt het aan als onderdeel van je traject. Wij zorgen voor de rest.</p>
+      <h3>Wat jij ervan merkt</h3>
       <ul>
-        <li>Uitvalanalyse op je eigen gegevens: waar en wanneer haken deelnemers af</li>
-        <li>Pilot met een vergelijkingsgroep, zodat het verschil gemeten is</li>
-        <li>Zetjes voor je deelnemers, ook in je eigen huisstijl</li>
-        <li>Deelnemers starten via een toegangslink of QR-code</li>
+        <li>Mensen die meedenken en afmaken, zonder dat jij erachteraan zit</li>
+        <li>Mensen die overeind blijven als het druk wordt</li>
+        <li>Goede mensen die blijven, omdat ze groeien</li>
+        <li>Niemand een dag uit het rooster</li>
       </ul>
-      <a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_zorg">Doe de Volhoudkracht Scan</a>
-      <a class="btn btn-s" style="color:#fff;margin-left:8px" href="#contact">Bespreek jouw casus</a>
+      <p class="bedrag">&euro;395</p>
+      <p>per medewerker voor twaalf weken.</p>
+      <a class="btn btn-p" href="#contact">Plan een gesprek</a>
     </div>
   </div>
 </section>
 
-<section id="werkgevers" class="alt">
+<section id="leider">
   <div class="wrap split">
     <div class="fade">
-      <p class="eyebrow">Voor werkgevers</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Trainingen die werken, <em class="acc">ook na maandag.</em></h2>
-      <p class="pain">Na een training, heidag of verandertraject zakt het nieuwe gedrag binnen weken weg. Happly zorgt dat het blijft.</p>
-      <p class="feit"><b>66 dagen</b> duurt het gemiddeld voordat nieuw gedrag vanzelf gaat. Een training duurt een dag. <small>Bron: Lally e.a., European Journal of Social Psychology, 2010</small></p>
+      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Jij <em class="acc">sterker voor je mensen.</em></h2>
+      <p class="pain">Een team is zo sterk als wie het leidt. En juist die heeft zelden iemand om mee te sparren.</p>
       <ul class="list">
-        <li><b>Teams</b> die beter samenwerken en hun afspraken nakomen</li>
-        <li><b>Leiders</b> die zien hoe hun beeld zich verhoudt tot dat van hun team</li>
-        <li><b>Medewerkers</b> met meer eigen regie en eigenaarschap</li>
+        <li><b>Rust in je hoofd.</b> Je weet wat telt en laat de rest liggen.</li>
+        <li><b>Grip op je week.</b> Jij bepaalt je agenda, niet je inbox.</li>
+        <li><b>Het lastige gesprek op tijd.</b> Terwijl het nog klein is.</li>
+        <li><b>Je team in beeld, voor en na.</b> Je laat zien wat er onder jouw leiding verandert.</li>
       </ul>
-      <p style="margin:0 0 18px"><b>Begin met het Leidersbeeld.</b> In drie minuten zie je hoe jij je team inschat op zien, sturen en doen. Gratis, geen account. Daarna weet je wat je wilt weten van je team.</p>
+    </div>
+    <div class="offer fade">
+      <h3>Het programma voor leidinggevenden</h3>
+      <p>Twaalf weken, elke week 15 minuten met je eigen coach. Met je team in beeld bij de start en aan het eind.</p>
+      <p class="bedrag">&euro;695</p>
+      <p>inclusief het Leidersbeeld en beide teammetingen.</p>
       <a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_leider">Doe het gratis Leidersbeeld</a>
-    </div>
-    <div class="offer fade">
-      <p class="eyebrow">Teamkracht-pakket</p>
-      <h3>Inzicht, plan en drie maanden volhouden</h3>
-      <p>Eén pakket voor het hele team, met een vaste prijs.</p>
-      <ul>
-        <li>Teamkracht Scan met teambeeld en leidersbeeld</li>
-        <li>Sessie om de uitkomsten om te zetten in afspraken</li>
-        <li>Drie maanden Zetjes voor iedereen in het team</li>
-        <li>Hermeting om de vooruitgang te zien</li>
-      </ul>
-      <a class="btn btn-p" href="#contact">Neem contact op</a>
-      <a class="btn btn-s" style="color:#fff;margin-left:8px" href="https://scan.happly.nl/teamkracht-demo-interactief?src=site_org">Bekijk de demo</a>
-    </div>
-  </div>
-</section>
-<section id="ondernemers">
-  <div class="wrap split">
-    <div class="fade">
-      <p class="eyebrow">Voor ondernemers</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Je plan is goed. <em class="acc">Nu nog volhouden.</em></h2>
-      <p class="pain">Geen programma, geen coach, niemand die meekijkt. Alleen jij en je doel. Dan helpt het om te weten waar je meestal afhaakt, en een zetje te hebben voor dat moment.</p>
-      <ul class="list">
-        <li><b>Inzicht</b> in waar je staat in zien, sturen en doen</li>
-        <li><b>Je eigen doel</b> als begin, met een plan voor de lastige momenten</li>
-        <li><b>Zetjes</b> op het moment dat het tegenzit, tot het een gewoonte is</li>
-      </ul>
-    </div>
-    <div class="offer fade">
-      <p class="eyebrow">Voor je eigen doel</p>
-      <h3>Scan en Zetjes personal</h3>
-      <p>Begin met de gratis scan. Daarna kies je zelf of je met Zetjes verdergaat.</p>
-      <ul>
-        <li>Zelfkracht Scan: je kracht en je valkuilen in beeld</li>
-        <li>Zetjes personal: een zetje wanneer jij het nodig hebt</li>
-        <li>Hermeting om te zien wat er veranderd is</li>
-      </ul>
-      <a class="btn btn-p" href="https://scan.happly.nl/?src=site_ondernemer">Doe de gratis scan</a>
-      <a class="btn btn-s" style="color:#fff;margin-left:8px" href="https://zetjes.nl">Naar zetjes.nl</a>
+      <p class="klein">In drie minuten zie je hoe jij je team inschat. Gratis, geen account.</p>
     </div>
   </div>
 </section>
 
-<section id="professionals" class="alt">
-  <div class="wrap split">
-    <div class="fade">
-      <p class="eyebrow">Samenwerken · Voor trainers en coaches</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Gaan ze het geleerde <em class="acc">ook echt toepassen?</em></h2>
-      <p class="pain">Een goede training geeft energie. Drie weken later is de werkvloer weer de werkvloer. Happly geeft je training een begin en een staart, onder jouw eigen naam.</p>
-      <ul class="list">
-        <li><b>Inzicht</b> vooraf met de Zelfkracht Scan</li>
-        <li><b>Impuls</b> uit jouw training, coaching of interventie</li>
-        <li><b>Volhouden</b> met Zetjes, op het moment dat het lastig wordt</li>
-        <li><b>Succes</b> zichtbaar met de hermeting, voor deelnemer en opdrachtgever</li>
-      </ul>
-      <p style="margin:0">Jouw klant blijft van jou: je biedt het aan onder je eigen naam, powered by Happly. Geen abonnement, geen opstartkosten.</p>
-    </div>
-    <div class="offer fade">
-      <p class="eyebrow">Volhouden inside</p>
-      <h3>Jouw training, met een staart van 66 dagen</h3>
-      <p>Begin met de Volhoudkracht Scan over je eigen training. Daarna weet je welke schakel je mist, en wat het kost om die te organiseren.</p>
-      <ul>
-        <li>Volhoudkaart als vaste stap: waarom, gedrag, als-dan</li>
-        <li>Zetjes voor je deelnemers tot dag 66, onder jouw naam</li>
-        <li>Hermeting, zodat jij en je opdrachtgever het resultaat zien</li>
-        <li>Per professional per maand, geen opstartkosten</li>
-      </ul>
-      <a class="btn btn-p" href="https://scan.happly.nl/volhoudkracht?src=site_pro">Doe de Volhoudkracht Scan</a>
-      <p style="margin:22px 0 0;font-size:.95rem"><a style="color:#fff" href="https://scan.happly.nl/module?src=site_pro">Word Gecertificeerde Practitioner</a> &middot; <a style="color:#fff" href="https://scan.happly.nl/register?src=site_pro">Bekijk het register</a> &middot; <a style="color:#fff" href="https://scan.happly.nl/leidersbeeld?src=site_pro_zelf">Doe zelf het Leidersbeeld</a></p>
-    </div>
-  </div>
-</section>
-
-<section id="zetjes" class="zetjes">
+<section id="meedoen" class="alt">
   <div class="wrap">
     <div class="sec-head fade">
-      <p class="eyebrow">Zetjes van Happly</p>
-      <h2>Je doel bereiken. <em class="acc">Makkelijker en sneller.</em></h2>
-      <p>Zetjes is de volhoudassistent van Happly. Geen afspraak, geen wachttijd: op het moment dat het lastig wordt, krijg je een zetje dat past bij jou, je doel en je situatie.</p>
+      <h2>Zo doe je <em class="acc">mee.</em></h2>
+      <p>Een vaste coach, een vast moment in de week, twaalf weken lang. Daarna houd je vast wat je hebt opgebouwd.</p>
     </div>
-    <div class="rhythm">
-      <div class="fade"><b>Dip.</b><span>Je merkt dat het lastig wordt.</span></div>
-      <div class="fade"><b>Doe.</b><span>Je doet een zetje, afgestemd op wat jou remt.</span></div>
-      <div class="fade"><b>Door.</b><span>Je gaat weer verder met je doel.</span></div>
+    <div class="steps">
+      <div class="step fade"><h3>Leidersbeeld</h3><p>Gratis en in drie minuten. Je ziet hoe jij je team inschat.</p></div>
+      <div class="step fade"><h3>Twintig minuten bellen</h3><p>Wie doet mee en welk moment in de week past.</p></div>
+      <div class="step fade"><h3>Start in januari</h3><p>Ieder zijn eigen 15 minuten, elke week met dezelfde coach.</p></div>
+      <div class="step fade"><h3>Voor en na</h3><p>Na twaalf weken zie je wat er is veranderd. Wie wil, houdt zijn plek.</p></div>
     </div>
-    <p class="fade" style="margin:0 0 28px">Eerst kost het moeite. Dan wordt het een gewoonte. Soms wordt het een ritueel dat je niet meer wilt missen.</p>
-    <a class="btn btn-s fade" style="color:var(--ink)" href="https://zetjes.nl">Naar zetjes.nl</a>
+  </div>
+</section>
+
+<section id="investering" class="zetjes">
+  <div class="wrap">
+    <div class="sec-head fade">
+      <h2>De <em class="acc">investering.</em></h2>
+    </div>
+    <div class="prijs" style="margin-top:0">
+      <div class="fade"><h3>Voor je mensen</h3><b>&euro;395</b><p>Twaalf weken, elke week 15 minuten met een vaste coach.</p><a class="btn btn-p" href="#contact" data-onderwerp="Mijn mensen aanmelden" data-keuze="Ik wil mijn mensen aanmelden (395 euro per persoon).">Meld je mensen aan</a></div>
+      <div class="fade"><h3>Voor jou</h3><b>&euro;695</b><p>Twaalf weken, met je team in beeld voor en na.</p><a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_investering">Doe het Leidersbeeld</a></div>
+      <div class="fade"><h3>De jaarplek</h3><b>&euro;990</b><p>Een jaar lang elke twee weken je coach en elke week Zetjes.</p><a class="btn btn-p" href="#contact" data-onderwerp="Een jaarplek" data-keuze="Ik wil een jaarplek reserveren (990 euro).">Reserveer een jaarplek</a></div>
+      <div class="fade"><h3>Voor een heel team</h3><b>Op offerte</b><p>Een vaste ochtend bij jullie, op kantoor of online.</p><a class="btn btn-p" href="#contact" data-onderwerp="Een offerte voor een team" data-keuze="Ik wil een offerte voor een heel team.">Vraag een offerte aan</a></div>
+    </div>
+    <p class="prijsnoot">Bedragen exclusief btw, per persoon.</p>
   </div>
 </section>
 
 <section id="over">
   <div class="wrap story">
-    <div class="quote fade">
-      <q>Je kunt het!</q>
-      <small>De drie woorden van mijn vader</small>
-    </div>
+    <img class="over-foto fade" src="data:image/jpeg;base64,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" alt="Maarten Neeskens" width="440" height="481">
     <div class="fade">
-      <p class="eyebrow">Waarom ik dit doe</p>
-      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Volhouden kun je <em class="acc">organiseren.</em></h2>
-      <p>Op mijn 57e wilde ik na 250 meter hardlopen stoppen. Achttien maanden later liep ik mijn eerste halve marathon.</p>
-      <p>Mijn karakter veranderde niet. Ik regelde vaste dagen, legde mijn spullen klaar en nam stapjes zo klein dat overslaan lastiger was dan gaan. Eerst kostte het moeite. Daarna werd het een gewoonte.</p>
-      <p>En als mijn hoofd zei dat ik het niet kon, had ik drie woorden van mijn vader, een timmerman van weinig woorden: Je kunt het. Die zeg ik nog steeds. Het is mijn ritueel geworden.</p>
-      <p>Ik werk al dertig jaar aan gedragsverandering, in mobiliteit, veilig werken, ondernemerschap en vitaliteit, en ben post-academisch opgeleid tot gedragsveranderaar. Dit is wat ik ervan geleerd heb, en wat Happly voor jou en jouw mensen organiseert.</p>
-      <p><b>Maarten Neeskens</b>, oprichter</p>
+      <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Mijn missie:<br><em class="acc">iedereen sterker op het werk.</em></h2>
+      <p>Ik ben ondernemer sinds 1992 en gedragsexpert, en ik werk in verschillende settings met teams, leidinggevenden en ondernemers. Wat het verschil maakt, is zelden kennis of vaardigheid. Het zit in mindset en vooral in gedrag: hoe mensen erin staan en hoe ze tot doen komen.</p>
+      <p>Dat kun je versterken, in kleine stappen. Niet met een zwaar trainingsprogramma, maar met 15 minuten per week en een zetje tussendoor als het lastig is.</p>
+      <p>Zo werkt Sterker op je werk. Elke week een vast kwartier met je eigen coach: steeds dezelfde persoon, die jou en je werk kent. Tussendoor is er Zetjes, het zetje in je telefoon op het moment zelf, voor als een gesprek of een drukke dag lastig wordt. Klein genoeg om vol te houden, groot genoeg om het te merken.</p>
+      <p><b>Maarten Neeskens</b>, oprichter · opgeleid als gedragsveranderaar bij de Behavior Change Group</p>
     </div>
   </div>
 </section>
@@ -521,7 +384,6 @@ footer a{color:var(--lav);text-decoration:none}
 <section id="contact" class="alt">
   <div class="wrap contact">
     <div class="fade">
-      <p class="eyebrow">Contact</p>
       <h2 style="font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px">Laten we <em class="acc">kennismaken.</em></h2>
       <div class="cdata">
         <p>Vertel kort wat je wilt bereiken. Je hoort binnen twee werkdagen van ons.</p>
@@ -537,10 +399,11 @@ footer a{color:var(--lav);text-decoration:none}
       <div><label for="organisatie">Organisatie</label><input id="organisatie" name="organisatie"></div>
       <div><label for="onderwerp">Waar gaat het over?</label>
         <select id="onderwerp" name="onderwerp">
-          <option>Uitval bij deelnemers of leden</option>
-          <option>Teamkracht-pakket</option>
-          <option>Zetjes voor mijn eigen doel</option>
-          <option>Samenwerken als trainer of coach</option>
+          <option>Sterker op je werk</option>
+          <option>Mijn mensen aanmelden</option>
+          <option>Het programma voor leidinggevenden</option>
+          <option>Een jaarplek</option>
+          <option>Een offerte voor een team</option>
           <option>Iets anders</option>
         </select></div>
       <div><label for="bericht">Bericht</label><textarea id="bericht" name="bericht"></textarea></div>
@@ -552,9 +415,8 @@ footer a{color:var(--lav);text-decoration:none}
 
 <footer>
   <div class="wrap foot">
-    <span class="payoff">Klein zetje. Grote beweging.</span>
-    <span>Happly · Advies · Academy · Applicaties</span>
-    <span><a href="https://zetjes.nl">zetjes.nl</a> · <a href="https://scan.happly.nl">Gratis scan</a> · <a href="mailto:maarten@happly.nl">maarten@happly.nl</a></span>
+    <span>Sterker op je werk in 15 minuten per week</span>
+    <span><a href="https://scan.happly.nl/leidersbeeld?src=site_footer">Gratis Leidersbeeld</a> · <a href="mailto:maarten@happly.nl">maarten@happly.nl</a> · <a href="tel:+31858785961">085 878 59 61</a></span>
   </div>
 </footer>
 
@@ -571,6 +433,31 @@ footer a{color:var(--lav);text-decoration:none}
     links[i].href = url.toString();
   }
 })();
+// De keuzevraag: de keuze verschijnt in het paneel, gaat als herkomst mee naar
+// het Leidersbeeld en staat al in het formulier als iemand een gesprek kiest.
+(function(){
+  var gekozen = null;
+  document.querySelectorAll('.pil').forEach(function(p){ p.addEventListener('click', function(){
+    document.querySelectorAll('.pil').forEach(function(q){ q.setAttribute('aria-pressed', q === p ? 'true' : 'false'); });
+    gekozen = p;
+    document.getElementById('keuzezin').textContent = p.getAttribute('data-zin');
+    var lb = document.getElementById('keuze-lb'); var u = new URL(lb.href);
+    if (!new URLSearchParams(location.search).get('src')) u.searchParams.set('src', 'site_keuze_' + p.getAttribute('data-sleutel'));
+    lb.href = u.toString();
+    document.getElementById('keuzepaneel').hidden = false;
+  }); });
+  document.getElementById('keuze-gesprek').addEventListener('click', function(){
+    var o = document.getElementById('onderwerp'), b = document.getElementById('bericht');
+    if (o) o.value = 'Sterker op je werk';
+    if (b && gekozen) b.value = 'Ik wil sterker worden in: ' + gekozen.textContent.toLowerCase() + '.';
+  });
+})();
+// Een knop bij De investering zet het onderwerp en de keuze alvast in het formulier.
+document.querySelectorAll('a[data-keuze]').forEach(function(a){a.addEventListener('click',function(){
+  var o=document.getElementById('onderwerp'), b=document.getElementById('bericht');
+  if(o) o.value=a.getAttribute('data-onderwerp')||'Sterker op je werk';
+  if(b && !b.value) b.value=a.getAttribute('data-keuze');
+});});
 document.querySelectorAll('.menu a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.menu').classList.remove('open')));
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.fade').forEach(el=>io.observe(el));

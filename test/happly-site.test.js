@@ -1,7 +1,8 @@
 // test/happly-site.test.js
 // happly.nl. De pagina wordt met de hand op TransIP gezet en staat hier als bron
-// van waarheid, zodat hij niet opnieuw achterloopt op het product. Sinds
-// 5 oktober 2026 is dit de Happly-merksite: Klein zetje. Grote beweging.
+// van waarheid, zodat hij niet opnieuw achterloopt op wat er online staat.
+// Sinds 26 november 2026 gaat de site over één product: Sterker op je werk in
+// 15 minuten per week. Dit vervangt de merksite van 5, 6 en 13 oktober 2026.
 // Deze test bewaakt de feiten en de taalregels, niet de opmaak.
 // Draaien met: npm test
 
@@ -10,43 +11,77 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const HTML = readFileSync(new URL("../happly.html", import.meta.url), "utf8");
+const sectie = id => HTML.split(`id="${id}"`)[1].split("</section>")[0];
+const zichtbaar = HTML.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, "")
+  .replace(/<img[^>]*>/g, "").replace(/<[^>]+>/g, " ");
 
-test("er staan geen bedragen op de site", () => {
-  // Besluit 15 september 2026, bevestigd 5 oktober 2026: prijzen staan niet
-  // op de voorpagina. Wie wil weten wat het kost, neemt contact op.
-  assert.ok(!HTML.includes("\u20ac"), "er staat een eurobedrag op de site");
-  assert.ok(!/\b\d{2,3} (euro|per maand|per jaar)\b/.test(HTML), "er staat een bedrag in woorden op de site");
+test("de site gaat over één product: Sterker op je werk in 15 minuten per week", () => {
+  // Besluit 26 november 2026: online de focus op één product.
+  assert.ok(/<title>Sterker op je werk in 15 minuten per week/.test(HTML), "de titel draagt de claim niet");
+  const hero = sectie("sterker");
+  assert.ok(/<h1>.*Sterker op je werk.*in 15 minuten per week\.<\/em><\/h1>/.test(hero), "de claim is niet de kop");
+  for (const oud of ["volhouden", "volhoudkracht", "methode", "zorg", "werkgevers", "ondernemers", "professionals", "zetjes"]){
+    assert.ok(!HTML.includes(`<section id="${oud}"`), `het oude blok #${oud} staat er nog`);
+  }
+  const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
+  const ankers = [...menu.matchAll(/href="#([a-z-]+)"/g)].map(m => m[1]);
+  assert.deepEqual(ankers, ["mensen", "leider", "meedoen", "investering", "over"], "het menu klopt niet");
 });
 
-test("de pay-off en de succeskrachtformule staan erop", () => {
-  // Strategie 5 oktober 2026: Happly is het merk naar buiten, met deze
-  // pay-off, en de formule verklaart het verband tussen zelfkracht en volhouden.
-  // Besluit 13 oktober 2026: de kop is de stelling (Volhouden kun je
-  // organiseren), de pay-off staat erboven.
-  const kop = HTML.split('class="hero"')[1].split("</section>")[0];
-  assert.ok(kop.includes("Klein zetje. Grote beweging."), "de pay-off staat niet in de hero");
-  assert.ok(kop.includes("Volhouden kun je <em"), "de stelling staat niet in de kop");
-  // Besluit 6 oktober 2026: er is één formule, dezelfde als voor partners.
-  assert.ok(HTML.includes("Inzicht + Impuls + Volhouden = Succes"), "de succeskrachtformule ontbreekt");
-  assert.ok(!HTML.includes("Zelfkracht + Volhouden = Succes"), "de oude formule staat er nog naast");
-  assert.ok(HTML.includes('aria-label="Succeskracht: het effect van een interventie'), "het succeskrachtschema ontbreekt");
-  assert.ok(/<title>[^<]*Klein zetje\. Grote beweging\./.test(HTML), "de titel draagt de pay-off niet");
+test("de pay-off hoort niet meer bij happly.nl", () => {
+  // Besluit 26 november 2026: Klein zetje. Grote beweging. hoort voortaan alleen
+  // bij de tool Zetjes.
+  assert.ok(!HTML.includes("Klein zetje"), "de pay-off staat nog op de site");
 });
 
-test("de namen kloppen: Scan is het instrument, Index het landelijke getal", () => {
-  // Besluit 5 oktober 2026. Op de voorpagina gaat het over het instrument.
-  assert.ok(!HTML.includes("Zelfkracht Index"), "de voorpagina noemt het instrument nog Index");
-  assert.ok(!/Teamkracht Index(?! en Zelfkracht Index zijn)/.test(HTML), "de voorpagina noemt de teammeting nog Index");
-  assert.ok(!/\bLezer\b/.test(HTML), "de oude niveaunaam Lezer staat er nog");
+test("de bedragen staan in De investering en kloppen met elkaar", () => {
+  // Besluit 25 november 2026: 395 voor je mensen, 695 voor de leidinggevende,
+  // 990 voor de jaarplek, een heel team op offerte. Vervangt het besluit van
+  // 15 september 2026 dat er geen bedragen op de voorpagina staan.
+  const bedragen = new Set([...HTML.matchAll(/&euro;(\d+)/g)].map(m => m[1]));
+  assert.deepEqual([...bedragen].sort(), ["395", "695", "990"], "er staat een ander bedrag op de site");
+  const inv = sectie("investering");
+  for (const b of ["395", "695", "990"]) assert.ok(inv.includes(`&euro;${b}`), `${b} ontbreekt in De investering`);
+  assert.ok(inv.includes("Op offerte"), "het team op offerte ontbreekt");
+  assert.ok(inv.includes("exclusief btw"), "de btw-zin ontbreekt");
+});
+
+test("elke optie bij De investering heeft een knop die iets doet", () => {
+  const inv = sectie("investering");
+  const knoppen = [...inv.matchAll(/<a class="btn[^"]*" href="([^"]+)"/g)].map(m => m[1]);
+  assert.equal(knoppen.length, 4, "niet elke optie heeft een knop");
+  assert.ok(knoppen.includes("https://scan.happly.nl/leidersbeeld?src=site_investering"), "de leidinggevende gaat niet naar het Leidersbeeld");
+  // De andere drie zetten het onderwerp in het formulier, en dat onderwerp bestaat.
+  for (const o of [...inv.matchAll(/data-onderwerp="([^"]+)"/g)].map(m => m[1])){
+    assert.ok(HTML.includes(`<option>${o}</option>`), `het onderwerp ${o} staat niet in het formulier`);
+  }
+});
+
+test("een leidinggevende kan meteen het gratis Leidersbeeld doen", () => {
+  const menu = HTML.split("<header>")[1].split("</header>")[0];
+  assert.ok(menu.includes("scan.happly.nl/leidersbeeld"), "de menuknop naar het Leidersbeeld ontbreekt");
+  assert.ok(sectie("sterker").includes("scan.happly.nl/leidersbeeld"), "de heroknop naar het Leidersbeeld ontbreekt");
+});
+
+test("de Over vertelt de missie, de coach en Zetjes", () => {
+  const over = sectie("over");
+  assert.ok(over.includes("Mijn missie:"), "de missie is niet de kop");
+  assert.ok(over.includes("je eigen coach") && over.includes("Zetjes"), "de coach of Zetjes ontbreekt");
+  assert.ok(!over.includes("online coach") && !over.includes("virtuele coach"), "de Over gebruikt nog een oude naam");
 });
 
 test("de site volgt de taalregels", () => {
-  // Besluit 14 oktober 2026: mensen heten nooit afhakers, opgevers of stoppers.
-  // De werkwoorden afhaken, opgeven en stoppen mogen wel.
-  for (const woord of ["nulmeting", "nameting", "landelijke beeld", "landelijk gemiddelde", "Samenspel", "cohort", "streak", "hulpje", "buddy", "afhaker", "opgever", "stopper", "doorzet"]){
-    assert.ok(!HTML.toLowerCase().includes(woord.toLowerCase()), `verboden woord: ${woord}`);
+  for (const woord of ["cohort", "streak", "afhaker", "opgever", "stopper", "doorzet", "misgaan", "karakter", "discipline", "budget"]){
+    assert.ok(!zichtbaar.toLowerCase().includes(woord), `verboden woord: ${woord}`);
   }
-  assert.ok(!HTML.includes("\u2014"), "gedachtestreepje");
+  assert.ok(!HTML.includes("—"), "gedachtestreepje");
+  assert.ok(!zichtbaar.includes("!"), "uitroepteken");
+  // Besluit 6 november 2026: geen kleine labels boven een kop.
+  assert.ok(!/class="eyebrow"/.test(HTML.split("<body")[1]), "er staat een label boven een kop");
+});
+
+test("de site spreekt overal met je en jouw, nergens met u", () => {
+  assert.ok(!/\b[Uu]w?\b/.test(zichtbaar), "er staat nog u of uw op de site");
 });
 
 test("elke link binnen de pagina wijst naar een anker dat er is", () => {
@@ -57,32 +92,11 @@ test("elke link binnen de pagina wijst naar een anker dat er is", () => {
   }
 });
 
-test("een leidinggevende kan meteen het gratis Leidersbeeld doen", () => {
-  // De verkoopweg voor teams loopt via het Leidersbeeld naar de Teamfoto. De
-  // voorpagina van 5 oktober was hem eerst kwijt; deze test houdt hem erop.
-  const sectie = HTML.split('id="werkgevers"')[1].split("</section>")[0];
-  assert.ok(sectie.includes("scan.happly.nl/leidersbeeld?src=site_leider"), "de knop naar het Leidersbeeld ontbreekt");
-  assert.ok(/geen account/.test(sectie), "de drempelvrije belofte ontbreekt");
-});
-
 test("de herkomst uit de URL gaat mee naar het Leidersbeeld", () => {
-  // Een post landt op happly.nl en niet rechtstreeks op de vragen. Dan moet
-  // de site de src doorgeven, anders is niet te zien wat een post opleverde.
   assert.ok(HTML.includes('searchParams.set("src"'), "de site geeft de herkomst niet door");
   assert.ok(HTML.includes('a[href*="scan.happly.nl/leidersbeeld"]'),
     "de doorgifte raakt niet de links naar het Leidersbeeld");
-  // Alleen tekens die schoonHerkomst() aan de andere kant ook toelaat.
   assert.ok(/\^\[a-z0-9_-\]\{1,40\}\$/.test(HTML), "de src wordt niet gecontroleerd voordat hij wordt doorgegeven");
-});
-
-test("de links wijzen naar wat er draait", () => {
-  for (const url of ["https://scan.happly.nl/leidersbeeld",
-                     "https://scan.happly.nl/register",
-                     "https://scan.happly.nl/teamkracht-demo-interactief",
-                     "https://scan.happly.nl/module",
-                     "https://scan.happly.nl"]){
-    assert.ok(HTML.includes(url), `de link naar ${url} ontbreekt`);
-  }
 });
 
 test("het contactformulier gaat naar het eigen formulier van happly.nl", () => {
@@ -96,102 +110,20 @@ test("de LinkedIn-post landt op happly.nl met een herkomst", () => {
     "de post gaat nog rechtstreeks naar de vragen");
 });
 
-test("de site belooft geen kwartaalbeeld dat er nog niet is", () => {
-  // Besluit 21 september 2026: geen datum en geen kwartaalritme beloven zolang
-  // de eerste editie niet bestaat en er geen verzending is gebouwd. De
-  // toestemming wordt wel gevraagd, in woorden die nu al kloppen.
-  assert.ok(!/eind september 2026|Ieder kwartaal publiceren/.test(HTML), "de site belooft nog een editie met een datum");
+test("het Leidersbeeld belooft geen kwartaalbeeld dat er nog niet is", () => {
+  // Besluit 21 september 2026. Het vinkje blijft standaard uit.
   const lb = readFileSync(new URL("../leidersbeeld.html", import.meta.url), "utf8");
   assert.ok(lb.includes("Houd mij op de hoogte van wat we uit alle metingen samen leren."));
   assert.ok(!lb.includes("Stuur mij het kwartaalbeeld"), "het vinkje belooft nog een kwartaalbeeld");
-  // Het vinkje blijft standaard uit: toestemming is een uitdrukkelijke ja.
   assert.ok(!/id="kwartaal"[^>]*checked/.test(lb));
 });
 
 test("het b2b-verdienmodel staat niet op de site", () => {
-  // Zelfde regel als op teamkrachtindex.nl: een eindklant leest mee, dus de
-  // inkoopprijs van een partner hoort hier niet te staan.
-  for (const geheim of ["PAK-PZL", "PAK-PRO", "€ 249", "€ 145", "inkoop", "marge", "adviesprijs"]){
-    assert.ok(!HTML.toLowerCase().includes(geheim.toLowerCase()), `de site verklapt ${geheim}`);
+  for (const geheim of ["PAK-PZL", "PAK-PRO", "inkoop", "marge", "adviesprijs", "ontwikkelbudget"]){
+    assert.ok(!zichtbaar.toLowerCase().includes(geheim.toLowerCase()), `de site verklapt ${geheim}`);
   }
 });
 
-test("de whitepaper Volhoudkracht is aan te vragen en trainers gaan naar de scan", () => {
-  // Concept 26 oktober 2026: de whitepaper Volhoudkracht vervangt de whitepaper
-  // voor trainers en staat in het blok van de Volhoudkracht Scan. Trainers en
-  // coaches beginnen met de scan over hun eigen training. De
-  // founding-partnerplekken staan niet meer op de site.
-  const vk = HTML.split('id="volhoudkracht"')[1].split("</section>")[0];
-  assert.ok(vk.includes("happly-whitepaper-volhoudkracht.pdf"), "de link naar de whitepaper ontbreekt");
-  assert.ok(vk.includes("formspree.io/f/mwlvkbaw"), "de aanvraag gaat niet naar het happly.nl-formulier");
-  const sectie = HTML.split('id="professionals"')[1].split("</section>")[0];
-  assert.ok(sectie.includes("Voor trainers en coaches"), "de sectie richt zich niet op trainers en coaches");
-  assert.ok(sectie.includes("scan.happly.nl/volhoudkracht?src=site_pro"), "trainers worden niet naar de scan gestuurd");
-  assert.ok(!/founding/i.test(HTML), "de founding partners staan nog op de site");
-});
-
-test("de zes dimensies van volhoudkracht staan op de site, in de taal van de briefing", () => {
-  // Concept 26 oktober 2026, briefings/volhoudkracht-scan.md. Gratis is het
-  // mechanisme en de zes dimensies als bril; de bewijsvragen zelf staan niet
-  // op de site.
-  const vk = HTML.split('id="volhoudkracht"')[1].split("</section>")[0];
-  for (const d of ["Reden", "Plan", "Ritme", "Weerstand", "Contact", "Meting"]) {
-    assert.ok(vk.includes(`<b>${d}</b>`), `dimensie ${d} ontbreekt`);
-  }
-  assert.ok(!/aantoonbaar gedaan/i.test(HTML), "de niveaus van de bewijsvragen horen niet op de site");
-});
-
-test("de volgorde is aanbieders, werkgevers, ondernemers, en daarna samenwerken", () => {
-  // Besluit 13 oktober 2026, voor menu en blokken: Volhouden organiseren voor
-  // aanbieders in health en vitality, werkgevers en ondernemers. Trainers en
-  // coaches staan onder Samenwerken. Het anker #zorg blijft, omdat er links
-  // van buiten naar wijzen.
-  const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
-  const m = ["#zorg", "#werkgevers", "#ondernemers", "#professionals"].map(a => menu.indexOf(a));
-  assert.ok(m.every(i => i >= 0) && m[0] < m[1] && m[1] < m[2], "het menu staat in de verkeerde volgorde");
-  const s = ['<section id="zorg"', '<section id="werkgevers"', '<section id="ondernemers"', '<section id="professionals"'].map(a => HTML.indexOf(a));
-  assert.ok(s.every(i => i >= 0) && s[0] < s[1] && s[1] < s[2] && s[2] < s[3], "de blokken staan in de verkeerde volgorde");
-});
-
-test("de stelling en de twee bronnen van de impuls staan erop", () => {
-  // Besluit 13 oktober 2026: volhouden is geen karaktereigenschap maar te
-  // organiseren; de impuls is het begin, van een ander of van jezelf; zien,
-  // sturen en doen beschrijft de volhouder. Er komt geen derde drieslag bij.
-  assert.ok(HTML.includes("Volhouden is geen karaktereigenschap."), "de stelling ontbreekt");
-  assert.ok(HTML.includes("of je eigen doel"), "de impuls uit een eigen doel ontbreekt");
-  assert.ok(HTML.includes("zien, sturen en doen"), "zien, sturen en doen ontbreekt");
-  assert.ok(HTML.includes("Meer deelnemers die <em"), "de belofte aan aanbieders ontbreekt");
-});
-
-test("de hoofdknop is de gratis Volhoudkracht Scan, het Leidersbeeld blijft bij werkgevers", () => {
-  // Concept 26 oktober 2026, vervangt het besluit van 6 oktober: de ingang is
-  // de vraag hoeveel volhoudkracht er in een programma zit. Die is breder dan
-  // het Leidersbeeld en levert directer een lead op. Het Leidersbeeld blijft
-  // de knop in het werkgeversblok.
-  const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
-  assert.ok(menu.includes("scan.happly.nl/volhoudkracht?src=site_nav"), "de menuknop gaat niet naar de Volhoudkracht Scan");
-  const hero = HTML.split('class="hero"')[1].split("</section>")[0];
-  assert.ok(hero.includes("scan.happly.nl/volhoudkracht?src=site_hero"), "de heroknop gaat niet naar de Volhoudkracht Scan");
-  assert.ok(hero.includes("Volhouden kun je <em"), "de stelling is niet meer de kop");
-  const werk = HTML.split('id="werkgevers"')[1].split("</section>")[0];
-  assert.ok(werk.includes("scan.happly.nl/leidersbeeld?src=site_leider"), "het Leidersbeeld staat niet meer bij werkgevers");
-});
-
-test("de feiten over afhaken staan er met hun bron", () => {
-  // Besluit 13 oktober 2026: alleen gecontroleerde cijfers, elk met bron. De
-  // GLI-uitval komt uit RIVM-rapport 2025-0085 (41 procent stopt na de start),
-  // de 66 dagen uit Lally e.a. (2010), dezelfde bron als in de whitepaper. Voor
-  // fitness en ondernemers is geen gecontroleerd cijfer; daar staat dus niets.
-  const zorg = HTML.split('id="zorg"')[1].split("</section>")[0];
-  assert.ok(zorg.includes("4 op de 10") && zorg.includes("rivm.nl/bibliotheek/rapporten/2025-0085"), "het GLI-cijfer of de bron ontbreekt");
-  const werk = HTML.split('id="werkgevers"')[1].split("</section>")[0];
-  assert.ok(werk.includes("66 dagen") && werk.includes("Lally"), "de 66 dagen of de bron ontbreekt");
-  const ond = HTML.split('id="ondernemers"')[1].split("</section>")[0];
-  assert.ok(!ond.includes('class="feit"'), "bij ondernemers staat een cijfer zonder gecontroleerde bron");
-});
-
-test("de site spreekt overal met je en jouw, nergens met u", () => {
-  // Besluit 26 oktober 2026: één aanspreekvorm, je en jouw.
-  const tekst = HTML.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>/g, "").replace(/<[^>]+>/g, " ");
-  assert.ok(!/\b[Uu]w?\b/.test(tekst), "er staat nog u of uw op de site");
+test("geen link naar teamkrachtindex.nl", () => {
+  assert.ok(!HTML.includes("teamkrachtindex.nl"), "er staat nog een link naar het oude domein");
 });
