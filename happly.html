@@ -128,7 +128,8 @@ section{padding:96px 0}
 .hero.donker h1{max-width:none}
 .hero.donker .kwart{position:absolute;right:max(3vw,8px);top:50%;transform:translateY(-50%);width:min(32vw,440px);height:auto;z-index:0;pointer-events:none}
 @media (min-width:901px){.hero.donker .wrap > *{max-width:62%}.hero.donker h1{font-size:clamp(2.8rem,4.9vw,4.4rem)}}
-@media (max-width:900px){.hero.donker .kwart{display:none}}
+/* Op de telefoon staat het kwartier boven de kop, kleiner, en speelt de animatie ook. */
+@media (max-width:900px){.hero.donker .kwart{display:block;position:relative;right:auto;top:auto;transform:none;width:190px;margin:-44px 0 -8px -2px}}
 /* Bij het openen loopt het kwartier vol en draait het door tot een glimlach (26 november 2026). */
 .hero.donker .wrap{position:relative;z-index:1}
 .hero.donker h1 span,.hero.donker h1 em{display:block}
@@ -149,6 +150,10 @@ section{padding:96px 0}
 .prijs div{display:flex;flex-direction:column}
 .prijs p{margin:0 0 22px;font-size:.95rem}
 .prijs .btn{margin-top:auto;text-align:center;padding:12px 16px;font-size:.92rem}
+/* Alle kaarten even hoog, kop, bedrag en knop op dezelfde lijn. */
+.prijs div{min-height:300px}
+.prijs p.extra{font-size:.86rem;margin:-10px 0 22px;color:var(--lav-d)}
+.prijs p.extra a{color:#FF8CC4}
 .prijsnoot{color:var(--lav-d);font-size:.9rem;margin:16px 0 0}
 #mensen .offer,#leider .offer{background:#3A1650}
 /* keuzevraag */
@@ -394,7 +399,7 @@ kwartSmile.speel(document.getElementById('kwart'));
     </div>
     <div class="prijs" style="margin-top:0">
       <div class="fade"><h3>Voor je mensen</h3><b>&euro;395</b><p>Twaalf weken, elke week 15 minuten met een vaste coach.</p><a class="btn btn-p" href="https://scan.happly.nl/sterker-aanmelden?p=start&amp;src=site_investering">Meld je mensen aan</a></div>
-      <div class="fade"><h3>Voor jou</h3><b>&euro;695</b><p>Twaalf weken, met je team in beeld voor en na.</p><a class="btn btn-p" href="https://scan.happly.nl/sterker-aanmelden?p=leider&amp;src=site_investering">Meld je aan</a><p class="prijsnoot" style="margin-top:10px">Eerst kijken? <a href="https://scan.happly.nl/leidersbeeld?src=site_investering">Doe gratis het Leidersbeeld</a>.</p></div>
+      <div class="fade"><h3>Voor jou</h3><b>&euro;695</b><p>Twaalf weken, met je team in beeld voor en na.</p><p class="extra">Eerst kijken? <a href="https://scan.happly.nl/leidersbeeld?src=site_investering">Doe gratis het Leidersbeeld</a>.</p><a class="btn btn-p" href="https://scan.happly.nl/sterker-aanmelden?p=leider&amp;src=site_investering">Meld je aan</a></div>
       <div class="fade"><h3>De jaarplek</h3><b>&euro;990</b><p>Een jaar lang elke twee weken je coach en elke week Zetjes.</p><a class="btn btn-p" href="https://scan.happly.nl/sterker-aanmelden?p=jaar&amp;src=site_investering">Reserveer een jaarplek</a></div>
       <div class="fade"><h3>Voor een heel team</h3><b>Op offerte</b><p>Een vaste ochtend bij jullie, op kantoor of online.</p><a class="btn btn-p" href="#contact" data-onderwerp="Een offerte voor een team" data-keuze="Ik wil een offerte voor een heel team.">Vraag een offerte aan</a></div>
     </div>
