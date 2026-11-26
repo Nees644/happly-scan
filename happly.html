@@ -129,10 +129,7 @@ section{padding:96px 0}
 .hero.donker .kwart{position:absolute;right:max(3vw,8px);top:50%;transform:translateY(-50%);width:min(32vw,440px);height:auto;z-index:0;pointer-events:none}
 @media (min-width:901px){.hero.donker .wrap > *{max-width:62%}.hero.donker h1{font-size:clamp(2.8rem,4.9vw,4.4rem)}}
 @media (max-width:900px){.hero.donker .kwart{display:none}}
-/* Bij het openen loopt het kwartier vol, van twaalf naar drie uur. */
-.kwart-loop{stroke-dasharray:330;stroke-dashoffset:0;animation:kwartvol 1.8s cubic-bezier(.22,.8,.3,1) .35s both}
-@keyframes kwartvol{from{stroke-dashoffset:330}to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){.kwart-loop{animation:none}}
+/* Bij het openen loopt het kwartier vol en draait het door tot een glimlach (26 november 2026). */
 .hero.donker .wrap{position:relative;z-index:1}
 .hero.donker h1 span,.hero.donker h1 em{display:block}
 .hero.donker p.lead{color:var(--lav)}
@@ -237,16 +234,53 @@ footer a{color:var(--lav);text-decoration:none}
 
 <main id="top">
 <section class="hero donker" id="sterker">
-  <svg class="kwart" viewBox="0 0 620 620" aria-hidden="true" focusable="false">
-  <defs>
-    <radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FF8CC4" stop-opacity=".55"/><stop offset="1" stop-color="#FF8CC4" stop-opacity="0"/></radialGradient>
-    <linearGradient id="k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB38A"/><stop offset="1" stop-color="#FF4FA3"/></linearGradient>
-  <mask id="kwartmasker" maskUnits="userSpaceOnUse" x="0" y="0" width="620" height="620"><path class="kwart-loop" d="M310 133.6 A176.4 176.4 0 0 1 482.5 346.7" fill="none" stroke="#fff" stroke-width="90" stroke-linecap="round"/></mask></defs>
-  
+  <svg class="kwart" id="kwart" viewBox="0 0 620 620" aria-hidden="true" focusable="false">
+  <defs><linearGradient id="k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB38A"/><stop offset="1" stop-color="#FF4FA3"/></linearGradient></defs>
   <circle cx="310" cy="310" r="176.4" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="33"/>
-  <g mask="url(#kwartmasker)"><path d="M310.0 131.1 L313.1 131.0 L316.3 130.9 L319.4 130.9 L322.5 131.0 L325.7 131.0 L328.8 131.2 L331.9 131.3 L335.1 131.6 L338.2 131.8 L341.4 132.2 L344.5 132.5 L347.6 133.0 L350.8 133.5 L353.9 134.0 L357.0 134.6 L360.1 135.3 L363.2 136.0 L366.3 136.7 L369.4 137.5 L372.5 138.4 L375.5 139.3 L378.6 140.3 L381.6 141.3 L384.6 142.4 L387.6 143.5 L390.6 144.7 L393.6 145.9 L396.6 147.2 L399.5 148.5 L402.4 149.9 L405.3 151.4 L408.2 152.9 L411.0 154.4 L413.9 156.0 L416.7 157.6 L419.5 159.3 L422.2 161.1 L424.9 162.9 L427.6 164.7 L430.3 166.6 L432.9 168.6 L435.6 170.6 L438.1 172.6 L440.7 174.7 L443.2 176.8 L445.7 179.0 L448.1 181.2 L450.5 183.5 L452.9 185.8 L455.2 188.1 L457.5 190.5 L459.8 193.0 L462.0 195.5 L464.2 198.0 L466.3 200.6 L468.4 203.2 L470.5 205.8 L472.5 208.5 L474.4 211.2 L476.3 214.0 L478.2 216.8 L480.0 219.6 L481.8 222.5 L483.5 225.4 L485.2 228.3 L486.9 231.3 L488.4 234.3 L490.0 237.3 L491.5 240.3 L492.9 243.4 L494.3 246.6 L495.6 249.7 L496.9 252.9 L498.1 256.1 L499.3 259.3 L500.4 262.5 L501.4 265.8 L502.4 269.1 L503.4 272.4 L504.2 275.7 L505.1 279.1 L505.8 282.5 L506.6 285.9 L507.2 289.3 L507.8 292.7 L508.3 296.1 L508.8 299.6 L509.2 303.0 L509.6 306.5 L509.9 310.0 A23.5 23.5 0 0 1 462.9 310.0 L463.1 307.3 L463.3 304.6 L463.5 302.0 L463.6 299.3 L463.6 296.6 L463.7 293.9 L463.6 291.1 L463.5 288.4 L463.4 285.7 L463.2 283.0 L463.0 280.3 L462.7 277.5 L462.3 274.8 L462.0 272.1 L461.5 269.4 L461.0 266.7 L460.5 264.0 L459.9 261.3 L459.3 258.6 L458.6 255.9 L457.9 253.2 L457.1 250.6 L456.3 247.9 L455.4 245.2 L454.5 242.6 L453.5 240.0 L452.5 237.4 L451.5 234.8 L450.4 232.2 L449.2 229.6 L448.0 227.1 L446.7 224.6 L445.4 222.1 L444.1 219.6 L442.7 217.1 L441.2 214.6 L439.8 212.2 L438.2 209.8 L436.7 207.4 L435.0 205.1 L433.4 202.8 L431.7 200.5 L429.9 198.2 L428.1 195.9 L426.3 193.7 L424.4 191.5 L422.5 189.4 L420.5 187.3 L418.5 185.2 L416.5 183.1 L414.4 181.1 L412.3 179.1 L410.1 177.2 L407.9 175.2 L405.7 173.4 L403.4 171.5 L401.1 169.7 L398.8 167.9 L396.4 166.2 L394.0 164.5 L391.5 162.9 L389.1 161.3 L386.6 159.7 L384.0 158.2 L381.5 156.8 L378.9 155.3 L376.2 154.0 L373.6 152.6 L370.9 151.3 L368.2 150.1 L365.5 148.9 L362.7 147.7 L359.9 146.7 L357.1 145.6 L354.3 144.6 L351.5 143.7 L348.6 142.8 L345.7 141.9 L342.8 141.1 L339.9 140.4 L337.0 139.7 L334.0 139.1 L331.1 138.5 L328.1 138.0 L325.1 137.5 L322.1 137.1 L319.1 136.8 L316.1 136.5 L313.0 136.2 L310.0 136.1 A2.5 2.5 0 0 1 310.0 131.1 Z" fill="url(#k)"/></g>
-  <g id="streepjes"><line x1="310.0" y1="167.1" x2="310.0" y2="183.1" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="452.9" y1="310.0" x2="436.9" y2="310.0" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="310.0" y1="452.9" x2="310.0" y2="436.9" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/><line x1="167.1" y1="310.0" x2="183.1" y2="310.0" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/></g>
+  <g class="ks-streepjes" opacity="0" stroke="#ffffff" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"><line x1="310" y1="167.1" x2="310" y2="183.1"/><line x1="452.9" y1="310" x2="436.9" y2="310"/><line x1="310" y1="452.9" x2="310" y2="436.9"/><line x1="167.1" y1="310" x2="183.1" y2="310"/></g>
+  <path class="ks-vorm" fill="url(#k)" d="M408.4 340.3 L407.6 342.9 L406.6 345.5 L405.6 348.1 L404.5 350.6 L403.4 353.1 L402.2 355.6 L400.9 358.1 L399.5 360.5 L398.1 363.0 L396.6 365.4 L395.0 367.7 L393.4 370.0 L391.7 372.3 L389.9 374.6 L388.1 376.8 L386.2 379.0 L384.2 381.1 L382.2 383.1 L380.1 385.1 L378.0 387.1 L375.8 389.0 L373.5 390.9 L371.2 392.6 L368.8 394.4 L366.4 396.0 L363.9 397.6 L361.4 399.1 L358.8 400.6 L356.1 402.0 L353.5 403.3 L350.8 404.5 L348.0 405.6 L345.2 406.7 L342.4 407.7 L339.6 408.6 L336.7 409.4 L333.8 410.2 L330.9 410.8 L327.9 411.4 L325.0 411.9 L322.0 412.3 L319.0 412.6 L316.0 412.8 L313.0 413.0 L310.0 413.0 L307.0 413.0 L304.0 412.8 L301.0 412.6 L298.0 412.3 L295.0 411.9 L292.1 411.4 L289.1 410.8 L286.2 410.2 L283.3 409.4 L280.4 408.6 L277.6 407.7 L274.8 406.7 L272.0 405.6 L269.2 404.5 L266.5 403.3 L263.9 402.0 L261.2 400.6 L258.6 399.1 L256.1 397.6 L253.6 396.0 L251.2 394.4 L248.8 392.6 L246.5 390.9 L244.2 389.0 L242.0 387.1 L239.9 385.1 L237.8 383.1 L235.8 381.1 L233.8 379.0 L231.9 376.8 L230.1 374.6 L228.3 372.3 L226.6 370.0 L225.0 367.7 L223.4 365.4 L221.9 363.0 L220.5 360.5 L219.1 358.1 L217.8 355.6 L216.6 353.1 L215.5 350.6 L214.4 348.1 L213.4 345.5 L212.4 342.9 L211.6 340.3 A3.5 3.5 0 0 1 217.7 337.1 L217.7 337.1 L219.3 339.0 L221.0 341.0 L222.7 342.8 L224.4 344.7 L226.2 346.4 L228.0 348.2 L229.8 349.8 L231.7 351.5 L233.6 353.0 L235.5 354.5 L237.5 356.0 L239.4 357.4 L241.4 358.8 L243.4 360.1 L245.4 361.4 L247.5 362.6 L249.5 363.8 L251.6 364.9 L253.7 366.0 L255.8 367.0 L257.9 368.0 L260.0 368.9 L262.2 369.8 L264.3 370.7 L266.4 371.5 L268.6 372.2 L270.7 372.9 L272.9 373.6 L275.1 374.2 L277.2 374.8 L279.4 375.4 L281.6 375.9 L283.8 376.4 L286.0 376.8 L288.1 377.2 L290.3 377.5 L292.5 377.8 L294.7 378.1 L296.9 378.3 L299.1 378.5 L301.2 378.7 L303.4 378.8 L305.6 378.9 L307.8 379.0 L310.0 379.0 L312.2 379.0 L314.4 378.9 L316.6 378.8 L318.8 378.7 L320.9 378.5 L323.1 378.3 L325.3 378.1 L327.5 377.8 L329.7 377.5 L331.9 377.2 L334.0 376.8 L336.2 376.4 L338.4 375.9 L340.6 375.4 L342.8 374.8 L344.9 374.2 L347.1 373.6 L349.3 372.9 L351.4 372.2 L353.6 371.5 L355.7 370.7 L357.8 369.8 L360.0 368.9 L362.1 368.0 L364.2 367.0 L366.3 366.0 L368.4 364.9 L370.5 363.8 L372.5 362.6 L374.6 361.4 L376.6 360.1 L378.6 358.8 L380.6 357.4 L382.5 356.0 L384.5 354.5 L386.4 353.0 L388.3 351.5 L390.2 349.8 L392.0 348.2 L393.8 346.4 L395.6 344.7 L397.3 342.8 L399.0 341.0 L400.7 339.0 L402.3 337.1 A3.5 3.5 0 0 1 408.4 340.3 Z"/>
 </svg>
+<script>
+// Het kwartier loopt vol en draait door tot een glimlach in de ring (26 november 2026).
+(function(){
+  var R0=176.4,C0=[310,310],R1=108,C1=[310,288];
+  function lerp(a,b,k){return a+(b-a)*k}
+  function f(n){return n.toFixed(1)}
+  function vorm(cx,cy,R,a0,a1,wf){
+    var N=90,o=[],n=[],i,s,a,w;
+    for(i=0;i<=N;i++){s=i/N;a=(a0+(a1-a0)*s)*Math.PI/180;w=wf(s)/2;
+      o.push(f(cx+(R+w)*Math.cos(a))+' '+f(cy+(R+w)*Math.sin(a)));
+      n.push(f(cx+(R-w)*Math.cos(a))+' '+f(cy+(R-w)*Math.sin(a)));}
+    var w1=f(wf(1)/2),w0=f(wf(0)/2);
+    return 'M'+o.join(' L')+' A'+w1+' '+w1+' 0 0 1 '+n[N]+' L'+n.reverse().join(' L')+' A'+w0+' '+w0+' 0 0 1 '+o[0]+' Z';
+  }
+  function pad(vul,k){
+    if(vul<=0.001&&k===0)return '';
+    var sMax=k>0?1:vul,a0=lerp(-90,28,k),a1=a0+(lerp(0,152,k)-a0)*sMax;
+    return vorm(lerp(C0[0],C1[0],k),lerp(C0[1],C1[1],k),lerp(R0,R1,k),a0,a1,function(s){
+      var ss=s*sMax;return lerp(5+42*ss,7+27*Math.sin(Math.PI*ss),k)});
+  }
+  function teken(svg,vul,k){
+    svg.querySelector('.ks-vorm').setAttribute('d',pad(vul,k));
+    svg.querySelector('.ks-streepjes').setAttribute('opacity',String(1-k));
+  }
+  window.kwartSmile={pad:pad,teken:teken,speel:function(svg){
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){teken(svg,1,1);return}
+    var start=null,W=350,V=1800,H=400,M=1400;
+    function eo(t){return 1-Math.pow(1-t,3)} function eio(t){return t*t*(3-2*t)}
+    teken(svg,0,0);
+    function stap(ts){if(start===null)start=ts;var t=ts-start;
+      if(t<W)teken(svg,0,0);
+      else if(t<W+V)teken(svg,eo((t-W)/V),0);
+      else if(t<W+V+H)teken(svg,1,0);
+      else if(t<W+V+H+M)teken(svg,1,eio((t-W-V-H)/M));
+      else{teken(svg,1,1);return}
+      requestAnimationFrame(stap);}
+    requestAnimationFrame(stap);
+  }};
+})();
+kwartSmile.speel(document.getElementById('kwart'));
+</script>
   <div class="wrap">
     <h1><span>Sterker op je werk</span> <em class="acc">in 15 minuten per week.</em></h1>
     <p class="lead">Je mensen sterker op het werk. Jij sterker voor je mensen. Met rust in het hoofd, grip op de week en meer energie.</p>
