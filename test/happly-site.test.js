@@ -140,3 +140,15 @@ test("sterkeropjewerk.nl stuurt via https door naar happly.nl, met herkomst", ()
   assert.ok(mw.includes("sterkeropjewerk") && mw.includes("Response.redirect(DOEL_STERKER"), "de voordeur van sterkeropjewerk.nl stuurt niet door");
   assert.equal(r.destination, "https://happly.nl/?src=sterkeropjewerk");
 });
+
+test("de privacyverklaring geldt voor heel Happly en happly.nl linkt ernaar", () => {
+  // 26 november 2026: herschreven voor happly.nl, Sterker op je werk en Zetjes.
+  assert.ok(HTML.includes('href="https://scan.happly.nl/privacy"'), "happly.nl linkt niet naar de privacyverklaring");
+  const p = readFileSync(new URL("../privacy.html", import.meta.url), "utf8");
+  for (const deel of ["Sterker op je werk", "Zetjes", "Formspree", "Cal.com", "Mollie", "Anthropic", "KvK 30141625", "Autoriteit Persoonsgegevens"]){
+    assert.ok(p.includes(deel), `de privacyverklaring noemt ${deel} niet`);
+  }
+  assert.ok(p.includes("nooit wat je schrijft") && p.includes("blijft tussen jou en je coach"), "de belofte over de inhoud ontbreekt");
+  assert.ok(!p.includes("—"), "gedachtestreepje");
+  assert.ok(!p.includes("teamkrachtindex.nl"), "link naar het oude domein");
+});
