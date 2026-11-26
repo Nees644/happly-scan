@@ -12,6 +12,10 @@ import { MINIMUM_DEELNEMERS, kanKaartKrijgen } from "./leidersbeeld.js";
 import { beoordeelLeidersbeeld, vergelijkMeetmomenten } from "./leidersbeeld-regel.js";
 import { tekenKaartSvg } from "./teamkracht-kaart.js";
 
+// Het gesprek over Sterker op je werk. De herkomst laat in cal.com zien dat
+// iemand via de leiderpagina kwam.
+export const GESPREK_URL = "https://cal.com/maarten-neeskens-aoijqe?src=leiderpagina";
+
 const PAARS = "#1A0B2E", MAGENTA = "#D6026F", ROOM = "#F7F3F0", LIJN = "#E6DFE9", GRIJS = "#6B6472";
 
 export function ontsnap(t){
@@ -63,9 +67,13 @@ function nogGeenTeam({ organisatie, teamomvang, partnernaam, token }){
       // Wie via een partner binnenkwam, koopt niet zelf. Die partner heeft een
       // eigen tarief en factureert zelf aan zijn klant.
       ? `<p>Je werkt met ${ontsnap(partnernaam)}. Die regelt de meting met je.</p>`
-      : `<p>Bij een Teamfoto vult het team dezelfde vragen in. Je ziet dan op een kaart waar jouw beeld en het beeld van het team gelijk lopen, en waar niet.</p>
-         <p style="margin-top:16px"><a class="knop" href="/leidersbeeld-kopen?t=${ontsnap(token)}">Vraag de Teamfoto aan</a></p>
-         <p class="klein">Teamfoto plus een hermeting binnen zes maanden. Wat het kost staat op de volgende pagina.</p>`;
+      // Sinds 26 november 2026 is het programma voor leidinggevenden het
+      // aanbod; de Teamfoto blijft als kleinere stap voor wie alleen wil meten.
+      // Geen bedrag hier: prijzen komen uit de tabel producten of staan op
+      // happly.nl, nooit hardcoded op een scanpagina.
+      : `<p>Jij sterker voor je mensen. In het programma voor leidinggevenden heb je twaalf weken lang elke week 15 minuten met je eigen coach. Je team vult de vragen in bij de start en aan het eind, en je ziet op de kaart wat er onder jouw leiding verandert.</p>
+         <p style="margin-top:16px"><a class="knop" href="${GESPREK_URL}">Plan een gesprek van 20 minuten</a></p>
+         <p class="klein">Lees meer op <a href="https://happly.nl/?src=leiderpagina#leider">happly.nl</a>. Wil je eerst alleen je team meten? <a href="/leidersbeeld-kopen?t=${ontsnap(token)}">Vraag de Teamfoto aan</a>.</p>`;
 
   return `<div class="blok">
     <p class="groot">Dit is jouw beeld van ${ontsnap(organisatie)}. Hoe het team het zelf doet, weet je na de meting.</p>

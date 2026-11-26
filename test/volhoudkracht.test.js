@@ -172,7 +172,11 @@ test("de rekenhulp staat op scan.happly.nl, in je-vorm, en alle links wijzen ern
     const s = readFileSync(new URL(f, import.meta.url), "utf8");
     assert.ok(!s.includes("happly.nl/rekenhulp-gli.html"), `${f} wijst nog naar happly.nl`);
   }
-  assert.ok(readFileSync(new URL("../happly.html", import.meta.url), "utf8").includes("scan.happly.nl/rekenhulp-gli"));
+  // Sinds 26 november 2026 gaat happly.nl alleen over Sterker op je werk en
+  // linkt de voorpagina niet meer naar de rekenhulp; de rekenhulp zelf blijft.
+  assert.ok(readFileSync(new URL("../volhoudkracht.html", import.meta.url), "utf8").includes("rekenhulp-gli") ||
+            readFileSync(new URL("../volhoudkracht-pagina.js", import.meta.url), "utf8").includes("rekenhulp-gli"),
+            "niets wijst nog naar de rekenhulp");
 });
 
 test("de leadlijst toont ook de Volhoudkracht Scan, alleen voor de beheerder", () => {
