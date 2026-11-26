@@ -135,6 +135,8 @@ test("sterkeropjewerk.nl stuurt via https door naar happly.nl, met herkomst", ()
   const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
   const r = vercel.redirects.find(x => (x.has || []).some(h => h.type === "host" && h.value.includes("sterkeropjewerk")));
   assert.ok(r, "er is geen doorsturing voor sterkeropjewerk.nl");
-  assert.equal(r.source, "/:pad*");
+  assert.equal(r.source, "/(.*)");
+  const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
+  assert.ok(mw.includes("sterkeropjewerk") && mw.includes("Response.redirect(DOEL_STERKER"), "de voordeur van sterkeropjewerk.nl stuurt niet door");
   assert.equal(r.destination, "https://happly.nl/?src=sterkeropjewerk");
 });

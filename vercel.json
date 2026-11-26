@@ -214,7 +214,7 @@
   ],
   "redirects": [
     {
-      "source": "/:pad*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
