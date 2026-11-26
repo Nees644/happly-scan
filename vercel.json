@@ -2,6 +2,18 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/api/sterker-aanmelden",
+      "destination": "/api/sterker?r=aanmelden"
+    },
+    {
+      "source": "/api/sterker-betaal",
+      "destination": "/api/sterker?r=betaal"
+    },
+    {
+      "source": "/api/sterker-webhook",
+      "destination": "/api/sterker?r=webhook"
+    },
+    {
       "source": "/deel/:id",
       "destination": "/api/deel?d=:id"
     },
@@ -197,15 +209,9 @@
     "api/zelfstarters-partners.js": {
       "maxDuration": 20
     },
-    "api/sterker-aanmelden.js": {
+    "api/sterker.js": {
       "maxDuration": 30,
       "includeFiles": "assets/**"
-    },
-    "api/sterker-betaal.js": {
-      "maxDuration": 15
-    },
-    "api/sterker-webhook.js": {
-      "maxDuration": 15
     }
   },
   "crons": [
