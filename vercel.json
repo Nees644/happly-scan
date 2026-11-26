@@ -214,6 +214,17 @@
   ],
   "redirects": [
     {
+      "source": "/:pad*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?sterkeropjewerk\\.nl"
+        }
+      ],
+      "destination": "https://happly.nl/?src=sterkeropjewerk",
+      "permanent": false
+    },
+    {
       "source": "/:pad(scan|scan_lg|scan_mw|quick_scan|index|sprint|dashboard|dashboard-index|teamkracht|teamkracht-beheer|teamkracht-doel|teamkracht-handleiding|module|toets|badge|account|betaald|bedankt|organisatie|professionals)",
       "has": [
         {
