@@ -21,6 +21,8 @@ export const BEDRIJF = {
   // Niet verplicht op de factuur: er is al betaald voordat hij wordt verstuurd.
   // Staat er wel op zodra hij is ingevuld, voor wie hem wil natrekken.
   iban:       "NL08 ABNA 0104 2342 88",
+  // De rekening staat op naam van de BV; de factuur noemt die naam bij het IBAN.
+  rekening_naam: "Infinidea BV",
   telefoon:   "+31 85 878 5961",
   email:      "hallo@happly.nl",
   website:    "happly.nl",

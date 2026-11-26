@@ -36,7 +36,7 @@ function adresblok(kop, r){
 export function openTekst(factuur, bedrijf = BEDRIJF){
   if (factuur.status === "betaald") return "Dit bedrag is voldaan via Mollie. Je hoeft niets meer te doen.";
   if (!factuur.vervaldatum) return "Dit bedrag staat nog open.";
-  const iban = bedrijf.iban ? ` of maak het over naar ${bedrijf.iban} ten name van ${bedrijf.naam}, met het factuurnummer erbij` : "";
+  const iban = bedrijf.iban ? ` of maak het over naar ${bedrijf.iban} ten name van ${bedrijf.rekening_naam || bedrijf.naam}, met het factuurnummer erbij` : "";
   return `Te betalen uiterlijk ${nederlandseDatum(factuur.vervaldatum)}. Betaal via de betaallink in de mail${iban}.`;
 }
 
