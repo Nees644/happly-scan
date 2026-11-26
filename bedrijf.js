@@ -20,7 +20,7 @@ export const BEDRIJF = {
   btw_nummer: "NL806215239B01",
   // Niet verplicht op de factuur: er is al betaald voordat hij wordt verstuurd.
   // Staat er wel op zodra hij is ingevuld, voor wie hem wil natrekken.
-  iban:       "",
+  iban:       "NL08 ABNA 0104 2342 88",
   telefoon:   "+31 85 878 5961",
   email:      "hallo@happly.nl",
   website:    "happly.nl",
