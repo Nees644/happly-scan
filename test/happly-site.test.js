@@ -50,7 +50,8 @@ test("elke optie bij De investering heeft een knop die iets doet", () => {
   const inv = sectie("investering");
   const knoppen = [...inv.matchAll(/<a class="btn[^"]*" href="([^"]+)"/g)].map(m => m[1]);
   assert.equal(knoppen.length, 4, "niet elke optie heeft een knop");
-  assert.ok(knoppen.includes("https://scan.happly.nl/leidersbeeld?src=site_investering"), "de leidinggevende gaat niet naar het Leidersbeeld");
+  // Sinds 26 november 2026 meldt men zich aan met factuur; het Leidersbeeld blijft als eerste stap.
+  assert.ok(inv.includes("scan.happly.nl/leidersbeeld?src=site_investering"), "de leidinggevende kan niet eerst het Leidersbeeld doen");
   // De andere drie zetten het onderwerp in het formulier, en dat onderwerp bestaat.
   for (const o of [...inv.matchAll(/data-onderwerp="([^"]+)"/g)].map(m => m[1])){
     assert.ok(HTML.includes(`<option>${o}</option>`), `het onderwerp ${o} staat niet in het formulier`);

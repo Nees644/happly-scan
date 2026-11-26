@@ -7,6 +7,7 @@
 import PDFDocument from "pdfkit";
 import { BEDRIJF } from "./bedrijf.js";
 import { euro, nederlandseDatum } from "./factuur.js";
+import { openTekst } from "./factuur-mail.js";
 import { PAPIER, KLEUR, MM, zetLetters, logoBuffer, alsBuffer, label } from "./pdf-basis.js";
 
 const KANT = 20 * MM;
@@ -67,6 +68,7 @@ export async function maakFactuurPdf(factuur, bedrijf = BEDRIJF){
   const datums = [
     ["Factuurdatum", nederlandseDatum(factuur.created_at)],
     ["Leverdatum", nederlandseDatum(factuur.periode_van)],
+    factuur.vervaldatum && factuur.status !== "betaald" ? ["Vervaldatum", nederlandseDatum(factuur.vervaldatum)] : null,
     factuur.klant_referentie ? ["Referentie", factuur.klant_referentie] : null
   ].filter(Boolean);
 
@@ -127,9 +129,7 @@ export async function maakFactuurPdf(factuur, bedrijf = BEDRIJF){
   /* ------------------------------------------------------------- slot */
   y += 6 * MM;
   doc.font("sans").fontSize(9.5).fillColor(KLEUR.gedempt)
-     .text(factuur.status === "betaald"
-       ? "Dit bedrag is voldaan via Mollie. Je hoeft niets meer te doen."
-       : "Dit bedrag staat nog open.", KANT, y, { width: breedte });
+     .text(openTekst(factuur, bedrijf), KANT, y, { width: breedte });
   if (factuur.btw_verlegd){
     doc.text("Btw verlegd naar de afnemer.", KANT, doc.y + 1.5 * MM, { width: breedte });
   }
