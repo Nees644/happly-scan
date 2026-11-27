@@ -218,6 +218,14 @@ footer a{color:var(--lav);text-decoration:none}
   .sgrid{grid-template-columns:1fr}
   .door,.offer{padding:28px}
 }
+/* Vragen: uitklapbaar, rustig. */
+#vragen .vragen{max-width:820px;margin-top:28px;border-top:1px solid var(--lijn,#E6DFE9)}
+.vraag{border-bottom:1px solid var(--lijn,#E6DFE9)}
+.vraag summary{cursor:pointer;list-style:none;padding:20px 40px 20px 0;font-weight:600;font-size:1.08rem;position:relative}
+.vraag summary::-webkit-details-marker{display:none}
+.vraag summary::after{content:"+";position:absolute;right:6px;top:16px;font-size:1.5rem;color:#D6026F;transition:transform .2s}
+.vraag[open] summary::after{transform:rotate(45deg)}
+.vraag p{margin:0 0 22px;max-width:700px}
 </style>
 </head>
 <body>
@@ -231,6 +239,7 @@ footer a{color:var(--lav);text-decoration:none}
       <li><a href="#leider">Voor leidinggevenden</a></li>
       <li><a href="#meedoen">Meedoen</a></li>
       <li><a href="#investering">Investering</a></li>
+      <li><a href="#vragen">Vragen</a></li>
       <li><a href="#over">Over</a></li>
       <li><a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_nav">Gratis Leidersbeeld</a></li>
     </ul>
@@ -404,6 +413,24 @@ kwartSmile.speel(document.getElementById('kwart'));
       <div class="fade"><h3>Voor een heel team</h3><b>Op offerte</b><p>Een vaste ochtend bij jullie, op kantoor of online.</p><a class="btn btn-p" href="#contact" data-onderwerp="Een offerte voor een team" data-keuze="Ik wil een offerte voor een heel team.">Vraag een offerte aan</a></div>
     </div>
     <p class="prijsnoot">Bedragen exclusief btw, per persoon. Na het aanmelden krijg je direct de factuur en kun je meteen betalen, met creditcard of iDEAL.</p>
+  </div>
+</section>
+
+<section id="vragen">
+  <div class="wrap">
+    <h2 class="fade">Vragen die <em class="acc">leidinggevenden stellen.</em></h2>
+    <div class="vragen fade">
+      <details class="vraag"><summary>Is coachen niet gewoon de taak van de leidinggevende?</summary><p>Ja, en dat blijft het ook. Sterker op je werk neemt het niet over, het versterkt jou. Je mensen krijgen een vaste coach bij wie ze vrijuit kunnen praten, ook over wat ze niet snel tegen hun leidinggevende zeggen. Jij krijgt mensen die zelf meer oppakken. En met het programma voor leidinggevenden word je zelf sterker in die korte momenten met je team.</p></details>
+      <details class="vraag"><summary>Maken we het zo niet duurder?</summary><p>Kijk niet naar de prijs, kijk naar wat het oplevert. Mensen die eigenaarschap nemen, met meer energie aan het werk gaan, meer gedaan krijgen en met voldoening naar huis gaan. Minder verzuim, minder momenten waarop jij moet ingrijpen, minder mensen die vertrekken. Wat dat waard is, weet jij als geen ander.</p></details>
+      <details class="vraag"><summary>Wat merk ik er als leidinggevende van?</summary><p>Je merkt het in het werk: meer rust, meer eigen initiatief en minder dat bij jou terugkomt. Met het programma voor leidinggevenden zie je ook het beeld van je team bij de start en aan het eind.</p></details>
+      <details class="vraag"><summary>Hoor ik wat mijn medewerker bespreekt?</summary><p>Nee. Wat je medewerker met zijn coach bespreekt, blijft tussen hen. Jij hoort alleen dat hij meedoet. Juist daardoor durft hij te zeggen wat ertoe doet.</p></details>
+      <details class="vraag"><summary>Waarom maar 15 minuten?</summary><p>Omdat een kwartier elke week past, ook in een drukke week. Een vast kort moment dat je volhoudt, brengt meer dan een lange sessie die steeds wordt verzet.</p></details>
+      <details class="vraag"><summary>Hoeveel werktijd kost het?</summary><p>Een kwartier per week, op een vast moment dat je medewerker zelf kiest.</p></details>
+      <details class="vraag"><summary>Wie zijn de coaches?</summary><p>Ervaren coaches, opgeleid en gecertificeerd voor Sterker op je werk. Je medewerker houdt van begin tot eind dezelfde coach.</p></details>
+      <details class="vraag"><summary>Wat is Zetjes?</summary><p>Zetjes is de app die je medewerker tussen de kwartieren een zetje geeft op het moment zelf, voor een lastig gesprek of een drukke dag. Zetjes werkt met AI en is daar open over.</p></details>
+      <details class="vraag"><summary>En als iemand meer nodig heeft dan coaching?</summary><p>Dan ziet de coach dat en verwijst hij door naar de juiste hulp, zoals de huisarts of de bedrijfsarts.</p></details>
+      <details class="vraag"><summary>Hoe snel kunnen we starten?</summary><p>Meld je mensen aan via De investering. Je krijgt direct de factuur, en binnen twee werkdagen plannen we met je mensen de coach en het vaste moment.</p></details>
+    </div>
   </div>
 </section>
 
