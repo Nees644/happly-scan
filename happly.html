@@ -320,7 +320,7 @@ kwartSmile.speel(document.getElementById('kwart'));
       <p id="keuzezin"></p>
       <div class="knoppen">
         <a class="btn btn-p" id="keuze-lb" href="https://scan.happly.nl/leidersbeeld?src=site_keuze">Doe het gratis Leidersbeeld</a>
-        <a class="btn btn-s" id="keuze-gesprek" href="#contact">Plan een gesprek</a>
+        <a class="btn btn-s" id="keuze-gesprek" href="https://scan.happly.nl/proefkwartier?src=site_keuze">Gratis proefkwartier</a>
       </div>
     </div>
   </div>
@@ -358,7 +358,7 @@ kwartSmile.speel(document.getElementById('kwart'));
       </ul>
       <p class="bedrag">&euro;395</p>
       <p>per medewerker voor twaalf weken.</p>
-      <a class="btn btn-p" href="#contact">Plan een gesprek</a>
+      <a class="btn btn-p" href="https://scan.happly.nl/proefkwartier?src=site_leider">Gratis proefkwartier</a>
     </div>
   </div>
 </section>
@@ -429,6 +429,7 @@ kwartSmile.speel(document.getElementById('kwart'));
       <details class="vraag"><summary>Wie zijn de coaches?</summary><p>Ervaren coaches, opgeleid en gecertificeerd voor Sterker op je werk. Je medewerker houdt van begin tot eind dezelfde coach.</p></details>
       <details class="vraag"><summary>Wat is Zetjes?</summary><p>Zetjes is de app die je medewerker tussen de kwartieren een zetje geeft op het moment zelf, voor een lastig gesprek of een drukke dag. Zetjes werkt met AI en is daar open over.</p></details>
       <details class="vraag"><summary>En als iemand meer nodig heeft dan coaching?</summary><p>Dan ziet de coach dat en verwijst hij door naar de juiste hulp, zoals de huisarts of de bedrijfsarts.</p></details>
+      <details class="vraag"><summary>Kan ik het eerst zelf ervaren?</summary><p>Ja. In december krijgen twintig leidinggevenden een gratis proefkwartier met Maarten Neeskens. In 15 minuten ervaar je wat het je oplevert, en een week later volgt je zetje. <a href="https://scan.happly.nl/proefkwartier?src=site_vragen">Kies je moment</a>.</p></details>
       <details class="vraag"><summary>Hoe snel kunnen we starten?</summary><p>Meld je mensen aan via De investering. Je krijgt direct de factuur, en binnen twee werkdagen plannen we met je mensen de coach en het vaste moment.</p></details>
     </div>
   </div>
@@ -455,7 +456,7 @@ kwartSmile.speel(document.getElementById('kwart'));
         <p>Vertel kort wat je wilt bereiken. Je hoort binnen twee werkdagen van ons.</p>
         <p><a href="mailto:maarten@happly.nl">maarten@happly.nl</a></p>
         <p><a href="tel:+31858785961">085 878 59 61</a></p>
-        <p><a href="https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=site_contact">Plan direct een gesprek</a></p>
+        <p><a href="https://scan.happly.nl/proefkwartier?src=site_contact">Of doe eerst een gratis proefkwartier</a></p>
       </div>
     </div>
     <form class="fade" action="https://formspree.io/f/mwlvkbaw" method="POST">
@@ -510,13 +511,11 @@ kwartSmile.speel(document.getElementById('kwart'));
     var lb = document.getElementById('keuze-lb'); var u = new URL(lb.href);
     if (!new URLSearchParams(location.search).get('src')) u.searchParams.set('src', 'site_keuze_' + p.getAttribute('data-sleutel'));
     lb.href = u.toString();
+    var pk = document.getElementById('keuze-gesprek'); var v = new URL(pk.href);
+    v.searchParams.set('doel', p.getAttribute('data-sleutel')); pk.href = v.toString();
     document.getElementById('keuzepaneel').hidden = false;
   }); });
-  document.getElementById('keuze-gesprek').addEventListener('click', function(){
-    var o = document.getElementById('onderwerp'), b = document.getElementById('bericht');
-    if (o) o.value = 'Sterker op je werk';
-    if (b && gekozen) b.value = 'Ik wil sterker worden in: ' + gekozen.textContent.toLowerCase() + '.';
-  });
+
 })();
 // Een knop bij De investering zet het onderwerp en de keuze alvast in het formulier.
 document.querySelectorAll('a[data-keuze]').forEach(function(a){a.addEventListener('click',function(){

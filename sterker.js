@@ -82,7 +82,7 @@ export function controleerInvoer(invoer = {}){
   return uit;
 }
 
-async function stuur(naar, mail, bijlagen){
+export async function stuur(naar, mail, bijlagen){
   if (!process.env.RESEND_API_KEY || !naar) return false;
   const resend = new Resend(process.env.RESEND_API_KEY);
   const uit = await resend.emails.send({
@@ -105,16 +105,16 @@ export function betaalUrl(basis, token){
 const FONT = "'DM Sans',Helvetica,Arial,sans-serif";
 const DP = "#1A0B2E", PK = "#D6026F", TX = "#3A2E46", MUT = "#6A5A78";
 
-function ontsnap(t){
+export function ontsnap(t){
   return String(t ?? "").replace(/[&<>"']/g, c =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-function p(t){ return `<p style="font-family:${FONT};font-size:14px;color:${TX};line-height:1.7;margin:0 0 13px">${t}</p>`; }
+export function p(t){ return `<p style="font-family:${FONT};font-size:14px;color:${TX};line-height:1.7;margin:0 0 13px">${t}</p>`; }
 function knop(t, url){
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0 8px"><tr><td style="background:${PK};border-radius:999px">
     <a href="${url}" style="display:inline-block;padding:13px 28px;font-family:${FONT};font-size:14px;font-weight:600;color:#fff;text-decoration:none">${t}</a></td></tr></table>`;
 }
-function voorwoord(inhoud){
+export function voorwoord(inhoud){
   return `<div style="background:#F7F3F0;padding:32px 16px 0"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:28px 32px 22px">${inhoud}</div></div>`;
 }
 

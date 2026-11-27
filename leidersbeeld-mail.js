@@ -15,7 +15,7 @@ import { voornaam, mailOnderwerp, herinneringOnderwerp } from "./leidersbeeld.js
 export const BASIS_URL = "https://scan.happly.nl";
 
 // Het gesprek over het programma voor leidinggevenden, met herkomst.
-export const GESPREK_URL_MAIL = "https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=leidersbeeld_mail";
+export const GESPREK_URL_MAIL = "https://scan.happly.nl/proefkwartier?src=leidersbeeld_mail";
 
 const FONT = "'DM Sans',Helvetica,Arial,sans-serif";
 const DP = "#1A0B2E", PK = "#D6026F", RT = "#FBEFF5", MUT = "#6A5A78", TX = "#3A2E46";
@@ -63,7 +63,7 @@ export function resultaatMail({ naam, index, token, basis = BASIS_URL, doelverge
     knop("Bekijk je Leidersbeeld", leiderUrl(token, basis)) +
     // Sinds 26 november 2026: het aanbod achter het Leidersbeeld is het
     // programma voor leidinggevenden, niet meer alleen de Teamfoto.
-    p(`Wil je zelf sterker staan voor je mensen? In het programma voor leidinggevenden heb je twaalf weken lang elke week 15 minuten met je eigen coach, met je team in beeld bij de start en aan het eind. <a href="${GESPREK_URL_MAIL}" style="color:${PK};font-weight:600">Plan een gesprek van 20 minuten</a>.`, "margin-top:22px");
+    p(`Wil je zelf sterker staan voor je mensen? In het programma voor leidinggevenden heb je twaalf weken lang elke week 15 minuten met je eigen coach, met je team in beeld bij de start en aan het eind. <a href="${GESPREK_URL_MAIL}&t=${encodeURIComponent(token)}" style="color:${PK};font-weight:600">Bespreek je uitslag in een gratis proefkwartier van 15 minuten</a>.`, "margin-top:22px");
   return { subject: mailOnderwerp(index), html: shell(inhoud) };
 }
 

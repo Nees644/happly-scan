@@ -14,7 +14,7 @@ import { tekenKaartSvg } from "./teamkracht-kaart.js";
 
 // Het gesprek over Sterker op je werk. De herkomst laat in cal.com zien dat
 // iemand via de leiderpagina kwam.
-export const GESPREK_URL = "https://cal.com/maarten-neeskens-aoijqe/kennismaking?src=leiderpagina";
+export const GESPREK_URL = "/proefkwartier?src=leiderpagina";
 
 const PAARS = "#1A0B2E", MAGENTA = "#D6026F", ROOM = "#F7F3F0", LIJN = "#E6DFE9", GRIJS = "#6B6472";
 
@@ -72,7 +72,7 @@ function nogGeenTeam({ organisatie, teamomvang, partnernaam, token }){
       // Geen bedrag hier: prijzen komen uit de tabel producten of staan op
       // happly.nl, nooit hardcoded op een scanpagina.
       : `<p>Jij sterker voor je mensen. In het programma voor leidinggevenden heb je twaalf weken lang elke week 15 minuten met je eigen coach. Je team vult de vragen in bij de start en aan het eind, en je ziet op de kaart wat er onder jouw leiding verandert.</p>
-         <p style="margin-top:16px"><a class="knop" href="${GESPREK_URL}">Plan een gesprek van 20 minuten</a></p>
+         <p style="margin-top:16px"><a class="knop" href="${GESPREK_URL}&t=${ontsnap(token)}">Bespreek je uitslag in een gratis kwartier</a></p>
          <p class="klein">Lees meer op <a href="https://happly.nl/?src=leiderpagina#leider">happly.nl</a>. Wil je eerst alleen je team meten? <a href="/leidersbeeld-kopen?t=${ontsnap(token)}">Vraag de Teamfoto aan</a>.</p>`;
 
   return `<div class="blok">
