@@ -136,6 +136,8 @@ section{padding:96px 0}
 .hero.donker p.lead{color:var(--lav)}
 .hero.donker .ctas .btn-s{color:#fff}
 .hero.donker .ctas .btn-s:hover{background:rgba(255,255,255,.08)}
+.hero .actie{margin-top:16px;font-size:15px;color:var(--lav)}
+.hero .actie b{color:#fff;font-weight:600}
 @media (max-width:900px){.hero.donker{padding:72px 0 64px}}
 .sterk-waarom{max-width:780px}
 .sterk-waarom h2{font-size:clamp(2rem,4.5vw,3rem);margin-bottom:22px}
@@ -300,8 +302,10 @@ kwartSmile.speel(document.getElementById('kwart'));
     <p class="lead">Je mensen sterker op het werk. Jij sterker voor je mensen. Met rust in het hoofd, grip op de week en meer energie.</p>
     <div class="ctas">
       <a class="btn btn-p" href="https://scan.happly.nl/leidersbeeld?src=site_hero">Doe het gratis Leidersbeeld</a>
-      <a class="btn btn-s" href="#mensen">Bekijk wat het oplevert</a>
+      <a class="btn btn-s" href="https://scan.happly.nl/proefkwartier?src=site_hero">Gratis proefkwartier</a>
     </div>
+    <p class="actie" id="actie-december"><b>In december:</b> 20 gratis proefkwartieren voor leidinggevenden.</p>
+    <script>(function(){ if (new Date() > new Date("2026-12-31T23:59:59")){ var a=document.getElementById("actie-december"); if(a) a.hidden=true; var k=document.querySelector('.hero .ctas a[href*="proefkwartier?src=site_hero"]'); if(k){ k.textContent="Bekijk wat het oplevert"; k.href="#mensen"; } } })();</script>
   </div>
 </section>
 
