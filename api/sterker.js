@@ -5,10 +5,12 @@
 //   /api/sterker-aanmelden  ->  /api/sterker?r=aanmelden
 //   /api/sterker-betaal     ->  /api/sterker?r=betaal
 //   /api/sterker-webhook    ->  /api/sterker?r=webhook
+//   /api/proefkwartier      ->  /api/sterker?r=proefkwartier (27 november 2026)
 
 import { serviceClient, logFout } from "../teamkracht-auth.js";
 import { haalBetaling } from "../mollie.js";
 import { PRODUCTEN, meldAan, zoekOpToken, startBetaling, verwerkMollieId } from "../sterker.js";
+import { plekkenOver, vraagAan } from "../proefkwartier.js";
 
 // Onderdeel aanmelden:
 // GET: de drie programma's met hun prijs uit de tabel producten, voor het
@@ -105,8 +107,25 @@ async function webhook(req, res){
   }
 }
 
+/* Het proefkwartier. GET: hoeveel plekken er nog zijn. POST: aanvragen,
+   geeft de cal.com-link terug met naam, mailadres en antwoord ingevuld. */
+async function proefkwartier(req, res){
+  const db = serviceClient();
+  if (req.method === "GET"){ res.status(200).json(await plekkenOver(db)); return; }
+  if (req.method !== "POST"){ res.status(405).json({ error: "methode" }); return; }
+  const invoer = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+  try{
+    res.status(200).json(await vraagAan(db, invoer));
+  }catch(e){
+    if (e.status && e.status < 500){ res.status(e.status).json({ error: e.message }); return; }
+    await logFout("proefkwartier", e.message);
+    res.status(500).json({ error: "Dat lukte niet. Probeer het zo nog eens, of mail hallo@happly.nl." });
+  }
+}
+
 export default async function handler(req, res){
   const r = req.query?.r;
+  if (r === "proefkwartier") return proefkwartier(req, res);
   if (r === "aanmelden") return aanmelden(req, res);
   if (r === "betaal") return betaal(req, res);
   if (r === "webhook") return webhook(req, res);

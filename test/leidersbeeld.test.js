@@ -257,7 +257,7 @@ test("na het Leidersbeeld is het aanbod het programma voor leidinggevenden", asy
 
   const mail = resultaatMail({ naam: "Sanne de Vries", index: 69, token: "abc" }).html;
   assert.ok(mail.includes("programma voor leidinggevenden"), "de mail noemt het programma niet");
-  assert.ok(mail.includes("cal.com/maarten-neeskens-aoijqe/kennismaking?src=leidersbeeld_mail"), "de mail heeft geen link naar een gesprek");
+  assert.ok(mail.includes("scan.happly.nl/proefkwartier?src=leidersbeeld_mail"), "de mail heeft geen link naar het proefkwartier");
   assert.ok(!/\u20ac|&euro;/.test(mail), "er staat een bedrag in de mail");
 
   const lb = readFileSync(new URL("../leidersbeeld.html", import.meta.url), "utf8");

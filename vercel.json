@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/api/proefkwartier",
+      "destination": "/api/sterker?r=proefkwartier"
+    },
+    {
       "source": "/api/sterker-aanmelden",
       "destination": "/api/sterker?r=aanmelden"
     },

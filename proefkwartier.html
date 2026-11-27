@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gratis proefkwartier · Sterker op je werk · Happly</title>
+<meta name="description" content="Ervaar in 15 minuten wat Sterker op je werk je oplevert. Twintig gratis proefkwartieren voor leidinggevenden in december.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--paars:#1A0B2E;--magenta:#D6026F;--room:#F7F3F0;--wit:#fff;--grijs:#6B6472;--lijn:#E6DFE9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--paars);background:var(--room);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.12;font-size:clamp(2rem,4.6vw,2.9rem);margin-bottom:.4em}
+h1 em{font-style:normal;color:var(--magenta)}
+a{color:var(--magenta)}
+.wrap{max-width:640px;margin:0 auto;padding:0 22px}
+header{border-bottom:1px solid var(--lijn);background:var(--wit)}
+header .wrap{display:flex;align-items:center;height:64px}
+header img{height:28px;display:block}
+main{padding:44px 0 80px}
+.lead{color:var(--grijs);margin-bottom:10px}
+.plekken{display:inline-block;background:#FDEEF4;color:#8A0044;border-radius:999px;padding:6px 14px;font-size:14.5px;font-weight:600;margin:6px 0 24px}
+.kaart{background:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:26px}
+label{display:block;font-size:14px;font-weight:600;margin:16px 0 5px}
+.opt{font-weight:400;color:var(--grijs)}
+input[type=text],input[type=email],textarea{width:100%;font:inherit;font-size:16px;padding:11px 13px;border:1.5px solid var(--lijn);border-radius:9px;background:var(--wit);color:var(--paars)}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus{outline:2px solid var(--magenta);outline-offset:1px;border-color:var(--magenta)}
+.pillen{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pillen label{margin:0;font-weight:400;font-size:15px;border:1.5px solid var(--lijn);border-radius:999px;padding:8px 14px;cursor:pointer;background:var(--wit)}
+.pillen input{position:absolute;opacity:0;pointer-events:none}
+.pillen label:has(input:checked){border-color:var(--magenta);background:#FDF5F9;color:var(--magenta);font-weight:600}
+.knop{display:inline-block;font:inherit;font-weight:600;font-size:16px;background:var(--magenta);color:#fff;border:0;border-radius:999px;padding:13px 28px;cursor:pointer;margin-top:24px;text-decoration:none}
+.knop:disabled{opacity:.45;cursor:not-allowed}
+.fout{background:#FDEEF4;border:1px solid #F3C6DB;color:#8A0044;border-radius:9px;padding:11px 14px;font-size:14.5px;margin-top:18px}
+.klein{font-size:14px;color:var(--grijs);margin-top:18px}
+ol.wat{margin:4px 0 26px 20px;color:var(--paars)}
+ol.wat li{margin:4px 0}
+footer{border-top:1px solid var(--lijn);padding:26px 0;font-size:13.5px;color:var(--grijs)}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a href="https://happly.nl"><img src="happly-logo.svg" alt="Happly"></a></div></header>
+
+<main class="wrap">
+  <section id="formulier-stap">
+    <h1>Ervaar het zelf, <em>in 15 minuten.</em></h1>
+    <p class="lead">Een gratis proefkwartier voor leidinggevenden, met Maarten Neeskens. Je gaat weg met:</p>
+    <ol class="wat">
+      <li>Wat jou nu het meest sterker maakt, voor jezelf en je team.</li>
+      <li>Eén ding dat je deze week anders doet.</li>
+      <li>Een zetje een week later, om te kijken hoe het ging.</li>
+    </ol>
+    <span class="plekken" id="plekken" hidden></span>
+
+    <form id="formulier" class="kaart" novalidate>
+      <label>Waar wil jij sterker in worden?</label>
+      <div class="pillen" id="pillen">
+        <label><input type="radio" name="doel" value="rust">Rust in je hoofd</label>
+        <label><input type="radio" name="doel" value="grip">Grip op je week</label>
+        <label><input type="radio" name="doel" value="gesprek">Het lastige gesprek</label>
+        <label><input type="radio" name="doel" value="energie">Energie over</label>
+        <label><input type="radio" name="doel" value="team">Een team dat oppakt</label>
+        <label><input type="radio" name="doel" value="steviger">Steviger staan</label>
+      </div>
+      <label for="toelichting">Wat speelt er nu? <span class="opt">(mag kort)</span></label>
+      <textarea id="toelichting" name="toelichting"></textarea>
+      <label for="naam">Je naam</label>
+      <input type="text" id="naam" name="naam" autocomplete="name" required>
+      <label for="email">E-mailadres</label>
+      <input type="email" id="email" name="email" autocomplete="email" required>
+      <label for="organisatie">Organisatie <span class="opt">(als je wilt)</span></label>
+      <input type="text" id="organisatie" name="organisatie" autocomplete="organization">
+      <div class="fout" id="fout" hidden></div>
+      <button class="knop" type="submit" id="verstuur">Kies je moment</button>
+      <p class="klein">Je kiest daarna zelf een moment in de agenda. Hoe we met je gegevens omgaan, lees je in de <a href="/privacy">privacyverklaring</a>.</p>
+    </form>
+  </section>
+
+  <section id="vol" hidden>
+    <h1>De proefkwartieren <em>zijn vergeven.</em></h1>
+    <p class="lead">Wil je toch beginnen? Doe het gratis Leidersbeeld, of meld je direct aan.</p>
+    <a class="knop" href="/leidersbeeld?src=proefkwartier_vol">Doe het gratis Leidersbeeld</a>
+    <p class="klein"><a href="/sterker-aanmelden?p=leider&amp;src=proefkwartier_vol">Meld je aan voor het programma voor leidinggevenden</a></p>
+  </section>
+</main>
+
+<footer><div class="wrap">Happly · Sterker op je werk · <a href="/privacy">Privacy</a></div></footer>
+
+<script>
+(function(){
+  var el = function(id){ return document.getElementById(id); };
+  var q = new URLSearchParams(location.search);
+  var start = q.get("doel");
+  if (start){ var r = document.querySelector('input[name="doel"][value="' + start.replace(/[^a-z]/g, "") + '"]'); if (r) r.checked = true; }
+
+  fetch("/api/proefkwartier").then(function(r){ return r.json(); }).then(function(d){
+    if (!d.open){ el("formulier-stap").hidden = true; el("vol").hidden = false; return; }
+    el("plekken").textContent = "Nog " + d.over + " van de " + d.totaal + " plekken in december";
+    el("plekken").hidden = false;
+  }).catch(function(){});
+
+  el("formulier").addEventListener("submit", function(e){
+    e.preventDefault();
+    var f = el("formulier"), knop = el("verstuur");
+    var doel = document.querySelector('input[name="doel"]:checked');
+    var invoer = { doel: doel ? doel.value : "", naam: f.elements.naam.value, email: f.elements.email.value,
+      organisatie: f.elements.organisatie.value, toelichting: f.elements.toelichting.value, t: q.get("t"), src: q.get("src") };
+    el("fout").hidden = true; knop.disabled = true; knop.textContent = "Een moment...";
+    fetch("/api/proefkwartier", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(invoer) })
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, status: r.status, d: d }; }); })
+      .then(function(u){
+        if (u.status === 409){ el("formulier-stap").hidden = true; el("vol").hidden = false; return; }
+        if (!u.ok) throw new Error(u.d.error || "Dat lukte niet.");
+        location.href = u.d.cal;
+      })
+      .catch(function(err){ el("fout").textContent = err.message; el("fout").hidden = false; knop.disabled = false; knop.textContent = "Kies je moment"; });
+  });
+})();
+</script>
+</body>
+</html>
