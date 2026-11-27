@@ -25,7 +25,7 @@ test("de site gaat over één product: Sterker op je werk in 15 minuten per week
   }
   const menu = HTML.split('<ul class="menu">')[1].split("</ul>")[0];
   const ankers = [...menu.matchAll(/href="#([a-z-]+)"/g)].map(m => m[1]);
-  assert.deepEqual(ankers, ["mensen", "leider", "meedoen", "investering", "over"], "het menu klopt niet");
+  assert.deepEqual(ankers, ["mensen", "leider", "meedoen", "investering", "vragen", "over"], "het menu klopt niet");
 });
 
 test("de pay-off hoort niet meer bij happly.nl", () => {
